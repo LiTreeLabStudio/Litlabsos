@@ -25,12 +25,12 @@ export async function middleware(request: {
 
   const token = request.cookies.get("auth-token")?.value;
   if (!token) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
   }
 
   const payload = await verifyToken(token);
   if (!payload) {
-    const res = NextResponse.redirect(new URL("/login", request.url));
+    const res = NextResponse.redirect(new URL("/login", request.nextUrl.origin));
     res.cookies.delete("auth-token");
     return res;
   }

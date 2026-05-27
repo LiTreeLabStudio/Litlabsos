@@ -26,11 +26,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .catch(() => setLoading(false));
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (email: string, password: string, days?: number) => {
     const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password, rememberMe: (days ?? 7) > 7 }),
     });
     if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
     const data = await res.json();

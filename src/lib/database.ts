@@ -151,7 +151,15 @@ export async function getDatabase(): Promise<Database> {
 
   initPromise = (async () => {
     try {
-      const SQL = await initSqlJs();
+      // Resolve WASM path — works on Vercel serverless and locally
+      const wasmPath = path.resolve(
+        __dirname,
+        "../../node_modules/sql.js/dist/sql-wasm.wasm"
+      );
+
+      const SQL = await initSqlJs({
+        locateFile: () => wasmPath,
+      });
 
       if (!existsSync(DB_DIR)) {
         mkdirSync(DB_DIR, { recursive: true });

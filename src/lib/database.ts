@@ -191,18 +191,16 @@ export async function initDatabase(): Promise<Database> {
 
     if (count === 0 && ADMIN_EMAIL && ADMIN_PASSWORD_HASH) {
       const adminId = crypto.randomUUID();
-      const stmt = db.prepare(
-        "INSERT INTO users (id, email, password_hash, name, plan) VALUES (?, ?, ?, ?, ?)"
+      db.run(
+        "INSERT INTO users (id, email, password_hash, name, plan) VALUES (?, ?, ?, ?, ?)",
+        [adminId, ADMIN_EMAIL, ADMIN_PASSWORD_HASH, ADMIN_NAME, "admin"]
       );
-      stmt.run([adminId, ADMIN_EMAIL, ADMIN_PASSWORD_HASH, ADMIN_NAME, "admin"]);
-      stmt.free();
 
       // Create default preferences for admin
-      const prefStmt = db.prepare(
-        "INSERT INTO preferences (user_id) VALUES (?)"
+      db.run(
+        "INSERT INTO preferences (user_id) VALUES (?)",
+        [adminId]
       );
-      prefStmt.run([adminId]);
-      prefStmt.free();
 
       saveDatabase(db);
     }
@@ -264,18 +262,16 @@ export async function createUser({
   const db = await getDatabase();
   try {
     const id = crypto.randomUUID();
-    const stmt = db.prepare(
-      "INSERT INTO users (id, email, password_hash, name) VALUES (?, ?, ?, ?)"
+    db.run(
+      "INSERT INTO users (id, email, password_hash, name) VALUES (?, ?, ?, ?)",
+      [id, email, passwordHash, name ?? null]
     );
-    stmt.run([id, email, passwordHash, name ?? null]);
-    stmt.free();
 
     // Create default preferences
-    const prefStmt = db.prepare(
-      "INSERT INTO preferences (user_id) VALUES (?)"
+    db.run(
+      "INSERT INTO preferences (user_id) VALUES (?)",
+      [id]
     );
-    prefStmt.run([id]);
-    prefStmt.free();
 
     saveDatabase(db);
 
@@ -320,10 +316,7 @@ export async function updateUser(
     values.push(id);
 
     const sql = `UPDATE users SET ${sets.join(", ")} WHERE id = ?`;
-    const stmt = db.prepare(sql);
-    stmt.run(values);
-    stmt.free();
-
+    db.run(sql, values);
     saveDatabase(db);
   } catch (err) {
     const msg = (err as Error)?.message || "Unknown";
@@ -341,11 +334,10 @@ export async function createSession(
   const db = await getDatabase();
   try {
     const id = crypto.randomUUID();
-    const stmt = db.prepare(
-      "INSERT INTO sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)"
+    db.run(
+      "INSERT INTO sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)",
+      [id, userId, token, expiresAt]
     );
-    stmt.run([id, userId, token, expiresAt]);
-    stmt.free();
     saveDatabase(db);
   } catch (err) {
     const msg = (err as Error)?.message || "Unknown";
@@ -376,9 +368,7 @@ export async function getSessionByToken(token: string): Promise<Session | null> 
 export async function deleteSession(token: string): Promise<void> {
   const db = await getDatabase();
   try {
-    const stmt = db.prepare("DELETE FROM sessions WHERE token = ?");
-    stmt.run([token]);
-    stmt.free();
+    db.run("DELETE FROM sessions WHERE token = ?", [token]);
     saveDatabase(db);
   } catch (err) {
     const msg = (err as Error)?.message || "Unknown";
@@ -451,17 +441,12 @@ export async function updatePreferences(
     if (existing.length > 0 && existing[0].values.length > 0) {
       values.push(userId);
       const sql = `UPDATE preferences SET ${sets.join(", ")} WHERE user_id = ?`;
-      const stmt = db.prepare(sql);
-      stmt.run(values);
-
-      stmt.free();
+      db.run(sql, values);
     } else {
       const allCols = ["user_id", ...sets.map((s) => s.split(" = ")[0])];
       const placeholders = allCols.map(() => "?").join(", ");
       const insertSql = `INSERT INTO preferences (${allCols.join(", ")}) VALUES (${placeholders})`;
-      const stmt = db.prepare(insertSql);
-      stmt.run([userId, ...values]);
-      stmt.free();
+      db.run(insertSql, [userId, ...values]);
     }
 
     saveDatabase(db);

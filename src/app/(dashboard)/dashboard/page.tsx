@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
+import JobQueueMonitor from "@/components/JobQueueMonitor";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -16,12 +17,15 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="font-heading text-2xl font-bold mb-1">
-          Welcome back, <span className="text-neon-cyan">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
-        </h1>
-        <p className="text-text-secondary">Your AI workspace is ready.</p>
+      {/* Welcome & Monitor Grid */}
+      <div className="grid md:grid-cols-3 gap-8 mb-10">
+        <div className="md:col-span-2">
+           <h1 className="font-heading text-2xl font-bold mb-1">
+             Welcome back, <span className="text-neon-cyan">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
+           </h1>
+           <p className="text-text-secondary">Your AI workspace is ready.</p>
+        </div>
+        <JobQueueMonitor />
       </div>
 
       {/* Quick Actions */}
@@ -31,33 +35,33 @@ export default function DashboardPage() {
           <Link
             key={a.href}
             href={a.href}
-            className="card group"
+            className="glass-panel group"
           >
             <div className="text-2xl mb-2">{a.icon}</div>
             <div className="text-sm font-semibold group-hover:text-neon-cyan transition-colors">{a.title}</div>
-            <div className="text-xs text-text-muted">{a.desc}</div>
+            <div className="text-xs text-text-secondary">{a.desc}</div>
           </Link>
         ))}
       </div>
 
       {/* Get Started */}
-      <div className="card bg-gradient-to-br from-neon-cyan/5 to-neon-purple/5 border-neon-cyan/20">
+      <div className="glass-panel border-neon-cyan/20">
         <h2 className="font-heading text-lg font-semibold mb-2">🚀 Get Started</h2>
         <p className="text-text-secondary text-sm mb-4">
           New to LitLabs? Here&apos;s how to get the most out of your AI workspace.
         </p>
         <div className="grid sm:grid-cols-3 gap-4">
-          <div className="bg-cyber-surface-2 rounded-lg p-4">
+          <div className="bg-black/20 rounded-lg p-4 border border-white/5">
             <div className="text-neon-cyan font-code text-lg mb-1">01</div>
             <div className="font-medium text-sm mb-1">Chat with Agents</div>
             <p className="text-xs text-text-muted">Try the floating chat bubble or visit the Agent Gallery to talk to pre-built AI agents.</p>
           </div>
-          <div className="bg-cyber-surface-2 rounded-lg p-4">
+          <div className="bg-black/20 rounded-lg p-4 border border-white/5">
             <div className="text-neon-purple font-code text-lg mb-1">02</div>
             <div className="font-medium text-sm mb-1">Build Your Own</div>
             <p className="text-xs text-text-muted">Use the Bot Builder to create a custom agent. Set its personality, skills, and deploy.</p>
           </div>
-          <div className="bg-cyber-surface-2 rounded-lg p-4">
+          <div className="bg-black/20 rounded-lg p-4 border border-white/5">
             <div className="text-neon-gold font-code text-lg mb-1">03</div>
             <div className="font-medium text-sm mb-1">Join the Community</div>
             <p className="text-xs text-text-muted">Share wins, post in Social Hub, and enter agents in weekly Arena challenges.</p>

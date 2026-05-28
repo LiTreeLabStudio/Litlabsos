@@ -151,6 +151,7 @@ export default function ChatWidget() {
         data?.output ||
         data?.message ||
         JSON.stringify(data);
+      if (data?.error) throw new Error(data.detail || data.error);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: String(reply), ts: Date.now() },
@@ -161,7 +162,7 @@ export default function ChatWidget() {
         ...prev,
         {
           role: "assistant",
-          content: "Backend unreachable. Make sure n8n is running and the /chat webhook is set up.",
+          content: "Chat temporarily unavailable. The AI service may be rate-limited or offline.",
           ts: Date.now(),
         },
       ]);

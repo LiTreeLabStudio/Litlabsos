@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 export default function JobQueueMonitor() {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<{ id: string; theme: string; director_prompt: string; status: string }[]>([]);
 
   useEffect(() => {
     const fetchQueue = async () => {

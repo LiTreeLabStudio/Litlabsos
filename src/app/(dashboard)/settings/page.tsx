@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 /* ─── Types ─── */
@@ -50,12 +50,6 @@ const INTEGRATIONS = [
 ];
 
 /* ─── Helpers ─── */
-function getInitial(name?: string | null, email?: string): string {
-  if (name) return name.charAt(0).toUpperCase();
-  if (email) return email.charAt(0).toUpperCase();
-  return "?";
-}
-
 function formatDate(dateStr?: string): string {
   if (!dateStr) return "Unknown";
   try {
@@ -74,14 +68,11 @@ export default function SettingsPage() {
   const { user, logout } = useAuth();
 
   /* ── Hash-based section navigation ── */
-  const [activeSection, setActiveSection] = useState<Section>("overview");
-
-  useEffect(() => {
+  const [activeSection, setActiveSection] = useState<Section>(() => {
+    if (typeof window === "undefined") return "overview";
     const hash = window.location.hash.replace("#", "") as Section;
-    if (SECTIONS.some((s) => s.id === hash)) {
-      setActiveSection(hash);
-    }
-  }, []);
+    return SECTIONS.some((s) => s.id === hash) ? (hash as Section) : "overview";
+  });
 
   const navigateTo = useCallback((section: Section) => {
     setActiveSection(section);
@@ -98,13 +89,16 @@ export default function SettingsPage() {
 
   /* ── Profile state ── */
   const [displayName, setDisplayName] = useState(user?.name || "");
+  const [prevUserName, setPrevUserName] = useState(user?.name);
   const [avatarEmoji, setAvatarEmoji] = useState("🤖");
   const [bio, setBio] = useState("");
   const [profileSaving, setProfileSaving] = useState(false);
 
-  useEffect(() => {
+  // Sync display name if user name changes (React 19 pattern to avoid useEffect)
+  if (user?.name !== prevUserName) {
+    setPrevUserName(user?.name);
     setDisplayName(user?.name || "");
-  }, [user?.name]);
+  }
 
   async function handleSaveProfile() {
     setProfileSaving(true);

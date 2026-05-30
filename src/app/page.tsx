@@ -16,7 +16,7 @@ export default function Home() {
           </ul>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm text-text-secondary hover:text-neon-cyan transition-colors">Sign In</Link>
-            <Link href="/register" className="btn-primary text-sm">Get Started</Link>
+            <Link href="/login" className="btn-primary text-sm">Get Started</Link>
           </div>
         </div>
       </nav>
@@ -49,7 +49,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link href="/register" className="btn-primary text-lg px-8 py-3">
+            <Link href="/login" className="btn-primary text-lg px-8 py-3">
               Start Building Free →
             </Link>
             <Link href="/gallery" className="btn-secondary text-lg px-8 py-3">
@@ -243,7 +243,7 @@ export default function Home() {
                 <li>✓ Browse marketplace</li>
                 <li>✓ Social hub access</li>
               </ul>
-              <Link href="/register" className="btn-secondary w-full text-center block">
+              <Link href="/login" className="btn-secondary w-full text-center block">
                 Get Started
               </Link>
             </div>
@@ -263,7 +263,7 @@ export default function Home() {
                 <li>✓ Priority support</li>
                 <li>✓ API access</li>
               </ul>
-              <Link href="/register" className="btn-primary w-full text-center block">
+              <Link href="/login" className="btn-primary w-full text-center block">
                 Start Pro Trial
               </Link>
             </div>
@@ -297,7 +297,7 @@ export default function Home() {
           <p className="mb-8 text-text-secondary">
             Join the platform where humans and AI build the future together.
           </p>
-          <Link href="/register" className="btn-primary text-lg px-10 py-4">
+          <Link href="/login" className="btn-primary text-lg px-10 py-4">
             Join LitLabs Free →
           </Link>
         </div>

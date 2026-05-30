@@ -10,8 +10,8 @@ const AGENTS = [
 ];
 
 export default function AgentChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: AGENTS[0].greeting, ts: Date.now() },
+  const [messages, setMessages] = useState<Message[]>(() => [
+    { role: "assistant", content: AGENTS[0].greeting, ts: 1735689600000 },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -53,12 +53,13 @@ export default function AgentChatPage() {
     }
   }
 
-  function switchAgent(idx: number) {
+  const switchAgent = useCallback((idx: number) => {
+    const now = Date.now();
     setActiveAgent(idx);
     setMessages([
-      { role: "assistant", content: AGENTS[idx].greeting, ts: Date.now() },
+      { role: "assistant", content: AGENTS[idx].greeting, ts: now },
     ]);
-  }
+  }, []);
 
   const agent = AGENTS[activeAgent];
 

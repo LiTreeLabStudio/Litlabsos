@@ -11,7 +11,13 @@ const NAV_ITEMS = [
   { href: "/social", label: "Social", icon: "👥" },
 ];
 
-export default function Navbar({ user }: { user?: any }) {
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
+export default function Navbar({ user }: { user?: User | null }) {
   const pathname = usePathname();
 
   return (

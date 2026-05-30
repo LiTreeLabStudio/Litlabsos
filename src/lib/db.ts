@@ -29,24 +29,3 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return null;
 }
 
-export async function createUserFromRegister(
-  email: string,
-  password: string,
-  name?: string
-): Promise<User> {
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
-  const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "";
-
-  // If admin env vars are set, only allow that email
-  if (ADMIN_EMAIL && ADMIN_PASSWORD_HASH) {
-    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      throw new Error("Registration is closed");
-    }
-    // Admin already exists, just return the admin user
-    return { id: "admin", email: ADMIN_EMAIL, name: name || process.env.ADMIN_NAME || "Admin" };
-  }
-
-  // No admin configured yet — create one from registration
-  // (This path is for initial setup without env vars)
-  throw new Error("Set ADMIN_EMAIL and ADMIN_PASSWORD_HASH in Vercel environment variables first");
-}

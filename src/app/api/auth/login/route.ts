@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   // For JSON requests, return JSON with cookie
   const res = isJson
     ? NextResponse.json({
-        user: { id: user.id, email: user.email, name: user.name },
+        user: { id: user.id, email: user.email, name: user.name || null },
       })
     : NextResponse.redirect(new URL("/dashboard", req.url));
 

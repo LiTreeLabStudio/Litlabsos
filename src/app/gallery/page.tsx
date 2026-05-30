@@ -119,7 +119,7 @@ export default function GalleryPage() {
             <Link href="/login" className="text-sm text-text-secondary hover:text-neon-cyan transition-colors">
               Sign In
             </Link>
-            <Link href="/register" className="btn-primary text-sm">Get Started</Link>
+            <Link href="/login" className="btn-primary text-sm">Get Started</Link>
           </div>
         </div>
       </nav>
@@ -237,7 +237,7 @@ export default function GalleryPage() {
               >
                 Chat Now →
               </Link>
-              <Link href="/register" className="btn-secondary flex-1 text-center">
+              <Link href="/login" className="btn-secondary flex-1 text-center">
                 Build Copy
               </Link>
             </div>

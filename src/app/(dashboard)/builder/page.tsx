@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 
 const STEPS = ["Identity", "Personality", "Skills", "Review"];
 
@@ -23,7 +22,6 @@ const SKILLS = [
 ];
 
 export default function BuilderPage() {
-  const { user } = useAuth();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");

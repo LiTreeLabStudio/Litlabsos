@@ -4,10 +4,7 @@ import { verifyToken } from "./src/lib/jwt";
 const PUBLIC_PATHS = [
   "/",
   "/login",
-  "/register",
   "/api/auth",
-  "/api/chat",
-  "/api/settings",
   "/gallery",
 ];
 

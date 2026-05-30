@@ -23,9 +23,9 @@ export default async function DashboardLayout({
   }
 
   const user = {
-    id: payload.id as string,
-    email: payload.email as string,
-    name: payload.name as string | null,
+    id: (payload.id as string) || "",
+    email: (payload.email as string) || "",
+    name: (payload.name as string) || null,
   };
 
   return (

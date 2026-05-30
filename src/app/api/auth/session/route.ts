@@ -10,9 +10,9 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     user: {
-      id: payload.id,
-      email: payload.email,
-      name: payload.name,
+      id: payload.id as string,
+      email: payload.email as string,
+      name: (payload.name as string) || null,
     },
   });
 }

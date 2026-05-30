@@ -49,36 +49,42 @@ const N8N_WEBHOOK = "/api/chat";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [activeAgent, setActiveAgent] = useState(0);
-  const [showPicker, setShowPicker] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load saved
-  useEffect(() => {
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === "undefined") return [];
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setMessages(parsed);
-        }
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
+    } catch { /* ignore */ }
+    return [{
+      role: "assistant",
+      content: AGENTS[0].greeting,
+      ts: 1735689600000, // Stable initial timestamp
+    }];
+  });
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [activeAgent, setActiveAgent] = useState(() => {
+    if (typeof window === "undefined") return 0;
+    try {
       const savedAgent = localStorage.getItem(AGENT_KEY);
       if (savedAgent) {
         const idx = parseInt(savedAgent, 10);
-        if (idx >= 0 && idx < AGENTS.length) setActiveAgent(idx);
+        if (idx >= 0 && idx < AGENTS.length) return idx;
       }
-    } catch {
-      // ignore
-    }
-  }, []);
+    } catch { /* ignore */ }
+    return 0;
+  });
+  const [showPicker, setShowPicker] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Save
+  // Load saved state handled by lazy initializers
+
+  // Save state on change
   useEffect(() => {
     if (messages.length > 0) {
       try {
@@ -89,25 +95,12 @@ export default function ChatWidget() {
     }
   }, [messages]);
 
-  // Default greeting
-  useEffect(() => {
-    if (messages.length === 0) {
-      setMessages([
-        {
-          role: "assistant",
-          content: AGENTS[activeAgent].greeting,
-          ts: Date.now(),
-        },
-      ]);
-    }
-  }, [activeAgent, messages.length]);
-
-  // Scroll
+  // Scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
 
-  // Focus
+  // Focus input when opened
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);

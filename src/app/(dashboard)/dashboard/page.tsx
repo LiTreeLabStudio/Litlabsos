@@ -1,11 +1,8 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import JobQueueMonitor from "@/components/JobQueueMonitor";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
-
   const quickActions = [
     { href: "/agent-chat", icon: "⚡", title: "AI Chat", desc: "Talk to any agent", color: "cyan" },
     { href: "/marketplace", icon: "🔧", title: "Bot Forge", desc: "Browse agents", color: "purple" },
@@ -17,26 +14,20 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Welcome & Monitor Grid */}
       <div className="grid md:grid-cols-3 gap-8 mb-10">
         <div className="md:col-span-2">
-           <h1 className="font-heading text-2xl font-bold mb-1">
-             Welcome back, <span className="text-neon-cyan">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
-           </h1>
-           <p className="text-text-secondary">Your AI workspace is ready.</p>
+          <h1 className="font-heading text-2xl font-bold mb-1">
+            Welcome back, <span className="text-neon-cyan">Builder</span>
+          </h1>
+          <p className="text-text-secondary">Your AI workspace is ready.</p>
         </div>
         <JobQueueMonitor />
       </div>
 
-      {/* Quick Actions */}
       <h2 className="font-heading text-lg font-semibold mb-4">Quick Actions</h2>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
         {quickActions.map((a) => (
-          <Link
-            key={a.href}
-            href={a.href}
-            className="glass-panel group"
-          >
+          <Link key={a.href} href={a.href} className="glass-panel group">
             <div className="text-2xl mb-2">{a.icon}</div>
             <div className="text-sm font-semibold group-hover:text-neon-cyan transition-colors">{a.title}</div>
             <div className="text-xs text-text-secondary">{a.desc}</div>
@@ -44,7 +35,6 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Get Started */}
       <div className="glass-panel border-neon-cyan/20">
         <h2 className="font-heading text-lg font-semibold mb-2">🚀 Get Started</h2>
         <p className="text-text-secondary text-sm mb-4">

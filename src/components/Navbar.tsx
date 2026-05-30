@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { href: "/social", label: "Social", icon: "👥" },
 ];
 
-export default function Navbar({ onLogout, user }: { onLogout: () => void; user?: any }) {
+export default function Navbar({ user }: { user?: any }) {
   const pathname = usePathname();
 
   return (
@@ -38,9 +38,11 @@ export default function Navbar({ onLogout, user }: { onLogout: () => void; user?
         </ul>
         <div className="flex items-center gap-4">
           <span className="text-xs text-text-muted hidden sm:block font-code tracking-wider uppercase">{user?.name || user?.email?.split("@")[0]}</span>
-          <button onClick={onLogout} className="text-[10px] text-text-muted hover:text-red-400 transition-colors font-code tracking-widest uppercase">
-            Logout
-          </button>
+          <form action="/api/auth/logout" method="POST">
+            <button type="submit" className="text-[10px] text-text-muted hover:text-red-400 transition-colors font-code tracking-widest uppercase">
+              Logout
+            </button>
+          </form>
         </div>
       </div>
       {/* Mobile nav */}
@@ -48,10 +50,10 @@ export default function Navbar({ onLogout, user }: { onLogout: () => void; user?
         {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
-            href={item.href}
             className={`whitespace-nowrap rounded-lg px-4 py-1.5 text-xs font-medium transition-colors ${
               pathname === item.href ? "text-neon-cyan bg-white/10" : "text-text-secondary"
             }`}
+            href={item.href}
           >
             {item.icon} {item.label}
           </Link>

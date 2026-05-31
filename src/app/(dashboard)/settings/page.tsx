@@ -643,6 +643,8 @@ export default function SettingsPage() {
                 <p className="text-text-secondary text-sm font-medium mb-6">
                   Receive agent events and system telemetry on your own external endpoint.
                 </p>
+              </div>
+
               {/* Integrations */}
               <div className="card p-8">
                 <div className="flex items-center gap-3 mb-10">

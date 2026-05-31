@@ -643,14 +643,6 @@ export default function SettingsPage() {
                 <p className="text-text-secondary text-sm font-medium mb-6">
                   Receive agent events and system telemetry on your own external endpoint.
                 </p>
-                <input
-                  className="input font-code text-xs"
-                  value={customWebhookUrl}
-                  onChange={(e) => setCustomWebhookUrl(e.target.value)}
-                  placeholder="https://your-server.com/api/webhook"
-                />
-              </div>
-
               {/* Integrations */}
               <div className="card p-8">
                 <div className="flex items-center gap-3 mb-10">

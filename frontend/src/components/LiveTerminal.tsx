@@ -29,7 +29,7 @@ export default function LiveTerminal({ sessionId }: { sessionId: string }) {
           table: "logs",
           filter: `session_id=eq.${sessionId}`,
         },
-        (payload) => {
+        (payload: { new: any }) => {
           setLogs((prev) => [...prev, payload.new]);
         }
       )

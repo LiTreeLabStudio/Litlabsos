@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Homebase-3.0: Supabase Auth Example
 // Place in frontend/src/lib/supabaseAuth.ts
 

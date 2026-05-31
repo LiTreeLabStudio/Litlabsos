@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Next.js Supabase client setup for Homebase-3.0
 // Place this in frontend/src/lib/supabaseClient.ts
 

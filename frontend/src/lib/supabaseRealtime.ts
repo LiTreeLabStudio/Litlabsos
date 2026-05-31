@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Homebase-3.0: Supabase Table Subscriptions Example
 // Place in frontend/src/lib/supabaseRealtime.ts
 

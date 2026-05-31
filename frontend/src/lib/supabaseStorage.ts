@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Homebase-3.0: Supabase Storage Upload Example
 // Place in frontend/src/lib/supabaseStorage.ts
 

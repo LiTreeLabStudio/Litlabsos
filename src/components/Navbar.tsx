@@ -28,7 +28,7 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link href={user ? "/dashboard" : "/"} className="text-xl font-extrabold tracking-tight text-white">
-          lit<span className="text-blue-500">labs</span>
+          lit<span className="text-brand-orange">labs</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -60,7 +60,7 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
                 href="/settings"
                 className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 hover:bg-white/5 transition-colors"
               >
-                <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-r from-brand-orange to-brand-magenta flex items-center justify-center text-white text-xs font-bold">
                   {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
                 </div>
                 <span className="text-sm font-medium text-zinc-300 hidden sm:block">
@@ -74,7 +74,7 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
               </form>
             </div>
           ) : (
-            <Link href="/login" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-colors">
+            <Link href="/login" className="rounded-lg bg-gradient-to-r from-brand-orange to-brand-magenta px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-colors">
               Sign In
             </Link>
           )}

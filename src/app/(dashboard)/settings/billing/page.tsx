@@ -70,7 +70,7 @@ const TIERS: PricingTier[] = [
 
 function CheckIcon() {
   return (
-    <svg className="w-4 h-4 text-neon-cyan shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+    <svg className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
     </svg>
   );
@@ -133,7 +133,7 @@ export default function BillingPage() {
     <div className="max-w-6xl mx-auto pb-20">
       {/* Header */}
       <div className="text-center mb-12 pt-4">
-        <div className="text-[10px] font-bold text-neon-cyan tracking-[0.3em] uppercase mb-2">
+        <div className="text-[10px] font-bold text-brand-orange tracking-[0.3em] uppercase mb-2">
           Choose Your Tier
         </div>
         <h1 className="font-heading text-3xl sm:text-4xl font-bold mb-3">
@@ -151,7 +151,7 @@ export default function BillingPage() {
             onClick={() => setBillingPeriod("monthly")}
             className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
               billingPeriod === "monthly"
-                ? "bg-neon-cyan text-cyber-bg"
+                ? "bg-brand-orange text-cyber-bg"
                 : "text-text-secondary hover:text-white"
             }`}
           >
@@ -161,7 +161,7 @@ export default function BillingPage() {
             onClick={() => setBillingPeriod("yearly")}
             className={`px-5 py-2 rounded-lg text-sm font-medium transition-all ${
               billingPeriod === "yearly"
-                ? "bg-neon-cyan text-cyber-bg"
+                ? "bg-brand-orange text-cyber-bg"
                 : "text-text-secondary hover:text-white"
             }`}
           >

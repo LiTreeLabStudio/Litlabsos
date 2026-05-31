@@ -16,7 +16,7 @@ export default async function LoginPage({
         {/* Logo */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold tracking-tight text-white mb-1">
-            lit<span className="text-blue-500">labs</span>
+            lit<span className="text-brand-orange">labs</span>
           </h1>
           <p className="text-sm text-zinc-500">Build AI Agents</p>
         </div>
@@ -62,7 +62,7 @@ export default async function LoginPage({
               />
             </div>
 
-            <button type="submit" className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors">
+            <button type="submit" className="w-full rounded-lg bg-gradient-to-r from-brand-orange to-brand-magenta py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-colors">
               Sign In
             </button>
           </form>

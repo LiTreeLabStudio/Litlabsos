@@ -137,7 +137,7 @@ export default function GalleryPage() {
                 onClick={() => setActive(cat)}
                 className={`shrink-0 rounded-lg px-4 py-2 text-xs font-semibold transition-colors ${
                   active === cat
-                    ? "bg-blue-600 text-white"
+                    ? "bg-gradient-to-r from-brand-orange to-brand-magenta text-white"
                     : "bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white"
                 }`}
               >
@@ -216,8 +216,8 @@ export default function GalleryPage() {
                 <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2">What it does</div>
                 <p className="text-sm text-zinc-300 leading-relaxed">{selected.desc}</p>
               </div>
-              <div className="rounded-xl bg-blue-500/5 border border-blue-500/10 p-4">
-                <div className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Personality</div>
+              <div className="rounded-xl bg-brand-orange/5 border border-brand-orange/10 p-4">
+                <div className="text-xs font-semibold text-brand-orange uppercase tracking-wider mb-2">Personality</div>
                 <p className="text-sm text-white italic">&ldquo;{selected.personality}&rdquo;</p>
               </div>
               <div className="grid grid-cols-3 gap-3 text-center text-xs">

@@ -13,7 +13,7 @@ const GALLERY_AGENTS = [
     id: "code-champion",
     name: "Code Champion",
     emoji: "👨‍💻",
-    greeting: "Code Champion online. Transmit your technical problem or architecture idea. How can I help you build today?",
+    greeting: "Code Champion online. What are we building today? or architecture idea. How can I help you build today?",
   },
   {
     id: "social-dominator",
@@ -25,13 +25,13 @@ const GALLERY_AGENTS = [
     id: "data-slayer",
     name: "Data Slayer",
     emoji: "📊",
-    greeting: "Data Slayer initialized. Transmit your dataset or analytical problem. I'll extract the insights you need.",
+    greeting: "Data Slayer initialized. Share your data or analytical problem. I'll extract the insights you need.",
   },
   {
     id: "writing-coach",
     name: "Writing Coach",
     emoji: "✍️",
-    greeting: "Neural link established. Ready to refine your linguistic output. What are we working on?",
+    greeting: "Ready to help. Ready to refine your linguistic output. What are we working on?",
   },
   {
     id: "support-agent",
@@ -43,7 +43,7 @@ const GALLERY_AGENTS = [
     id: "trading-bot",
     name: "Trading Oracle",
     emoji: "📈",
-    greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate.",
+    greeting: "Market analysis node online. What should I evaluate? or sector you want me to evaluate.",
   },
 ];
 
@@ -85,7 +85,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
         ...p,
         {
           role: "assistant",
-          content: "Error: Neural Link Interrupted. Check backend connectivity.",
+          content: "Error: AI Response Interrupted. Check backend connectivity.",
         },
       ]);
     } finally {
@@ -94,19 +94,19 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
   };
 
   return (
-    <div className="min-h-screen bg-cyber-bg flex flex-col selection:bg-neon-cyan/30">
+    <div className="min-h-screen bg-brand-dark flex flex-col selection:bg-brand-orange/30">
       <Navbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto flex flex-col p-4 sm:p-6 lg:py-10">
         {/* Agent Info Header */}
         <div className="flex items-center justify-between gap-4 p-4 sm:p-6 glass-panel rounded-2xl border-white/5 mb-6">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center text-2xl sm:text-4xl shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-brand-orange/10 border border-brand-orange/30 flex items-center justify-center text-2xl sm:text-4xl shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]">
               {agent.emoji}
             </div>
             <div className="min-w-0">
-              <div className="text-[10px] sm:text-xs font-bold text-neon-cyan tracking-[0.3em] uppercase mb-1">
-                Active_Deployment
+              <div className="text-[10px] sm:text-xs font-bold text-brand-orange tracking-[0.3em] uppercase mb-1">
+                Active Agent
               </div>
               <h1 className="text-xl sm:text-2xl font-bold text-text-primary uppercase tracking-tight truncate">
                 {agent.name}
@@ -115,10 +115,10 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
           </div>
           <div className="hidden sm:block text-right">
             <div className="text-[10px] font-bold text-text-muted tracking-widest uppercase opacity-40">
-              Node_v3.0.4
+              v3.0
             </div>
             <div className="text-[10px] font-bold text-green-400 tracking-widest uppercase mt-1">
-              ● STATUS_ONLINE
+              ● Online
             </div>
           </div>
         </div>
@@ -135,16 +135,16 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
                 <div
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-sm sm:text-base leading-relaxed ${
                     m.role === "user"
-                      ? "bg-neon-cyan text-cyber-bg rounded-br-sm font-bold shadow-[0_0_20px_rgba(0,242,254,0.1)]"
+                      ? "bg-brand-orange text-cyber-bg rounded-br-sm font-bold shadow-[0_0_20px_rgba(0,242,254,0.1)]"
                       : "bg-white/[0.03] border border-white/10 text-text-primary rounded-tl-sm backdrop-blur-md"
                   }`}
                 >
                   {m.role === "assistant" && (
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">
+                      <span className="text-[10px] font-bold text-brand-orange tracking-[0.2em] uppercase">
                         {agent.name}
                       </span>
-                      <div className="h-px flex-1 bg-neon-cyan/20" />
+                      <div className="h-px flex-1 bg-brand-orange/20" />
                     </div>
                   )}
                   <div className="whitespace-pre-wrap break-words">{m.content}</div>
@@ -155,19 +155,19 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
               <div className="flex justify-start animate-in fade-in duration-300">
                 <div className="bg-white/[0.03] border border-white/10 rounded-2xl rounded-tl-sm p-4 min-w-[140px]">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">
-                      Neural_Link
+                    <span className="text-[10px] font-bold text-brand-orange tracking-[0.2em] uppercase">
+                      AI Response
                     </span>
-                    <div className="h-px flex-1 bg-neon-cyan/20" />
+                    <div className="h-px flex-1 bg-brand-orange/20" />
                   </div>
                   <div className="flex items-center gap-3 text-text-muted">
                     <span className="inline-flex gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-bounce" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-bounce [animation-delay:0.2s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-bounce [animation-delay:0.4s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce [animation-delay:0.2s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-orange animate-bounce [animation-delay:0.4s]" />
                     </span>
                     <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">
-                      Transmitting...
+                      Thinking...
                     </span>
                   </div>
                 </div>
@@ -184,10 +184,10 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
             }}
             className="p-4 sm:p-6 bg-black/40 border-t border-white/5"
           >
-            <div className="flex gap-2 items-center bg-black/60 rounded-2xl border border-white/10 p-1.5 sm:p-2 focus-within:border-neon-cyan/40 transition-all duration-300 shadow-inner">
+            <div className="flex gap-2 items-center bg-black/60 rounded-2xl border border-white/10 p-1.5 sm:p-2 focus-within:border-brand-orange/40 transition-all duration-300 shadow-inner">
               <input
                 className="flex-1 bg-transparent border-none px-4 py-2.5 sm:py-3 text-sm sm:text-base text-text-primary outline-none placeholder:text-text-muted font-medium"
-                placeholder={`Initialize command sequence for ${agent.name.split(" ")[0]}...`}
+                placeholder={`Message for ${agent.name.split(" ")[0]}...`}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 disabled={loading}
@@ -195,7 +195,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl bg-neon-cyan text-cyber-bg hover:scale-105 active:scale-95 transition-all disabled:opacity-20 disabled:grayscale shadow-[0_0_20px_rgba(0,242,254,0.2)] shrink-0"
+                className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-xl bg-brand-orange text-cyber-bg hover:scale-105 active:scale-95 transition-all disabled:opacity-20 disabled:grayscale shadow-[0_0_20px_rgba(0,242,254,0.2)] shrink-0"
               >
                 <svg
                   className="w-5 h-5 sm:w-6 sm:h-6 rotate-90"

@@ -47,7 +47,7 @@ export default function JobQueueMonitor() {
                   <span className="w-1 h-1 rounded-full bg-neon-cyan" />
                   <p className="text-[10px] font-bold text-white uppercase tracking-tight truncate">{job.theme}</p>
                 </div>
-                <p className="text-[9px] text-text-muted font-code truncate max-w-[180px] opacity-60">ID_{job.id.slice(0,8)} // {job.director_prompt}</p>
+                <p className="text-[9px] text-text-muted font-code truncate max-w-[180px] opacity-60">ID_{job.id.slice(0,8)}{" // "}{job.director_prompt}</p>
               </div>
               <div className={`text-[9px] px-2.5 py-1 rounded-lg font-bold tracking-widest transition-all ${
                 job.status === 'COMPLETED' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :

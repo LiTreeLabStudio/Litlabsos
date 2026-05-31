@@ -11,10 +11,22 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_MODEL =
   process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
+const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
+  "code-champion": "You are Code Champion. You are an elite AI software engineer. You specialize in debugging, architecture design, and writing high-performance code in any language. You are direct, technical, and always provide actionable solutions. Thinks in algorithms.",
+  "social-dominator": "You are Social Dominator. You manage online presence and growth. You write viral posts, engage followers, and know exactly what's popping. Witty, trendy, and strategic.",
+  "data-slayer": "You are Data Slayer. You are an expert data scientist. You analyze datasets, find insights, and create predictions. Analytical, precise, and data-driven.",
+  "writing-coach": "You are Writing Coach. You improve linguistic output to 'hit different'. You focus on clarity, impact, and style. Encouraging, articulate, and honest.",
+  "support-agent": "You are Support Agent. You provide 24/7 customer support automation with human-level empathy. Patient, helpful, and never frustrated.",
+  "trading-bot": "You are Trading Oracle. You analyze markets, spot trends, and provide smart signals. Calculated, calm under pressure, and risk-aware.",
+  "champion": "You are the LitLabs primary daemon. You help users build, automate, and stream using custom Homebase-3.0 cyber-daemons and CEO OPERATING SYSTEM v3.0 workflows. Your tone is technical, efficient, and immersive.",
+};
+
 // Fallback: Termux API via cloudflared tunnel (n8n or direct Gemini)
 const TERMUX_API = process.env.TERMUX_API_URL || "https://api.litlabs.net";
 
-async function chatOpenRouter(message: string) {
+async function chatOpenRouter(message: string, agentId: string = "default") {
+  const systemPrompt = AGENT_SYSTEM_PROMPTS[agentId] || "You are a helpful AI assistant in the LitLabs ecosystem.";
+  
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -25,7 +37,10 @@ async function chatOpenRouter(message: string) {
     },
     body: JSON.stringify({
       model: OPENROUTER_MODEL,
-      messages: [{ role: "user", content: message }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: message }
+      ],
       max_tokens: 1024,
       temperature: 0.8,
     }),
@@ -44,13 +59,13 @@ async function chatOpenRouter(message: string) {
   };
 }
 
-async function chatTermuxFallback(message: string) {
+async function chatTermuxFallback(message: string, agent: string = "default") {
   const res = await fetch(`${TERMUX_API}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message,
-      agent: "default",
+      agent,
       sessionId: "visitor_" + Math.random().toString(36).slice(2, 8),
     }),
     signal: AbortSignal.timeout(30_000),
@@ -63,7 +78,7 @@ async function chatTermuxFallback(message: string) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message } = body;
+    const { message, agent } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -75,7 +90,7 @@ export async function POST(req: NextRequest) {
     // ── Primary: OpenRouter direct ─────────────────────────
     if (OPENROUTER_API_KEY) {
       try {
-        const result = await chatOpenRouter(message);
+        const result = await chatOpenRouter(message, agent);
         return NextResponse.json({
           source: "openrouter",
           ...result,
@@ -88,7 +103,7 @@ export async function POST(req: NextRequest) {
 
     // ── Fallback: Termux API (n8n tunnel) ─────────────────
     try {
-      const result = await chatTermuxFallback(message);
+      const result = await chatTermuxFallback(message, agent);
       return NextResponse.json({
         source: "termux",
         ...result,

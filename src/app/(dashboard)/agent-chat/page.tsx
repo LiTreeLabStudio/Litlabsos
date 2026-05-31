@@ -5,8 +5,12 @@ interface Message { role: "user" | "assistant"; content: string; }
 
 const AGENTS = [
   { id: "champion", name: "LitLabs Agent", emoji: "⚡", greeting: "Initialization complete. I am the LitLabs primary daemon. How can I assist your workflow?" },
-  { id: "coder",    name: "Code Champion", emoji: "👨‍💻", greeting: "Code Champion online. Transmit your technical problem or architecture idea." },
-  { id: "writer",   name: "Writing Coach",  emoji: "✍️", greeting: "Neural link established. Ready to refine your linguistic output." },
+  { id: "code-champion", name: "Code Champion", emoji: "👨‍💻", greeting: "Code Champion online. Transmit your technical problem or architecture idea. How can I help you build today?" },
+  { id: "social-dominator", name: "Social Dominator", emoji: "🎭", greeting: "What's the vibe? Give me a topic and I'll craft something worth sharing. Let's make you go viral." },
+  { id: "data-slayer", name: "Data Slayer", emoji: "📊", greeting: "Data Slayer initialized. Transmit your dataset or analytical problem. I'll extract the insights you need." },
+  { id: "writing-coach", name: "Writing Coach", emoji: "✍️", greeting: "Neural link established. Ready to refine your linguistic output. What are we working on?" },
+  { id: "support-agent", name: "Support Agent", emoji: "🎧", greeting: "Support Node active. How can I assist you or your users today?" },
+  { id: "trading-bot", name: "Trading Oracle", emoji: "📈", greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate." },
 ];
 
 export default function AgentChatPage() {

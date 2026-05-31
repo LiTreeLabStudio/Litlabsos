@@ -1,0 +1,26 @@
+# LiTTreeLabStudios
+
+Welcome to LiTTreeLabStudios, an ecosystem for AI agents, featuring an agent marketplace, developer gallery, and agent chat.
+
+## Key Endpoints
+- /marketplace: Explore and procure different agent types.
+- /gallery: View showcase implementations and deployment manifests.
+- /social: Community feed and updates on agent capabilities.
+- /agent-chat: Interface to chat directly with active agents.
+
+## API Information
+- GET /api/agents: Returns a list of active agents in JSON format.
+
+## Technical Stack
+
+- Frontend: Next.js 16 with React 19 and TypeScript 6
+- Styling: Tailwind CSS 4 with custom cyber-theme
+- Auth: JWT-based with bcrypt hashing
+- Build: Turbopack for development, Webpack for production
+
+## Links
+
+- Website: https://litlabs.net
+- Gallery: https://litlabs.net/gallery
+- Documentation: https://docs.litlabs.net
+- Community: https://discord.gg/litlabs

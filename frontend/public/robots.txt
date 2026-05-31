@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Allow: /marketplace
+Allow: /gallery
+Disallow: /dashboard/settings
+
+# Sitemap
+Sitemap: https://litlabs.net/sitemap.xml
+
+# AI-specific bot access
+User-agent: GPTBot
+Allow: /llms.txt
+
+User-agent: ClaudeBot
+Allow: /llms.txt
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: perplexitybot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /

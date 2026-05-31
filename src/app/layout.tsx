@@ -56,6 +56,8 @@ export default function RootLayout({
       className={`${inter.variable} ${orbitron.variable} ${jetbrains.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-cyber-bg text-text-primary font-sans">
+        <div className="hud-overlay" />
+        <div className="scanline-effect" />
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

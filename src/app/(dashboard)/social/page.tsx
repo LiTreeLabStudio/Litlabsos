@@ -26,11 +26,14 @@ export default function SocialPage() {
     <div className="max-w-6xl mx-auto pb-20">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
         <div>
-          <div className="text-[10px] font-bold text-neon-gold tracking-[0.4em] uppercase mb-2">Matrix_Feed_v3.0</div>
+          <div className="text-[10px] font-bold text-neon-gold tracking-[0.4em] uppercase mb-2">Matrix_Pulse_v3.0.4</div>
           <h1 className="font-heading text-3xl font-bold uppercase tracking-tight">The <span className="gradient-text">Matrix</span></h1>
           <p className="text-text-secondary font-medium text-sm mt-1">Real-time technical logs from the builder collective.</p>
         </div>
-        <div className="badge badge-gold self-start sm:self-end">👥 {POSTS.length} ACTIVE_NODES</div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="badge badge-gold px-3 py-1 text-[10px] font-bold tracking-widest uppercase">👥 {POSTS.length} ACTIVE_NODES</div>
+          <div className="text-[8px] font-bold text-text-muted tracking-widest uppercase opacity-40">Uplink: ESTABLISHED</div>
+        </div>
       </div>
 
       <div className="flex gap-8">

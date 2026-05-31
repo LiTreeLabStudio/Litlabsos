@@ -22,11 +22,11 @@ export default function Home() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-green-400 shadow-[0_0_8px_#4ade80]" />
             </span>
-            CEO_NODE_ONLINE // litlabs.net
+            SYSTEM_STATUS: OPTIMIZED // litlabs.net
           </div>
 
           <h1 className="mb-6 sm:mb-8 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-6xl lg:text-8xl font-heading">
-            BUILD THE <span className="gradient-text drop-shadow-[0_0_30px_rgba(0,242,254,0.2)]">FUTURE</span>
+            BUILD THE <span className="gradient-text drop-shadow-[0_0_30px_rgba(0,242,254,0.2)] animate-glitch">FUTURE</span>
             <br />WITH AI AGENTS
           </h1>
 

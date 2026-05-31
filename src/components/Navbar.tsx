@@ -12,9 +12,16 @@ const NAV_ITEMS = [
   { href: "/social", label: "Social", icon: "👥" },
 ];
 
-export default function Navbar() {
+interface User {
+  id: string;
+  email: string;
+  name: string | null;
+}
+
+export default function Navbar({ user: ssrUser }: { user?: User | null }) {
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user: clientUser } = useAuth();
+  const user = ssrUser ?? clientUser;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (

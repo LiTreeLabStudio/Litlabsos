@@ -47,9 +47,9 @@ export default function BuilderPage() {
         body: JSON.stringify({ name, description, personality, skills: selectedSkills }),
       });
       if (!res.ok) throw new Error("Failed");
-      alert(`Agent "${name}" created!`);
+      alert(`Agent "${name}" created successfully!`);
     } catch {
-      alert(`Agent Forge Success: "${name}" initialized.`);
+      alert(`Agent "${name}" created!`);
     } finally {
       setPublishing(false);
     }
@@ -59,68 +59,57 @@ export default function BuilderPage() {
   const selectedSkillLabels = SKILLS.filter(s => selectedSkills.includes(s.id));
 
   return (
-    <div className="max-w-3xl mx-auto pb-20">
+    <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <div className="text-[10px] font-bold text-neon-cyan tracking-[0.4em] uppercase mb-2">Agent_Forge_v3.0</div>
-        <h1 className="font-heading text-3xl sm:text-4xl font-bold uppercase tracking-tight">Forge <span className="gradient-text">Agent</span></h1>
-        <p className="text-text-secondary font-medium text-sm mt-1">Construct a custom AI daemon in 4 steps.</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Build an <span className="gradient-text">AI Agent</span>
+        </h1>
+        <p className="text-zinc-500 text-sm mt-1">Create a custom AI agent in 4 easy steps.</p>
       </div>
 
-      {/* Step Indicator */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-8 p-3 sm:p-4 glass-panel border-white/5">
+      {/* Steps */}
+      <div className="flex items-center gap-2 mb-8 p-3 rounded-xl border border-white/10 bg-white/[0.03]">
         {STEPS.map((s, i) => (
-          <div key={s} className="flex items-center gap-2 sm:gap-3 flex-1">
-            <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${i <= step ? "bg-neon-cyan text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]" : "bg-white/5 border border-white/5 text-text-muted"}`}>
+          <div key={s} className="flex items-center gap-2 flex-1">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${i <= step ? "bg-blue-600 text-white" : "bg-white/5 text-zinc-500"}`}>
               {i < step ? "✓" : i + 1}
             </div>
             <div className="hidden sm:block">
-              <div className={`text-[10px] font-bold uppercase tracking-widest ${i <= step ? "text-neon-cyan" : "text-text-muted"}`}>Step_0{i + 1}</div>
-              <div className={`text-xs font-bold uppercase ${i <= step ? "text-text-primary" : "text-text-muted"}`}>{s}</div>
+              <div className={`text-xs font-medium ${i <= step ? "text-white" : "text-zinc-500"}`}>{s}</div>
             </div>
-            {i < STEPS.length - 1 && <div className={`flex-1 h-px ${i < step ? "bg-neon-cyan/50" : "bg-white/5"}`} />}
+            {i < STEPS.length - 1 && <div className={`flex-1 h-px ${i < step ? "bg-blue-600/50" : "bg-white/10"}`} />}
           </div>
         ))}
       </div>
 
       {/* Step Content */}
-      <div className="card border-neon-cyan/5 p-6 sm:p-10 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent" />
-
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
         {step === 0 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="font-heading text-xl font-bold mb-6 uppercase tracking-tight flex items-center gap-3">
-              <span className="text-neon-cyan text-2xl">01</span> Identity_Config
-            </h2>
-            <div className="space-y-6">
+          <div>
+            <h2 className="text-lg font-bold mb-6">Step 1: Identity</h2>
+            <div className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2 px-1">Daemon_Identifier *</label>
-                <input className="input text-lg font-medium h-12" placeholder="e.g. MARKETING_WIZARD_v1" value={name} onChange={(e) => setName(e.target.value)} />
+                <label className="block text-xs font-medium text-zinc-400 mb-1.5">Agent Name *</label>
+                <input className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors" placeholder="e.g. Marketing Assistant" value={name} onChange={(e) => setName(e.target.value)} />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2 px-1">Function_Description</label>
-                <textarea className="input min-h-[140px] sm:min-h-[120px] resize-none text-base leading-relaxed" placeholder="Define the primary objective..." value={description} onChange={(e) => setDescription(e.target.value)} />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2 px-1">Visual_Avatar_Node</label>
-                <input className="input max-w-[100px] text-center text-3xl h-14" placeholder="🎯" maxLength={4} />
+                <label className="block text-xs font-medium text-zinc-400 mb-1.5">Description</label>
+                <textarea className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors min-h-[100px] resize-none" placeholder="What does this agent do?" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
             </div>
           </div>
         )}
 
         {step === 1 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="font-heading text-xl font-bold mb-6 uppercase tracking-tight flex items-center gap-3">
-              <span className="text-neon-cyan text-2xl">02</span> Persona_Matrix
-            </h2>
+          <div>
+            <h2 className="text-lg font-bold mb-6">Step 2: Personality</h2>
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               {PERSONALITIES.map((p) => (
                 <button key={p.id} onClick={() => setPersonality(p.id)}
-                  className={`text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 group ${personality === p.id ? "border-neon-cyan bg-neon-cyan/5 shadow-[0_0_25px_rgba(0,242,254,0.1)]" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                  className={`text-left p-4 rounded-lg border transition-colors ${personality === p.id ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}
                 >
-                  <div className={`text-sm font-bold uppercase tracking-tight mb-1 ${personality === p.id ? "text-neon-cyan" : "text-text-primary group-hover:text-text-primary"}`}>{p.label}</div>
-                  <div className="text-xs text-text-secondary font-medium">{p.desc}</div>
-                  {personality === p.id && <div className="mt-2 text-[10px] font-bold text-neon-cyan tracking-widest">✓ SELECTED</div>}
+                  <div className={`text-sm font-semibold mb-0.5 ${personality === p.id ? "text-blue-400" : "text-white"}`}>{p.label}</div>
+                  <div className="text-xs text-zinc-400">{p.desc}</div>
                 </button>
               ))}
             </div>
@@ -128,22 +117,21 @@ export default function BuilderPage() {
         )}
 
         {step === 2 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="font-heading text-xl font-bold mb-6 uppercase tracking-tight flex items-center gap-3">
-              <span className="text-neon-cyan text-2xl">03</span> Capability_Modules
-            </h2>
+          <div>
+            <h2 className="text-lg font-bold mb-6">Step 3: Skills</h2>
+            <p className="text-sm text-zinc-500 mb-4">Select the capabilities this agent should have.</p>
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               {SKILLS.map((s) => {
                 const active = selectedSkills.includes(s.id);
                 return (
                   <button key={s.id} onClick={() => toggleSkill(s.id)}
-                    className={`text-left p-4 sm:p-5 rounded-2xl border transition-all duration-300 ${active ? "border-neon-cyan bg-neon-cyan/5 shadow-[0_0_25px_rgba(0,242,254,0.1)]" : "border-white/5 bg-white/5 hover:border-white/20"}`}
+                    className={`text-left p-4 rounded-lg border transition-colors ${active ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className={`text-sm font-bold uppercase tracking-tight ${active ? "text-neon-cyan" : "text-text-primary"}`}>{s.label}</div>
-                      {active && <span className="text-neon-cyan text-xs">✓</span>}
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className={`text-sm font-semibold ${active ? "text-blue-400" : "text-white"}`}>{s.label}</span>
+                      {active && <span className="text-blue-400 text-xs">✓</span>}
                     </div>
-                    <div className="text-xs text-text-secondary font-medium">{s.desc}</div>
+                    <div className="text-xs text-zinc-400">{s.desc}</div>
                   </button>
                 );
               })}
@@ -152,35 +140,25 @@ export default function BuilderPage() {
         )}
 
         {step === 3 && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="font-heading text-xl font-bold mb-6 uppercase tracking-tight flex items-center gap-3">
-              <span className="text-neon-cyan text-2xl">04</span> Review & Commit
-            </h2>
-
-            {/* Preview Card */}
-            <div className="p-6 rounded-2xl bg-black/40 border border-neon-cyan/10 mb-6">
-              <div className="text-[10px] font-bold text-neon-cyan tracking-[0.3em] uppercase mb-4">AGENT_PREVIEW</div>
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl">🎯</div>
-                <div>
-                  <div className="font-heading text-lg font-bold uppercase tracking-tight text-neon-cyan">{name || "UNNAMED_DAEMON"}</div>
-                  <div className="text-xs text-text-secondary font-medium mt-0.5">{description || "No description provided."}</div>
+          <div>
+            <h2 className="text-lg font-bold mb-6">Step 4: Review</h2>
+            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 mb-4">
+              <h3 className="font-bold text-white text-lg mb-1">{name || "Untitled Agent"}</h3>
+              <p className="text-sm text-zinc-400 mb-4">{description || "No description"}</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-white/5 p-3">
+                  <div className="text-zinc-500 text-xs mb-1">Personality</div>
+                  <div className="text-white font-medium">{selectedPersonality?.label || "Default"}</div>
                 </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">Persona</div>
-                  <div className="text-sm font-bold text-text-primary capitalize">{selectedPersonality?.label || "Default"}</div>
-                </div>
-                <div className="p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">Skills</div>
-                  <div className="text-sm font-bold text-text-primary">{selectedSkillLabels.length} modules</div>
+                <div className="rounded-lg bg-white/5 p-3">
+                  <div className="text-zinc-500 text-xs mb-1">Skills</div>
+                  <div className="text-white font-medium">{selectedSkillLabels.length} selected</div>
                 </div>
               </div>
               {selectedSkillLabels.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-white/5">
+                <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-white/5">
                   {selectedSkillLabels.map((s) => (
-                    <span key={s.id} className="badge badge-cyan">{s.label}</span>
+                    <span key={s.id} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">{s.label}</span>
                   ))}
                 </div>
               )}
@@ -189,12 +167,14 @@ export default function BuilderPage() {
         )}
 
         {/* Navigation */}
-        <div className="flex flex-col sm:flex-row justify-between mt-10 pt-6 border-t border-white/5 gap-3">
-          <button onClick={prevStep} disabled={step === 0} className="btn-secondary w-full sm:w-auto px-8 py-4 uppercase tracking-widest text-xs disabled:opacity-30">← Back</button>
+        <div className="flex justify-between mt-8 pt-6 border-t border-white/5 gap-3">
+          <button onClick={prevStep} disabled={step === 0} className="rounded-lg border border-white/10 px-6 py-2.5 text-sm font-semibold text-zinc-400 hover:text-white hover:bg-white/5 transition-colors disabled:opacity-30">← Back</button>
           {step < STEPS.length - 1 ? (
-            <button onClick={nextStep} disabled={step === 0 && !name.trim()} className="btn-primary w-full sm:w-auto px-8 py-4 uppercase tracking-widest text-xs disabled:opacity-50">Next →</button>
+            <button onClick={nextStep} disabled={step === 0 && !name.trim()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors disabled:opacity-50">Next →</button>
           ) : (
-            <button onClick={handlePublish} disabled={publishing || !name.trim()} className="btn-primary w-full sm:w-auto px-8 py-4 uppercase tracking-widest text-xs">{publishing ? "INITIALIZING..." : "🚀 COMMIT_DAEMON"}</button>
+            <button onClick={handlePublish} disabled={publishing || !name.trim()} className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors disabled:opacity-50">
+              {publishing ? "Creating..." : "🚀 Create Agent"}
+            </button>
           )}
         </div>
       </div>

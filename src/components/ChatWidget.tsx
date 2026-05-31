@@ -189,71 +189,84 @@ export default function ChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px] h-[70vh] sm:h-[520px] max-h-[calc(100vh-140px)] bg-cyber-surface border border-cyber-border rounded-2xl shadow-2xl shadow-black/50 flex flex-col overflow-hidden animate-slide-up">
+        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[70vh] sm:h-[580px] max-h-[calc(100vh-140px)] glass-panel border-white/10 shadow-2xl flex flex-col overflow-hidden animate-slide-up selection:bg-neon-cyan/30">
           {/* Header */}
-          <div className="px-4 py-3 bg-cyber-surface-2 border-b border-cyber-border flex items-center gap-2 shrink-0">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <button
-              onClick={() => setShowPicker(!showPicker)}
-              className="text-sm font-semibold text-white hover:text-neon-cyan transition-colors flex items-center gap-1.5 min-h-[36px]"
-            >
-              <span>{agent.avatar}</span>
-              <span className="hidden sm:inline">{agent.name}</span>
-              <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            <div className="ml-auto flex items-center gap-2">
+          <div className="px-5 py-4 bg-black/40 border-b border-white/5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(0,242,254,0.1)]">
+                  {agent.avatar}
+                </div>
+                <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-black animate-pulse" />
+              </div>
+              <button
+                onClick={() => setShowPicker(!showPicker)}
+                className="text-left group"
+              >
+                <div className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">Active_Link</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-bold text-text-primary uppercase tracking-tight group-hover:text-neon-cyan transition-colors">{agent.name}</span>
+                  <svg className={`w-3 h-3 transition-transform duration-300 ${showPicker ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => switchAgent(activeAgent)}
-                className="text-text-muted hover:text-white transition-colors p-1"
-                title="Clear chat"
+                className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-text-muted hover:text-neon-cyan hover:border-neon-cyan/30 transition-all"
+                title="Clear transmission"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
-              <span className="text-[10px] text-text-muted font-code hidden sm:inline">ONLINE</span>
+              <div className="hidden sm:block text-right">
+                <div className="text-[8px] font-bold text-text-muted tracking-widest uppercase">ENCRYPTED</div>
+                <div className="text-[8px] font-bold text-green-400 tracking-widest uppercase opacity-60">STATUS: OK</div>
+              </div>
             </div>
           </div>
 
           {/* Agent picker dropdown */}
           {showPicker && (
-            <div className="border-b border-cyber-border bg-cyber-surface-2 p-2 grid grid-cols-2 gap-1 animate-slide-up">
+            <div className="border-b border-white/5 bg-black/60 backdrop-blur-xl p-3 grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
               {AGENTS.map((a, i) => (
                 <button
                   key={a.id}
                   onClick={() => switchAgent(i)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm transition-all min-h-[44px] ${
+                  className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
                     i === activeAgent
-                      ? "bg-neon-cyan/10 border border-neon-cyan/30 text-neon-cyan font-semibold"
-                      : "text-text-secondary hover:bg-cyber-border/30"
+                      ? "bg-neon-cyan text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                      : "bg-white/5 text-text-muted border border-white/5 hover:border-white/20 hover:text-text-secondary"
                   }`}
                 >
                   <span className="text-lg">{a.avatar}</span>
-                  <span className="truncate">{a.name}</span>
+                  <span className="truncate">{a.name.split(" ")[0]}</span>
                 </button>
               ))}
             </div>
           )}
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}
+                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-in fade-in slide-in-from-bottom-2 duration-500`}
               >
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap break-words ${
+                  className={`max-w-[88%] rounded-2xl p-4 text-sm leading-relaxed whitespace-pre-wrap break-words transition-all ${
                     msg.role === "user"
-                      ? "bg-neon-cyan text-cyber-bg rounded-br-sm font-medium"
-                      : "bg-white/[0.04] text-text-primary border border-cyber-border rounded-bl-sm"
+                      ? "bg-neon-cyan text-cyber-bg rounded-br-sm font-bold shadow-[0_0_20px_rgba(0,242,254,0.15)]"
+                      : "bg-white/[0.03] text-text-primary border border-white/10 rounded-bl-sm backdrop-blur-sm"
                   }`}
                 >
                   {msg.role === "assistant" && (
-                    <div className="text-[10px] text-neon-cyan mb-1.5 font-code font-bold tracking-wider">
-                      {agent.avatar} {agent.name.toUpperCase()}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">{agent.name}_v3.0</span>
+                      <div className="h-px flex-1 bg-neon-cyan/20" />
                     </div>
                   )}
                   {msg.content}
@@ -261,21 +274,24 @@ export default function ChatWidget() {
               </div>
             ))}
             {loading && (
-              <div className="flex justify-start animate-fade-in">
-                <div className="bg-white/[0.04] border border-cyber-border rounded-2xl rounded-bl-sm px-4 py-3 text-sm">
-                  <div className="text-[10px] text-neon-cyan mb-2 font-code font-bold tracking-wider">
-                    {agent.avatar} {agent.name.toUpperCase()}
+              <div className="flex justify-start animate-in fade-in duration-300">
+                <div className="bg-white/[0.03] border border-white/10 rounded-2xl rounded-bl-sm p-4 min-w-[140px]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">LINK_PENDING</span>
+                    <div className="h-px flex-1 bg-neon-cyan/20" />
                   </div>
-                  <div className="flex items-center gap-2 text-text-muted">
+                  <div className="flex items-center gap-3 text-text-muted">
                     <BouncingDots />
-                    <span className="text-xs">Thinking</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">Processing...</span>
                   </div>
                 </div>
               </div>
             )}
             {error && !loading && (
-              <div className="text-center py-2">
-                <span className="text-xs text-red-400/70">⚠ Connection issue. Try again.</span>
+              <div className="flex justify-center py-2">
+                <div className="px-4 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 uppercase tracking-widest">
+                  ⚠ Neural_Link_Interrupted
+                </div>
               </div>
             )}
             <div ref={bottomRef} />
@@ -284,13 +300,13 @@ export default function ChatWidget() {
           {/* Input */}
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
-            className="p-2 border-t border-cyber-border shrink-0"
+            className="p-4 bg-black/40 border-t border-white/5 shrink-0"
           >
-            <div className="flex gap-2 items-center bg-black/30 rounded-xl border border-cyber-border px-3 focus-within:border-neon-cyan/50 transition-colors">
+            <div className="flex gap-2 items-center bg-black/60 rounded-2xl border border-white/10 p-1.5 focus-within:border-neon-cyan/40 transition-all duration-300 shadow-inner">
               <input
                 ref={inputRef}
-                className="flex-1 bg-transparent border-none text-sm text-text-primary py-3 outline-none placeholder:text-text-muted min-h-[44px]"
-                placeholder={`Message ${agent.name}...`}
+                className="flex-1 bg-transparent border-none text-sm text-text-primary px-4 py-2.5 outline-none placeholder:text-text-muted font-medium"
+                placeholder={`Transmit command to ${agent.name.split(" ")[0]}...`}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 disabled={loading}
@@ -298,9 +314,9 @@ export default function ChatWidget() {
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
-                className="shrink-0 w-9 h-9 rounded-lg bg-neon-cyan text-cyber-bg flex items-center justify-center hover:bg-cyan-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-90"
+                className="shrink-0 w-10 h-10 rounded-xl bg-neon-cyan text-cyber-bg flex items-center justify-center hover:bg-cyan-300 disabled:opacity-20 disabled:grayscale transition-all active:scale-90 shadow-[0_0_15px_rgba(0,242,254,0.2)]"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
                 </svg>
               </button>

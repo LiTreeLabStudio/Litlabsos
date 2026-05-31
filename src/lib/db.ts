@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import * as bcrypt from "bcryptjs";
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
 const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "";
@@ -18,9 +18,9 @@ export async function verifyPassword(
   const identifier = email.toLowerCase();
   const adminEmail = ADMIN_EMAIL.toLowerCase();
   const adminUsername = ADMIN_EMAIL.split("@")[0].toLowerCase();
-  
+
   if (identifier !== adminEmail && identifier !== adminUsername) return null;
-  
+
   const valid = await bcrypt.compare(password, ADMIN_PASSWORD_HASH);
   if (!valid) return null;
   return { id: "admin", email: ADMIN_EMAIL, name: ADMIN_NAME };
@@ -37,4 +37,3 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   }
   return null;
 }
-

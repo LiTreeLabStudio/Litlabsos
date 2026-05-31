@@ -1,0 +1,40 @@
+# Homebase-3.0: n8n Webhook Example (for local automation)
+# Place in n8n/agent-job-webhook.json
+
+{
+  "name": "Agent Job Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "agent-job"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse job and trigger agent\nconst job = items[0].json;\n// ...your agent logic here...\nreturn items;"
+      },
+      "name": "Process Job",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

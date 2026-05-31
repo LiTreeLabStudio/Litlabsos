@@ -1,0 +1,27 @@
+# Ignore node_modules and build output
+node_modules/
+.next/
+dist/
+.env
+.env.*
+.DS_Store
+*.log
+.vscode/
+.idea/
+*.local
+*.sqlite
+*.bak
+*.tmp
+*.swp
+*.swo
+*.swn
+*.pyc
+__pycache__/
+coverage/
+output/
+public/llms.txt
+.vercel
+.env*
+
+# Debug/auth scripts
+debug_auth.js

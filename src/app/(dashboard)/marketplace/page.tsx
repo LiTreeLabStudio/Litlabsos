@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { useRouter } from "next/navigation";
 
 interface Bot {
   id: string;
@@ -25,10 +26,6 @@ const BOTS: Bot[] = [
 ];
 
 const CATEGORIES = ["ALL", "DEV", "SOCIAL", "DATA", "CREATIVE", "SUPPORT", "FINANCE"];
-// const TAG_COLORS: Record<string, string> = {
-//   DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
-//   SUPPORT: "green", FINANCE: "emerald",
-// };
 
 const schemaData = {
   "@context": "https://schema.org",
@@ -56,9 +53,32 @@ const schemaData = {
 };
 
 export default function MarketplacePage() {
+  const router = useRouter();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [active, setActive] = useState("ALL");
   const [search, setSearch] = useState("");
+  const [acquiring, setAcquiring] = useState<string | null>(null);
+
+  const handleAcquire = async (agentId: string) => {
+    setAcquiring(agentId);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agentId, priceId: "price_mock" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        router.push(data.url);
+      } else {
+        alert(data.error || "Acquisition failed");
+      }
+    } catch (err) {
+      console.error("Acquisition error:", err);
+    } finally {
+      setAcquiring(null);
+    }
+  };
 
   const filtered = BOTS.filter((bot) => {
     const matchCat = active === "ALL" || bot.tag === active;
@@ -151,10 +171,22 @@ export default function MarketplacePage() {
                     <h3 className="font-bold text-white truncate">{bot.name}</h3>
                   </div>
                   <p className="text-sm text-zinc-400 leading-relaxed mb-3 line-clamp-2">{bot.desc}</p>
-                  <div className="flex items-center justify-between text-xs text-zinc-500">
-                    <span>★ {bot.rating}</span>
-                    <span>{bot.uses} uses</span>
-                    <span>by <span className="font-bold text-blue-400">{bot.author}</span></span>
+                  
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+                    <div className="flex items-center gap-4 text-[10px] text-zinc-500">
+                      <span>★ {bot.rating}</span>
+                      <span>{bot.uses} uses</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleAcquire(bot.id);
+                      }}
+                      disabled={acquiring === bot.id}
+                      className="px-4 py-1.5 rounded-lg bg-orange-500 text-black font-bold text-[10px] uppercase tracking-wider hover:bg-orange-400 transition-all disabled:opacity-50"
+                    >
+                      {acquiring === bot.id ? "Syncing..." : "Acquire Agent"}
+                    </button>
                   </div>
                 </div>
               </Link>

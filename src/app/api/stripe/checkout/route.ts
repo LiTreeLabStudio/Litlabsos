@@ -1,74 +1,33 @@
-// Stripe checkout session creation
 import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "@/lib/jwt";
 
+// This is a mock Stripe checkout route
+// In production, use the 'stripe' library and your secret key
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { priceId, mode = "subscription" } = body;
+    const token = req.cookies.get("auth-token")?.value;
+    if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const origin = req.headers.get("origin") || "https://litlabs.net";
+    const payload = await verifyToken(token);
+    if (!payload) return NextResponse.json({ error: "Invalid session" }, { status: 401 });
 
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
-    if (!stripeKey) {
-      return NextResponse.json(
-        {
-          error: "Stripe is not configured. Contact support.",
-          setup_required: true,
-        },
-        { status: 501 }
-      );
+    const { agentId, priceId } = await req.json();
+
+    if (!agentId || !priceId) {
+      return NextResponse.json({ error: "Missing agent or price data" }, { status: 400 });
     }
 
-    if (!priceId || !priceId.startsWith("price_")) {
-      return NextResponse.json(
-        { error: "Invalid price ID." },
-        { status: 400 }
-      );
-    }
+    console.log(`[STRIPE MOCK] Initializing checkout for user ${payload.email} for agent ${agentId}`);
 
-    const params = new URLSearchParams({
-      mode,
-      "success_url": `${origin}/settings/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      "cancel_url": `${origin}/settings/billing?canceled=true`,
-      "line_items[0][price]": priceId,
-      "line_items[0][quantity]": "1",
-      "allow_promotion_codes": "true",
-      "billing_address_collection": "auto",
+    // Mocking a successful session creation
+    return NextResponse.json({
+      sessionId: `mock_session_${Date.now()}`,
+      url: `/dashboard/agents?success=true&acquired=${agentId}`, // Redirect back on success
+      message: "Checkout initialized (Mock Mode)"
     });
 
-    // If user email is provided, pass it to prefill
-    if (body.email) {
-      params.append("customer_email", body.email);
-    }
-
-    const stripeResponse = await fetch(
-      "https://api.stripe.com/v1/checkout/sessions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${stripeKey}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: params.toString(),
-      }
-    );
-
-    const session = await stripeResponse.json();
-
-    if (!stripeResponse.ok) {
-      console.error("Stripe error:", session);
-      return NextResponse.json(
-        { error: session.error?.message || "Stripe error" },
-        { status: stripeResponse.status }
-      );
-    }
-
-    return NextResponse.json({ url: session.url, sessionId: session.id });
-  } catch (err) {
-    console.error("Stripe checkout error:", err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

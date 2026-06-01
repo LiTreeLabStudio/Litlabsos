@@ -26,8 +26,9 @@ export async function POST(req: NextRequest) {
     fs.writeFileSync(fullPath, content, "utf8");
 
     return NextResponse.json({ success: true, message: `Successfully wrote to ${filePath}` });
-  } catch (error: any) {
-    console.error("Write error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Write error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

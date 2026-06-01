@@ -1,17 +1,28 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import StatusBadge from '@/components/StatusBadge';
 
+interface Check {
+  id: string;
+  name: string;
+  status: string;
+  detail: string;
+}
+
 export default function VerificationPage() {
-  const [checks, setChecks] = useState<any[]>([
+  const [checks, setChecks] = useState<Check[]>([
     { id: 'env', name: 'Environment Audit', status: 'pending', detail: 'Verifying GEMINI_API_KEY and local paths...' },
     { id: 'bridge', name: 'Python Bridge', status: 'pending', detail: 'Testing dual-agent reasoning logic...' },
     { id: 'brain', name: 'Smart Brain Daemon', status: 'pending', detail: 'Checking autonomic loop activity...' },
     { id: 'write', name: 'FileSystem Access', status: 'pending', detail: 'Testing direct write capabilities...' },
   ]);
 
-  const runVerification = async () => {
+  const updateCheck = useCallback((id: string, status: string, detail: string) => {
+    setChecks(prev => prev.map(c => c.id === id ? { ...c, status, detail } : c));
+  }, []);
+
+  const runVerification = useCallback(async () => {
     // 1. Env Check
     updateCheck('env', 'running', 'Scanning .env.local...');
     const servicesRes = await fetch('/api/agents/services').then(r => r.json());
@@ -20,7 +31,8 @@ export default function VerificationPage() {
     // 2. Bridge Check
     updateCheck('bridge', 'running', 'Querying Gemini 2.0 Flash via Bridge...');
     const bridgeRes = await fetch('/api/live/status').then(r => r.json());
-    updateCheck('bridge', bridgeRes.agents.find((a:any) => a.name === 'Brain').status === 'online' ? 'success' : 'error', 'Bridge is passing data to local agents.');
+    const brainAgent = bridgeRes.agents.find((a: { name: string; status: string }) => a.name === 'Brain');
+    updateCheck('bridge', brainAgent?.status === 'online' ? 'success' : 'error', 'Bridge is passing data to local agents.');
 
     // 3. Brain Check
     updateCheck('brain', 'running', 'Reading brain.log heartbeats...');
@@ -30,15 +42,12 @@ export default function VerificationPage() {
 
     // 4. Write Check
     updateCheck('write', 'success', 'Security gate verified. AI Studio authorized to deploy to disk.');
-  };
-
-  const updateCheck = (id: string, status: string, detail: string) => {
-    setChecks(prev => prev.map(c => c.id === id ? { ...c, status, detail } : c));
-  };
+  }, [updateCheck]);
 
   useEffect(() => {
-    setTimeout(runVerification, 1000);
-  }, []);
+    const timer = setTimeout(runVerification, 1000);
+    return () => clearTimeout(timer);
+  }, [runVerification]);
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
@@ -75,7 +84,7 @@ export default function VerificationPage() {
       </div>
 
       <div className="mt-12 p-8 rounded-3xl bg-linear-to-br from-blue-600/10 to-purple-600/10 border border-blue-500/20 text-center">
-        <h2 className="text-xl font-bold text-white mb-4 italic">"I'm getting it all working."</h2>
+        <h2 className="text-xl font-bold text-white mb-4 italic">&quot;I&apos;m getting it all working.&quot;</h2>
         <p className="text-zinc-400 text-sm mb-6 max-w-md mx-auto">
           Larry, the system is now verified. Your local agents and the live site are passing data through the Gemini Bridge.
         </p>

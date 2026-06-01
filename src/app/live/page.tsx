@@ -2,8 +2,21 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface Agent {
+  name: string;
+  status: 'online' | 'offline';
+}
+
+interface SystemStatus {
+  version: string;
+  timestamp: string;
+  activeMilestone: string;
+  status: string;
+  agents: Agent[];
+}
+
 export default function LiveStatusPage() {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<SystemStatus | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,8 +25,8 @@ export default function LiveStatusPage() {
         const res = await fetch('/api/live/status');
         const data = await res.json();
         setStatus(data);
-      } catch (e) {
-        console.error("Failed to fetch live status");
+      } catch (error) {
+        console.error("Failed to fetch live status:", error);
       } finally {
         setLoading(false);
       }
@@ -54,7 +67,7 @@ export default function LiveStatusPage() {
           <div className="text-right font-mono text-[10px] text-zinc-500 space-y-1">
             <p>VERSION: {status?.version}</p>
             <p>UPTIME: 99.9% AUTONOMIC</p>
-            <p>LAST SYNC: {new Date(status?.timestamp).toLocaleTimeString()}</p>
+            <p>LAST SYNC: {status?.timestamp ? new Date(status.timestamp).toLocaleTimeString() : 'N/A'}</p>
           </div>
         </header>
 
@@ -80,7 +93,7 @@ export default function LiveStatusPage() {
           <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/5">
              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-6">Agent Heartbeats</h3>
              <div className="space-y-4">
-                {status?.agents.map((agent: any) => (
+                {status?.agents.map((agent) => (
                   <div key={agent.name} className="flex items-center justify-between group">
                     <div className="flex items-center gap-3">
                       <div className={`h-1.5 w-1.5 rounded-full ${agent.status === 'online' ? 'bg-emerald-500' : 'bg-rose-500'} group-hover:scale-125 transition-transform shadow-[0_0_8px_rgba(16,185,129,0.3)]`} />

@@ -63,8 +63,9 @@ export async function POST(req: NextRequest) {
       message: "Command processed and added to Hive Mind backlog." 
     });
 
-  } catch (error: any) {
-    console.error("Hub Command Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("Hub Command Error:", message);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

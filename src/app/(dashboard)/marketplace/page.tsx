@@ -25,10 +25,10 @@ const BOTS: Bot[] = [
 ];
 
 const CATEGORIES = ["ALL", "DEV", "SOCIAL", "DATA", "CREATIVE", "SUPPORT", "FINANCE"];
-const TAG_COLORS: Record<string, string> = {
-  DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
-  SUPPORT: "green", FINANCE: "emerald",
-};
+// const TAG_COLORS: Record<string, string> = {
+//   DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
+//   SUPPORT: "green", FINANCE: "emerald",
+// };
 
 const schemaData = {
   "@context": "https://schema.org",
@@ -86,14 +86,23 @@ export default function MarketplacePage() {
         </div>
 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative w-full sm:max-w-xs">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">🔍</span>
-            <input
-              className="input pl-10 w-full"
-              placeholder="Search agents..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setView(view === "grid" ? "list" : "grid")}
+              className="p-2 rounded-lg bg-white/5 border border-white/10 text-zinc-400 hover:text-white transition-colors"
+              title={`Switch to ${view === "grid" ? "list" : "grid"} view`}
+            >
+              {view === "grid" ? "☰" : "☷"}
+            </button>
+            <div className="relative w-full sm:max-w-xs">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">🔍</span>
+              <input
+                className="input pl-10 w-full"
+                placeholder="Search agents..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {CATEGORIES.map((cat) => (

@@ -85,10 +85,10 @@ const AGENTS: Agent[] = [
 ];
 
 const CATEGORIES = ["ALL", "DEV", "SOCIAL", "DATA", "CREATIVE", "SUPPORT", "FINANCE"];
-const TAG_COLORS: Record<string, string> = {
-  DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
-  SUPPORT: "green", FINANCE: "emerald",
-};
+// const TAG_COLORS: Record<string, string> = {
+//   DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
+//   SUPPORT: "green", FINANCE: "emerald",
+// };
 
 export default function GalleryPage() {
   const [active, setActive] = useState("ALL");

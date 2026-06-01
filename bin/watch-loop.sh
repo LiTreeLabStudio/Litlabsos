@@ -1,7 +1,7 @@
 #!/bin/bash
 # Live Watcher for the Autonomic Loop
 clear
-echo "🔥 LiTTreeLab Hive Mind: Live Status Monitor 🔥"
+echo "🔥 Larry B's Hive Mind: Live Status Monitor 🔥"
 echo "------------------------------------------------"
 while true; do
   # Get status from active.json

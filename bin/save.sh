@@ -13,17 +13,21 @@ echo "💾 Starting Autonomic Save: \"$MESSAGE\""
 
 # 1. Linting
 echo "🔍 Running ESLint..."
-npm run lint
+npm run lint > .error.log 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ ESLint failed. Fix errors before saving."
+  echo "❌ ESLint failed. Handing over to Smart Auto-Fixer..."
+  cat .error.log
+  ./bin/auto-fix.sh "$(cat .error.log)"
   exit 1
 fi
 
 # 2. Type Checking
 echo "🏗️ Running TypeScript compiler check..."
-npx tsc --noEmit
+npx tsc --noEmit > .error.log 2>&1
 if [ $? -ne 0 ]; then
-  echo "❌ Type checking failed. Fix errors before saving."
+  echo "❌ Type checking failed. Handing over to Smart Auto-Fixer..."
+  cat .error.log
+  ./bin/auto-fix.sh "$(cat .error.log)"
   exit 1
 fi
 

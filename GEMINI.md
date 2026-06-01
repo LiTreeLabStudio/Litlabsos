@@ -21,3 +21,10 @@ All AI agents and developers operating in this repository MUST follow the Autono
 - **TypeScript:** Strict typing is mandatory. Avoid `any` and `ts-ignore`.
 - **Aesthetics:** Adhere to the "Volcanic Cyber" theme (Dark mode, deep oranges/blues, neon accents).
 - **Communication:** Document your progress in the `tasks/` directory if completing a multi-stage autonomous loop.
+
+## Larry's Personal Setup
+- **Admin Email:** highlife4real1989@gmail.com
+- **Admin Name:** Larry B
+- **Environment:** Termux (Android) + WSL2.
+- **Save Protocol:** Enforce strict linting before every commit.
+- **Heartbeat:** Active background log simulation for dashboard testing.

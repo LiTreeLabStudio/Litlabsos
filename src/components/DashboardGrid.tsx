@@ -13,12 +13,12 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
+  { id: 'agents', title: 'Hive Mind', subtitle: 'Real-time agent status', icon: '🧠', color: 'from-orange-500 to-red-600', href: '/dashboard/agents' },
+  { id: 'ai-studio', title: 'AI Studio', subtitle: 'Forge UI with Gemini', icon: '🎭', color: 'from-indigo-500 to-purple-600', href: '/ai-studio' },
   { id: 'neural-link', title: 'Neural Chat', subtitle: 'Chat with AI agents', icon: '⚡', color: 'from-amber-500 to-orange-600', href: '/agent-chat' },
   { id: 'bot-forge', title: 'Bot Forge', subtitle: 'Browse & acquire agents', icon: '🔧', color: 'from-blue-500 to-indigo-600', href: '/marketplace' },
   { id: 'the-matrix', title: 'The Feed', subtitle: 'Builder social network', icon: '👥', color: 'from-cyan-500 to-blue-600', href: '/social' },
   { id: 'forge-agent', title: 'Forge Agent', subtitle: 'Build custom AI agents', icon: '🛠️', color: 'from-emerald-500 to-teal-600', href: '/builder' },
-  { id: 'champions', title: 'Gallery', subtitle: 'Explore top agents', icon: '🏛️', color: 'from-purple-500 to-fuchsia-600', href: '/gallery' },
-  { id: 'system-config', title: 'Settings', subtitle: 'Account & workspace', icon: '⚙️', color: 'from-slate-500 to-slate-700', href: '/settings' },
 ];
 
 export default function DashboardGrid() {

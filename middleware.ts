@@ -7,6 +7,8 @@ const PUBLIC_PATHS = [
   "/api/auth",
   "/api/stripe",
   "/gallery",
+  "/live",
+  "/api/live",
 ];
 
 const STATIC_EXTENSIONS = [
@@ -48,11 +50,23 @@ export async function middleware(request: {
   // Auth check
   const token = request.cookies.get("auth-token")?.value;
   if (!token) {
+    if (pathname.startsWith("/api/")) {
+      return new NextResponse(
+        JSON.stringify({ error: "Authentication required" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
     return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
   }
 
   const payload = await verifyToken(token);
   if (!payload) {
+    if (pathname.startsWith("/api/")) {
+      return new NextResponse(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
     const res = NextResponse.redirect(
       new URL("/login", request.nextUrl.origin)
     );

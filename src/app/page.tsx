@@ -15,7 +15,10 @@ export default function Home() {
           </Link>
           <div className="hidden items-center gap-6 md:flex">
             <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Features</a>
-            <a href="#pricing" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Pricing</a>
+            <Link href="/live" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-orange-500 animate-pulse" />
+              Live Status
+            </Link>
             <Link href="/gallery" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Explore</Link>
           </div>
           <div className="flex items-center gap-3">

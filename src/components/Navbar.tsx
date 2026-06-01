@@ -25,10 +25,10 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0a0a0f]/95 backdrop-blur-md">
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-cyber-bg/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         <Link href={user ? "/dashboard" : "/"} className="text-xl font-extrabold tracking-tight text-white">
-          lit<span className="text-blue-500">labs</span>
+          LiT<span className="text-blue-500">Tree</span>Lab
         </Link>
 
         {/* Desktop Nav */}
@@ -91,7 +91,7 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/10 bg-[#0a0a0f] p-4">
+        <div className="md:hidden border-t border-white/10 bg-cyber-bg p-4">
           <div className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + "/");

@@ -136,7 +136,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-sm sm:text-base leading-relaxed ${
                     m.role === "user"
                       ? "bg-neon-cyan text-cyber-bg rounded-br-sm font-bold shadow-[0_0_20px_rgba(0,242,254,0.1)]"
-                      : "bg-white/[0.03] border border-white/10 text-text-primary rounded-tl-sm backdrop-blur-md"
+                      : "bg-white/3 border border-white/10 text-text-primary rounded-tl-sm backdrop-blur-md"
                   }`}
                 >
                   {m.role === "assistant" && (
@@ -147,13 +147,13 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
                       <div className="h-px flex-1 bg-neon-cyan/20" />
                     </div>
                   )}
-                  <div className="whitespace-pre-wrap break-words">{m.content}</div>
+                  <div className="whitespace-pre-wrap wrap-break-word">{m.content}</div>
                 </div>
               </div>
             ))}
             {loading && (
               <div className="flex justify-start animate-in fade-in duration-300">
-                <div className="bg-white/[0.03] border border-white/10 rounded-2xl rounded-tl-sm p-4 min-w-[140px]">
+                <div className="bg-white/3 border border-white/10 rounded-2xl rounded-tl-sm p-4 min-w-35">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="text-[10px] font-bold text-neon-cyan tracking-[0.2em] uppercase">
                       Neural_Link

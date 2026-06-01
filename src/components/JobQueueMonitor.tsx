@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 
 export default function JobQueueMonitor() {
@@ -24,9 +23,8 @@ export default function JobQueueMonitor() {
 
   return (
     <div className="mb-6 p-3 rounded-lg border border-zinc-800/80 bg-zinc-900/30 backdrop-blur-md relative overflow-hidden group">
-      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
+      <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-cyan-500/50 to-transparent" />
       <div className="text-[9px] tracking-[0.3em] text-zinc-500 font-mono mb-1 uppercase">PIPELINE_TELEMETRY</div>
-      
       <div className="space-y-2">
         {jobs.length === 0 && (
           <div className="flex justify-between items-center font-mono">

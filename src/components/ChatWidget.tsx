@@ -123,7 +123,7 @@ export default function ChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-[420px] h-[70vh] sm:h-[580px] max-h-[calc(100vh-140px)] rounded-2xl border border-white/10 bg-[#0d0d14] shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-4 sm:right-6 z-50 w-[calc(100vw-2rem)] sm:w-105 h-[70vh] sm:h-145 max-h-[calc(100vh-140px)] rounded-2xl border border-white/10 bg-[#0d0d14] shadow-2xl flex flex-col overflow-hidden">
           {/* Header */}
           <div className="px-4 py-3 bg-black/40 border-b border-white/10 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
@@ -171,7 +171,7 @@ export default function ChatWidget() {
           <div className="flex-1 overflow-y-auto p-3 space-y-3">
             {messages.map((msg, i) => (
               <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words ${msg.role === "user" ? "bg-blue-600 text-white rounded-br-sm" : "bg-white/5 text-zinc-200 border border-white/10 rounded-bl-sm"}`}>
+                <div className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap wrap-break-word ${msg.role === "user" ? "bg-blue-600 text-white rounded-br-sm" : "bg-white/5 text-zinc-200 border border-white/10 rounded-bl-sm"}`}>
                   {msg.role === "assistant" && (
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="text-[10px] font-bold text-blue-400">{agent.name}</span>
@@ -185,9 +185,9 @@ export default function ChatWidget() {
               <div className="flex justify-start">
                 <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce delay-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce delay-150" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce delay-300" />
                     <span className="text-xs text-zinc-500 ml-1">Thinking...</span>
                   </div>
                 </div>

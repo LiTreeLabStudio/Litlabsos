@@ -7,10 +7,10 @@ export default async function LoginPage({
   const error = params.error || null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] p-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-cyber-bg p-6 relative overflow-hidden">
       {/* Background glow */}
-      <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-5%] w-125 h-125 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-100 h-100 bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
@@ -22,7 +22,7 @@ export default async function LoginPage({
         </div>
 
         {/* Card */}
-        <div className="rounded-xl border border-white/10 bg-white/[0.03] p-8">
+        <div className="rounded-xl border border-white/10 bg-white/3 p-8">
           <h2 className="text-lg font-bold mb-6 text-center">Sign In</h2>
 
           {error && (

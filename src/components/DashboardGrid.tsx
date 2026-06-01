@@ -31,7 +31,7 @@ export default function DashboardGrid() {
         <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
           Welcome back, <span className="gradient-text">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
         </h1>
-        <p className="text-sm text-zinc-500">Your agents are running. Here's your workspace.</p>
+        <p className="text-sm text-zinc-500">Your agents are running. Here&apos;s your workspace.</p>
       </div>
 
       {/* Quick Actions Grid */}
@@ -40,9 +40,9 @@ export default function DashboardGrid() {
           <Link
             key={action.id}
             href={action.href}
-            className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:bg-white/[0.06] hover:border-white/20 transition-all group"
+            className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/3 p-4 hover:bg-white/6 hover:border-white/20 transition-all group"
           >
-            <div className={`w-11 h-11 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform`}>
+            <div className={`w-11 h-11 rounded-lg bg-linear-to-br ${action.color} flex items-center justify-center text-xl shrink-0 group-hover:scale-105 transition-transform`}>
               {action.icon}
             </div>
             <div className="flex-1 min-w-0">

@@ -51,7 +51,7 @@ export default function AgentChatPage() {
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-100px)] lg:h-[calc(100vh-140px)]">
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl border border-white/10 bg-white/[0.03] mb-4">
+      <div className="flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl border border-white/10 bg-white/3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-lg bg-blue-600/10 border border-blue-500/30 flex items-center justify-center text-xl shrink-0">
             {agent.emoji}
@@ -96,13 +96,13 @@ export default function AgentChatPage() {
               <div className={`text-[10px] font-bold uppercase tracking-widest mb-1.5 opacity-50 ${m.role === "user" ? "text-blue-400" : "text-zinc-500"}`}>
                 {m.role === "user" ? "You" : agent.name}
               </div>
-              <div className="whitespace-pre-wrap break-words">{m.content}</div>
+              <div className="whitespace-pre-wrap wrap-break-word">{m.content}</div>
             </div>
           </div>
         ))}
         {loading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] rounded-tl-sm px-4 py-3 text-sm text-zinc-500">
+            <div className="rounded-2xl border border-white/10 bg-white/3 rounded-tl-sm px-4 py-3 text-sm text-zinc-500">
               <span className="mr-2">Thinking</span>
               <span className="inline-flex gap-1 align-middle">
                 <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce [animation-delay:-0.3s]" />
@@ -118,7 +118,7 @@ export default function AgentChatPage() {
       {/* Input */}
       <form
         onSubmit={(e) => { e.preventDefault(); sendMessage(); }}
-        className="rounded-2xl border border-white/10 bg-white/[0.03] p-2 flex gap-2 items-end"
+        className="rounded-2xl border border-white/10 bg-white/3 p-2 flex gap-2 items-end"
       >
         <input
           className="flex-1 bg-transparent border-none px-3 py-2.5 text-sm sm:text-base text-white placeholder:text-zinc-600 focus:outline-none"
@@ -127,7 +127,7 @@ export default function AgentChatPage() {
           onChange={(e) => setInput(e.target.value)}
           disabled={loading}
         />
-        <button
+        <button title="Open chat"
           type="submit"
           disabled={loading || !input.trim()}
           className="w-10 h-10 flex items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-500 transition-all disabled:opacity-30 shrink-0"

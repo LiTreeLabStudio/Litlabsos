@@ -68,7 +68,7 @@ export default function BuilderPage() {
       </div>
 
       {/* Steps */}
-      <div className="flex items-center gap-2 mb-8 p-3 rounded-xl border border-white/10 bg-white/[0.03]">
+      <div className="flex items-center gap-2 mb-8 p-3 rounded-xl border border-white/10 bg-white/3">
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${i <= step ? "bg-blue-600 text-white" : "bg-white/5 text-zinc-500"}`}>
@@ -83,7 +83,7 @@ export default function BuilderPage() {
       </div>
 
       {/* Step Content */}
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+      <div className="rounded-xl border border-white/10 bg-white/3 p-6 sm:p-8">
         {step === 0 && (
           <div>
             <h2 className="text-lg font-bold mb-6">Step 1: Identity</h2>
@@ -94,7 +94,7 @@ export default function BuilderPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-zinc-400 mb-1.5">Description</label>
-                <textarea className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors min-h-[100px] resize-none" placeholder="What does this agent do?" value={description} onChange={(e) => setDescription(e.target.value)} />
+                <textarea className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors min-h-25 resize-none" placeholder="What does this agent do?" value={description} onChange={(e) => setDescription(e.target.value)} />
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function BuilderPage() {
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2">
               {PERSONALITIES.map((p) => (
                 <button key={p.id} onClick={() => setPersonality(p.id)}
-                  className={`text-left p-4 rounded-lg border transition-colors ${personality === p.id ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}
+                  className={`text-left p-4 rounded-lg border transition-colors ${personality === p.id ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/3 hover:border-white/20"}`}
                 >
                   <div className={`text-sm font-semibold mb-0.5 ${personality === p.id ? "text-blue-400" : "text-white"}`}>{p.label}</div>
                   <div className="text-xs text-zinc-400">{p.desc}</div>
@@ -125,7 +125,7 @@ export default function BuilderPage() {
                 const active = selectedSkills.includes(s.id);
                 return (
                   <button key={s.id} onClick={() => toggleSkill(s.id)}
-                    className={`text-left p-4 rounded-lg border transition-colors ${active ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/[0.03] hover:border-white/20"}`}
+                    className={`text-left p-4 rounded-lg border transition-colors ${active ? "border-blue-500 bg-blue-500/10" : "border-white/10 bg-white/3 hover:border-white/20"}`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
                       <span className={`text-sm font-semibold ${active ? "text-blue-400" : "text-white"}`}>{s.label}</span>
@@ -142,7 +142,7 @@ export default function BuilderPage() {
         {step === 3 && (
           <div>
             <h2 className="text-lg font-bold mb-6">Step 4: Review</h2>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-5 mb-4">
+            <div className="rounded-lg border border-white/10 bg-white/3 p-5 mb-4">
               <h3 className="font-bold text-white text-lg mb-1">{name || "Untitled Agent"}</h3>
               <p className="text-sm text-zinc-400 mb-4">{description || "No description"}</p>
               <div className="grid grid-cols-2 gap-3 text-sm">

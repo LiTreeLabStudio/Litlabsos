@@ -115,7 +115,7 @@ export default function SocialPage() {
           {/* Stories */}
           <div className="mb-6 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
             {STORIES.map((story) => (
-              <div key={story.name} className="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer group">
+              <div key={story.name} className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group">
                 <div className={`w-16 h-16 rounded-full ${story.isOwn ? "bg-white/10 border-2 border-dashed border-white/20" : story.color} flex items-center justify-center text-white font-bold text-sm group-hover:scale-105 transition-transform`}>
                   {story.isOwn ? "+" : story.avatar}
                 </div>
@@ -125,7 +125,7 @@ export default function SocialPage() {
           </div>
 
           {/* Compose */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4 mb-6">
+          <div className="rounded-xl border border-white/10 bg-white/3 p-4 mb-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
                 {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
@@ -135,7 +135,7 @@ export default function SocialPage() {
               </span>
             </div>
             <textarea
-              className="w-full min-h-[80px] resize-none bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
+              className="w-full min-h-20 resize-none bg-transparent text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none"
               placeholder="What's on your mind? Share a win, ask a question..."
               value={newPost}
               onChange={e => setNewPost(e.target.value)}
@@ -158,10 +158,10 @@ export default function SocialPage() {
           {/* Feed */}
           <div className="space-y-4">
             {posts.map(post => (
-              <div key={post.id} className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+              <div key={post.id} className="rounded-xl border border-white/10 bg-white/3 overflow-hidden">
                 {/* Post header */}
                 <div className="flex items-center gap-3 p-4 pb-3">
-                  <div className={`w-10 h-10 rounded-full ${post.avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+                  <div className={`w-10 h-10 rounded-full ${post.avatarColor} flex items-center justify-center text-white font-bold text-sm shrink-0`}>
                     {post.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -212,7 +212,7 @@ export default function SocialPage() {
         {/* ========== RIGHT SIDEBAR ========== */}
         <aside className="hidden lg:block w-72 shrink-0 space-y-5">
           {/* Trending */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-xl border border-white/10 bg-white/3 p-4">
             <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-4">Trending</h3>
             <div className="space-y-3">
               {TRENDING.map(t => (
@@ -225,12 +225,12 @@ export default function SocialPage() {
           </div>
 
           {/* Suggested Agents */}
-          <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          <div className="rounded-xl border border-white/10 bg-white/3 p-4">
             <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-4">Suggested Agents</h3>
             <div className="space-y-3">
               {SUGGESTED.map(a => (
                 <div key={a.handle} className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-linear-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
                     {a.avatar}
                   </div>
                   <div className="flex-1 min-w-0">

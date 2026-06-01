@@ -28,10 +28,10 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LitLabs — Build AI Agents",
+  title: "LiTTreeLabStudios — Build AI Agents",
   description: "Build, deploy, and manage custom AI agents. Create automations, connect tools, and scale your workflow from one clean platform.",
   authors: [{ name: "Larry Bol" }],
-  keywords: ["AI agents", "automation", "no-code AI", "LitLabs", "AI builder"],
+  keywords: ["AI agents", "automation", "no-code AI", "LiTTreeLabStudios", "AI builder"],
 };
 
 export default function RootLayout({
@@ -44,7 +44,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${orbitron.variable} ${jetbrains.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-[#0a0a0f] text-white">
+      <body className="min-h-full flex flex-col bg-cyber-bg text-white">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

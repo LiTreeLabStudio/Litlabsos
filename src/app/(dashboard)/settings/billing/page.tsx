@@ -178,16 +178,16 @@ export default function BillingPage() {
         {TIERS.map((tier) => (
           <div
             key={tier.id}
-            className={`relative rounded-2xl p-[1px] ${
+            className={`relative rounded-2xl p-px ${
               tier.highlighted
-                ? "bg-gradient-to-b from-neon-cyan via-neon-purple to-neon-cyan shadow-[0_0_40px_rgba(0,242,254,0.15)]"
-                : "bg-white/[0.08]"
+                ? "bg-linear-to-b from-neon-cyan via-neon-purple to-neon-cyan shadow-[0_0_40px_rgba(0,242,254,0.15)]"
+                : "bg-white/8"
             }`}
           >
             {/* Badge */}
             {tier.badge && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                <span className="bg-gradient-to-r from-neon-cyan to-neon-purple text-cyber-bg text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-full">
+                <span className="bg-linear-to-r from-neon-cyan to-neon-purple text-cyber-bg text-[10px] font-bold uppercase tracking-wider px-4 py-1 rounded-full">
                   {tier.badge}
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function BillingPage() {
             <div
               className={`rounded-2xl p-6 sm:p-8 h-full flex flex-col ${
                 tier.highlighted
-                  ? "bg-gradient-to-b from-cyber-surface to-cyber-bg"
+                  ? "bg-linear-to-b from-cyber-surface to-cyber-bg"
                   : "bg-cyber-surface"
               }`}
             >
@@ -240,7 +240,7 @@ export default function BillingPage() {
               <button
                 onClick={() => handleUpgrade(tier)}
                 disabled={loading === tier.id || tier.id === "free"}
-                className={`w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all mb-8 min-h-[52px] ${
+                className={`w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all mb-8 min-h-13 ${
                   tier.highlighted
                     ? "btn-primary text-base"
                     : tier.id === "free"

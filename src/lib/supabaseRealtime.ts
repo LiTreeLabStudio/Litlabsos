@@ -4,6 +4,7 @@
 import { supabase } from './supabaseClient';
 
 export function subscribeToLogs(sessionId: string, onLog: (log: unknown) => void) {
+  if (!supabase) return { unsubscribe: () => {}, unsubscribeChannel: () => {} };
   return supabase
     .channel('public:logs')
     .on(

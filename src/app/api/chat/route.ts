@@ -12,7 +12,7 @@ const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
 };
 
 async function logToSupabase(sessionId: string | null, agentId: string, message: string, level: string = "info") {
-  if (!sessionId) return;
+  if (!supabase || !sessionId) return;
   try {
     await supabase.from("logs").insert({
       session_id: sessionId === "demo-session" ? null : sessionId,

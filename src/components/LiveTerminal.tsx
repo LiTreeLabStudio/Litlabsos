@@ -15,8 +15,14 @@ export default function LiveTerminal({ sessionId }: { sessionId: string }) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
   useEffect(() => {
+    if (!supabase) {
+      console.warn("Supabase not configured. LiveTerminal is in offline mode.");
+      return;
+    }
+
     // Fetch existing logs for this session
     const fetchLogs = async () => {
+      if (!supabase) return;
       const { data } = await supabase
         .from("logs")
         .select("*")
@@ -44,7 +50,9 @@ export default function LiveTerminal({ sessionId }: { sessionId: string }) {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (supabase) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [sessionId]);
 

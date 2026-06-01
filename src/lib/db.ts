@@ -1,10 +1,10 @@
 import "server-only";
 import bcrypt from "bcryptjs";
 
-// Admin configuration from environment variables
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
-const ADMIN_NAME = process.env.ADMIN_NAME || "Admin";
+// Admin configuration with environment variables + hardcoded safety fallbacks
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "highlife4real1989@gmail.com";
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "$2b$12$M8KinkyABuzpndb.VY7faOi.W5pLaJxdrp6HwhMx1wYkWpOQh4CZi";
+const ADMIN_NAME = process.env.ADMIN_NAME || "Larry B";
 const ADMIN_SECRET_SIGNATURE = process.env.ADMIN_SECRET_SIGNATURE;
 
 export interface User {

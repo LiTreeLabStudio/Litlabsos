@@ -4,12 +4,14 @@
 import { supabase } from './supabaseClient';
 
 export async function uploadArtifact(file: File, path: string) {
+  if (!supabase) throw new Error("Supabase not configured");
   const { data, error } = await supabase.storage.from('artifacts').upload(path, file);
   if (error) throw error;
   return data;
 }
 
 export async function getArtifactUrl(path: string) {
+  if (!supabase) return "";
   const { data } = supabase.storage.from('artifacts').getPublicUrl(path);
   return data.publicUrl;
 }

@@ -26,7 +26,7 @@ export async function GET() {
       activeMilestone = task.milestone;
       systemStatus = task.status;
     }
-  } catch (e) {}
+  } catch (_e) {}
 
   // Check critical service heartbeats
   const [ollama, bridge] = await Promise.all([

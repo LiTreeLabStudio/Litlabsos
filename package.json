@@ -7,6 +7,7 @@
     "dev:loop": "./bin/dev.sh",
     "sync": "./bin/sync.sh",
     "save": "./bin/save.sh",
+    "auto-fix": "./bin/auto-fix.sh",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint"

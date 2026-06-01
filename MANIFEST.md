@@ -1,30 +1,29 @@
-# LitLabs Architectural Manifest
+# LitLabs Architectural Manifest: Autonomic Loop Edition
 
-This file maps the canonical file structure for the LitLabs Autonomous Media Matrix. Use this as your reference to maintain perfect consistency between development environments (Termux/Phone & Windows PC).
+This file maps the canonical architecture for the LitLabs Hive Mind. It ensures perfect consistency between Termux (Mobile), WSL (Development), and litlabs.net (Production).
 
 ## 1. Directory Structure
 ```text
-/LitLabs/
-├── api/             # Backend Express server (litlabs-api)
-├── ai-engine/       # Autonomous chat-agent.js & workflow logic (litlabs-n8n)
-├── frontend/        # Next.js web application (litlabs-ai)
-├── sync/            # Google Drive Mount Point (litlabs.json state store)
-├── storage/         # Local assets, logs, and temp media
-└── config/          # .env files and shared secrets
+/LiTTreeLabstudios/
+├── bin/               # Autonomic workflow scripts (sync, save, dev, auto-fix)
+├── tasks/             # Hive Mind Memory (backlog, active, completed)
+├── prompts/           # Specialized Persona System Prompts (Director, Executor)
+├── src/               # Next.js App Router & Core Logic
+├── public/            # Static Assets & LLM context
+└── GEMINI.md          # Core AI Directives
 ```
 
-## 2. Synchronization Protocol
-- **Logic (Code):** Managed via `git`. Always `push` from the Phone/Controller node and `pull` on the PC/Compute node.
-- **State (Data):** Managed via Google Drive `sync/`. 
-    - Phone path: `~/litlabs-sync/litlabs.json`
-    - PC path: `[GDrive_Path]/LitLabs/litlabs.json`
-- **Dependencies:** Never commit `node_modules` or local `.env` files.
+## 2. Network Infrastructure
+- **Production:** [https://litlabs.net](https://litlabs.net) (Vercel)
+- **API (WSL/Termux Tunnel):** [https://api.litlabs.net](https://api.litlabs.net)
+- **Dev Live Reload:** [https://dev.litlabs.net](https://dev.litlabs.net)
+- **Code Editor:** [https://code.litlabs.net](https://code.litlabs.net)
 
-## 3. Maintenance Commands
-- **Check Health:** `curl http://localhost:3000/health`
-- **Monitor Queue:** `curl http://localhost:3000/api/queue`
-- **Trigger Cycle:** Manually inject into `sync/litlabs.json` or call the `/api/queue/update` endpoint.
+## 3. The Autonomic Loop
+- **Sync:** `npm run sync` (Multi-device state synchronization)
+- **Dev:** `npm run dev:loop` (Sync + Start local dev)
+- **Save:** `npm run save "<message>"` (Lint + Typecheck + Commit + Push)
+- **Auto-Fix:** `npm run auto-fix "<error>"` (Self-healing feedback loop)
 
 ---
-*Maintained by the LitLabs System Brain.*
-EOF
+*Maintained by the LitLabs Hive Mind.*

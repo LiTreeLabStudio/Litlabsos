@@ -1,4 +1,4 @@
-import { supabase } from "../supabaseClient";
+import { getSupabaseServerClient } from "../supabaseServer";
 
 export type MessageRole = "user" | "assistant" | "system" | "tool";
 
@@ -21,7 +21,7 @@ export interface ChatSession {
 }
 
 export async function createSession(title: string): Promise<ChatSession | null> {
-  if (!supabase) return null;
+  const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("sessions")
     .insert([{ title }])
@@ -36,7 +36,7 @@ export async function createSession(title: string): Promise<ChatSession | null> 
 }
 
 export async function getSessions(): Promise<ChatSession[]> {
-  if (!supabase) return [];
+  const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("sessions")
     .select("*")
@@ -50,7 +50,7 @@ export async function getSessions(): Promise<ChatSession[]> {
 }
 
 export async function saveMessage(msg: Message): Promise<Message | null> {
-  if (!supabase) return null;
+  const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("messages")
     .insert([msg])
@@ -65,7 +65,7 @@ export async function saveMessage(msg: Message): Promise<Message | null> {
 }
 
 export async function getMessages(sessionId: string): Promise<Message[]> {
-  if (!supabase) return [];
+  const supabase = getSupabaseServerClient();
   const { data, error } = await supabase
     .from("messages")
     .select("*")

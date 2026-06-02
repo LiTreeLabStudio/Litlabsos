@@ -1,4 +1,4 @@
-import { supabase } from "./supabaseClient";
+import { getSupabaseServerClient } from "./supabaseServer";
 
 export interface Agent {
   id: string;
@@ -14,9 +14,10 @@ export interface Agent {
 
 /**
  * Fetches all agents from the Supabase 'agents' table.
+ * Server-side implementation.
  */
 export async function getAgents(): Promise<Agent[]> {
-  if (!supabase) return [];
+  const supabase = getSupabaseServerClient();
   
   const { data, error } = await supabase
     .from("agents")
@@ -35,7 +36,7 @@ export async function getAgents(): Promise<Agent[]> {
  * Creates a new agent in the Supabase 'agents' table.
  */
 export async function createAgent(data: Partial<Agent>): Promise<Agent | null> {
-  if (!supabase) return null;
+  const supabase = getSupabaseServerClient();
 
   const { data: newAgent, error } = await supabase
     .from("agents")
@@ -55,7 +56,7 @@ export async function createAgent(data: Partial<Agent>): Promise<Agent | null> {
  * Deletes an agent by ID.
  */
 export async function deleteAgent(id: string): Promise<boolean> {
-  if (!supabase) return false;
+  const supabase = getSupabaseServerClient();
 
   const { error } = await supabase
     .from("agents")

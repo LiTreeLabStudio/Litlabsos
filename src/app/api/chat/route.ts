@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { orchestrate } from "@/lib/ai/orchestrator";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { message, sessionId = null } = await req.json();

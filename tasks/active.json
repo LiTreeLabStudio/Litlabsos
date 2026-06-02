@@ -5,5 +5,5 @@
   "target_files": [
     "src/app/(dashboard)/marketplace/page.tsx"
   ],
-  "error_logs": "\n> frontend@0.1.0 lint\n> eslint\n\n\n/data/data/com.termux/files/home/LiTTreeLabstudios/src/app/api/live/status/route.ts\n  11:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars\n  29:12  warning  '_e' is defined but never used  @typescript-eslint/no-unused-vars\n\n/data/data/com.termux/files/home/LiTTreeLabstudios/src/lib/ai/engine.ts\n  1:10  warning  'supabase' is defined but never used  @typescript-eslint/no-unused-vars\n\n/data/data/com.termux/files/home/LiTTreeLabstudios/src/lib/ai/persistence.ts\n  11:29  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any\n\n\u2716 4 problems (1 error, 3 warnings)"
+  "error_logs": "src/app/(dashboard)/chat/page.tsx(233,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.\nsrc/components/ChatWidget.tsx(187,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'."
 }

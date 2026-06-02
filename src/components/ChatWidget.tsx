@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  plan?: string;
-  ts: number;
-}
+import { Message } from "@/lib/ai/persistence";
 
 interface Agent {
   id: string;
@@ -24,37 +18,54 @@ const AGENTS: Agent[] = [
   { id: "data-slayer", name: "Data Slayer", avatar: "📊", greeting: "PATTERN RECOGNITION ACTIVE. Data Slayer standing by for extraction." },
 ];
 
-const STORAGE_KEY = "litlabs_chat_messages_hud";
 const AGENT_KEY = "litlabs_chat_agent_hud";
+const SESSION_KEY = "litlabs_chat_session_id";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch { /* ignore */ }
-    return [{ role: "assistant", content: AGENTS[0].greeting, ts: Date.now() }];
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [activeAgent, setActiveAgent] = useState(() => {
-    if (typeof window === "undefined") return 0;
-    try {
-      const savedAgent = localStorage.getItem(AGENT_KEY);
-      if (savedAgent) return parseInt(savedAgent, 10);
-    } catch { /* ignore */ }
-    return 0;
-  });
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [activeAgent, setActiveAgent] = useState(0);
   const [latency, setLatency] = useState(42);
   const [linkStability, setLinkStability] = useState(99.8);
   
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  // Initialize Session and History
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-50)));
-  }, [messages]);
+    const initChat = async () => {
+      // Load Agent Preference
+      const savedAgent = localStorage.getItem(AGENT_KEY);
+      if (savedAgent) setActiveAgent(parseInt(savedAgent, 10));
+
+      // Load or Create Session
+      let sid = localStorage.getItem(SESSION_KEY);
+      if (!sid) {
+        // We'll use a fixed 'default' session for the widget or create one on first message
+        sid = "hud-default-session"; 
+        localStorage.setItem(SESSION_KEY, sid);
+      }
+      setSessionId(sid);
+
+      // Fetch History
+      try {
+        const res = await fetch(`/api/chat/history?sessionId=${sid}`);
+        const data = await res.json();
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        } else {
+          setMessages([{ role: "assistant", content: AGENTS[0].greeting, created_at: new Date().toISOString() }]);
+        }
+      } catch (err) {
+        console.error("Failed to load chat history:", err);
+        setMessages([{ role: "assistant", content: AGENTS[0].greeting, created_at: new Date().toISOString() }]);
+      }
+    };
+
+    if (open) initChat();
+  }, [open]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -69,15 +80,16 @@ export default function ChatWidget() {
   const switchAgent = useCallback((idx: number) => {
     setActiveAgent(idx);
     localStorage.setItem(AGENT_KEY, String(idx));
-    const timestamp = Date.now();
-    setMessages([{ role: "assistant", content: AGENTS[idx].greeting, ts: timestamp }]);
+    // When switching agents in HUD, we keep the history but the next message uses the new agent
   }, []);
 
   async function handleSend() {
     const text = input.trim();
     if (!text || loading) return;
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: text, ts: Date.now() }]);
+    
+    const userMsg: Message = { role: "user", content: text, created_at: new Date().toISOString() };
+    setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     
     try {
@@ -87,7 +99,7 @@ export default function ChatWidget() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           message: text, 
-          sessionId: "demo-session", 
+          sessionId: sessionId,
           agent: AGENTS[activeAgent].id 
         }),
       });
@@ -99,15 +111,15 @@ export default function ChatWidget() {
       setMessages((prev) => [...prev, { 
         role: "assistant", 
         content: data.reply, 
-        plan: data.plan,
-        ts: Date.now() 
+        metadata: { plan: data.plan },
+        created_at: new Date().toISOString()
       }]);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setMessages((prev) => [...prev, { 
         role: "assistant", 
         content: `CRITICAL ERROR: ${message}. Link degraded.`, 
-        ts: Date.now() 
+        created_at: new Date().toISOString()
       }]);
     } finally {
       setLoading(false);
@@ -168,15 +180,15 @@ export default function ChatWidget() {
                     <span className={`text-[8px] font-black uppercase ${msg.role === "user" ? "text-blue-400" : "text-orange-400"}`}>
                       {msg.role === "user" ? "Local Terminal" : agent.name}
                     </span>
-                    <span className="text-[8px] text-zinc-600">[{new Date(msg.ts).toLocaleTimeString()}]</span>
+                    <span className="text-[8px] text-zinc-600">[{msg.created_at ? new Date(msg.created_at).toLocaleTimeString() : 'NOW'}]</span>
                   </div>
                   <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
                   
-                  {msg.plan && (
+                  {!!msg.metadata?.plan && (
                     <details className="mt-2 pt-2 border-t border-orange-500/10">
                       <summary className="text-[8px] font-bold text-orange-500/50 uppercase cursor-pointer hover:text-orange-500 transition-colors">View Director Blueprint</summary>
                       <div className="mt-2 p-2 bg-black/40 rounded text-[9px] text-zinc-400 italic font-mono leading-tight">
-                        {msg.plan}
+                        {String(msg.metadata.plan)}
                       </div>
                     </details>
                   )}

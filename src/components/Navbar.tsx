@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: "🏠" },
   { href: "/gallery", label: "Explore", icon: "🏛" },
   { href: "/marketplace", label: "Forge", icon: "🔧" },
-  { href: "/agent-chat", label: "Chat", icon: "⚡" },
+  { href: "/chat", label: "Cockpit", icon: "⚡" },
   { href: "/social", label: "Feed", icon: "👥" },
 ];
 

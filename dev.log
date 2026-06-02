@@ -1,0 +1,17 @@
+
+> frontend@0.1.0 dev
+> next dev --webpack -p 3000
+
+▲ Next.js 16.2.6 (webpack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.65:3000
+- Environments: .env.local
+✓ Ready in 1706ms
+Warning: Custom Cache-Control headers detected for the following routes:
+  - /_next/static/(.*)
+  - /_next/image(.*)
+
+Setting a custom Cache-Control header can break Next.js development behavior.
+  Skipping creating a lockfile at /data/data/com.termux/files/home/LiTTreeLabstudios/.next/dev/lock because we're using WASM bindings
+
+[?25h

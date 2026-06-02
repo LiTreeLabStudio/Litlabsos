@@ -57,9 +57,10 @@ export default function LiveTerminal({ sessionId }: { sessionId: string }) {
   }, [sessionId]);
 
   return (
-    <div className="bg-black text-green-500 font-mono p-4 rounded-lg h-96 overflow-y-auto">
-      <div className="mb-2 border-b border-green-800 pb-2">
-        <span className="text-green-300">SYSTEM:</span> Listening for Executor output...
+    <div className="bg-zinc-950 border border-orange-500/30 shadow-[inset_0_0_20px_rgba(249,115,22,0.05)] text-orange-500 font-mono p-4 rounded-none h-96 overflow-y-auto relative">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(249,115,22,0.05)_1px,transparent_1px)] bg-[size:100%_4px]"></div>
+      <div className="mb-2 border-b border-orange-900/50 pb-2 relative z-10">
+        <span className="text-orange-400 animate-pulse">SYSTEM:</span> Listening for Executor output...
       </div>
       {logs.map((log) => (
         <div key={log.id} className="py-1">

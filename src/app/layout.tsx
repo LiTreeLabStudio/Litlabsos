@@ -44,7 +44,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${orbitron.variable} ${jetbrains.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col bg-cyber-bg text-white">
+      <body className="min-h-full flex flex-col bg-black text-zinc-300 antialiased selection:bg-orange-500/40 selection:text-orange-100">
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>

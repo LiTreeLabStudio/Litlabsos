@@ -6,12 +6,12 @@ const LiveTerminal = dynamic(() => import("../components/LiveTerminal"), { ssr: 
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-cyber-bg text-white">
+    <div className="min-h-screen bg-black text-white">
       {/* ========== NAV BAR ========== */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-cyber-bg/95 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-orange-500/30 bg-black/95 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link href="/" className="text-xl font-extrabold tracking-tight text-white">
-            LiT<span className="text-blue-500">Tree</span>Lab
+          <Link href="/" className="text-xl font-black uppercase tracking-widest font-mono text-white drop-shadow-md">
+            LiT<span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">Tree</span>Lab
           </Link>
           <div className="hidden items-center gap-6 md:flex">
             <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Features</a>
@@ -23,7 +23,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-sm font-semibold text-zinc-300 hover:text-white transition-colors">Log in</Link>
-            <Link href="/login" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-colors">Get Started</Link>
+            <Link href="/login" className="rounded-none bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-colors">Get Started</Link>
           </div>
         </div>
       </nav>
@@ -31,22 +31,22 @@ export default function Home() {
       {/* ========== HERO ========== */}
       <section className="relative overflow-hidden px-4 pt-20 pb-24 sm:pt-28 sm:pb-32">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-125 w-125 rounded-full bg-blue-500/10 blur-[150px]" />
+          <div className="h-125 w-125 rounded-none bg-orange-600/10 blur-[150px]" />
         </div>
         <div className="relative mx-auto max-w-3xl text-center">
-          <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl lg:text-7xl">
+          <h1 className="mb-6 text-4xl font-black uppercase tracking-widest font-mono leading-tight tracking-tight sm:text-6xl lg:text-7xl">
             Build the Future
             <br />
-            <span className="bg-linear-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">with AI Agents</span>
+            <span className="bg-linear-to-r from-orange-400 via-red-500 to-orange-600 animate-pulse bg-clip-text text-transparent">with AI Agents</span>
           </h1>
           <p className="mx-auto mb-10 max-w-xl text-lg text-zinc-400 leading-relaxed">
             Your all-in-one platform to create, deploy, and manage custom AI agents. Build automations, connect tools, and scale your workflow — all from one clean interface.
           </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/login" className="w-full sm:w-auto rounded-lg bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors text-center">
+            <Link href="/login" className="w-full sm:w-auto rounded-none bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50 px-8 py-3.5 text-sm font-semibold text-white hover:bg-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-colors text-center">
               Start Building — Free
             </Link>
-            <Link href="/gallery" className="w-full sm:w-auto rounded-lg border border-white/10 px-8 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/5 hover:text-white transition-colors text-center">
+            <Link href="/gallery" className="w-full sm:w-auto rounded-none border border-orange-500/30 px-8 py-3.5 text-sm font-semibold text-zinc-300 hover:bg-white/5 hover:text-white transition-colors text-center">
               Explore Agents
             </Link>
           </div>
@@ -54,7 +54,7 @@ export default function Home() {
       </section>
 
       {/* ========== SOCIAL PROOF ========== */}
-      <section className="border-y border-white/5 bg-white/2">
+      <section className="border-y border-orange-500/20 bg-zinc-950/80 backdrop-blur-sm border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.05)]">
         <div className="mx-auto grid max-w-5xl grid-cols-2 sm:grid-cols-4 divide-x divide-white/5">
           {[
             { value: "10K+", label: "Active Users" },
@@ -63,7 +63,7 @@ export default function Home() {
             { value: "4.9★", label: "Rating" },
           ].map((s, i) => (
             <div key={s.label} className={`py-8 px-4 text-center ${i > 0 ? "hidden sm:block" : ""} ${i < 2 ? "block" : ""}`}>
-              <div className="text-2xl font-extrabold text-white sm:text-3xl">{s.value}</div>
+              <div className="text-2xl font-black uppercase tracking-widest font-mono text-white sm:text-3xl">{s.value}</div>
               <div className="mt-1 text-xs font-medium text-zinc-500 uppercase tracking-wider">{s.label}</div>
             </div>
           ))}
@@ -74,7 +74,7 @@ export default function Home() {
       <section id="features" className="px-4 py-20 sm:py-28">
         <div className="mx-auto max-w-5xl">
           <div className="mb-14 text-center">
-            <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">
+            <h2 className="mb-4 text-3xl font-black uppercase tracking-widest font-mono sm:text-4xl">
               Everything You Need
             </h2>
             <p className="mx-auto max-w-lg text-zinc-400">
@@ -90,7 +90,7 @@ export default function Home() {
               { icon: "🏆", title: "Agent Arena", desc: "Enter your agents in head-to-head challenges. Climb the leaderboard and earn reputation." },
               { icon: "👥", title: "Community", desc: "Connect with other builders. Share wins, swap strategies, and discover new agent blueprints." },
             ].map((f) => (
-              <div key={f.title} className="rounded-xl border border-white/5 bg-white/2 p-6 hover:border-white/15 hover:bg-white/4 transition-all">
+              <div key={f.title} className="rounded-none border border-orange-500/20 bg-zinc-950/80 backdrop-blur-sm border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.05)] p-6 hover:border-orange-500/50 hover:shadow-[0_0_15px_rgba(249,115,22,0.2)] hover:bg-orange-900/20 hover:border-orange-500/50 transition-all transition-all">
                 <div className="mb-3 text-3xl">{f.icon}</div>
                 <h3 className="mb-2 text-lg font-bold">{f.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{f.desc}</p>
@@ -101,10 +101,10 @@ export default function Home() {
       </section>
 
       {/* ========== HOW IT WORKS ========== */}
-      <section className="border-t border-white/5 px-4 py-20 sm:py-28 bg-white/1">
+      <section className="border-t border-orange-500/20 px-4 py-20 sm:py-28 bg-white/1">
         <div className="mx-auto max-w-4xl">
           <div className="mb-14 text-center">
-            <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">How It Works</h2>
+            <h2 className="mb-4 text-3xl font-black uppercase tracking-widest font-mono sm:text-4xl">How It Works</h2>
             <p className="text-zinc-400">Three steps to your first AI agent</p>
           </div>
           <div className="grid gap-8 sm:grid-cols-3">
@@ -114,7 +114,7 @@ export default function Home() {
               { step: "3", title: "Deploy", desc: "Go live instantly. Your agent works 24/7 — in chat, on Discord, or anywhere else." },
             ].map((item) => (
               <div key={item.step} className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-blue-600/20 text-blue-400 text-lg font-bold">{item.step}</div>
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50/20 text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] text-lg font-bold">{item.step}</div>
                 <h3 className="mb-2 text-lg font-bold">{item.title}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed">{item.desc}</p>
               </div>
@@ -127,68 +127,68 @@ export default function Home() {
       <section id="pricing" className="px-4 py-20 sm:py-28">
         <div className="mx-auto max-w-5xl">
           <div className="mb-14 text-center">
-            <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">Simple Pricing</h2>
+            <h2 className="mb-4 text-3xl font-black uppercase tracking-widest font-mono sm:text-4xl">Simple Pricing</h2>
             <p className="text-zinc-400">Free to start. Scale when you&apos;re ready.</p>
           </div>
           <div className="grid gap-6 lg:grid-cols-3 items-start">
             {/* Free */}
-            <div className="rounded-xl border border-white/10 bg-white/2 p-8">
+            <div className="rounded-none border border-orange-500/30 bg-zinc-950/80 backdrop-blur-sm border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.05)] p-8">
               <h3 className="text-lg font-bold mb-1">Explorer</h3>
               <p className="text-sm text-zinc-400 mb-6">Perfect for trying things out.</p>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold">$0</span>
+                <span className="text-4xl font-black uppercase tracking-widest font-mono">$0</span>
                 <span className="text-sm text-zinc-500">/forever</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {["3 Active Agents", "Basic Chat", "Community Access", "1GB Storage"].map((f) => (
                   <li key={f} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <span className="text-green-400">✓</span> {f}
+                    <span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="block w-full rounded-lg border border-white/10 py-3 text-center text-sm font-semibold text-zinc-300 hover:bg-white/5 transition-colors">
+              <Link href="/login" className="block w-full rounded-none border border-orange-500/30 py-3 text-center text-sm font-semibold text-zinc-300 hover:bg-white/5 transition-colors">
                 Get Started Free
               </Link>
             </div>
 
             {/* Pro */}
-            <div className="rounded-xl border border-blue-500/50 bg-blue-500/5 p-8 relative order-first lg:order-0">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-blue-600 px-4 py-1 text-xs font-bold text-white">
+            <div className="rounded-none border border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.3)] bg-orange-500/10 p-8 relative order-first lg:order-0">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50 px-4 py-1 text-xs font-bold text-white">
                 Most Popular
               </div>
               <h3 className="text-lg font-bold mb-1 mt-1">Architect</h3>
               <p className="text-sm text-zinc-400 mb-6">Full power for serious builders.</p>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold">$19</span>
+                <span className="text-4xl font-black uppercase tracking-widest font-mono">$19</span>
                 <span className="text-sm text-zinc-500">/month</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {["Unlimited Agents", "Dual-Agent Orchestration", "Arena Access", "Priority Compute", "50GB Storage", "All Integrations"].map((f) => (
                   <li key={f} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <span className="text-blue-400">✓</span> {f}
+                    <span className="text-orange-400 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <Link href="/login" className="block w-full rounded-lg bg-blue-600 py-3 text-center text-sm font-semibold text-white hover:bg-blue-500 transition-colors">
+              <Link href="/login" className="block w-full rounded-none bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50 py-3 text-center text-sm font-semibold text-white hover:bg-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-colors">
                 Start Pro Trial
               </Link>
             </div>
 
             {/* Enterprise */}
-            <div className="rounded-xl border border-white/10 bg-white/2 p-8">
+            <div className="rounded-none border border-orange-500/30 bg-zinc-950/80 backdrop-blur-sm border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.05)] p-8">
               <h3 className="text-lg font-bold mb-1">Commander</h3>
               <p className="text-sm text-zinc-400 mb-6">For teams and organizations.</p>
               <div className="mb-6">
-                <span className="text-4xl font-extrabold">Custom</span>
+                <span className="text-4xl font-black uppercase tracking-widest font-mono">Custom</span>
               </div>
               <ul className="space-y-3 mb-8">
                 {["Everything in Pro", "Dedicated Infrastructure", "SLA & Support", "Custom Training", "Unlimited Storage", "SSO & Admin"].map((f) => (
                   <li key={f} className="flex items-center gap-3 text-sm text-zinc-300">
-                    <span className="text-amber-400">✓</span> {f}
+                    <span className="text-orange-400">✓</span> {f}
                   </li>
                 ))}
               </ul>
-              <a href="mailto:hello@litlabs.net" className="block w-full rounded-lg border border-white/10 py-3 text-center text-sm font-semibold text-zinc-300 hover:bg-white/5 transition-colors">
+              <a href="mailto:hello@litlabs.net" className="block w-full rounded-none border border-orange-500/30 py-3 text-center text-sm font-semibold text-zinc-300 hover:bg-white/5 transition-colors">
                 Contact Sales
               </a>
             </div>
@@ -197,13 +197,13 @@ export default function Home() {
       </section>
 
       {/* ========== CTA ========== */}
-      <section className="border-t border-white/5 px-4 py-20 sm:py-28 bg-white/2">
+      <section className="border-t border-orange-500/20 px-4 py-20 sm:py-28 bg-zinc-950/80 backdrop-blur-sm border border-orange-500/20 shadow-[0_0_15px_rgba(249,115,22,0.05)]">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">Ready to Build?</h2>
+          <h2 className="mb-4 text-3xl font-black uppercase tracking-widest font-mono sm:text-4xl">Ready to Build?</h2>
           <p className="mb-8 text-zinc-400">
             Join thousands of builders creating the future of AI automation.
           </p>
-          <Link href="/login" className="inline-block rounded-lg bg-blue-600 px-10 py-4 text-base font-semibold text-white hover:bg-blue-500 transition-colors">
+          <Link href="/login" className="inline-block rounded-none bg-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] border border-orange-500/50 px-10 py-4 text-base font-semibold text-white hover:bg-orange-500 hover:shadow-[0_0_25px_rgba(249,115,22,0.6)] transition-colors">
             Get Started Free →
           </Link>
         </div>
@@ -212,16 +212,16 @@ export default function Home() {
       {/* ========== LIVE TERMINAL ========== */}
       <section className="px-4 py-12">
         <div className="mx-auto max-w-3xl">
-          <h2 className="mb-4 text-2xl font-bold text-green-400 font-mono">Live Agent Log</h2>
+          <h2 className="mb-4 text-2xl font-bold text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] font-mono">Live Agent Log</h2>
           <LiveTerminal sessionId="demo-session" />
         </div>
       </section>
 
       {/* ========== FOOTER ========== */}
-      <footer className="border-t border-white/5 px-4 py-10">
+      <footer className="border-t border-orange-500/20 px-4 py-10">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 sm:flex-row">
           <div>
-            <div className="text-lg font-extrabold tracking-tight">LiT<span className="text-blue-500">Tree</span>Lab</div>
+            <div className="text-lg font-black uppercase tracking-widest font-mono tracking-tight">LiT<span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">Tree</span>Lab</div>
             <div className="mt-1 text-xs text-zinc-500">© 2026 LiTTreeLabStudios. All rights reserved.</div>
           </div>
           <div className="flex flex-wrap justify-center gap-6 text-sm text-zinc-500">

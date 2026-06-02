@@ -28,8 +28,8 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-cyber-bg/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <Link href={user ? "/dashboard" : "/"} className="text-xl font-extrabold tracking-tight text-white">
-          LiT<span className="text-blue-500">Tree</span>Lab
+        <Link href={user ? "/dashboard" : "/"} className="text-xl font-black uppercase tracking-widest text-white font-mono drop-shadow-md">
+          LiT<span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">Tree</span>Lab
         </Link>
 
         {/* Desktop Nav */}
@@ -63,9 +63,9 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
             <div className="flex items-center gap-3">
               <Link
                 href="/settings"
-                className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 rounded-none border border-orange-500/30 bg-zinc-950 px-3 py-1.5 hover:bg-orange-500/10 hover:border-orange-500 hover:shadow-[0_0_10px_rgba(249,115,22,0.2)] transition-all"
               >
-                <div className="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">
+                <div className="w-7 h-7 rounded-none border border-orange-500 bg-orange-600/20 flex items-center justify-center text-orange-400 text-xs font-mono font-bold shadow-[0_0_10px_rgba(249,115,22,0.3)]">
                   {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
                 </div>
                 <span className="text-sm font-medium text-zinc-300 hidden sm:block">
@@ -79,7 +79,7 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
               </form>
             </div>
           ) : (
-            <Link href="/login" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500 transition-colors">
+            <Link href="/login" className="rounded-none border border-orange-500 bg-orange-600/10 px-4 py-2 text-sm font-mono font-bold tracking-widest text-orange-400 hover:text-white hover:bg-orange-600/40 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all uppercase">
               Sign In
             </Link>
           )}

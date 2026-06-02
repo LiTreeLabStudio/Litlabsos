@@ -8,7 +8,7 @@ async function checkPort(port: number, host: string = "localhost"): Promise<bool
   try {
     execSync(`curl -s -o /dev/null -w "%{http_code}" --max-time 0.5 http://${host}:${port}`, { stdio: 'ignore' });
     return true;
-  } catch (_e) {
+  } catch {
     return false;
   }
 }
@@ -26,7 +26,7 @@ export async function GET() {
       activeMilestone = task.milestone;
       systemStatus = task.status;
     }
-  } catch (_e) {}
+  } catch {}
 
   // Check critical service heartbeats
   const [ollama, bridge] = await Promise.all([

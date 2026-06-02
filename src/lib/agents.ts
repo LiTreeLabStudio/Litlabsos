@@ -3,6 +3,7 @@ import { getSupabaseServerClient } from "./supabaseServer";
 export interface Agent {
   id: string;
   name: string;
+  description?: string; // Short bio or goal
   role: string; // Aligned with CEO-OS SQL 'role' column
   config: Record<string, unknown>;
   created_at?: string;

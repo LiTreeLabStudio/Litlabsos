@@ -9,7 +9,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, role, skills = [] } = body;
+    const { name, role, description, personality, skills = [] } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -17,8 +17,9 @@ export async function POST(req: NextRequest) {
 
     const agent = await createAgent({
       name,
+      description,
       role: role || "Generalist Executor",
-      config: { skills },
+      config: { personality, skills },
     });
 
     return NextResponse.json(agent);

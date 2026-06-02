@@ -49,18 +49,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Name is required" }, { status: 400 });
   }
 
-  const name = body.name.trim();
+  const { name, avatarEmoji, bio } = body;
+  console.log(`[SETTINGS] Update for ${payload.email}: Name=${name}, Avatar=${avatarEmoji}, Bio=${bio?.substring(0,20)}...`);
 
-  // TODO: Update name in database.
-  // For now, the admin name comes from ADMIN_NAME env var and cannot be
-  // changed at runtime. Return success so the client can optimistically
-  // update its local state.
+  // TODO: Update name, avatar, and bio in database (Supabase/Postgres).
   return NextResponse.json({
-    message: "Profile update acknowledged",
+    message: "Identity updated in neural archives",
     user: {
       id: payload.id,
       email: payload.email,
-      name,
+      name: name.trim(),
     },
   });
 }

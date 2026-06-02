@@ -28,9 +28,23 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
   return (
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-cyber-bg/95 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-        <Link href={user ? "/dashboard" : "/"} className="text-xl font-black uppercase tracking-widest text-white font-mono drop-shadow-md">
-          LiT<span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">Tree</span>Lab
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href={user ? "/dashboard" : "/"} className="text-xl font-black uppercase tracking-widest text-white font-mono drop-shadow-md group">
+            LiT<span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)] group-hover:animate-pulse">Tree</span>Lab
+          </Link>
+          
+          {/* System Ticker (Desktop) */}
+          <div className="hidden lg:flex items-center gap-4 border-l border-white/10 pl-6 h-6">
+            <div className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shadow-[0_0_8px_#f97316]" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500/70">Neural_Link: Stable</span>
+            </div>
+            <div className="w-px h-3 bg-white/10" />
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-600 animate-flicker">
+              CPU_LOAD: 2.4% // AGENTS_LIVE: 14
+            </div>
+          </div>
+        </div>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-1">

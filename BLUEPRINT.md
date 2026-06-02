@@ -1,34 +1,79 @@
-# 🌋 LiTTreeLabs Hive Mind: Master Blueprint
+# 🔱 LiTTreeLabStudios — HIVE MIND BLUEPRINT
 
-## 1. Executive Summary
-- **Identity:** Volcanic Cyber (Dark mode, Neon Orange/Blue accents).
-- **Goal:** Autonomous agent orchestration and self-evolving software network.
-- **Production:** [litlabs.net](https://litlabs.net) (Vercel).
-- **Infrastructure:** Termux (Mobile) + WSL2 (Monolith) synced via Autonomic Loop.
+This document serves as the high-level technical map for the **LiTTreeLabStudios** platform (litlabs.net). It is designed to be ingested by Gemini AI to provide full situational awareness of the project's architecture, routing, and logic.
 
-## 2. Core Architecture (The Autonomic Loop)
-- **Sync (`npm run sync`):** Multi-device Git state synchronization.
-- **Save (`npm run save`):** Quality gate (ESLint + TSC) -> Commit -> Push.
-- **Auto-Fix (`npm run auto-fix`):** Feeds compiler errors back to the Executor agent.
-- **Bridge:** Custom Python/Node link between local agents and the web dashboard.
+## 1. PROJECT OVERVIEW
+- **Mission:** A self-evolving autonomous AI agent platform.
+- **Aesthetic:** Volcanic Cyber (Deep blacks, neon oranges, glowing pulses).
+- **Core Tech:** Next.js 15+ (App Router), TypeScript, Tailwind CSS, Supabase (PostgreSQL + Auth + Realtime), Stripe integration.
 
-## 3. Tech Stack
-- **Frontend:** Next.js 16.2.6 (App Router), Tailwind CSS 4.0.
-- **Backend:** Supabase (Database, Auth, Storage, Real-time Logs).
-- **AI Engine:** Google Gemini (2.0-flash-exp), Ollama (Local Llama 3.2, Qwen 2.5).
-- **Orchestration:** n8n (System Brain), Director/Executor Dual-Agent pattern.
+## 2. REPOSITORY STRUCTURE
+```
+LiTTreeLabstudios/
+├── src/
+│   ├── app/                # Next.js App Router (Routes & APIs)
+│   │   ├── (auth)/         # Authentication routes (login, registration)
+│   │   ├── (dashboard)/    # Protected user area
+│   │   │   ├── chat/       # System Architect Cockpit (Main Chat)
+│   │   │   ├── builder/    # Agent Forge (No-code builder)
+│   │   │   ├── marketplace/# Bot Forge (Acquire specialized agents)
+│   │   │   ├── settings/   # System Configuration
+│   │   │   └── ai-studio/  # Neural UI Forge
+│   │   ├── api/            # Backend API Endpoints
+│   │   │   ├── agents/     # Agent CRUD & deployment
+│   │   │   ├── chat/       # AI Orchestration endpoints
+│   │   │   ├── auth/       # Custom auth logic
+│   │   │   └── live/       # Live status telemetry
+│   │   ├── gallery/        # Public agent showcase
+│   │   └── layout.tsx      # Global layout & metadata
+│   ├── components/         # Reusable UI components
+│   ├── context/            # Global state (Auth, Theme)
+│   ├── lib/                # Shared utilities & business logic
+│   │   ├── ai/             # AI Engine & Orchestration
+│   │   └── supabase/       # Supabase client & server wrappers
+│   └── prompts/            # System Architect & Executor personas
+├── tasks/                  # Hive Mind Autonomic Loop storage
+│   ├── backlog/            # Pending neural tasks
+│   ├── completed/          # Archived milestones
+│   ├── active.json         # Current system objective
+│   └── memory.json         # Long-term system identity & lessons
+├── bin/                    # Automation scripts (sync, save, heartbeat)
+└── supabase_schema.sql     # Database definitions
+```
 
-## 4. Key Directory Map
-- `/bin/`: Orchestration and maintenance scripts.
-- `/src/app/`: Next.js Routes & API Endpoints.
-- `/src/components/`: HUD Terminal, AI Studio, Marketplace UI.
-- `/tasks/`: Hive Mind memory (backlog, active, completed).
-- `/prompts/`: Persona DNA (Director.md, Executor.md).
+## 3. ROUTING MAP
+| Path | Description | Access |
+| :--- | :--- | :--- |
+| `/` | Landing Page (Hero, Features, Pricing) | Public |
+| `/login` | Authentication Entry | Public |
+| `/dashboard` | User Mainframe Hub | Private (Auth) |
+| `/chat` | **Director Cockpit** (System Architect) | Private (Auth) |
+| `/builder` | Agent Forge (Create Daemons) | Private (Auth) |
+| `/marketplace`| Bot Forge (Browse/Buy Agents) | Private (Auth) |
+| `/gallery` | Neural Archives (Public Agents) | Public |
+| `/settings` | System Configuration | Private (Auth) |
+| `/api/chat` | AI Orchestration (Primary Brain) | Private |
+| `/api/agents` | Agent Deployment & Management | Private |
 
-## 5. Security Protocol
-- **Runtime:** `server-only` enforcement for all DB/Auth modules.
-- **Credentials:** Admin credentials managed via environment variables with encrypted fallbacks.
-- **Access:** RLS (Row Level Security) enforced on all Supabase tables.
+## 4. DATA SCHEMA (SUPABASE)
+- **profiles:** User identity, role, and subscription status.
+- **products:** Marketplace templates for specialized agents.
+- **agents:** User-deployed agent instances with custom configs.
+- **chat_sessions:** Containers for neural transmissions.
+- **chat_messages:** Individual logs of user/agent interaction.
+- **jobs:** Background tasks for the autonomic loop.
+- **telemetry_logs:** System health and execution traces.
+
+## 5. AI ORCHESTRATION ENGINE
+- **The System Architect (Director):** The primary router. Parses user intent, selects the elite specialized agent (Code Champion, Social Dominator, etc.), and formulates a technical blueprint (JSON).
+- **The Executor:** The implementation node. Follows the Architect's blueprint to generate code, data, or content.
+- **Dual-Core Engine:** Uses Gemini 2.0 Flash as the primary core with OpenAI GPT-4o as a high-performance fallback.
+- **Autonomic Loop:** A background heartbeat script (`bin/heartbeat.sh`) that monitors `tasks/active.json` to perform continuous self-improvement of the codebase.
+
+## 6. AESTHETIC CONSTANTS (VOLCANIC CYBER)
+- **Colors:** `#000000` (Background), `#f97316` (Primary Orange Glow), `#ef4444` (Secondary Red).
+- **Typography:** `Orbitron` (Headings), `JetBrains Mono` (Data), `Inter` (UI).
+- **Effects:** HUD scanlines, neon glowing borders, blocky `rounded-none` edges, and flicker animations.
 
 ---
-*Generated by Gemini CLI — June 1, 2026*
+*Blueprint generated by Gemini CLI on 2026-06-02. Sync with `tasks/memory.json` for current system state.*

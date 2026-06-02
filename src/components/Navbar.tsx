@@ -16,6 +16,7 @@ interface User {
   id: string;
   email: string;
   name: string | null;
+  isAdmin: boolean;
 }
 
 export default function Navbar({ user: ssrUser }: { user?: User | null }) {
@@ -33,7 +34,11 @@ export default function Navbar({ user: ssrUser }: { user?: User | null }) {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-1">
-          {NAV_ITEMS.map((item) => {
+          {NAV_ITEMS.filter(item => {
+            const adminOnly = ["/chat", "/builder", "/marketplace"].some(p => item.href.startsWith(p));
+            if (adminOnly) return user?.isAdmin;
+            return true;
+          }).map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
             return (
               <Link

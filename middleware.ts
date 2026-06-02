@@ -27,6 +27,14 @@ const STATIC_EXTENSIONS = [
   ".js",
 ];
 
+const ADMIN_ONLY_PATHS = [
+  "/chat",
+  "/ai-studio",
+  "/builder",
+  "/dashboard/agents",
+  "/api/agents",
+];
+
 export async function middleware(request: {
   nextUrl: { pathname: string; origin: string; href: string };
   cookies: { get: (name: string) => { value: string } | undefined };
@@ -72,6 +80,21 @@ export async function middleware(request: {
     );
     res.cookies.delete("auth-token");
     return res;
+  }
+
+  // Admin-only path restriction
+  const isAdminPath = ADMIN_ONLY_PATHS.some((p) => pathname.startsWith(p));
+  const isAdmin = payload.email === process.env.ADMIN_EMAIL;
+
+  if (isAdminPath && !isAdmin) {
+    console.warn(`🛑 Unauthorized access attempt by ${payload.email} to ${pathname}`);
+    if (pathname.startsWith("/api/")) {
+      return new NextResponse(
+        JSON.stringify({ error: "Forbidden: Admin access required" }),
+        { status: 403, headers: { "Content-Type": "application/json" } }
+      );
+    }
+    return NextResponse.redirect(new URL("/dashboard", request.nextUrl.origin));
   }
 
   return NextResponse.next();

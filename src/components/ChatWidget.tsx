@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Message } from "@/lib/ai/persistence";
+import { useAuth } from "@/context/AuthContext";
 
 interface Agent {
   id: string;
@@ -22,6 +23,7 @@ const AGENT_KEY = "litlabs_chat_agent_hud";
 const SESSION_KEY = "litlabs_chat_session_id";
 
 export default function ChatWidget() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -64,8 +66,8 @@ export default function ChatWidget() {
       }
     };
 
-    if (open) initChat();
-  }, [open]);
+    if (open && user?.isAdmin) initChat();
+  }, [open, user?.isAdmin]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -127,6 +129,8 @@ export default function ChatWidget() {
   }
 
   const agent = AGENTS[activeAgent];
+
+  if (!user?.isAdmin) return null;
 
   return (
     <>

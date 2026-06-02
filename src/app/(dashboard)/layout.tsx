@@ -26,6 +26,7 @@ export default async function DashboardLayout({
     id: (payload.id as string) || "",
     email: (payload.email as string) || "",
     name: (payload.name as string) || null,
+    isAdmin: (payload.email as string) === process.env.ADMIN_EMAIL,
   };
 
   return (

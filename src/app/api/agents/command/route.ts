@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         systemInstruction: { 
-          parts: [{ text: "You are the Core Director for LiTTreeLabstudios. Convert user prompts into structured project goals for the Hive Mind. Focus on actionable coding or architecture tasks." }] 
+          parts: [{ text: "You are the System Architect for LiTTreeLabstudios. Convert user prompts into structured project goals for the Hive Mind. Focus on actionable coding or architecture tasks." }] 
         },
         contents: [{ parts: [{ text: command }] }],
         generationConfig: { temperature: 0.7, maxOutputTokens: 512 }

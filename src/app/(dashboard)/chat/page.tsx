@@ -209,11 +209,11 @@ export default function ChatCockpitPage() {
         >
           {messages.length === 0 && !loading && (
             <div className="h-full flex flex-col items-center justify-center text-center">
-              <div className="w-20 h-20 rounded-3xl border-2 border-dashed border-orange-500/20 bg-orange-500/5 flex items-center justify-center text-3xl mb-6 animate-flicker">
+              <div className="w-20 h-20 rounded-3xl border-2 border-dashed border-orange-500/20 bg-orange-500/5 flex items-center justify-center text-3xl mb-6 animate-flicker shadow-[0_0_30px_rgba(249,115,22,0.1)]">
                 ⚡
               </div>
               <h2 className="text-2xl font-black text-white tracking-tighter mb-2 italic">NEURAL LINK READY</h2>
-              <p className="text-zinc-500 text-sm max-w-sm font-medium">The Hive Mind Director is standing by. Initialize commands to begin agent orchestration.</p>
+              <p className="text-zinc-500 text-sm max-w-sm font-medium">The System Architect is standing by. Initialize commands to begin Hive Mind orchestration.</p>
             </div>
           )}
 
@@ -221,12 +221,12 @@ export default function ChatCockpitPage() {
             <div key={i} className={`flex ${m.sender_id === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`max-w-3xl group relative ${m.sender_id === 'user' ? 'w-full max-w-xl' : 'w-full'}`}>
                 <div className={`flex items-center gap-3 mb-3 ${m.sender_id === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold border transition-all ${m.sender_id === 'user' ? 'bg-blue-600/10 border-blue-500/40 text-blue-400' : 'bg-orange-600/10 border-orange-500/40 text-orange-400'}`}>
-                    {m.sender_id === 'user' ? 'LB' : (m.sender_id ? m.sender_id.charAt(0).toUpperCase() : '⚡')}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold border transition-all shadow-md ${m.sender_id === 'user' ? 'bg-blue-600/10 border-blue-500/40 text-blue-400 shadow-blue-500/20' : 'bg-orange-600/10 border-orange-500/40 text-orange-400 shadow-orange-500/20'}`}>
+                    {m.sender_id === 'user' ? 'CEO' : (m.sender_id ? m.sender_id.charAt(0).toUpperCase() : '⚡')}
                   </div>
                   <div>
                     <div className={`text-[10px] font-black uppercase tracking-widest ${m.sender_id === 'user' ? 'text-blue-500 text-right' : 'text-orange-500'}`}>
-                      {m.sender_id === 'user' ? 'Lead Architect' : (m.sender_id || 'System Brain')}
+                      {m.sender_id === 'user' ? 'Litree-Ceo' : (m.sender_id === 'executor' ? 'System Architect' : m.sender_id || 'System Architect')}
                     </div>
                     <div className="text-[9px] text-zinc-600">{m.created_at ? new Date(m.created_at).toLocaleTimeString() : 'REALTIME'}</div>
                   </div>

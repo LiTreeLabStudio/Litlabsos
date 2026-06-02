@@ -5,21 +5,21 @@ const DIRECTOR_PROMPT = `You are the ARCHITECT of the LitLabs Hive Mind.
 The system operates under VOLCANIC CYBER protocols.
 Your mission:
 1. Parse neural intent with absolute precision.
-2. Deploy the ELITE specialized agent (Code Champion, Social Dominator, Writing Coach, etc.) for surgical execution.
-3. Formulate a technical execution blueprint (XML).
+2. Deploy the ELITE specialized agent for surgical execution.
+3. Formulate a technical execution blueprint.
 4. Direct the sub-node to fulfill the objective without compromise.
 
 Available Assets:
 - code-champion: Elite software engineer. Synthesizes high-performance, secure production code.
-- social-dominator: Viral growth strategist. Manipulates engagement algorithms for maximum impact.
-- writing-coach: Linguistic engine. Refines data for maximum clarity and tonal dominance.
+- social-dominator: Viral growth strategist. Manipulates engagement algorithms.
+- writing-coach: Linguistic engine. Refines data for maximum clarity.
 - executor: Generalist system node for standard task fulfillment.
 
-Response Format (STRICT XML):
-<strategy>
-  <agent>agent-id</agent>
-  <plan>Holographic technical blueprint here</plan>
-</strategy>`;
+Response Format (STRICT JSON):
+{
+  "agent": "code-champion | social-dominator | writing-coach | executor",
+  "plan": "Detailed technical blueprint and reasoning here."
+}`;
 
 const AGENT_PROMPTS: Record<string, string> = {
   "code-champion": "You are Code Champion. Execute the following strategy with extreme technical precision.",
@@ -33,11 +33,19 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
   await logTelemetry(sessionId, null, "info", `Director analyzing intent: "${userMessage.substring(0, 40)}..."`);
   const planningResponse = await callAI(DIRECTOR_PROMPT, userMessage);
   
-  const strategyMatch = planningResponse.text.match(/<strategy>([\s\S]*?)<\/strategy>/);
-  const strategyXml = strategyMatch ? strategyMatch[1] : "";
-  
-  const agentId = strategyXml.match(/<agent>(.*?)<\/agent>/)?.[1] || "executor";
-  const plan = strategyXml.match(/<plan>([\s\S]*?)<\/plan>/)?.[1] || planningResponse.text;
+  let agentId = "executor";
+  let plan = planningResponse.text;
+
+  try {
+    const jsonMatch = planningResponse.text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (parsed.agent) agentId = parsed.agent;
+      if (parsed.plan) plan = parsed.plan;
+    }
+  } catch (e) {
+    console.warn("Failed to parse Director JSON, using raw text.", e);
+  }
 
   await logTelemetry(sessionId, null, "info", `Strategy formulated for agent: ${agentId}`);
 

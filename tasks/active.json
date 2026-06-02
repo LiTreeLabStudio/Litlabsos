@@ -5,5 +5,5 @@
   "target_files": [
     "src/app/(dashboard)/marketplace/page.tsx"
   ],
-  "error_logs": "src/app/(dashboard)/chat/page.tsx(233,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.\nsrc/components/ChatWidget.tsx(187,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'."
+  "error_logs": "src/app/api/agents/route.ts(20,7): error TS2353: Object literal may only specify known properties, and 'description' does not exist in type 'Partial<Agent>'."
 }

@@ -62,14 +62,23 @@ export default function MarketplacePage() {
   const handleAcquire = async (agentId: string) => {
     setAcquiring(agentId);
     try {
-      const res = await fetch("/api/stripe/checkout", {
+      // 1. Initial Mock Checkout
+      await fetch("/api/stripe/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agentId, priceId: "price_mock" }),
       });
-      const data = await res.json();
-      if (data.url) {
-        router.push(data.url);
+      
+      // 2. Real Deployment to Fleet
+      const deployRes = await fetch("/api/agents/deploy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agentId }),
+      });
+
+      const data = await deployRes.json();
+      if (data.success) {
+        router.push(`/chat?acquired=${agentId}`);
       } else {
         alert(data.error || "Acquisition failed");
       }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Message, ChatSession } from "@/lib/ai/persistence";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -87,8 +87,7 @@ export default function ChatCockpitPage() {
     let sid = currentSessionId;
     if (!sid) {
       const res = await fetch("/api/chat/sessions", { 
-        method: "POST", 
-        body: JSON.stringify({ title: text.substring(0, 30) }) 
+        method: "POST"
       });
       const data = await res.json();
       sid = data.session.id;
@@ -96,7 +95,12 @@ export default function ChatCockpitPage() {
     }
 
     setInput("");
-    const userMsg: Message = { role: "user", content: text, created_at: new Date().toISOString() };
+    const userMsg: Message = { 
+      session_id: sid || "",
+      sender_id: "user", 
+      content: text, 
+      created_at: new Date().toISOString() 
+    };
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
 
@@ -111,7 +115,8 @@ export default function ChatCockpitPage() {
       setTelemetry({ latency: Date.now() - startTime, stability: 99.8 + Math.random() * 0.2 });
 
       setMessages(prev => [...prev, {
-        role: "assistant",
+        session_id: sid || "",
+        sender_id: data.agent,
         content: data.reply,
         metadata: { plan: data.plan, agent: data.agent, model: data.model },
         created_at: new Date().toISOString()
@@ -145,7 +150,7 @@ export default function ChatCockpitPage() {
               className={`w-full text-left p-4 rounded-xl transition-all group border ${currentSessionId === s.id ? 'border-orange-500/40 bg-orange-500/5' : 'border-white/5 hover:bg-white/5'}`}
             >
               <div className={`text-xs font-bold truncate ${currentSessionId === s.id ? 'text-white' : 'text-zinc-400'}`}>
-                {s.title}
+                {s.title || s.id}
               </div>
               <div className="text-[9px] text-zinc-600 mt-1 flex justify-between items-center">
                 <span>{new Date(s.created_at).toLocaleDateString()}</span>
@@ -177,7 +182,7 @@ export default function ChatCockpitPage() {
             </button>
             <div className="flex flex-col">
               <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Active Node</span>
-              <span className="text-xs font-bold text-white uppercase">{currentSessionId ? sessions.find(s => s.id === currentSessionId)?.title : 'Standalone Interface'}</span>
+              <span className="text-xs font-bold text-white uppercase">{currentSessionId ? (sessions.find(s => s.id === currentSessionId)?.title || 'Neural Stream') : 'Standalone Interface'}</span>
             </div>
           </div>
           
@@ -213,21 +218,21 @@ export default function ChatCockpitPage() {
           )}
 
           {messages.map((m, i) => (
-            <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-3xl group relative ${m.role === 'user' ? 'w-full max-w-xl' : 'w-full'}`}>
-                <div className={`flex items-center gap-3 mb-3 ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold border transition-all ${m.role === 'user' ? 'bg-blue-600/10 border-blue-500/40 text-blue-400' : 'bg-orange-600/10 border-orange-500/40 text-orange-400'}`}>
-                    {m.role === 'user' ? 'LB' : (m.agent_id ? m.agent_id.charAt(0).toUpperCase() : '⚡')}
+            <div key={i} className={`flex ${m.sender_id === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-3xl group relative ${m.sender_id === 'user' ? 'w-full max-w-xl' : 'w-full'}`}>
+                <div className={`flex items-center gap-3 mb-3 ${m.sender_id === 'user' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold border transition-all ${m.sender_id === 'user' ? 'bg-blue-600/10 border-blue-500/40 text-blue-400' : 'bg-orange-600/10 border-orange-500/40 text-orange-400'}`}>
+                    {m.sender_id === 'user' ? 'LB' : (m.sender_id ? m.sender_id.charAt(0).toUpperCase() : '⚡')}
                   </div>
                   <div>
-                    <div className={`text-[10px] font-black uppercase tracking-widest ${m.role === 'user' ? 'text-blue-500 text-right' : 'text-orange-500'}`}>
-                      {m.role === 'user' ? 'Lead Architect' : (m.agent_id || 'System Brain')}
+                    <div className={`text-[10px] font-black uppercase tracking-widest ${m.sender_id === 'user' ? 'text-blue-500 text-right' : 'text-orange-500'}`}>
+                      {m.sender_id === 'user' ? 'Lead Architect' : (m.sender_id || 'System Brain')}
                     </div>
                     <div className="text-[9px] text-zinc-600">{m.created_at ? new Date(m.created_at).toLocaleTimeString() : 'REALTIME'}</div>
                   </div>
                 </div>
 
-                <div className={`p-6 rounded-2xl border transition-all duration-500 ${m.role === 'user' ? 'bg-blue-500/5 border-blue-500/20 text-blue-50 group-hover:border-blue-500/40' : 'bg-white/[0.02] border-white/5 text-zinc-200 group-hover:border-orange-500/20'}`}>
+                <div className={`p-6 rounded-2xl border transition-all duration-500 ${m.sender_id === 'user' ? 'bg-blue-500/5 border-blue-500/20 text-blue-50 group-hover:border-blue-500/40' : 'bg-white/[0.02] border-white/5 text-zinc-200 group-hover:border-orange-500/20'}`}>
                   <div className="leading-relaxed whitespace-pre-wrap text-sm">{m.content}</div>
                   
                   {!!m.metadata?.plan && (

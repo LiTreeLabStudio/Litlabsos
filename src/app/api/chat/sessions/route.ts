@@ -14,12 +14,9 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
   try {
-    const body = await req.json().catch(() => ({}));
-    const title = body.title || `New Neural Link ${new Date().toLocaleTimeString()}`;
-    
-    const session = await createSession(title);
+    const session = await createSession();
     
     if (!session) throw new Error("Failed to create session in Supabase.");
 

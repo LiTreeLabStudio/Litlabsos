@@ -1,5 +1,5 @@
 import { callAI } from "./engine";
-import { saveMessage } from "./persistence";
+import { saveMessage, logTelemetry } from "./persistence";
 
 const DIRECTOR_PROMPT = `You are the LitLabs Hive Mind Director. 
 Your goal is to coordinate a network of specialized agents.
@@ -29,12 +29,16 @@ const AGENT_PROMPTS: Record<string, string> = {
 
 export async function orchestrate(sessionId: string | null, userMessage: string) {
   // 1. Director Planning
+  await logTelemetry(sessionId, null, "info", `Director analyzing intent: "${userMessage.substring(0, 40)}..."`);
   const planningResponse = await callAI(DIRECTOR_PROMPT, userMessage);
+  
   const strategyMatch = planningResponse.text.match(/<strategy>([\s\S]*?)<\/strategy>/);
   const strategyXml = strategyMatch ? strategyMatch[1] : "";
   
   const agentId = strategyXml.match(/<agent>(.*?)<\/agent>/)?.[1] || "executor";
   const plan = strategyXml.match(/<plan>([\s\S]*?)<\/plan>/)?.[1] || planningResponse.text;
+
+  await logTelemetry(sessionId, null, "info", `Strategy formulated for agent: ${agentId}`);
 
   // 2. Specialized Execution
   const systemPrompt = AGENT_PROMPTS[agentId] || AGENT_PROMPTS["executor"];
@@ -46,16 +50,18 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
   if (sessionId) {
     await saveMessage({
       session_id: sessionId,
-      role: "user",
+      sender_id: "user",
       content: userMessage
     });
+    
     await saveMessage({
       session_id: sessionId,
-      role: "assistant",
+      sender_id: agentId,
       content: finalResult.text,
-      agent_id: agentId,
-      metadata: { plan, model: finalResult.model, provider: finalResult.provider }
+      // Metadata handled in payload or distinct fields if schema extended
     });
+
+    await logTelemetry(sessionId, null, "success", `Task fulfilled by ${agentId}`, { plan, model: finalResult.model });
   }
 
   return {

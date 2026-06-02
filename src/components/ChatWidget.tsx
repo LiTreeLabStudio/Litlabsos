@@ -38,31 +38,37 @@ export default function ChatWidget() {
   // Initialize Session and History
   useEffect(() => {
     const initChat = async () => {
-      // Load Agent Preference
       const savedAgent = localStorage.getItem(AGENT_KEY);
       if (savedAgent) setActiveAgent(parseInt(savedAgent, 10));
 
-      // Load or Create Session
       let sid = localStorage.getItem(SESSION_KEY);
       if (!sid) {
-        // We'll use a fixed 'default' session for the widget or create one on first message
         sid = "hud-default-session"; 
         localStorage.setItem(SESSION_KEY, sid);
       }
       setSessionId(sid);
 
-      // Fetch History
       try {
         const res = await fetch(`/api/chat/history?sessionId=${sid}`);
         const data = await res.json();
         if (data.messages && data.messages.length > 0) {
           setMessages(data.messages);
         } else {
-          setMessages([{ role: "assistant", content: AGENTS[0].greeting, created_at: new Date().toISOString() }]);
+          setMessages([{ 
+            session_id: sid,
+            sender_id: AGENTS[0].id, 
+            content: AGENTS[0].greeting, 
+            created_at: new Date().toISOString() 
+          }]);
         }
       } catch (err) {
         console.error("Failed to load chat history:", err);
-        setMessages([{ role: "assistant", content: AGENTS[0].greeting, created_at: new Date().toISOString() }]);
+        setMessages([{ 
+          session_id: sid,
+          sender_id: AGENTS[0].id, 
+          content: AGENTS[0].greeting, 
+          created_at: new Date().toISOString() 
+        }]);
       }
     };
 
@@ -82,7 +88,6 @@ export default function ChatWidget() {
   const switchAgent = useCallback((idx: number) => {
     setActiveAgent(idx);
     localStorage.setItem(AGENT_KEY, String(idx));
-    // When switching agents in HUD, we keep the history but the next message uses the new agent
   }, []);
 
   async function handleSend() {
@@ -90,7 +95,12 @@ export default function ChatWidget() {
     if (!text || loading) return;
     setInput("");
     
-    const userMsg: Message = { role: "user", content: text, created_at: new Date().toISOString() };
+    const userMsg: Message = { 
+      session_id: sessionId || "",
+      sender_id: "user", 
+      content: text, 
+      created_at: new Date().toISOString() 
+    };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     
@@ -111,7 +121,8 @@ export default function ChatWidget() {
       if (data.error) throw new Error(data.error);
       
       setMessages((prev) => [...prev, { 
-        role: "assistant", 
+        session_id: sessionId || "",
+        sender_id: data.agent, 
         content: data.reply, 
         metadata: { plan: data.plan },
         created_at: new Date().toISOString()
@@ -119,7 +130,8 @@ export default function ChatWidget() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       setMessages((prev) => [...prev, { 
-        role: "assistant", 
+        session_id: sessionId || "",
+        sender_id: "system",
         content: `CRITICAL ERROR: ${message}. Link degraded.`, 
         created_at: new Date().toISOString()
       }]);
@@ -178,11 +190,11 @@ export default function ChatWidget() {
           {/* HUD Content */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[url('/grid.svg')] bg-center bg-fixed opacity-[0.9]">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}>
-                <div className={`max-w-[90%] p-3 rounded border transition-all ${msg.role === "user" ? "bg-blue-500/10 border-blue-500/30 text-blue-100" : "bg-orange-500/5 border-orange-500/20 text-orange-100"}`}>
+              <div key={i} className={`flex flex-col ${msg.sender_id === "user" ? "items-end" : "items-start"}`}>
+                <div className={`max-w-[90%] p-3 rounded border transition-all ${msg.sender_id === "user" ? "bg-blue-500/10 border-blue-500/30 text-blue-100" : "bg-orange-500/5 border-orange-500/20 text-orange-100"}`}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className={`text-[8px] font-black uppercase ${msg.role === "user" ? "text-blue-400" : "text-orange-400"}`}>
-                      {msg.role === "user" ? "Local Terminal" : agent.name}
+                    <span className={`text-[8px] font-black uppercase ${msg.sender_id === "user" ? "text-blue-400" : "text-orange-400"}`}>
+                      {msg.sender_id === "user" ? "Local Terminal" : (msg.sender_id || agent.name)}
                     </span>
                     <span className="text-[8px] text-zinc-600">[{msg.created_at ? new Date(msg.created_at).toLocaleTimeString() : 'NOW'}]</span>
                   </div>

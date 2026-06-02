@@ -3,18 +3,13 @@ import { getSupabaseServerClient } from "./supabaseServer";
 export interface Agent {
   id: string;
   name: string;
-  description: string;
-  personality: string;
-  skills: string[];
+  role: string; // Aligned with CEO-OS SQL 'role' column
+  config: Record<string, unknown>;
   created_at?: string;
-  owner_id?: string;
-  type?: string;
-  config?: Record<string, unknown>;
 }
 
 /**
  * Fetches all agents from the Supabase 'agents' table.
- * Server-side implementation.
  */
 export async function getAgents(): Promise<Agent[]> {
   const supabase = getSupabaseServerClient();

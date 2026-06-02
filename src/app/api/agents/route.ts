@@ -9,7 +9,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, description, personality, skills } = body;
+    const { name, role, skills = [] } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
@@ -17,13 +17,13 @@ export async function POST(req: NextRequest) {
 
     const agent = await createAgent({
       name,
-      description,
-      personality,
-      skills,
+      role: role || "Generalist Executor",
+      config: { skills },
     });
 
     return NextResponse.json(agent);
-  } catch {
-    return NextResponse.json({ error: "Failed to create agent" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create agent";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

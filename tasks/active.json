@@ -6,7 +6,6 @@
     "src/app/(dashboard)/marketplace/page.tsx"
   ],
   "completed_tasks": [
-    "Fixed TypeScript error in /api/agents POST route (missing 'description' field in Agent type).",
-    "Created bin/clean-tv.sh to automate Hisense 4K maintenance via ADB."
+    "Fixed TypeScript error in /api/agents POST route (missing 'description' field in Agent type)."
   ]
 }

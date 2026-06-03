@@ -14,23 +14,29 @@ export default function AgentMonitor() {
   const [data, setData] = useState<DataPoint[]>([]);
   const [stats] = useState({ uptime: "99.98%", meanLoad: "24%", interactions: "1,402" });
 
-  // Simulate incoming telemetry
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const newPoint: DataPoint = {
-        time: now,
-        load: Math.floor(Math.random() * 40) + 10,
-        interactions: Math.floor(Math.random() * 60) + 20
-      };
-      
-      setData(prev => {
-        const next = [...prev, newPoint];
-        if (next.length > 30) return next.slice(1);
-        return next;
-      });
-    }, 2000);
+  const fetchTelemetry = async () => {
+    try {
+      const res = await fetch("/api/telemetry");
+      const json = await res.json();
+      if (json.telemetry) {
+        const points = json.telemetry.map((t: { created_at: string; metadata: { cpu: string; interactions: string } }) => ({
+          time: new Date(t.created_at),
+          load: Number(t.metadata.cpu?.replace('%', '')) || 0,
+          interactions: Number(t.metadata.interactions) || 0
+        }));
+        setData(points);
+      }
+    } catch (err) {
+      console.error("Telemetry fetch failed:", err);
+    }
+  };
 
+  // Poll live telemetry
+  useEffect(() => {
+    (async () => {
+      await fetchTelemetry();
+    })();
+    const interval = setInterval(fetchTelemetry, 10000);
     return () => clearInterval(interval);
   }, []);
 

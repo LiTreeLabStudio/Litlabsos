@@ -1,5 +1,4 @@
 "use client";
-import { useAuth } from "@/context/AuthContext";
 import SocialMatrix from "@/components/SocialMatrix";
 
 const TRENDING = [

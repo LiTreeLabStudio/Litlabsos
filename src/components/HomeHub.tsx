@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
 import AgentMonitor from './AgentMonitor';
 
 interface HubCard {

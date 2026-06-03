@@ -57,45 +57,46 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white font-mono relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white font-mono relative overflow-hidden hud-scanlines">
       {/* Background FX */}
+      <div className="absolute inset-0 hud-grid opacity-10" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#f9731608,transparent_50%)]" />
       
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-28 relative z-10">
-        <div className="mb-16 text-center">
-          <div className="inline-block px-3 py-1 bg-orange-500/10 border border-orange-500/20 text-[9px] font-black text-orange-500 uppercase tracking-[0.4em] mb-6">
-            Nexus_Deployment_Module
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-32 relative z-10">
+        <div className="mb-20 text-center">
+          <div className="inline-block px-4 py-1 bg-orange-500/10 border border-orange-500/30 text-[10px] font-black text-orange-500 uppercase tracking-[0.5em] mb-8 animate-pulse shadow-[0_0_15px_rgba(249,115,22,0.1)]">
+            NEXUS_DEPLOYMENT_CORE // V3.5
           </div>
-          <h1 className="text-4xl md:text-6xl font-black uppercase tracking-widest text-white mb-4 italic">
+          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-[0.1em] font-heading text-white mb-6 italic glow-text-orange">
             Bot_Forge
           </h1>
-          <p className="text-zinc-600 font-bold text-[10px] uppercase tracking-[0.3em] max-w-xl mx-auto">
-            Acquire elite specialized nodes to scale your neural network.
+          <p className="text-zinc-600 font-black text-[11px] uppercase tracking-[0.6em] max-w-xl mx-auto leading-relaxed">
+            Acquire_Elite_Specialized_Nodes_To_Scale_Fleet_Intelligence
           </p>
         </div>
 
         {/* Filters */}
-        <div className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between border-b border-white/5 pb-10">
-          <div className="relative w-full lg:max-w-md">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-700">🔍</span>
+        <div className="mb-16 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between border-b border-white/5 pb-12">
+          <div className="relative w-full lg:max-w-lg group">
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-orange-500 transition-colors">🔍</span>
             <input
-              className="w-full bg-zinc-950/50 border border-white/10 rounded-none px-12 py-4 text-sm text-white focus:outline-none focus:border-orange-500/50 placeholder:text-zinc-800 transition-all"
-              placeholder="Search_Neural_Archives..."
+              className="w-full bg-zinc-950/50 border-2 border-orange-500/10 rounded-none px-14 py-5 text-sm text-white focus:outline-none focus:border-orange-500/50 placeholder:text-zinc-900 transition-all font-mono"
+              placeholder="SEARCH_NEURAL_ARCHIVES..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActive(cat)}
-                className={`px-6 py-2.5 rounded-none text-[10px] font-black uppercase tracking-widest transition-all border ${
+                className={`px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all border-2 ${
                   active === cat
-                    ? "bg-orange-600 border-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.3)]"
-                    : "bg-transparent text-zinc-600 border-white/5 hover:border-white/20 hover:text-white"
+                    ? "bg-orange-600 border-orange-500 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                    : "bg-transparent text-zinc-700 border-white/5 hover:border-orange-500/30 hover:text-white"
                 }`}
               >
                 {cat}
@@ -105,47 +106,51 @@ export default function MarketplacePage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {filtered.map((bot) => (
             <div
               key={bot.id}
-              className="card p-8 bg-zinc-950/40 border-2 border-white/5 hover:border-orange-500/40 transition-all group relative overflow-hidden flex flex-col"
+              className="card-cyber p-10 flex flex-col group"
             >
-              <div className="flex justify-between items-start mb-8">
-                <div className={`w-14 h-14 rounded-none bg-zinc-900 border border-white/10 flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 transition-transform`}>
+              {/* Corner Accents */}
+              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-orange-500/30 group-hover:border-orange-500 transition-colors" />
+              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-orange-500/30 group-hover:border-orange-500 transition-colors" />
+
+              <div className="flex justify-between items-start mb-10">
+                <div className={`w-16 h-16 rounded-none bg-zinc-900 border border-white/5 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-all duration-500 bg-black/60 group-hover:border-orange-500/20`}>
                   {bot.avatar}
                 </div>
                 <div className="text-right">
-                  <div className={`text-[9px] font-black uppercase tracking-widest mb-1 ${
-                    bot.tier === 'ELITE' ? 'text-red-500' : bot.tier === 'PRIME' ? 'text-orange-500' : 'text-zinc-500'
+                  <div className={`text-[10px] font-black uppercase tracking-[0.3em] mb-2 ${
+                    bot.tier === 'ELITE' ? 'text-red-500 glow-text-orange' : bot.tier === 'PRIME' ? 'text-orange-500 glow-text-orange' : 'text-zinc-600'
                   }`}>
-                    Tier_{bot.tier}
+                    TIER_{bot.tier}
                   </div>
-                  <div className="text-xl font-black text-white font-mono tabular-nums">{bot.price}</div>
+                  <div className="text-2xl font-black text-white font-mono tabular-nums tracking-tighter">{bot.price}</div>
                 </div>
               </div>
 
               <div className="flex-1">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-mono mb-3 group-hover:text-orange-500 transition-colors">
+                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white font-mono mb-4 group-hover:text-orange-500 transition-colors">
                   {bot.name}
                 </h3>
-                <p className="text-[11px] text-zinc-500 font-bold uppercase leading-relaxed mb-8">
+                <p className="text-[11px] text-zinc-500 font-bold uppercase leading-loose mb-10 opacity-70 group-hover:opacity-100 transition-opacity">
                   {bot.desc}
                 </p>
               </div>
               
-              <div className="flex items-center justify-between mt-auto pt-6 border-t border-white/5">
-                <div className="flex gap-4 text-[9px] font-black text-zinc-700 uppercase tracking-widest">
+              <div className="flex items-center justify-between mt-auto pt-8 border-t border-white/5">
+                <div className="flex gap-6 text-[10px] font-black text-zinc-800 uppercase tracking-widest">
                   <span>★ {bot.rating}</span>
-                  <span>{bot.uses} Links</span>
+                  <span>{bot.uses} LINKS</span>
                 </div>
                 <button
                   onClick={() => handleAcquire(bot.id)}
                   disabled={acquiring === bot.id}
-                  className="text-[9px] font-black text-orange-500 hover:text-white transition-colors uppercase tracking-widest flex items-center gap-2 group/btn"
+                  className="text-[10px] font-black text-orange-500 hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center gap-3 group/btn"
                 >
-                  {acquiring === bot.id ? "SYNCING..." : "Initialize_Acquisition"}
-                  <span className="group-hover/btn:translate-x-1 transition-transform">→</span>
+                  {acquiring === bot.id ? "SYNCING..." : "INITIALIZE"}
+                  <span className="group-hover/btn:translate-x-2 transition-transform">→</span>
                 </button>
               </div>
             </div>
@@ -153,17 +158,17 @@ export default function MarketplacePage() {
         </div>
 
         {/* Custom Forge Banner */}
-        <div className="mt-20 card p-12 bg-orange-600/5 border-dashed border-2 border-orange-500/20 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
-          <h2 className="text-2xl font-black uppercase tracking-[0.3em] mb-4 text-white relative z-10">Need_Custom_Orchestration?</h2>
-          <p className="text-zinc-600 text-xs font-bold uppercase tracking-widest mb-8 max-w-lg mx-auto relative z-10">
-            Construct a unique behavior node with the Agent Forge module.
+        <div className="mt-24 card-cyber p-16 bg-orange-600/[0.02] border-dashed border-2 border-orange-500/10 text-center relative overflow-hidden group">
+          <div className="absolute inset-0 hud-grid opacity-[0.03]" />
+          <h2 className="text-3xl font-black uppercase tracking-[0.4em] mb-6 text-white relative z-10 glow-text-orange italic">CONSTRUCT_CUSTOM_NODE?</h2>
+          <p className="text-zinc-600 text-xs font-bold uppercase tracking-[0.3em] mb-12 max-w-lg mx-auto relative z-10 leading-loose">
+            Access_The_Agent_Forge_To_Build_Unique_Behavior_Directives
           </p>
           <Link 
             href="/builder" 
-            className="inline-block px-10 py-4 bg-orange-600 text-black font-black uppercase text-xs tracking-[0.2em] hover:bg-orange-500 transition-all shadow-[0_0_20px_rgba(249,115,22,0.2)] relative z-10"
+            className="btn-cyber btn-cyber-primary py-4 px-12 tracking-[0.3em] relative z-10"
           >
-            Open_Agent_Forge
+            OPEN_AGENT_FORGE
           </Link>
         </div>
       </main>

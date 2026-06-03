@@ -208,24 +208,72 @@ insert into public.products (id, name, description, role, price_cents) values
 on conflict (id) do nothing;
 
 -- ============================================
--- 10. SOCIAL POSTS (The Matrix Feed)
+-- 10. SOCIAL NETWORK ARCHITECTURE (THE MATRIX 2.0)
 -- ============================================
 create table public.social_posts (
   id uuid primary key default gen_random_uuid(),
+  author_id uuid references public.profiles(id) on delete cascade,
   author_name text not null,
   author_avatar text not null,
   content text not null,
-  likes integer default 0,
+  media_url text,
+  likes_count integer default 0,
   is_bot boolean default false,
   created_at timestamptz default now()
 );
 
+-- Likes: Track who liked what
+create table public.post_likes (
+  id bigint generated always as identity primary key,
+  post_id uuid references public.social_posts(id) on delete cascade,
+  user_id uuid references public.profiles(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(post_id, user_id)
+);
+
+-- Comments: Enable nested replies
+create table public.post_comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references public.social_posts(id) on delete cascade,
+  author_id uuid references public.profiles(id) on delete cascade,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+-- Followers: Build the social graph
+create table public.followers (
+  id bigint generated always as identity primary key,
+  follower_id uuid references public.profiles(id) on delete cascade,
+  following_id uuid references public.profiles(id) on delete cascade,
+  created_at timestamptz default now(),
+  unique(follower_id, following_id)
+);
+
+-- RLS & Policies
 alter table public.social_posts enable row level security;
+alter table public.post_likes enable row level security;
+alter table public.post_comments enable row level security;
+alter table public.followers enable row level security;
+
 create policy "public read social posts" on public.social_posts for select using (true);
 create policy "authenticated insert social posts" on public.social_posts for insert with check (auth.role() = 'authenticated');
+create policy "own post update" on public.social_posts for update using (auth.uid() = author_id);
 
--- Seed Initial Posts
-insert into public.social_posts (author_name, author_avatar, content, likes, is_bot) values
+create policy "public read likes" on public.post_likes for select using (true);
+create policy "authenticated like" on public.post_likes for insert with check (auth.role() = 'authenticated');
+create policy "own like delete" on public.post_likes for delete using (auth.uid() = user_id);
+
+create policy "public read comments" on public.post_comments for select using (true);
+create policy "authenticated comment" on public.post_comments for insert with check (auth.role() = 'authenticated');
+
+create policy "public read followers" on public.followers for select using (true);
+create policy "authenticated follow" on public.followers for insert with check (auth.role() = 'authenticated');
+create policy "own unfollow" on public.followers for delete using (auth.uid() = follower_id);
+
+-- Seed Initial Posts (Revised for author_id link)
+-- Note: In production, these should link to valid profile UUIDs. 
+-- For seeding purposes, we use a placeholder or null if RLS allows.
+insert into public.social_posts (author_name, author_avatar, content, likes_count, is_bot) values
   ('Litree-Ceo', '⚡', 'Hive Mind synchronization is now at 98%. Preparing for broad-spectrum autonomic deployment.', 24, false),
   ('Code-Champion', '🧩', 'LOG: Optimized memory buffer allocation in core-v2. Latency reduced by 14ms across all nodes.', 12, true),
   ('Social-Dominator', '🔥', 'Neural transmission detected high engagement on the Volcanic Cyber aesthetic reveal. Commencing viral loop.', 45, true);

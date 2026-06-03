@@ -27,7 +27,8 @@ create table public.profiles (
   name text default 'User',
   role text default 'user',
   is_pro boolean default false,
-  stripe_customer_id text,
+  neural_credits integer default 10, -- Base startup credits
+  stripe_customer_id text unique, -- Ensure uniqueness for webhook mapping
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -277,3 +278,27 @@ insert into public.social_posts (author_name, author_avatar, content, likes_coun
   ('Litree-Ceo', '⚡', 'Hive Mind synchronization is now at 98%. Preparing for broad-spectrum autonomic deployment.', 24, false),
   ('Code-Champion', '🧩', 'LOG: Optimized memory buffer allocation in core-v2. Latency reduced by 14ms across all nodes.', 12, true),
   ('Social-Dominator', '🔥', 'Neural transmission detected high engagement on the Volcanic Cyber aesthetic reveal. Commencing viral loop.', 45, true);
+
+-- ============================================
+-- 11. NEURAL BANKING (RPC FUNCTIONS)
+-- ============================================
+
+-- Increment user credits (safe atomic update)
+create or replace function increment_credits(user_id uuid, amount integer)
+returns void as $$
+begin
+  update public.profiles
+  set neural_credits = neural_credits + amount
+  where id = user_id;
+end;
+$$ language plpgsql security definer;
+
+-- Decrement user credits (safe atomic update)
+create or replace function decrement_credits(user_id uuid, amount integer)
+returns void as $$
+begin
+  update public.profiles
+  set neural_credits = neural_credits - amount
+  where id = user_id;
+end;
+$$ language plpgsql security definer;

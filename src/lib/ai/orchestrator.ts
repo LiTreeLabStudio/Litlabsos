@@ -31,7 +31,29 @@ const AGENT_PROMPTS: Record<string, string> = {
 };
 
 export async function orchestrate(sessionId: string | null, userMessage: string) {
-  // 1. Director Planning
+  const supabase = getSupabaseServerClient();
+  let userId: string | null = null;
+
+  // 1. Authenticate and Check Credits
+  if (sessionId) {
+    const { data: session } = await supabase.from("chat_sessions").select("user_id").eq("id", sessionId).single();
+    userId = session?.user_id;
+  }
+
+  if (userId) {
+    const { data: profile } = await supabase.from("profiles").select("neural_credits").eq("id", userId).single();
+    const credits = profile?.neural_credits || 0;
+
+    if (credits <= 0) {
+      return { 
+        reply: "⚠️ INSUFFICIENT NEURAL CREDITS. Access restricted. Please top up your compute balance in the Bot Forge to continue orchestration.", 
+        plan: "CREDIT_BLOCK", 
+        agent: "system" 
+      };
+    }
+  }
+
+  // 2. Director Planning
   await logTelemetry(sessionId, null, "info", `Director analyzing intent: "${userMessage.substring(0, 40)}..."`);
   const planningResponse = await callAI(DIRECTOR_PROMPT, userMessage);
   
@@ -51,12 +73,17 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
     console.warn("Failed to parse Director JSON, using raw text.", e);
   }
 
+  // 3. Deduct Credit upon successful planning
+  if (userId) {
+    await supabase.rpc('decrement_credits', { user_id: userId, amount: 1 });
+  }
+
   await logTelemetry(sessionId, null, "info", `Strategy formulated for agent: ${agentId} | Background: ${isBackground}`);
 
-  // 2. Immediate or Background Execution
+  // 4. Immediate or Background Execution
   if (isBackground) {
-    const supabase = getSupabaseServerClient();
     const { error } = await supabase.from("jobs").insert([{
+      user_id: userId,
       task_goal: plan,
       status: "queued"
     }]);

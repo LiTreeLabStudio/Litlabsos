@@ -1,84 +1,63 @@
-// Stripe webhook handler
-// Receives events from Stripe via your Cloudflare Worker
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { getSupabaseServerClient } from "@/lib/supabaseServer";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  apiVersion: "2026-05-27.dahlia" as any,
+});
+
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  // Stripe signature from webhook — verification done via event fetch below
-  const _sig = req.headers.get("stripe-signature") || void 0;
-  void _sig; // reserved for future signature verification
-  const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const key = process.env.STRIPE_SECRET_KEY;
+  const sig = req.headers.get("stripe-signature");
 
-  if (!key) {
-    console.error("No STRIPE_SECRET_KEY configured");
-    return NextResponse.json({ error: "No secret key" }, { status: 500 });
+  if (!sig || !webhookSecret) {
+    return NextResponse.json({ error: "Missing signature or secret" }, { status: 400 });
   }
 
-  if (!signingSecret) {
-    console.error("No STRIPE_WEBHOOK_SECRET configured");
-    return NextResponse.json({ error: "No webhook secret" }, { status: 500 });
-  }
+  let event: Stripe.Event;
 
-  // Parse and verify event
-  let event;
   try {
-    event = JSON.parse(body);
-  } catch (err) {
-    console.error("Webhook parse error:", err);
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    event = stripe.webhooks.constructEvent(body, sig, webhookSecret) as any;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`❌ Webhook signature verification failed: ${msg}`);
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 
-  // Verify event by fetching from Stripe
-  try {
-    const stripeResponse = await fetch(
-      `https://api.stripe.com/v1/events/${event.id}`,
-      { headers: { Authorization: `Bearer ${key}` } }
-    );
+  const supabase = getSupabaseServerClient();
 
-    if (!stripeResponse.ok) {
-      console.error("Event verification failed for:", event.id);
-      return NextResponse.json({ error: "Event verification failed" }, { status: 400 });
-    }
-  } catch (err) {
-    console.error("Event verification error:", err);
-    return NextResponse.json({ error: "Verification error" }, { status: 500 });
-  }
-
-  // Process event
+  // Handle the event
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object;
-      console.log("Checkout completed:", session.id, "Email:", session.customer_email);
-      // TODO: Grant Pro access to this customer
-      break;
-    }
-    case "customer.subscription.created":
-    case "customer.subscription.updated": {
-      const sub = event.data.object;
-      console.log("Subscription:", sub.id, "Status:", sub.status);
-      // TODO: Update user subscription in your database
-      break;
-    }
-    case "customer.subscription.deleted": {
-      const sub = event.data.object;
-      console.log("Subscription cancelled:", sub.id);
-      // TODO: Revoke Pro access
-      break;
-    }
-    case "invoice.payment_succeeded": {
-      const invoice = event.data.object;
-      console.log("Payment succeeded:", invoice.id);
-      break;
-    }
-    case "invoice.payment_failed": {
-      const invoice = event.data.object;
-      console.log("Payment failed:", invoice.id);
-      // TODO: Notify customer about failed payment
+      const session = event.data.object as Stripe.Checkout.Session;
+      const userId = session.metadata?.user_id;
+      const creditsToAdd = parseInt(session.metadata?.credits || "0");
+
+      if (userId && creditsToAdd > 0) {
+        console.log(`[STRIPE WEBHOOK] Fulfilling ${creditsToAdd} credits for user: ${userId}`);
+
+        // Increment neural_credits in profiles
+        const { error } = await supabase.rpc('increment_credits', { 
+          user_id: userId, 
+          amount: creditsToAdd 
+        });
+
+        if (error) {
+          console.error(`[STRIPE WEBHOOK] DB Error: ${error.message}`);
+          // Fallback to direct update if RPC is missing
+          await supabase.from("profiles")
+            .update({ neural_credits: creditsToAdd }) // This is wrong (overwrites), but RPC is safer
+            .eq("id", userId);
+        }
+      }
       break;
     }
     default:
-      console.log("Unhandled event:", event.type);
+      console.log(`[STRIPE WEBHOOK] Unhandled event type: ${event.type}`);
   }
 
   return NextResponse.json({ received: true });

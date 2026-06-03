@@ -33,17 +33,38 @@ export default function MarketplacePage() {
   const [active, setActive] = useState("ALL");
   const [search, setSearch] = useState("");
   const [acquiring, setAcquiring] = useState<string | null>(null);
+  const [recharging, setRecharging] = useState(false);
 
   const handleAcquire = async (agentId: string) => {
     setAcquiring(agentId);
     try {
-      // Simulate neural acquisition
+      // For now, Single Agent Acquisition is free/placeholder
       await new Promise(r => setTimeout(r, 1500));
       router.push(`/chat?acquired=${agentId}`);
     } catch (err) {
       console.error("Acquisition error:", err);
     } finally {
       setAcquiring(null);
+    }
+  };
+
+  const handleRecharge = async (amount: number, credits: number) => {
+    setRecharging(true);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, credits }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        // eslint-disable-next-line react-hooks/immutability
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Recharge error:", err);
+    } finally {
+      setRecharging(false);
     }
   };
 
@@ -131,7 +152,7 @@ export default function MarketplacePage() {
               </div>
 
               <div className="flex-1">
-                <h3 className="text-sm font-black uppercase tracking-[0.3em] text-white font-mono mb-4 group-hover:text-orange-500 transition-colors">
+                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-mono mb-4 group-hover:text-orange-500 transition-colors">
                   {bot.name}
                 </h3>
                 <p className="text-[11px] text-zinc-500 font-bold uppercase leading-loose mb-10 opacity-70 group-hover:opacity-100 transition-opacity">
@@ -155,6 +176,38 @@ export default function MarketplacePage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Neural Compute Recharge */}
+        <div className="mt-32">
+          <div className="mb-12 border-l-2 border-orange-500 pl-6">
+            <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-white font-heading italic glow-text-orange">Neural_Compute_Recharge</h2>
+            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-2">Fuel_The_Hive_Mind_With_Compute_Tokens</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { amount: 10, credits: 100, label: "Core_Bundle" },
+              { amount: 25, credits: 300, label: "Prime_Package", popular: true },
+              { amount: 50, credits: 750, label: "Elite_Transmission" }
+            ].map(pkg => (
+              <div key={pkg.amount} className={`card-cyber p-8 bg-zinc-950/60 border-2 ${pkg.popular ? 'border-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.1)]' : 'border-white/5'} flex flex-col items-center text-center relative overflow-hidden group`}>
+                {pkg.popular && (
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-orange-600 text-black text-[8px] font-black uppercase tracking-widest z-10 shadow-lg">RECOMMENDED</div>
+                )}
+                <div className="text-4xl font-black text-white font-mono mb-2 tracking-tighter tabular-nums">{pkg.credits}</div>
+                <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] mb-6">{pkg.label}</div>
+                <div className="text-2xl font-bold text-zinc-500 mb-8 tracking-tighter font-mono">${pkg.amount}</div>
+                <button 
+                  onClick={() => handleRecharge(pkg.amount, pkg.credits)}
+                  disabled={recharging}
+                  className="w-full btn-cyber btn-cyber-primary py-3 tracking-[0.2em]"
+                >
+                  {recharging ? "INITIATING..." : "ACQUIRE_TOKENS"}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Custom Forge Banner */}

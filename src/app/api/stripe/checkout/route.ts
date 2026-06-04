@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
     const amount = Number(body.amount) || 10;
     const credits = Number(body.credits) || 100;
 
-    console.log(`[STRIPE] Initializing checkout for ${payload.email}: $${amount} for ${credits} credits`);
+    const user = payload as { id: string; email: string };
+    console.log(`[STRIPE] Initializing checkout for ${user.email}: $${amount} for ${credits} credits`);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -45,9 +46,9 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       success_url: `${SITE_URL}/dashboard?checkout_success=true&credits=${credits}`,
       cancel_url: `${SITE_URL}/marketplace?checkout_cancel=true`,
-      customer_email: payload.email,
+      customer_email: user.email,
       metadata: {
-        user_id: String((payload as { id: string; email: string }).id),
+        user_id: String(user.id),
         credits: String(credits),
       },
     });

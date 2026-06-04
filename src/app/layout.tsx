@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { Inter, Orbitron, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
   weight: ["400", "600", "700", "800"],
-  preload: true,
 });
 
 const orbitron = Orbitron({
@@ -16,7 +16,6 @@ const orbitron = Orbitron({
   variable: "--font-orbitron",
   display: "swap",
   weight: ["700", "900"],
-  preload: true,
 });
 
 const jetbrains = JetBrains_Mono({
@@ -24,7 +23,6 @@ const jetbrains = JetBrains_Mono({
   variable: "--font-jetbrains",
   display: "swap",
   weight: ["400", "700"],
-  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -45,7 +43,13 @@ export default function RootLayout({
       className={`${inter.variable} ${orbitron.variable} ${jetbrains.variable} h-full`}
     >
       <body className="min-h-full flex flex-col bg-[#0a0a0f] text-white">
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
 
-interface User { id: string; email: string; name: string | null; }
+interface User { id: string; email: string; name: string | null; avatarUrl?: string; }
 
 interface AuthContextType {
   user: User | null;

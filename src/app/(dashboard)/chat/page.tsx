@@ -190,13 +190,29 @@ export default function ChatCockpitPage() {
         
         <div className="flex-1 p-6 overflow-y-auto custom-scrollbar relative z-10">
           <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-6">Neural_Nodes</div>
-          <div className="space-y-4">
+          <div className="space-y-4 mb-10">
             {['code-champion', 'social-dominator', 'writing-coach', 'executor'].map(node => (
               <div key={node} className="flex items-center justify-between p-3 bg-zinc-900/40 border border-white/5 group hover:border-orange-500/20 transition-all cursor-pointer">
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-white transition-colors">{node}</span>
                 <span className="w-1.5 h-1.5 rounded-none bg-orange-500 shadow-[0_0_8px_#f97316] animate-pulse" />
               </div>
             ))}
+          </div>
+
+          <div className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em] mb-6">Live_Neural_Log</div>
+          <div className="space-y-3 font-mono text-[8px] leading-tight">
+            <div className="text-zinc-600 border-l border-zinc-800 pl-3 py-1">
+              <span className="text-orange-900">[18:14:24]</span> DIRECTOR_INIT_OK
+            </div>
+            <div className="text-zinc-600 border-l border-zinc-800 pl-3 py-1">
+              <span className="text-orange-900">[18:14:37]</span> AUTO_FIX_STRATEGY_GEN
+            </div>
+            <div className="text-zinc-500 border-l border-orange-500/40 pl-3 py-1 bg-orange-500/5">
+              <span className="text-orange-500">[18:22:10]</span> GATEWAY_BRIDGE_ALIGNED
+            </div>
+            <div className="text-zinc-400 border-l border-blue-500 pl-3 py-1 animate-pulse">
+              <span className="text-blue-500">[18:25:01]</span> UPLINK_STABLE_V3.5
+            </div>
           </div>
         </div>
 

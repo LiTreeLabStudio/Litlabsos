@@ -1,5 +1,0 @@
-{
-  "milestone": "Perpetual Code Refinement",
-  "goal": "Scan existing components and API routes. Refactor for performance, type-safety, and readability. This task is perpetual—re-add it to the backlog upon completion.",
-  "priority": "low"
-}

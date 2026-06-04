@@ -61,7 +61,7 @@ export async function callOpenAI(systemPrompt: string, userPrompt: string, model
 export async function callAI(systemPrompt: string, userPrompt: string): Promise<AIResponse> {
   try {
     // Primary: Gemini
-    return await callGemini(systemPrompt, userPrompt, "gemini-2.0-flash-exp");
+    return await callGemini(systemPrompt, userPrompt, "gemini-2.5-flash");
   } catch (err) {
     console.warn("Gemini Primary Failed, falling back to OpenAI:", err);
     try {

@@ -12,19 +12,28 @@ interface DataPoint {
 export default function AgentMonitor() {
   const svgRef = useRef<SVGSVGElement>(null);
   const [data, setData] = useState<DataPoint[]>([]);
-  const [stats] = useState({ uptime: "99.98%", meanLoad: "24%", interactions: "1,402" });
+  const [stats, setStats] = useState({ uptime: "99.98%", meanLoad: "0%", interactions: "0" });
 
   const fetchTelemetry = async () => {
     try {
       const res = await fetch("/api/telemetry");
       const json = await res.json();
-      if (json.telemetry) {
+      if (json.telemetry && json.telemetry.length > 0) {
         const points = json.telemetry.map((t: { created_at: string; metadata: { cpu: string; interactions: string } }) => ({
           time: new Date(t.created_at),
           load: Number(t.metadata.cpu?.replace('%', '')) || 0,
           interactions: Number(t.metadata.interactions) || 0
         }));
         setData(points);
+
+        // Calculate real-time stats
+        const avgLoad = Math.round(points.reduce((acc: number, p: DataPoint) => acc + p.load, 0) / points.length);
+        const totalInteractions = points.reduce((acc: number, p: DataPoint) => acc + p.interactions, 0);
+        setStats(prev => ({
+          ...prev,
+          meanLoad: `${avgLoad}%`,
+          interactions: totalInteractions.toLocaleString()
+        }));
       }
     } catch (err) {
       console.error("Telemetry fetch failed:", err);

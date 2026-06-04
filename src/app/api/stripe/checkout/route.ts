@@ -47,12 +47,10 @@ export async function POST(req: NextRequest) {
       cancel_url: `${SITE_URL}/marketplace?checkout_cancel=true`,
       customer_email: payload.email,
       metadata: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        user_id: String((payload as any).id),
+        user_id: String((payload as { id: string; email: string }).id),
         credits: String(credits),
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any);
+    });
 
     return NextResponse.json({
       sessionId: session.id,

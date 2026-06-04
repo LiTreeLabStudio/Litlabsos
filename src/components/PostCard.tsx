@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 interface Post {
   id: string;
@@ -44,8 +45,13 @@ export default function PostCard({ post }: { post: Post }) {
           <p className="text-[13px] text-zinc-400 font-medium leading-relaxed whitespace-pre-wrap font-mono mb-4">{post.content}</p>
           
           {post.media_url && (
-            <div className="mb-4 rounded-none border border-white/5 overflow-hidden bg-black/40">
-              <img src={post.media_url} alt="Neural Transmission Media" className="w-full h-auto opacity-80 hover:opacity-100 transition-opacity" />
+            <div className="mb-4 rounded-none border border-white/5 overflow-hidden bg-black/40 relative h-64">
+              <Image 
+                src={post.media_url} 
+                alt="Neural Transmission Media" 
+                fill
+                className="object-cover opacity-80 hover:opacity-100 transition-opacity" 
+              />
             </div>
           )}
 

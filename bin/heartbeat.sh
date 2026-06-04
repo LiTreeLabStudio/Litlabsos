@@ -6,7 +6,16 @@ LOG_FILE="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/brain.l
 mkdir -p "$(dirname "$LOG_FILE")"
 
 cd /data/data/com.termux/files/home/LiTTreeLabstudios
-export $(grep -v '^#' .env.local | xargs 2>/dev/null)
+# Export variables from .env.local safely
+if [ -f .env.local ]; then
+  while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    [[ "$key" =~ ^#.*$ || -z "$key" ]] && continue
+    # Strip leading/trailing whitespace and quotes from value
+    value=$(echo "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+    export "$key"="$value"
+  done < .env.local
+fi
 
 # 1. Start Job Worker (Background Bridge)
 if ! pgrep -f "node bin/job-worker.mjs" > /dev/null; then

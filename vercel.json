@@ -1,0 +1,11 @@
+{
+  "buildCommand": "next build --webpack",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "npm ci --prefer-offline --no-audit",
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  },
+  "regions": ["sfo1"],
+  "crons": []
+}

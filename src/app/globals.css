@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+:root {
+  --bg-color: #000000;
+  --text-color: #ffffff;
+  --link-color: #00ff00;
+  --header-color: #ff00ff;
+  --border-color: #ff0099;
+  --accent-color: #00ffff;
+  --box-bg: #1a1a1a;
+}
+
+@theme inline {
+  --color-background: var(--bg-color);
+  --color-foreground: var(--text-color);
+  --font-sans: "Verdana", "Arial", sans-serif;
+  --font-mono: "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: "Verdana", "Arial", sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: underline;
+}
+
+a:hover {
+  color: var(--accent-color);
+}
+
+/* MySpace Box Styling */
+.myspace-box {
+  background: var(--box-bg);
+  border: 2px solid var(--border-color);
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.myspace-header {
+  background: linear-gradient(180deg, var(--header-color) 0%, var(--border-color) 100%);
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 5px 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--box-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Blinking text - classic MySpace */
+.blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Marquee replacement */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee 15s linear infinite;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Cursor trail effect placeholder */
+.cursor-trail {
+  pointer-events: none;
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  z-index: 9999;
+  opacity: 0.6;
+}
+
+/* Glitter text effect */
+.glitter {
+  background: linear-gradient(
+    90deg,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #9400d3,
+    #ff0000
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow 3s linear infinite;
+  font-weight: bold;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+/* Retro button */
+.retro-btn {
+  background: linear-gradient(180deg, #444 0%, #222 100%);
+  border: 2px outset #666;
+  color: white;
+  padding: 5px 15px;
+  font-family: "Verdana", sans-serif;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.retro-btn:active {
+  border-style: inset;
+}
+
+/* Table styling like old MySpace */
+.profile-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.profile-table td {
+  vertical-align: top;
+  padding: 5px;
+}
+
+/* Online now indicator */
+.online-now {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.online-now::before {
+  content: "● ";
+}
+
+/* Music player styling */
+.music-player {
+  background: #000;
+  border: 2px inset #666;
+  padding: 10px;
+}
+
+/* Photo grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 5px;
+}
+
+.photo-thumb {
+  border: 2px solid var(--border-color);
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+/* Friend space styling */
+.friend-pic {
+  border: 3px solid var(--border-color);
+  margin-bottom: 5px;
+}
+
+/* Comment styling */
+.comment {
+  border-bottom: 1px dotted var(--border-color);
+  padding: 10px 0;
+}
+
+.comment:last-child {
+  border-bottom: none;
+}
+
+.comment-author {
+  color: var(--link-color);
+  font-weight: bold;
+}
+
+/* Mood indicator */
+.mood {
+  font-style: italic;
+  color: var(--accent-color);
+}
+
+/* Status message */
+.status-msg {
+  background: var(--box-bg);
+  border-left: 4px solid var(--accent-color);
+  padding: 10px;
+  margin: 10px 0;
+  font-style: italic;
+}
+
+/* Visitor counter */
+.visitor-counter {
+  font-family: "Courier New", monospace;
+  color: var(--accent-color);
+  font-size: 14px;
+  letter-spacing: 2px;
+}

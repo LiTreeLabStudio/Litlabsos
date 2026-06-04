@@ -40,7 +40,7 @@ const GALLERY_AGENTS = [
     greeting: "Support Node active. How can I assist you or your users today?",
   },
   {
-    id: "trading-bot",
+    id: "trading-oracle",
     name: "Trading Oracle",
     emoji: "📈",
     greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate.",

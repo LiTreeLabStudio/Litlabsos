@@ -46,7 +46,7 @@ const INTEGRATIONS = [
   { id: "discord", name: "Discord", icon: "💬", connected: false },
   { id: "telegram", name: "Telegram", icon: "✈️", connected: false },
   { id: "email", name: "Email", icon: "📧", connected: false },
-  { id: "twitter", label: "X / Twitter", icon: "🐦", connected: false },
+  { id: "twitter", name: "X / Twitter", icon: "🐦", connected: false },
 ];
 
 /* ─── Helpers ─── */

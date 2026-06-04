@@ -31,7 +31,7 @@ export default function DashboardGrid() {
         <h1 className="text-2xl font-extrabold tracking-tight text-white mb-1">
           Welcome back, <span className="gradient-text">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
         </h1>
-        <p className="text-sm text-zinc-500">Your agents are running. Here's your workspace.</p>
+        <p className="text-sm text-zinc-500">Your agents are running. Here&apos;s your workspace.</p>
       </div>
 
       {/* Quick Actions Grid */}

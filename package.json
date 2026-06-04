@@ -6,9 +6,14 @@
     "dev": "next dev --webpack",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "dev:loop": "./bin/dev.sh",
+    "sync": "./bin/sync.sh",
+    "save": "./bin/save.sh",
+    "auto-fix": "./bin/auto-fix.sh"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "jose": "^6.2.3",
     "next": "16.2.6",

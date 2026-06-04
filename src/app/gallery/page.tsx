@@ -85,10 +85,11 @@ const AGENTS: Agent[] = [
 ];
 
 const CATEGORIES = ["ALL", "DEV", "SOCIAL", "DATA", "CREATIVE", "SUPPORT", "FINANCE"];
-const TAG_COLORS: Record<string, string> = {
-  DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
-  SUPPORT: "green", FINANCE: "emerald",
-};
+// TAG_COLORS kept for future use
+// const TAG_COLORS: Record<string, string> = {
+//   DEV: "blue", SOCIAL: "purple", DATA: "amber", CREATIVE: "cyan",
+//   SUPPORT: "green", FINANCE: "emerald",
+// };
 
 export default function GalleryPage() {
   const [active, setActive] = useState("ALL");
@@ -163,7 +164,7 @@ export default function GalleryPage() {
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-base font-bold text-white truncate">{bot.name}</h3>
                   </div>
-                  <span className="badge">bot.tag</span>
+                  <span className="badge">{bot.tag}</span>
                 </div>
               </div>
               <p className="text-sm text-zinc-400 leading-relaxed mb-4 line-clamp-2">{bot.desc}</p>
@@ -206,7 +207,7 @@ export default function GalleryPage() {
               <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-5xl mx-auto mb-4">
                 {selected.avatar}
               </div>
-              <span className="badge mb-2">selected.tag</span>
+              <span className="badge mb-2">{selected.tag}</span>
               <h2 className="text-2xl font-extrabold text-white">{selected.name}</h2>
               <p className="text-xs text-zinc-500 mt-1">by {selected.author}</p>
             </div>

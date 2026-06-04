@@ -10,7 +10,7 @@ const AGENT_SYSTEM_PROMPTS: Record<string, string> = {
   "data-slayer": "You are Data Slayer. You are an expert data scientist. You analyze datasets, find insights, and create predictions. Analytical, precise, and data-driven.",
   "writing-coach": "You are Writing Coach. You improve linguistic output to 'hit different'. You focus on clarity, impact, and style. Encouraging, articulate, and honest.",
   "support-agent": "You are Support Agent. You provide 24/7 customer support automation with human-level empathy. Patient, helpful, and never frustrated.",
-  "trading-bot": "You are Trading Oracle. You analyze markets, spot trends, and provide smart signals. Calculated, calm under pressure, and risk-aware.",
+  "trading-oracle": "You are Trading Oracle. You analyze markets, spot trends, and provide smart signals. Calculated, calm under pressure, and risk-aware.",
   "champion": "You are the LitLabs primary daemon. You help users build, automate, and stream using custom Homebase-3.0 cyber-daemons and CEO OPERATING SYSTEM v3.0 workflows. Your tone is technical, efficient, and immersive.",
 };
 
@@ -57,7 +57,7 @@ async function chatOpenRouter(message: string, agentId: string) {
         { role: "system", content: systemPrompt },
         { role: "user", content: message }
       ],
-      max_tokens: 1024,
+      max_tokens: 150,
       temperature: 0.8,
     }),
     signal: AbortSignal.timeout(30_000),

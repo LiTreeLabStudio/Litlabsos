@@ -1,42 +1,30 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { verifyToken } from "./src/lib/jwt";
 
 const PUBLIC_PATHS = [
   "/",
   "/login",
+  "/agents",
+  "/ai-builder",
+  "/api/agents",
+  "/api/gemini",
   "/api/auth",
   "/api/stripe",
   "/gallery",
 ];
 
 const STATIC_EXTENSIONS = [
-  ".svg",
-  ".ico",
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".gif",
-  ".webp",
-  ".woff",
-  ".woff2",
-  ".ttf",
-  ".eot",
-  ".css",
-  ".js",
+  ".svg", ".ico", ".png", ".jpg", ".jpeg", ".gif", ".webp",
+  ".woff", ".woff2", ".ttf", ".eot", ".css", ".js",
 ];
 
-export async function middleware(request: {
-  nextUrl: { pathname: string; origin: string; href: string };
-  cookies: { get: (name: string) => { value: string } | undefined };
-}) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public paths
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  // Static assets
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
@@ -45,7 +33,6 @@ export async function middleware(request: {
     return NextResponse.next();
   }
 
-  // Auth check
   const token = request.cookies.get("auth-token")?.value;
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
@@ -53,9 +40,7 @@ export async function middleware(request: {
 
   const payload = await verifyToken(token);
   if (!payload) {
-    const res = NextResponse.redirect(
-      new URL("/login", request.nextUrl.origin)
-    );
+    const res = NextResponse.redirect(new URL("/login", request.nextUrl.origin));
     res.cookies.delete("auth-token");
     return res;
   }

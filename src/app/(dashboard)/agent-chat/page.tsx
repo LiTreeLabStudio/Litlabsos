@@ -10,7 +10,7 @@ const AGENTS = [
   { id: "data-slayer", name: "Data Slayer", emoji: "📊", greeting: "Data Slayer initialized. Transmit your dataset or analytical problem. I'll extract the insights you need." },
   { id: "writing-coach", name: "Writing Coach", emoji: "✍️", greeting: "Neural link established. Ready to refine your linguistic output. What are we working on?" },
   { id: "support-agent", name: "Support Agent", emoji: "🎧", greeting: "Support Node active. How can I assist you or your users today?" },
-  { id: "trading-bot", name: "Trading Oracle", emoji: "📈", greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate." },
+  { id: "trading-oracle", name: "Trading Oracle", emoji: "📈", greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate." },
 ];
 
 export default function AgentChatPage() {

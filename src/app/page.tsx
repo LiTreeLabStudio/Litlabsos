@@ -122,7 +122,7 @@ export default function Home() {
         <div className="mx-auto max-w-5xl">
           <div className="mb-14 text-center">
             <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">Simple Pricing</h2>
-            <p className="text-zinc-400">Free to start. Scale when you're ready.</p>
+            <p className="text-zinc-400">Free to start. Scale when you&apos;re ready.</p>
           </div>
           <div className="grid gap-6 lg:grid-cols-3 items-start">
             {/* Free */}

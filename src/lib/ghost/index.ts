@@ -1,5 +1,7 @@
 import { GhostCore } from './core/engine';
 import { OpportunityScanner } from './agents/OpportunityScanner';
+import { AirdropScanner } from './agents/AirdropScanner';
+import { TelemetryAgent } from './agents/TelemetryAgent';
 
 const engine = new GhostCore();
 
@@ -41,10 +43,20 @@ async function main() {
       await scanner.run();
       break;
 
+    case 'airdrop':
+      const airdrop = new AirdropScanner();
+      await airdrop.run();
+      break;
+
+    case 'heartbeat':
+      const telemetry = new TelemetryAgent();
+      await telemetry.run();
+      break;
+
     default:
       console.log('Ghost Engine CLI');
       console.log('Usage: ghost <command> [args]');
-      console.log('Commands: sync, save');
+      console.log('Commands: sync, sync-pc, save, scan, airdrop, heartbeat');
       process.exit(1);
   }
 }

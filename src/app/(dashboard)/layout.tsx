@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import RightSidebar from "@/components/RightSidebar";
 import ChatWidget from "@/components/ChatWidget";
+import DMInboxWrapper from "@/components/DMInboxWrapper";
 
 export default async function DashboardLayout({
   children,
@@ -56,6 +57,7 @@ export default async function DashboardLayout({
       </div>
 
       <ChatWidget />
+      <DMInboxWrapper />
     </div>
   );
 }

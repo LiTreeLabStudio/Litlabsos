@@ -302,3 +302,41 @@ begin
   where id = user_id;
 end;
 $$ language plpgsql security definer;
+
+-- ============================================
+-- 12. DIRECT MESSAGING (User-to-User DMs)
+-- ============================================
+
+create table public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_1_id uuid references public.profiles(id) on delete cascade not null,
+  user_2_id uuid references public.profiles(id) on delete cascade not null,
+  last_message text,
+  last_message_at timestamptz default now(),
+  created_at timestamptz default now(),
+  unique(user_1_id, user_2_id)
+);
+
+create table public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid references public.conversations(id) on delete cascade not null,
+  sender_id uuid references public.profiles(id) on delete cascade not null,
+  content text not null,
+  read boolean default false,
+  created_at timestamptz default now()
+);
+
+create index idx_messages_conversation on public.messages(conversation_id, created_at desc);
+create index idx_conversations_user1 on public.conversations(user_1_id);
+create index idx_conversations_user2 on public.conversations(user_2_id);
+
+alter table public.conversations enable row level security;
+alter table public.messages enable row level security;
+
+create policy "participants can view conversations" on public.conversations for select using (auth.uid() = user_1_id or auth.uid() = user_2_id);
+create policy "participants can create conversations" on public.conversations for insert with check (auth.uid() = user_1_id or auth.uid() = user_2_id);
+create policy "participants can update conversations" on public.conversations for update using (auth.uid() = user_1_id or auth.uid() = user_2_id);
+
+create policy "participants can view messages" on public.messages for select using (exists (select 1 from public.conversations c where c.id = messages.conversation_id and (c.user_1_id = auth.uid() or c.user_2_id = auth.uid())));
+create policy "participants can send messages" on public.messages for insert with check (auth.uid() = sender_id);
+create policy "read status update" on public.messages for update using (exists (select 1 from public.conversations c where c.id = messages.conversation_id and (c.user_1_id = auth.uid() or c.user_2_id = auth.uid())));

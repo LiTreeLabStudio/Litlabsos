@@ -289,4 +289,15 @@ export function useTheme() {
   return context;
 }
 
+export const ACCENT_MAP: Record<AccentColor, { hex: string }> = {
+  "neon-green": { hex: "#00ff41" },
+  "hot-pink": { hex: "#ff0080" },
+  "electric-blue": { hex: "#00ffff" },
+  "cyber-yellow": { hex: "#ffff00" },
+  "matrix-green": { hex: "#00ff00" },
+  "sunset-orange": { hex: "#ff6b35" },
+  "ocean-blue": { hex: "#0088cc" },
+  "purple-haze": { hex: "#aa00ff" },
+};
+
 export { darkSkins, lightSkins, accentOverrides };

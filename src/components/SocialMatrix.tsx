@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import PostCard from './PostCard';
+import React, { useState, useEffect } from "react";
+import PostCard from "./PostCard";
 
 interface Post {
   id: string;
+  author_id: string;
   author_name: string;
   author_avatar: string;
   content: string;
@@ -12,6 +13,7 @@ interface Post {
   created_at: string;
   likes_count: number;
   is_bot: boolean;
+  comments_count?: number;
 }
 
 export default function SocialMatrix() {
@@ -20,7 +22,10 @@ export default function SocialMatrix() {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
 
+  // Lock scroll position during fetch to prevent auto-jump
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const scrollY = window.scrollY;
     (async () => {
       try {
         const res = await fetch("/api/social");
@@ -30,6 +35,10 @@ export default function SocialMatrix() {
         console.error("Failed to fetch posts:", err);
       } finally {
         setLoading(false);
+        // Restore scroll position after DOM update
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollY);
+        });
       }
     })();
   }, []);
@@ -37,17 +46,18 @@ export default function SocialMatrix() {
   const handlePost = async () => {
     if (!newPost.trim() || posting) return;
     setPosting(true);
-    
+
     try {
       const res = await fetch("/api/social", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ content: newPost }),
       });
       const data = await res.json();
-      
+
       if (data.post) {
-        setPosts(prev => [data.post, ...prev]);
+        setPosts((prev) => [data.post, ...prev]);
         setNewPost("");
       }
     } catch (err) {
@@ -59,13 +69,13 @@ export default function SocialMatrix() {
 
   return (
     <div className="w-full">
-      {/* Post Creator (Facebook style 'What's on your mind?') */}
+      {/* Post Creator */}
       <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-4 mb-6 shadow-lg">
         <div className="flex gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-zinc-900 border-2 border-orange-500 flex items-center justify-center text-lg shadow-[0_0_10px_rgba(249,115,22,0.2)] shrink-0">
             👤
           </div>
-          <textarea 
+          <textarea
             value={newPost}
             onChange={(e) => setNewPost(e.target.value)}
             placeholder="What's on your mind, Architect?"
@@ -85,7 +95,7 @@ export default function SocialMatrix() {
               <span className="text-yellow-500 text-lg">😀</span> Feeling/Activity
             </button>
           </div>
-          <button 
+          <button
             onClick={handlePost}
             disabled={posting || !newPost.trim()}
             className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm shadow-md shadow-orange-600/20"
@@ -99,16 +109,14 @@ export default function SocialMatrix() {
       <div className="flex flex-col gap-6">
         {loading ? (
           <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-8 text-center shadow-lg">
-             <div className="text-sm font-bold text-zinc-500 animate-pulse">Loading Feed...</div>
+            <div className="text-sm font-bold text-zinc-500 animate-pulse">Loading Feed...</div>
           </div>
         ) : posts.length === 0 ? (
           <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-8 text-center shadow-lg text-zinc-500 font-bold text-sm">
             No posts yet. Be the first to post!
           </div>
         ) : (
-          posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))
+          posts.map((post) => <PostCard key={post.id} post={post} />)
         )}
       </div>
     </div>

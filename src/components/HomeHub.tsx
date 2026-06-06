@@ -1,99 +1,68 @@
 "use client";
-
-import React from 'react';
-import Link from 'next/link';
-import AgentMonitor from './AgentMonitor';
-
-interface HubCard {
-  id: string;
-  title: string;
-  subtitle: string;
-  icon: string;
-  href: string;
-  color: string;
-}
-
-const HUB_CARDS: HubCard[] = [
-  { id: 'cockpit', title: 'Director_Cockpit', subtitle: 'Primary neural command center', icon: '⚡', href: '/chat', color: 'border-orange-500/40 shadow-orange-500/20' },
-  { id: 'fleet', title: 'Fleet_Mainframe', subtitle: 'Agent telemetry & diagnostics', icon: '🧠', href: '/dashboard', color: 'border-red-500/40 shadow-red-500/20' },
-  { id: 'matrix', title: 'The_Matrix', subtitle: 'Global transmission feed', icon: '👥', href: '/social', color: 'border-orange-600/40 shadow-orange-600/20' },
-  { id: 'forge', title: 'Agent_Forge', subtitle: 'Daemon construction module', icon: '🛠️', href: '/builder', color: 'border-yellow-600/40 shadow-yellow-600/20' },
-  { id: 'studio', title: 'UI_Studio', subtitle: 'Neural interface architect', icon: '🎭', href: '/ai-studio', color: 'border-orange-400/40 shadow-orange-400/20' },
-  { id: 'nexus', title: 'Bot_Forge', subtitle: 'Acquire high-tier nodes', icon: '🔧', href: '/marketplace', color: 'border-red-600/40 shadow-red-600/20' },
-];
+import Link from "next/link";
 
 export default function HomeHub() {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden hud-scanlines">
-      {/* Background FX */}
-      <div className="absolute inset-0 hud-grid opacity-20" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,#f9731615,transparent_50%)]" />
-      
-      <div className="max-w-7xl mx-auto px-4 py-16 relative z-10">
-        {/* Header */}
-        <div className="mb-20 text-center">
-          <div className="inline-block px-4 py-1 bg-orange-500/10 border border-orange-500/30 text-[10px] font-black text-orange-500 uppercase tracking-[0.5em] mb-8 animate-pulse shadow-[0_0_15px_rgba(249,115,22,0.1)]">
-            NEURAL_OS_ACTIVE // BRANCH_V3.5
+    <div className="min-h-screen bg-[#050505]">
+      <div className="max-w-5xl mx-auto px-4 py-20">
+        {/* Hero */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f97316]/10 border border-[#f97316]/20 mb-6">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#f97316] animate-pulse" />
+            <span className="text-xs font-medium text-[#f97316]">AI Agent Platform</span>
           </div>
-          <h1 className="text-6xl md:text-8xl font-black uppercase tracking-[0.1em] font-heading text-white mb-6 italic glow-text-orange">
-            HIVE_MIND
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+            LitLabs
           </h1>
-          <p className="text-[11px] font-black text-zinc-600 uppercase tracking-[0.6em] ml-[0.6em]">Centralized_Autonomous_Orchestration_Hub</p>
-        </div>
-
-        {/* Top Telemetry */}
-        <div className="mb-16">
-          <AgentMonitor />
-        </div>
-
-        {/* Grid Launchpad */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {HUB_CARDS.map((card) => (
-            <Link 
-              key={card.id}
-              href={card.href}
-              className={`card-cyber p-10 flex flex-col items-center text-center group`}
-            >
-              {/* Animated Corner Accents */}
-              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-orange-500/20 group-hover:border-orange-500 transition-colors" />
-              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-orange-500/20 group-hover:border-orange-500 transition-colors" />
-              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-orange-500/20 group-hover:border-orange-500 transition-colors" />
-              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-orange-500/20 group-hover:border-orange-500 transition-colors" />
-
-              <div className="w-20 h-20 rounded-none border border-white/5 flex items-center justify-center text-4xl mb-8 shadow-inner group-hover:scale-110 transition-all duration-500 bg-black/60 group-hover:border-orange-500/30 group-hover:shadow-[0_0_30px_rgba(249,115,22,0.1)]">
-                {card.icon}
-              </div>
-              
-              <h2 className="text-sm font-black uppercase tracking-[0.3em] text-white font-mono mb-3 group-hover:text-orange-500 transition-colors">
-                {card.title}
-              </h2>
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest leading-relaxed mb-8 opacity-60 group-hover:opacity-100 transition-opacity">
-                {card.subtitle}
-              </p>
-              
-              <div className="mt-auto px-6 py-2 border border-white/5 text-[9px] font-black text-zinc-700 uppercase tracking-[0.3em] group-hover:border-orange-500/40 group-hover:text-orange-500 transition-all duration-300">
-                INITIATE_MODULE
-              </div>
+          <p className="text-lg text-[#71717a] max-w-xl mx-auto mb-8">
+            Build, deploy, and manage custom AI agents. One clean platform for your entire AI workflow.
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <Link href="/dashboard" className="btn btn-primary">
+              Get Started
             </Link>
-          ))}
+            <Link href="/builder" className="btn btn-secondary">
+              Build an Agent
+            </Link>
+          </div>
         </div>
 
-        {/* System Logs Footer */}
-        <div className="mt-32 border-t border-white/5 pt-12 flex flex-wrap justify-between items-center gap-10">
-          <div className="flex items-center gap-10">
-            <div>
-              <div className="text-[9px] font-black text-zinc-800 uppercase tracking-widest mb-2">Global_Uptime</div>
-              <div className="text-sm font-black text-zinc-600 font-mono tracking-tighter">142:52:14:02</div>
-            </div>
-            <div className="w-px h-10 bg-white/5" />
-            <div>
-              <div className="text-[9px] font-black text-zinc-800 uppercase tracking-widest mb-2">Security_Integrity</div>
-              <div className="text-sm font-black text-emerald-950 font-mono tracking-tighter animate-pulse">OPTIMUM_STABLE</div>
-            </div>
+        {/* Feature Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-16">
+          <Link href="/chat" className="card p-6 group">
+            <div className="w-10 h-10 rounded-xl bg-[#f97316]/10 flex items-center justify-center text-xl mb-3">💬</div>
+            <h3 className="text-base font-semibold text-white mb-1 group-hover:text-[#f97316] transition-colors">AI Chat</h3>
+            <p className="text-sm text-[#71717a]">Talk to your AI assistant. Get help, run commands, automate tasks.</p>
+          </Link>
+          <Link href="/builder" className="card p-6 group">
+            <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-xl mb-3">🛠️</div>
+            <h3 className="text-base font-semibold text-white mb-1 group-hover:text-[#f97316] transition-colors">Agent Builder</h3>
+            <p className="text-sm text-[#71717a]">Create custom AI agents with personality, skills, and behaviors.</p>
+          </Link>
+          <Link href="/marketplace" className="card p-6 group">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-xl mb-3">🔧</div>
+            <h3 className="text-base font-semibold text-white mb-1 group-hover:text-[#f97316] transition-colors">Marketplace</h3>
+            <p className="text-sm text-[#71717a]">Browse and deploy pre-built agents for any use case.</p>
+          </Link>
+        </div>
+
+        {/* Stats */}
+        <div className="card p-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <div className="text-2xl font-bold text-white">5+</div>
+            <div className="text-xs text-[#71717a] mt-1">Active Agents</div>
           </div>
-          
-          <div className="text-[10px] font-black text-zinc-800 uppercase tracking-[0.4em] font-mono italic">
-            LiTTreeLabStudios // Core_Identity_2026
+          <div>
+            <div className="text-2xl font-bold text-white">99.9%</div>
+            <div className="text-xs text-[#71717a] mt-1">Uptime</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">1.4K</div>
+            <div className="text-xs text-[#71717a] mt-1">Interactions</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-white">24/7</div>
+            <div className="text-xs text-[#71717a] mt-1">Monitoring</div>
           </div>
         </div>
       </div>

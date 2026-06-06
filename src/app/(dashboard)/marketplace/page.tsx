@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -10,114 +9,81 @@ interface Bot {
   name: string;
   tag: string;
   desc: string;
-  tier: "ELITE" | "PRIME" | "CORE";
+  tier: "Elite" | "Pro" | "Core";
   price: string;
   rating: number;
   uses: string;
-  avatar: string;
+  icon: string;
 }
 
 const BOTS: Bot[] = [
-  { id: "code-champion", name: "Code_Champion", tag: "DEV", desc: "Elite pair programmer. Synthesizes, reviews, and refactors production code with 99% precision.", tier: "ELITE", price: "$49", rating: 4.9, uses: "1.2k", avatar: "🧩" },
-  { id: "social-dominator", name: "Social_Dominator", tag: "SOCIAL", desc: "Viral growth strategist. Manipulates engagement algorithms and manages brand presence.", tier: "ELITE", price: "$39", rating: 4.7, uses: "856", avatar: "🔥" },
-  { id: "data-slayer", name: "Data_Slayer", tag: "DATA", desc: "Neural data architect. Converts raw streams into high-fidelity visual intelligence.", tier: "PRIME", price: "$29", rating: 4.5, uses: "634", avatar: "📊" },
-  { id: "writing-coach", name: "Writing_Coach", tag: "CREATIVE", desc: "Linguistic engine. Refines data for maximum clarity and tonal dominance.", tier: "PRIME", price: "$19", rating: 4.8, uses: "978", avatar: "✍️" },
-  { id: "support-agent", name: "Support_Node", tag: "SUPPORT", desc: "24/7 resolution engine. Handles complex escalations with neural empathy.", tier: "CORE", price: "$9", rating: 4.6, uses: "543", avatar: "🎧" },
-  { id: "trading-oracle", name: "Trading_Oracle", tag: "FINANCE", desc: "Market signal analyzer. Spot trends and anomalous neural trading patterns.", tier: "ELITE", price: "$99", rating: 4.3, uses: "412", avatar: "📈" },
+  { id: "code-champion", name: "Code Champion", tag: "Development", desc: "AI pair programmer. Reviews, debugs, and writes production code.", tier: "Elite", price: "$49/mo", rating: 4.9, uses: "1.2k", icon: "💻" },
+  { id: "social-assistant", name: "Social Assistant", tag: "Marketing", desc: "Content creation, scheduling, and engagement analytics.", tier: "Elite", price: "$39/mo", rating: 4.7, uses: "856", icon: "📱" },
+  { id: "data-analyst", name: "Data Analyst", tag: "Analytics", desc: "Turns raw data into charts, insights, and predictions.", tier: "Pro", price: "$29/mo", rating: 4.5, uses: "634", icon: "📊" },
+  { id: "writing-assistant", name: "Writing Assistant", tag: "Creative", desc: "Drafts, edits, and improves any text for clarity and tone.", tier: "Pro", price: "$19/mo", rating: 4.8, uses: "978", icon: "✍️" },
+  { id: "support-agent", name: "Support Agent", tag: "Support", desc: "24/7 customer support with smart escalation handling.", tier: "Core", price: "$9/mo", rating: 4.6, uses: "543", icon: "🎧" },
+  { id: "research-assistant", name: "Research Assistant", tag: "Research", desc: "Finds, summarizes, and analyzes information from the web.", tier: "Core", price: "$15/mo", rating: 4.4, uses: "312", icon: "🔍" },
 ];
 
-const CATEGORIES = ["ALL", "DEV", "SOCIAL", "DATA", "CREATIVE", "SUPPORT", "FINANCE"];
+const CATEGORIES = ["All", "Development", "Marketing", "Analytics", "Creative", "Support", "Research"];
 
 export default function MarketplacePage() {
   const router = useRouter();
-  const [active, setActive] = useState("ALL");
+  const [active, setActive] = useState("All");
   const [search, setSearch] = useState("");
   const [acquiring, setAcquiring] = useState<string | null>(null);
-  const [recharging, setRecharging] = useState(false);
 
   const handleAcquire = async (agentId: string) => {
     setAcquiring(agentId);
     try {
-      // For now, Single Agent Acquisition is free/placeholder
       await new Promise(r => setTimeout(r, 1500));
       router.push(`/chat?acquired=${agentId}`);
     } catch (err) {
-      console.error("Acquisition error:", err);
+      console.error("Error:", err);
     } finally {
       setAcquiring(null);
     }
   };
 
-  const handleRecharge = async (amount: number, credits: number) => {
-    setRecharging(true);
-    try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, credits }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        // eslint-disable-next-line react-hooks/immutability
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      console.error("Recharge error:", err);
-    } finally {
-      setRecharging(false);
-    }
-  };
-
-  const filtered = BOTS.filter((bot) => {
-    const matchCat = active === "ALL" || bot.tag === active;
-    const matchSearch =
-      !search ||
-      bot.name.toLowerCase().includes(search.toLowerCase()) ||
-      bot.desc.toLowerCase().includes(search.toLowerCase());
+  const filtered = BOTS.filter(bot => {
+    const matchCat = active === "All" || bot.tag === active;
+    const matchSearch = !search || bot.name.toLowerCase().includes(search.toLowerCase()) || bot.desc.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
+  const tierColor = (tier: string) => {
+    if (tier === "Elite") return "badge-orange";
+    if (tier === "Pro") return "badge-blue";
+    return "badge-gray";
+  };
+
   return (
-    <div className="min-h-screen bg-black text-white font-mono relative overflow-hidden hud-scanlines">
-      {/* Background FX */}
-      <div className="absolute inset-0 hud-grid opacity-10" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,#f9731608,transparent_50%)]" />
-      
+    <div className="min-h-screen bg-[#050505]">
       <Navbar />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-20 pb-32 relative z-10">
-        <div className="mb-20 text-center">
-          <div className="inline-block px-4 py-1 bg-orange-500/10 border border-orange-500/30 text-[10px] font-black text-orange-500 uppercase tracking-[0.5em] mb-8 animate-pulse shadow-[0_0_15px_rgba(249,115,22,0.1)]">
-            NEXUS_DEPLOYMENT_CORE // V3.5
-          </div>
-          <h1 className="text-5xl md:text-7xl font-black uppercase tracking-[0.1em] font-heading text-white mb-6 italic glow-text-orange">
-            Bot_Forge
-          </h1>
-          <p className="text-zinc-600 font-black text-[11px] uppercase tracking-[0.6em] max-w-xl mx-auto leading-relaxed">
-            Acquire_Elite_Specialized_Nodes_To_Scale_Fleet_Intelligence
-          </p>
+
+      <main className="max-w-6xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold text-white mb-2">Marketplace</h1>
+          <p className="text-[#71717a]">Browse and deploy pre-built AI agents for your workflow.</p>
         </div>
 
-        {/* Filters */}
-        <div className="mb-16 flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between border-b border-white/5 pb-12">
-          <div className="relative w-full lg:max-w-lg group">
-            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-800 group-focus-within:text-orange-500 transition-colors">🔍</span>
-            <input
-              className="w-full bg-zinc-950/50 border-2 border-orange-500/10 rounded-none px-14 py-5 text-sm text-white focus:outline-none focus:border-orange-500/50 placeholder:text-zinc-900 transition-all font-mono"
-              placeholder="SEARCH_NEURAL_ARCHIVES..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {CATEGORIES.map((cat) => (
+        {/* Search & Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <input
+            className="input flex-1"
+            placeholder="Search agents..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map(cat => (
               <button
                 key={cat}
                 onClick={() => setActive(cat)}
-                className={`px-8 py-3 rounded-none text-[10px] font-black uppercase tracking-[0.2em] transition-all border-2 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   active === cat
-                    ? "bg-orange-600 border-orange-500 text-black shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                    : "bg-transparent text-zinc-700 border-white/5 hover:border-orange-500/30 hover:text-white"
+                    ? "bg-[#f97316] text-black"
+                    : "bg-[#1a1a1a] text-[#71717a] hover:text-white hover:bg-[#222]"
                 }`}
               >
                 {cat}
@@ -126,102 +92,77 @@ export default function MarketplacePage() {
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {filtered.map((bot) => (
-            <div
-              key={bot.id}
-              className="card-cyber p-10 flex flex-col group"
-            >
-              {/* Corner Accents */}
-              <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-orange-500/30 group-hover:border-orange-500 transition-colors" />
-              <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-orange-500/30 group-hover:border-orange-500 transition-colors" />
-
-              <div className="flex justify-between items-start mb-10">
-                <div className={`w-16 h-16 rounded-none bg-zinc-900 border border-white/5 flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 transition-all duration-500 bg-black/60 group-hover:border-orange-500/20`}>
-                  {bot.avatar}
+        {/* Agent Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map(bot => (
+            <div key={bot.id} className="card p-5 flex flex-col">
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#f97316]/10 flex items-center justify-center text-2xl">
+                  {bot.icon}
                 </div>
-                <div className="text-right">
-                  <div className={`text-[10px] font-black uppercase tracking-[0.3em] mb-2 ${
-                    bot.tier === 'ELITE' ? 'text-red-500 glow-text-orange' : bot.tier === 'PRIME' ? 'text-orange-500 glow-text-orange' : 'text-zinc-600'
-                  }`}>
-                    TIER_{bot.tier}
-                  </div>
-                  <div className="text-2xl font-black text-white font-mono tabular-nums tracking-tighter">{bot.price}</div>
-                </div>
+                <span className={`badge ${tierColor(bot.tier)}`}>{bot.tier}</span>
               </div>
 
-              <div className="flex-1">
-                <h3 className="text-sm font-black uppercase tracking-[0.2em] text-white font-mono mb-4 group-hover:text-orange-500 transition-colors">
-                  {bot.name}
-                </h3>
-                <p className="text-[11px] text-zinc-500 font-bold uppercase leading-loose mb-10 opacity-70 group-hover:opacity-100 transition-opacity">
-                  {bot.desc}
-                </p>
-              </div>
-              
-              <div className="flex items-center justify-between mt-auto pt-8 border-t border-white/5">
-                <div className="flex gap-6 text-[10px] font-black text-zinc-800 uppercase tracking-widest">
-                  <span>★ {bot.rating}</span>
-                  <span>{bot.uses} LINKS</span>
+              <h3 className="text-base font-semibold text-white mb-1">{bot.name}</h3>
+              <span className="badge badge-gray mb-3 self-start">{bot.tag}</span>
+              <p className="text-sm text-[#71717a] mb-4 flex-1">{bot.desc}</p>
+
+              <div className="flex items-center justify-between pt-4 border-t border-[#1a1a1a]">
+                <div className="text-xs text-[#555]">
+                  <span className="text-[#f97316]">★ {bot.rating}</span> · {bot.uses} users
                 </div>
-                <button
-                  onClick={() => handleAcquire(bot.id)}
-                  disabled={acquiring === bot.id}
-                  className="text-[10px] font-black text-orange-500 hover:text-white transition-colors uppercase tracking-[0.2em] flex items-center gap-3 group/btn"
-                >
-                  {acquiring === bot.id ? "SYNCING..." : "INITIALIZE"}
-                  <span className="group-hover/btn:translate-x-2 transition-transform">→</span>
-                </button>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-white">{bot.price}</span>
+                  <button
+                    onClick={() => handleAcquire(bot.id)}
+                    disabled={acquiring === bot.id}
+                    className="btn btn-primary py-1.5 px-4 text-xs disabled:opacity-50"
+                  >
+                    {acquiring === bot.id ? "Adding..." : "Add"}
+                  </button>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Neural Compute Recharge */}
-        <div className="mt-32">
-          <div className="mb-12 border-l-2 border-orange-500 pl-6">
-            <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-white font-heading italic glow-text-orange">Neural_Compute_Recharge</h2>
-            <p className="text-[9px] font-bold text-zinc-600 uppercase tracking-[0.4em] mt-2">Fuel_The_Hive_Mind_With_Compute_Tokens</p>
+        {filtered.length === 0 && (
+          <div className="text-center py-16">
+            <p className="text-[#71717a]">No agents found matching your search.</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        )}
+
+        {/* Credits Section */}
+        <div className="mt-16">
+          <h2 className="text-xl font-bold text-white mb-6">Buy Credits</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { amount: 10, credits: 100, label: "Core_Bundle" },
-              { amount: 25, credits: 300, label: "Prime_Package", popular: true },
-              { amount: 50, credits: 750, label: "Elite_Transmission" }
+              { amount: 10, credits: 100, label: "Starter" },
+              { amount: 25, credits: 300, label: "Popular", popular: true },
+              { amount: 50, credits: 750, label: "Pro" },
             ].map(pkg => (
-              <div key={pkg.amount} className={`card-cyber p-8 bg-zinc-950/60 border-2 ${pkg.popular ? 'border-orange-500/40 shadow-[0_0_20px_rgba(249,115,22,0.1)]' : 'border-white/5'} flex flex-col items-center text-center relative overflow-hidden group`}>
-                {pkg.popular && (
-                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-orange-600 text-black text-[8px] font-black uppercase tracking-widest z-10 shadow-lg">RECOMMENDED</div>
-                )}
-                <div className="text-4xl font-black text-white font-mono mb-2 tracking-tighter tabular-nums">{pkg.credits}</div>
-                <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] mb-6">{pkg.label}</div>
-                <div className="text-2xl font-bold text-zinc-500 mb-8 tracking-tighter font-mono">${pkg.amount}</div>
-                <button 
-                  onClick={() => handleRecharge(pkg.amount, pkg.credits)}
-                  disabled={recharging}
-                  className="w-full btn-cyber btn-cyber-primary py-3 tracking-[0.2em]"
+              <div key={pkg.amount} className={`card p-6 text-center ${pkg.popular ? "border-[#f97316]/40" : ""}`}>
+                {pkg.popular && <div className="badge badge-orange mb-3">Most Popular</div>}
+                <div className="text-3xl font-bold text-white mb-1">{pkg.credits}</div>
+                <div className="text-xs text-[#71717a] mb-2">{pkg.label} Pack</div>
+                <div className="text-xl font-bold text-white mb-4">${pkg.amount}</div>
+                <button
+                  onClick={() => {}}
+                  className={`btn w-full text-sm ${pkg.popular ? "btn-primary" : "btn-secondary"}`}
                 >
-                  {recharging ? "INITIATING..." : "ACQUIRE_TOKENS"}
+                  Buy Credits
                 </button>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Custom Forge Banner */}
-        <div className="mt-24 card-cyber p-16 bg-orange-600/[0.02] border-dashed border-2 border-orange-500/10 text-center relative overflow-hidden group">
-          <div className="absolute inset-0 hud-grid opacity-[0.03]" />
-          <h2 className="text-3xl font-black uppercase tracking-[0.4em] mb-6 text-white relative z-10 glow-text-orange italic">CONSTRUCT_CUSTOM_NODE?</h2>
-          <p className="text-zinc-600 text-xs font-bold uppercase tracking-[0.3em] mb-12 max-w-lg mx-auto relative z-10 leading-loose">
-            Access_The_Agent_Forge_To_Build_Unique_Behavior_Directives
-          </p>
-          <Link 
-            href="/builder" 
-            className="btn-cyber btn-cyber-primary py-4 px-12 tracking-[0.3em] relative z-10"
-          >
-            OPEN_AGENT_FORGE
+        {/* Custom CTA */}
+        <div className="mt-12 card p-8 text-center border-dashed">
+          <h2 className="text-xl font-bold text-white mb-2">Need something custom?</h2>
+          <p className="text-sm text-[#71717a] mb-4">Build your own agent with custom personality and skills.</p>
+          <Link href="/builder" className="btn btn-primary">
+            Open Agent Builder
           </Link>
         </div>
       </main>

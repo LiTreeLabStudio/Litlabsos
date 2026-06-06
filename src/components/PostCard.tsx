@@ -22,76 +22,95 @@ export default function PostCard({ post }: { post: Post }) {
   const toggleLike = () => {
     setLiked(!liked);
     setLikesCount(prev => liked ? prev - 1 : prev + 1);
-    // TODO: Wire up to /api/social/likes
   };
 
   return (
-    <div className="card-cyber p-8 bg-zinc-950/20 border-orange-500/5 hover:bg-orange-500/[0.03] transition-all relative overflow-hidden group mb-6">
+    <div className="bg-zinc-950/80 border border-white/10 rounded-xl overflow-hidden shadow-lg relative">
       {post.is_bot && (
-        <div className="absolute top-0 right-0 px-4 py-1.5 bg-orange-500/10 border-l border-b border-orange-500/20 text-[9px] font-black text-orange-500 uppercase tracking-[0.3em]">
-          DAEMON_LOG
+        <div className="absolute top-4 right-4 px-2 py-0.5 bg-orange-600/20 border border-orange-500/50 text-[10px] font-bold text-orange-400 rounded-md">
+          Bot
         </div>
       )}
       
-      <div className="flex gap-6">
-        <div className={`w-14 h-14 rounded-none border flex items-center justify-center text-2xl shadow-2xl transition-all duration-500 ${post.is_bot ? 'bg-orange-600/10 border-orange-500/40 shadow-orange-500/10' : 'bg-blue-600/10 border-blue-500/40 shadow-blue-500/10'}`}>
+      {/* Post Header */}
+      <div className="p-4 flex items-center gap-3">
+        <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center text-xl shadow-md ${post.is_bot ? 'bg-zinc-900 border-orange-500/50' : 'bg-zinc-900 border-blue-500/50'}`}>
           {post.author_avatar}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className={`text-xs font-black uppercase tracking-[0.2em] ${post.is_bot ? 'text-orange-500 glow-text-orange' : 'text-blue-500'}`}>{post.author_name}</h3>
-            <span className="text-[9px] text-zinc-700 font-bold uppercase tracking-widest">[{new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}]</span>
+        <div>
+          <h3 className="text-[14px] font-bold text-white hover:underline cursor-pointer">{post.author_name}</h3>
+          <div className="text-[11px] text-zinc-500 font-medium">
+            {new Date(post.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })} • 🌎
           </div>
-          <p className="text-[13px] text-zinc-400 font-medium leading-relaxed whitespace-pre-wrap font-mono mb-4">{post.content}</p>
-          
-          {post.media_url && (
-            <div className="mb-4 rounded-none border border-white/5 overflow-hidden bg-black/40 relative h-64">
-              <Image 
-                src={post.media_url} 
-                alt="Neural Transmission Media" 
-                fill
-                className="object-cover opacity-80 hover:opacity-100 transition-opacity" 
-              />
-            </div>
-          )}
-
-          <div className="flex items-center gap-10 mt-8 pt-6 border-t border-white/5">
-            <button 
-              onClick={toggleLike}
-              className="flex items-center gap-2.5 group/btn"
-            >
-              <span className={`text-sm transition-colors ${liked ? 'text-orange-500' : 'text-zinc-800 group-hover/btn:text-orange-500'}`}>
-                {liked ? '🧡' : '🤍'}
-              </span>
-              <span className="text-[10px] font-black text-zinc-600 group-hover/btn:text-white transition-colors tabular-nums tracking-widest">{likesCount}</span>
-            </button>
-            <button 
-              onClick={() => setShowComments(!showComments)}
-              className="flex items-center gap-2.5 group/btn"
-            >
-              <span className="text-zinc-800 group-hover/btn:text-orange-500 transition-colors text-sm">💬</span>
-              <span className="text-[10px] font-black text-zinc-600 group-hover/btn:text-white transition-colors tabular-nums tracking-widest">0</span>
-            </button>
-            <button className="flex items-center gap-2.5 group/btn">
-              <span className="text-zinc-800 group-hover/btn:text-orange-500 transition-colors text-sm">🔗</span>
-            </button>
-            <button className="text-zinc-800 hover:text-orange-500 transition-colors text-xs ml-auto font-black tracking-[0.3em]">...</button>
-          </div>
-
-          {showComments && (
-            <div className="mt-6 pt-6 border-t border-white/5 animate-in fade-in slide-in-from-top-2">
-              <div className="flex gap-4 mb-4">
-                <div className="w-8 h-8 rounded-none border border-blue-500/40 bg-blue-600/10 flex items-center justify-center text-xs">⚡</div>
-                <input 
-                  className="flex-1 bg-zinc-900/40 border border-white/5 rounded-none px-4 py-2 text-xs text-white focus:outline-none focus:border-orange-500/40 font-mono"
-                  placeholder="Inject response into thread..."
-                />
-              </div>
-              <div className="text-[9px] font-black text-zinc-800 uppercase tracking-widest text-center py-4 italic">End_Of_Transmission_Thread</div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Post Content */}
+      <div className="px-4 pb-3">
+        <p className="text-[14px] text-zinc-300 whitespace-pre-wrap">{post.content}</p>
+      </div>
+      
+      {/* Media Attachment */}
+      {post.media_url && (
+        <div className="w-full relative h-64 sm:h-80 lg:h-96 bg-black border-y border-zinc-800">
+          <Image 
+            src={post.media_url} 
+            alt="Post Attachment" 
+            fill
+            className="object-cover" 
+          />
+        </div>
+      )}
+
+      {/* Engagement Stats */}
+      <div className="px-4 py-2 flex items-center justify-between text-[12px] text-zinc-500 border-b border-zinc-800/60">
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4 rounded-full bg-blue-600 flex items-center justify-center text-[10px] text-white">👍</span>
+          {likesCount > 0 && <span>{likesCount}</span>}
+        </div>
+        <div className="flex gap-3 hover:underline cursor-pointer">
+          <span>0 Comments</span>
+          <span>0 Shares</span>
+        </div>
+      </div>
+
+      {/* Action Buttons (Facebook style) */}
+      <div className="px-2 py-1 flex items-center justify-between">
+        <button 
+          onClick={toggleLike}
+          className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-md hover:bg-zinc-900 transition-colors text-[13px] font-semibold ${liked ? 'text-blue-500' : 'text-zinc-400'}`}
+        >
+          <span className="text-lg">👍</span> Like
+        </button>
+        <button 
+          onClick={() => setShowComments(!showComments)}
+          className="flex-1 flex items-center justify-center gap-2 py-2 rounded-md hover:bg-zinc-900 transition-colors text-[13px] font-semibold text-zinc-400"
+        >
+          <span className="text-lg">💬</span> Comment
+        </button>
+        <button className="flex-1 flex items-center justify-center gap-2 py-2 rounded-md hover:bg-zinc-900 transition-colors text-[13px] font-semibold text-zinc-400">
+          <span className="text-lg">🔗</span> Share
+        </button>
+      </div>
+
+      {/* Comments Section */}
+      {showComments && (
+        <div className="p-4 bg-zinc-900/30 border-t border-zinc-800/60">
+          <div className="flex gap-2">
+            <div className="w-8 h-8 rounded-full border border-blue-500/40 bg-zinc-900 flex items-center justify-center text-sm shrink-0">👤</div>
+            <div className="flex-1 bg-zinc-800/50 rounded-2xl px-3 py-1.5 flex items-center">
+              <input 
+                className="w-full bg-transparent border-none text-[13px] text-white focus:outline-none placeholder:text-zinc-500"
+                placeholder="Write a comment..."
+              />
+              <div className="flex gap-2 text-zinc-500 pl-2">
+                <span className="cursor-pointer hover:text-white">😀</span>
+                <span className="cursor-pointer hover:text-white">📷</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

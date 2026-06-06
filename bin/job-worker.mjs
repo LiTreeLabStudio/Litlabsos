@@ -27,9 +27,10 @@ async function processJob(job) {
     // Mark as in_progress
     await supabase.from("jobs").update({ status: "in_progress" }).eq("id", job.id);
 
-    // Execute via OpenClaw CLI
+    // Execute via Hermes CLI (OpenClaw successor)
     // We wrap the goal in a prompt for the agent
-    const command = `openclaw agent --message "${job.task_goal}" --deliver`;
+    const hermesPath = "/data/data/com.termux/files/home/.hermes/hermes-agent/venv/bin/hermes";
+    const command = `${hermesPath} -z "${job.task_goal}"`;
     const output = execSync(command, { encoding: 'utf8' });
 
     // Update job with result

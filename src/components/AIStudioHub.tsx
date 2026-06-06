@@ -117,10 +117,10 @@ export default function AIStudioHub() {
     }
 
     setIsLoading(true);
-    addLog("Initiating generation request with gemini-2.0-flash-exp...", "info");
+    addLog("Initiating generation request with gemini-2.5-flash...", "info");
     setPreviewTab('code');
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     
     const payload = {
       contents: [{

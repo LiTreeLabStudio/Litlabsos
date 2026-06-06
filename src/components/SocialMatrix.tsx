@@ -59,40 +59,52 @@ export default function SocialMatrix() {
 
   return (
     <div className="w-full">
-      {/* Post Creator */}
-      <div className="card-cyber p-8 bg-zinc-950/40 border-orange-500/10 mb-10 group relative">
-        <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-orange-500/40" />
-        <textarea 
-          value={newPost}
-          onChange={(e) => setNewPost(e.target.value)}
-          placeholder="Inject neural directive into the stream..."
-          disabled={posting}
-          className="w-full bg-transparent border-none outline-none text-white placeholder:text-zinc-800 resize-none font-medium text-sm min-h-[100px] font-mono"
-        />
-        <div className="flex justify-between items-center mt-6 pt-6 border-t border-white/5">
-          <div className="flex gap-6">
-            <button className="text-xl grayscale opacity-20 hover:opacity-100 hover:grayscale-0 transition-all duration-300">🖼️</button>
-            <button className="text-xl grayscale opacity-20 hover:opacity-100 hover:grayscale-0 transition-all duration-300">🔗</button>
-            <button className="text-xl grayscale opacity-20 hover:opacity-100 hover:grayscale-0 transition-all duration-300">📊</button>
+      {/* Post Creator (Facebook style 'What's on your mind?') */}
+      <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-4 mb-6 shadow-lg">
+        <div className="flex gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-zinc-900 border-2 border-orange-500 flex items-center justify-center text-lg shadow-[0_0_10px_rgba(249,115,22,0.2)] shrink-0">
+            👤
+          </div>
+          <textarea 
+            value={newPost}
+            onChange={(e) => setNewPost(e.target.value)}
+            placeholder="What's on your mind, Architect?"
+            disabled={posting}
+            className="w-full bg-zinc-900/50 hover:bg-zinc-900 focus:bg-zinc-900 rounded-xl px-4 py-3 text-white placeholder:text-zinc-500 border-none outline-none resize-none font-medium text-sm min-h-[60px] transition-colors"
+          />
+        </div>
+        <div className="flex justify-between items-center pt-3 border-t border-zinc-800">
+          <div className="flex gap-1">
+            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400 font-semibold text-xs">
+              <span className="text-green-500 text-lg">🖼️</span> Photo/Video
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400 font-semibold text-xs">
+              <span className="text-blue-500 text-lg">🔗</span> Link
+            </button>
+            <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-zinc-900 transition-colors text-zinc-400 font-semibold text-xs">
+              <span className="text-yellow-500 text-lg">😀</span> Feeling/Activity
+            </button>
           </div>
           <button 
             onClick={handlePost}
             disabled={posting || !newPost.trim()}
-            className="btn-cyber btn-cyber-primary py-2.5 px-8 disabled:opacity-30"
+            className="bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 px-6 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm shadow-md shadow-orange-600/20"
           >
-            {posting ? "UPLOADING..." : "BROADCAST"}
+            {posting ? "Posting..." : "Post"}
           </button>
         </div>
       </div>
 
       {/* Feed Stream */}
-      <div className="flex flex-col gap-0">
+      <div className="flex flex-col gap-6">
         {loading ? (
-          <div className="text-center py-20">
-             <div className="text-sm font-black uppercase tracking-[0.4em] text-zinc-800 animate-pulse">Syncing_Neural_Archives...</div>
+          <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-8 text-center shadow-lg">
+             <div className="text-sm font-bold text-zinc-500 animate-pulse">Loading Feed...</div>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-20 text-zinc-800 font-black uppercase tracking-widest text-xs">No transmissions detected.</div>
+          <div className="bg-zinc-950/80 border border-white/10 rounded-xl p-8 text-center shadow-lg text-zinc-500 font-bold text-sm">
+            No posts yet. Be the first to post!
+          </div>
         ) : (
           posts.map((post) => (
             <PostCard key={post.id} post={post} />

@@ -1,8 +1,12 @@
+
+> frontend@0.1.0 dev
+> next dev --webpack
+
 ▲ Next.js 16.2.6 (webpack)
 - Local:         http://localhost:3000
-- Network:       http://0.0.0.0:3000
+- Network:       http://192.168.0.65:3000
 - Environments: .env.local
-✓ Ready in 1697ms
+✓ Ready in 1483ms
 ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
  We detected multiple lockfiles and selected the directory of /data/data/com.termux/files/home/package-lock.json as the root directory.
  To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
@@ -17,6 +21,4 @@ Warning: Custom Cache-Control headers detected for the following routes:
 Setting a custom Cache-Control header can break Next.js development behavior.
   Skipping creating a lockfile at /data/data/com.termux/files/home/LiTTreeLabstudios/.next/dev/lock because we're using WASM bindings
 
-○ Compiling / ...
- HEAD / 200 in 6.6s (next.js: 5.6s, application-code: 1011ms)
 [?25h

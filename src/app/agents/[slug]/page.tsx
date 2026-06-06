@@ -169,7 +169,7 @@ export default function AgentDetail() {
   return (
     <div style={{ backgroundColor: theme.bgColor, minHeight: "100vh", padding: "20px" }}>
       {/* Header */}
-      <div className="myspace-box mb-6" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
+      <div className="lit-box mb-6" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <img src={agent.avatar_url} alt={agent.name} className="w-14 h-14 rounded-xl object-cover border" style={{ borderColor: theme.borderColor }} />
@@ -195,8 +195,8 @@ export default function AgentDetail() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left: Agent Info */}
         <div className="lg:col-span-2">
-          <div className="myspace-box mb-4" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
-            <div className="myspace-header" style={{ color: "white" }}>📋 ABOUT</div>
+          <div className="lit-box mb-4" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
+            <div className="lit-header" style={{ color: "white" }}>📋 ABOUT</div>
             <div className="p-4">
               <p style={{ color: theme.textColor, lineHeight: "1.6", marginBottom: "20px" }}>
                 {agent.description}
@@ -237,8 +237,8 @@ export default function AgentDetail() {
           </div>
 
           {/* Live Chat */}
-          <div className="myspace-box" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
-            <div className="myspace-header" style={{ color: "white" }}>💬 CHAT WITH {agent.name.toUpperCase()}</div>
+          <div className="lit-box" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
+            <div className="lit-header" style={{ color: "white" }}>💬 CHAT WITH {agent.name.toUpperCase()}</div>
             <div className="p-4">
               <div className="mb-4 overflow-y-auto" style={{ maxHeight: "280px", minHeight: "100px" }}>
                 {chatMessages.length === 0 && (
@@ -292,7 +292,7 @@ export default function AgentDetail() {
 
         {/* Right: Purchase Panel */}
         <div className="lg:col-span-1">
-          <div className="myspace-box sticky top-4" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
+          <div className="lit-box sticky top-4" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
             <div className="p-4 text-center">
               <div 
                 className="text-3xl font-bold mb-2"

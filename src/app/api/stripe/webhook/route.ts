@@ -1,5 +1,6 @@
 // Stripe webhook handler — credits wallet on coin pack purchases
 import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
 
 async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: string) {
@@ -38,8 +39,7 @@ async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: st
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  const _sig = req.headers.get("stripe-signature") || void 0;
-  void _sig;
+  const sig = req.headers.get("stripe-signature");
   const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const key = process.env.STRIPE_SECRET_KEY;
 
@@ -53,33 +53,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No webhook secret" }, { status: 500 });
   }
 
-  // Parse and verify event
-  let event;
-  try {
-    event = JSON.parse(body);
-  } catch (err) {
-    console.error("Webhook parse error:", err);
-    return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
-  }
+  const stripe = new Stripe(key, { apiVersion: "2025-08-27.basil" });
 
+  // Verify webhook signature
+  let event: Stripe.Event;
   try {
-    const stripeResponse = await fetch(
-      `https://api.stripe.com/v1/events/${event.id}`,
-      { headers: { Authorization: `Bearer ${key}` } }
-    );
-    if (!stripeResponse.ok) {
-      console.error("Event verification failed for:", event.id);
-      return NextResponse.json({ error: "Event verification failed" }, { status: 400 });
-    }
-  } catch (err) {
-    console.error("Event verification error:", err);
-    return NextResponse.json({ error: "Verification error" }, { status: 500 });
+    event = stripe.webhooks.constructEvent(body, sig || "", signingSecret);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Webhook signature verification failed:", message);
+    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
   }
 
   // Process event
   switch (event.type) {
     case "checkout.session.completed": {
-      const session = event.data.object;
+      const session = event.data.object as Stripe.Checkout.Session;
       console.log("Checkout completed:", session.id, "Email:", session.customer_email);
       const meta = session.metadata || {};
       const coinAmount = parseInt(meta.coin_amount || "0", 10);
@@ -91,22 +80,22 @@ export async function POST(req: NextRequest) {
     }
     case "customer.subscription.created":
     case "customer.subscription.updated": {
-      const sub = event.data.object;
+      const sub = event.data.object as Stripe.Subscription;
       console.log("Subscription:", sub.id, "Status:", sub.status);
       break;
     }
     case "customer.subscription.deleted": {
-      const sub = event.data.object;
+      const sub = event.data.object as Stripe.Subscription;
       console.log("Subscription cancelled:", sub.id);
       break;
     }
     case "invoice.payment_succeeded": {
-      const invoice = event.data.object;
+      const invoice = event.data.object as Stripe.Invoice;
       console.log("Payment succeeded:", invoice.id);
       break;
     }
     case "invoice.payment_failed": {
-      const invoice = event.data.object;
+      const invoice = event.data.object as Stripe.Invoice;
       console.log("Payment failed:", invoice.id);
       break;
     }

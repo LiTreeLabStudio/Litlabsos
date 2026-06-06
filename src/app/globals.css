@@ -2,31 +2,32 @@
 
 /* ============================================================
    LiTTree Lab Studios — Design System
-   Retro-futurist, glass + neon, breathing room
+   IDE Native: Professional dark grays, flat 1px borders,
+   data-dense layouts, semantic syntax highlighting
    ============================================================ */
 
 :root {
-  /* Default cyberpunk-dark tokens (overridden by ThemeContext at runtime) */
-  --bg-color: #07070b;
-  --bg-elevated: #0f0f17;
-  --bg-card: rgba(20, 20, 32, 0.72);
-  --bg-glass: rgba(255, 255, 255, 0.04);
-  --text-color: #e7e7f0;
-  --text-muted: #8a8aa3;
-  --link-color: #ff2d8a;
-  --header-color: #00e5ff;
-  --border-color: #ff00d4;
-  --accent-color: #f7ff00;
-  --success: #25e08a;
-  --warning: #ffb020;
-  --danger: #ff3860;
-  --grid-line: rgba(0, 229, 255, 0.08);
-  --shadow-glow: 0 0 24px rgba(0, 229, 255, 0.18);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.45);
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 18px;
-  --transition: 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  /* IDE Native core surfaces */
+  --bg-color: #0d0d0d;
+  --bg-elevated: #141416;
+  --bg-card: rgba(24, 24, 27, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.03);
+  --text-color: #d4d4d8;
+  --text-muted: #71717a;
+  --link-color: #d2a8ff;
+  --header-color: #ff7b72;
+  --border-color: #3f3f46;
+  --accent-color: #79c0ff;
+  --success: #56d364;
+  --warning: #e3b341;
+  --danger: #f85149;
+  --grid-line: rgba(63, 63, 70, 0.15);
+  --shadow-glow: none;
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --transition: 120ms ease-out;
 }
 
 @theme inline {
@@ -34,8 +35,18 @@
   --color-foreground: var(--text-color);
   --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", "Courier New", monospace;
-  --font-display: "Orbitron", "Inter", sans-serif;
-  --font-retro: "VT323", "Courier New", monospace;
+  --font-display: "JetBrains Mono", "Inter", sans-serif;
+  --font-retro: "JetBrains Mono", "Courier New", monospace;
+
+  /* IDE Native semantic tokens */
+  --color-ide-bg: #0d0d0d;
+  --color-ide-surface: #18181b;
+  --color-ide-surface-2: #27272a;
+  --color-ide-border: #3f3f46;
+  --color-syntax-keyword: #ff7b72;
+  --color-syntax-function: #d2a8ff;
+  --color-syntax-string: #a5d6ff;
+  --color-syntax-comment: #8b949e;
 }
 
 /* ============================================================
@@ -51,18 +62,13 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-sans);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.55;
   margin: 0;
   padding: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0, 229, 255, 0.12), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(255, 45, 138, 0.10), transparent 60%),
-    linear-gradient(180deg, var(--bg-color) 0%, var(--bg-elevated) 100%);
-  background-attachment: fixed;
 }
 
 /* Subtle global grid backdrop */
@@ -76,17 +82,16 @@ body::before {
   background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
-  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 /* ============================================================
    TYPOGRAPHY
    ============================================================ */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 0;
 }
@@ -105,10 +110,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .gradient-text {
-  background: linear-gradient(120deg, var(--header-color) 0%, var(--link-color) 50%, var(--accent-color) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--header-color);
   font-weight: 800;
 }
 
@@ -130,18 +132,16 @@ a:hover {
    ============================================================ */
 .card {
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 20px;
   box-shadow: var(--shadow-card);
   position: relative;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  transition: border-color var(--transition), transform var(--transition);
+  transition: border-color var(--transition);
 }
 
 .card:hover {
-  border-color: rgba(0, 229, 255, 0.18);
+  border-color: #52525b;
 }
 
 .card-header {
@@ -154,11 +154,11 @@ a:hover {
 }
 
 .card-title {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -170,7 +170,6 @@ a:hover {
   height: 6px;
   border-radius: 50%;
   background: var(--header-color);
-  box-shadow: 0 0 8px var(--header-color);
 }
 
 /* ============================================================
@@ -181,12 +180,11 @@ a:hover {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 18px;
-  font-family: var(--font-display);
+  padding: 8px 14px;
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.04em;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
@@ -200,15 +198,12 @@ a:hover {
   background: var(--link-color);
   color: #0a0a0f;
   border-color: var(--link-color);
-  box-shadow: 0 0 0 0 rgba(255, 45, 138, 0.0);
 }
 
 .btn-primary:hover {
-  background: #ff4d9c;
-  border-color: #ff4d9c;
+  background: #b085f5;
+  border-color: #b085f5;
   color: #0a0a0f;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(255, 45, 138, 0.35);
 }
 
 .btn-secondary {
@@ -218,9 +213,9 @@ a:hover {
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: var(--header-color);
-  color: var(--header-color);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--text-muted);
+  color: var(--text-color);
 }
 
 .btn-ghost {
@@ -230,8 +225,8 @@ a:hover {
 }
 
 .btn-ghost:hover {
-  color: var(--header-color);
-  background: rgba(0, 229, 255, 0.06);
+  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .btn:disabled {
@@ -262,9 +257,8 @@ a:hover {
 .input:focus,
 .textarea:focus,
 .select:focus {
-  border-color: var(--header-color);
-  background: rgba(0, 229, 255, 0.04);
-  box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.12);
+  border-color: var(--accent-color);
+  background: rgba(121, 192, 255, 0.04);
 }
 
 .input::placeholder,
@@ -293,15 +287,15 @@ a:hover {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  border-radius: 999px;
-  background: rgba(0, 229, 255, 0.1);
-  color: var(--header-color);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  background: rgba(121, 192, 255, 0.08);
+  color: var(--accent-color);
+  border: 1px solid rgba(121, 192, 255, 0.15);
 }
 
 .badge-success {
@@ -336,7 +330,6 @@ a:hover {
 
 .status-dot.online {
   background: var(--success);
-  box-shadow: 0 0 8px var(--success);
 }
 
 .status-dot.online::after {
@@ -345,13 +338,12 @@ a:hover {
   inset: -2px;
   border-radius: 50%;
   background: var(--success);
-  opacity: 0.4;
+  opacity: 0.3;
   animation: ping 1.8s ease-out infinite;
 }
 
 .status-dot.away {
   background: var(--warning);
-  box-shadow: 0 0 6px var(--warning);
 }
 
 .status-dot.offline {
@@ -408,7 +400,7 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 229, 255, 0.3);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 ::-webkit-scrollbar-corner {
@@ -424,8 +416,8 @@ a:hover {
 }
 
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 12px var(--shadow-glow); }
-  50%      { box-shadow: 0 0 24px var(--shadow-glow); }
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.7; }
 }
 
 @keyframes pulse-opacity {
@@ -462,9 +454,8 @@ a:hover {
 }
 
 .agent-tile:hover {
-  background: rgba(0, 229, 255, 0.05);
-  border-color: rgba(0, 229, 255, 0.3);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.03);
+  border-color: #52525b;
 }
 
 .agent-avatar {
@@ -475,8 +466,8 @@ a:hover {
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15), rgba(255, 45, 138, 0.15));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
   position: relative;
 }
 
@@ -501,16 +492,14 @@ a:hover {
    ============================================================ */
 .post {
   background: var(--bg-card);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   overflow: hidden;
   transition: border-color var(--transition);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .post:hover {
-  border-color: rgba(0, 229, 255, 0.15);
+  border-color: #52525b;
 }
 
 .post-header {
@@ -524,7 +513,8 @@ a:hover {
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--link-color), var(--header-color));
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -598,8 +588,8 @@ a:hover {
 }
 
 .post-action:hover {
-  background: rgba(0, 229, 255, 0.04);
-  color: var(--header-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-color);
 }
 
 .post-action.liked {
@@ -625,8 +615,8 @@ a:hover {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(0, 229, 255, 0.15);
-  border: 1px solid rgba(0, 229, 255, 0.2);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -677,17 +667,17 @@ a:hover {
   font-family: var(--font-mono);
   font-size: 20px;
   font-weight: 700;
-  color: var(--header-color);
+  color: var(--accent-color);
   line-height: 1;
   margin-bottom: 4px;
 }
 
 .metric-label {
-  font-family: var(--font-display);
+  font-family: var(--font-mono);
   font-size: 9px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--text-muted);
 }
 
@@ -715,7 +705,7 @@ a:hover {
 }
 
 .telemetry-agent {
-  color: var(--link-color);
+  color: var(--syntax-function);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -726,10 +716,10 @@ a:hover {
 .chat-window {
   width: 290px;
   background: var(--bg-elevated);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
   border-bottom: none;
-  border-radius: 12px 12px 0 0;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -737,12 +727,13 @@ a:hover {
 
 .chat-header {
   padding: 10px 12px;
-  background: linear-gradient(135deg, var(--link-color) 0%, var(--header-color) 100%);
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  color: #0a0a0f;
+  color: var(--text-color);
   font-weight: 600;
 }
 
@@ -768,16 +759,17 @@ a:hover {
 
 .chat-msg.user {
   align-self: flex-end;
-  background: var(--link-color);
-  color: #0a0a0f;
+  background: var(--bg-elevated);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-bottom-right-radius: 4px;
 }
 
 .chat-msg.agent {
   align-self: flex-start;
-  background: rgba(0, 229, 255, 0.1);
+  background: var(--bg-card);
   color: var(--text-color);
-  border: 1px solid rgba(0, 229, 255, 0.15);
+  border: 1px solid var(--border-color);
   border-bottom-left-radius: 4px;
 }
 
@@ -806,15 +798,14 @@ a:hover {
 
 .chat-send {
   padding: 6px 12px;
-  background: var(--link-color);
-  color: #0a0a0f;
-  border: none;
+  background: var(--bg-elevated);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-weight: 700;
   font-size: 11px;
-  text-transform: uppercase;
   cursor: pointer;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
 }
 
 .chat-send:disabled {
@@ -826,8 +817,8 @@ a:hover {
    SELECTION
    ============================================================ */
 ::selection {
-  background: var(--header-color);
-  color: #0a0a0f;
+  background: rgba(121, 192, 255, 0.3);
+  color: var(--text-color);
 }
 
 /* ============================================================
@@ -847,7 +838,7 @@ a:hover {
 }
 
 .glow-text {
-  text-shadow: 0 0 12px currentColor;
+  font-weight: 700;
 }
 
 /* Live feed marquee row */
@@ -855,13 +846,13 @@ a:hover {
   display: flex;
   overflow: hidden;
   white-space: nowrap;
-  background: rgba(0, 229, 255, 0.04);
-  border: 1px solid rgba(0, 229, 255, 0.15);
-  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
   padding: 6px 16px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--header-color);
+  color: var(--accent-color);
   letter-spacing: 0.05em;
 }
 
@@ -890,4 +881,285 @@ a:hover {
   width: 24px;
   height: 1px;
   background: var(--text-muted);
+}
+
+/* ============================================================
+   LiT BOX / LiT HEADER (Rebranded from myspace)
+   ============================================================ */
+.lit-box {
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.lit-box:hover {
+  border-color: #52525b;
+}
+
+.lit-header {
+  background: linear-gradient(90deg, var(--link-color), var(--header-color));
+  color: #0a0a0f;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  margin: -1px -1px 0 -1px;
+}
+
+/* ============================================================
+   TOAST / NOTIFICATIONS
+   ============================================================ */
+.lit-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 200;
+  padding: 12px 20px;
+  border: 2px solid;
+  font-size: 12px;
+  font-weight: bold;
+  max-width: 320px;
+  animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
+  backdrop-filter: blur(8px);
+}
+
+.lit-toast.success {
+  background: rgba(10, 46, 10, 0.95);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.lit-toast.error {
+  background: rgba(46, 10, 10, 0.95);
+  border-color: #ff4444;
+  color: #ff4444;
+}
+
+.lit-toast.info {
+  background: rgba(10, 26, 46, 0.95);
+  border-color: var(--link-color);
+  color: var(--link-color);
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ============================================================
+   MOBILE UTILITIES
+   ============================================================ */
+@media (max-width: 768px) {
+  .hide-mobile { display: none !important; }
+  .full-width-mobile { width: 100% !important; }
+  .stack-mobile { flex-direction: column !important; }
+}
+
+/* ============================================================
+   SMOOTHER ANIMATIONS
+   ============================================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInBottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeInUp { animation: fadeInUp 0.4s ease-out both; }
+.animate-slideInBottom { animation: slideInBottom 0.5s ease-out both; }
+
+/* Stagger children */
+.stagger-children > * { animation: fadeInUp 0.35s ease-out both; }
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+
+/* ============================================================
+   GLOW EFFECTS
+   ============================================================ */
+.glow-box {
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.08), 0 0 60px rgba(0, 229, 255, 0.04);
+  transition: box-shadow 0.3s ease;
+}
+.glow-box:hover {
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.15), 0 0 80px rgba(0, 229, 255, 0.06);
+}
+
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--link-color), var(--header-color), var(--accent-color));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.glow-border:hover::before {
+  opacity: 0.6;
+}
+
+/* ============================================================
+   GLASS CARDS
+   ============================================================ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 229, 255, 0.05);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   ANIMATED GRID BACKGROUND
+   ============================================================ */
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.grid-bg-dense {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ============================================================
+   SHIMMER / LOADING
+   ============================================================ */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ============================================================
+   NEON TEXT
+   ============================================================ */
+.neon-text {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 40px currentColor;
+}
+
+/* ============================================================
+   SCANLINE EFFECT (subtle)
+   ============================================================ */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ============================================================
+   AMBIENT GLOW ORBS
+   ============================================================ */
+@keyframes float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  animation: float 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ============================================================
+   TYPEWRITER CURSOR
+   ============================================================ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.typewriter-cursor::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+  color: var(--accent-color);
+  margin-left: 2px;
+}
+
+/* ============================================================
+   CARD HOVER LIFT
+   ============================================================ */
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================================
+   RADIAL GLOW BACKGROUND
+   ============================================================ */
+.radial-glow {
+  background: radial-gradient(ellipse at 50% 0%, var(--link-color)08 0%, transparent 60%);
 }

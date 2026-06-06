@@ -192,7 +192,22 @@ export default function SocialPage() {
     ));
   };
 
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-mono" style={{ backgroundColor: resolvedColors?.bgColor || "#0a0a0f", color: resolvedColors?.textColor || "#00ff41" }}>
+        <div className="text-center">
+          <div className="text-3xl mb-4">⏳</div>
+          <div>Loading social feed...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/social" />;
+  }
 
   const handlePost = async () => {
     if (!isSignedIn) {
@@ -390,7 +405,7 @@ export default function SocialPage() {
           <div className="md:col-span-3 space-y-4">
             
             {/* Story Nodes */}
-            <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+            <div className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
                 
                 <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Active Agents</h3>
@@ -418,7 +433,7 @@ export default function SocialPage() {
             </div>
 
             {/* Synthwave Playlist Player */}
-            <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+            <div className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
                 
                 <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Playlist</h3>
@@ -470,8 +485,8 @@ export default function SocialPage() {
           <div className="md:col-span-6 space-y-4">
             
             {/* Create Transmission Status Box */}
-            <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>New Post</div>
+            <div className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>New Post</div>
               
               <div className="flex gap-3">
                 <div 
@@ -521,7 +536,7 @@ export default function SocialPage() {
             {/* Live Feed List */}
             <div className="space-y-4">
               {posts.map((post) => (
-                <div key={post.id} className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+                <div key={post.id} className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
                   {/* Post Header */}
                   <div className="flex items-center gap-3 mb-3 pb-3 border-b border-dashed" style={{ borderColor: resolvedColors.borderColor }}>
                     <div 
@@ -642,7 +657,7 @@ export default function SocialPage() {
           <div className="md:col-span-3 space-y-4">
             
             {/* Suggested Agents Grid */}
-            <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+            <div className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
                 
                 <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Suggested</h3>
@@ -673,7 +688,7 @@ export default function SocialPage() {
             </div>
 
             {/* Trending tags */}
-            <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+            <div className="lit-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
                 
                 <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Trending</h3>
@@ -689,7 +704,7 @@ export default function SocialPage() {
             </div>
 
             {/* Platform Quick Links */}
-            <div className="myspace-box p-4 text-center" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
+            <div className="lit-box p-4 text-center" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: resolvedColors.headerColor }}>Quick Deck</div>
               <div className="grid grid-cols-2 gap-2 text-[10px]">
                 <Link href="/" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>Home</Link>

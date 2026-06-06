@@ -139,6 +139,38 @@ export default function Builder() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Custom agents from Supabase
+  const [customAgents, setCustomAgents] = useState<Agent[]>([]);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createForm, setCreateForm] = useState({ name: "", slug: "", description: "", category: "general", systemPrompt: "", personality: "", icon: "🤖" });
+  const [createError, setCreateError] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const allAgents = [...AGENTS, ...customAgents];
+
+  // Fetch custom agents on mount
+  useEffect(() => {
+    fetch("/api/agents?mine=true")
+      .then(r => r.json())
+      .then((data: { agents?: Array<{ name: string; slug: string; description: string | null; category: string; avatar_url: string | null; system_prompt: string; personality: string | null }> }) => {
+        if (data.agents) {
+          const mapped: Agent[] = data.agents.map(a => ({
+            id: a.slug,
+            name: a.name,
+            icon: a.avatar_url || "🤖",
+            role: a.category,
+            desc: a.description || `Custom ${a.category} agent`,
+            systemPrompt: a.system_prompt,
+            color: "#ff0080",
+          }));
+          setCustomAgents(mapped);
+        }
+      })
+      .catch(() => {
+        // silent fail — built-in agents still work
+      });
+  }, []);
+
   // Music generation state
   const [musicPrompt, setMusicPrompt] = useState("");
   const [musicLyrics, setMusicLyrics] = useState("");
@@ -399,10 +431,10 @@ export default function Builder() {
       </nav>
 
       {/* ── Body ── */}
-      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+      <div className="flex flex-col md:flex-row" style={{ flex: 1, overflow: "hidden" }}>
 
         {/* ── Left Sidebar ── */}
-        <div style={{ width: "220px", flexShrink: 0, backgroundColor: T.box, borderRight: `2px solid ${T.border}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+        <div className="w-full md:w-[220px] flex-shrink-0" style={{ backgroundColor: T.box, borderRight: `2px solid ${T.border}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
           {/* Profile */}
           <div style={{ padding: "12px", borderBottom: `1px solid ${T.border}` }}>
             <ClerkUserWidget />
@@ -410,8 +442,11 @@ export default function Builder() {
 
           {/* Agent List */}
           <div style={{ padding: "8px" }}>
-            <div style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", marginBottom: "6px", paddingLeft: "4px" }}>AGENTS ({AGENTS.length})</div>
-            {AGENTS.map(a => (
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px", paddingLeft: "4px" }}>
+              <div style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px" }}>AGENTS ({allAgents.length})</div>
+              <button onClick={() => setShowCreateModal(true)} style={{ fontSize: "9px", padding: "2px 6px", backgroundColor: "rgba(0,255,65,0.15)", border: `1px solid ${T.accent}`, color: T.accent, cursor: "pointer" }}>+ NEW</button>
+            </div>
+            {allAgents.map(a => (
               <button
                 key={a.id}
                 onClick={() => switchAgent(a)}
@@ -432,7 +467,7 @@ export default function Builder() {
           {/* Stats */}
           <div style={{ marginTop: "auto", padding: "8px", borderTop: `1px solid ${T.border}` }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", marginBottom: "8px" }}>
-              {[["AGENTS", AGENTS.length], ["MSGS", messages.length]].map(([label, val]) => (
+              {[["AGENTS", allAgents.length], ["MSGS", messages.length]].map(([label, val]) => (
                 <div key={label as string} style={{ textAlign: "center", padding: "6px", backgroundColor: "rgba(0,0,0,0.3)", border: `1px solid ${T.border}` }}>
                   <div style={{ color: T.accent, fontSize: "14px", fontWeight: "bold" }}>{val}</div>
                   <div style={{ color: T.text, fontSize: "8px" }}>{label}</div>
@@ -546,7 +581,7 @@ export default function Builder() {
         </div>
 
         {/* ── Right Panel - Agent Info ── */}
-        <div style={{ width: "200px", flexShrink: 0, backgroundColor: T.box, borderLeft: `2px solid ${T.border}`, overflowY: "auto" }}>
+        <div className="hidden lg:block" style={{ width: "200px", flexShrink: 0, backgroundColor: T.box, borderLeft: `2px solid ${T.border}`, overflowY: "auto" }}>
           <div style={{ padding: "12px", textAlign: "center", borderBottom: `1px solid ${T.border}` }}>
             <div style={{ fontSize: "40px", marginBottom: "8px" }}>{selectedAgent.icon}</div>
             <div style={{ color: selectedAgent.color, fontSize: "13px", fontWeight: "bold" }}>{selectedAgent.name}</div>
@@ -618,7 +653,7 @@ export default function Builder() {
               </>
             )}
             <div style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", marginBottom: "6px", marginTop: "12px" }}>ALL AGENTS</div>
-            {AGENTS.map(a => (
+            {allAgents.map(a => (
               <button key={a.id} onClick={() => switchAgent(a)} style={{ width: "100%", textAlign: "left", padding: "5px 6px", marginBottom: "2px", display: "flex", alignItems: "center", gap: "6px", backgroundColor: "transparent", border: "none", cursor: "pointer" }}>
                 <span style={{ fontSize: "13px" }}>{a.icon}</span>
                 <span style={{ color: selectedAgent.id === a.id ? a.color : T.text, fontSize: "10px" }}>{a.name}</span>
@@ -627,6 +662,109 @@ export default function Builder() {
           </div>
         </div>
       </div>
+
+      {/* Create Agent Modal */}
+      {showCreateModal && (
+        <div onClick={() => setShowCreateModal(false)} style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.85)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+          <div onClick={e => e.stopPropagation()} style={{ maxWidth: "500px", width: "100%", backgroundColor: T.box, border: `2px solid ${T.border}`, padding: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <h2 style={{ color: T.header, fontSize: "16px", fontWeight: "bold" }}>CREATE AGENT</h2>
+              <button onClick={() => setShowCreateModal(false)} style={{ backgroundColor: "transparent", border: "none", color: T.text, cursor: "pointer", fontSize: "18px" }}>✕</button>
+            </div>
+            {createError && <div style={{ color: "#ff4444", fontSize: "11px", marginBottom: "12px", padding: "8px", border: "1px solid #ff4444", backgroundColor: "rgba(255,68,68,0.1)" }}>{createError}</div>}
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>NAME</label>
+                <input value={createForm.name} onChange={e => setCreateForm({ ...createForm, name: e.target.value })} placeholder="e.g. Crypto Analyst" style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none" }} />
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>SLUG (URL ID)</label>
+                <input value={createForm.slug} onChange={e => setCreateForm({ ...createForm, slug: e.target.value })} placeholder="crypto-analyst" style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none" }} />
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>CATEGORY</label>
+                <select value={createForm.category} onChange={e => setCreateForm({ ...createForm, category: e.target.value })} style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: T.text, fontSize: "12px", fontFamily: "monospace", outline: "none" }}>
+                  <option value="general">General</option>
+                  <option value="developer">Developer</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="analytics">Analytics</option>
+                  <option value="content">Content</option>
+                  <option value="design">Design</option>
+                  <option value="research">Research</option>
+                  <option value="legal">Legal</option>
+                </select>
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>DESCRIPTION</label>
+                <input value={createForm.description} onChange={e => setCreateForm({ ...createForm, description: e.target.value })} placeholder="Short description of what this agent does..." style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none" }} />
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>SYSTEM PROMPT *</label>
+                <textarea value={createForm.systemPrompt} onChange={e => setCreateForm({ ...createForm, systemPrompt: e.target.value })} placeholder="You are Crypto Analyst, a specialist in blockchain markets..." rows={4} style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none", resize: "none" }} />
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>PERSONALITY</label>
+                <input value={createForm.personality} onChange={e => setCreateForm({ ...createForm, personality: e.target.value })} placeholder="e.g. Bold, analytical, risk-aware" style={{ width: "100%", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none" }} />
+              </div>
+              <div>
+                <label style={{ color: T.accent, fontSize: "9px", letterSpacing: "1px", display: "block", marginBottom: "4px" }}>ICON</label>
+                <input value={createForm.icon} onChange={e => setCreateForm({ ...createForm, icon: e.target.value })} placeholder="🤖" style={{ width: "60px", padding: "8px", backgroundColor: T.input, border: `1px solid ${T.border}`, color: "#e0e0e0", fontSize: "12px", fontFamily: "monospace", outline: "none" }} />
+              </div>
+              <button
+                onClick={async () => {
+                  if (!createForm.name.trim() || !createForm.slug.trim() || !createForm.systemPrompt.trim()) {
+                    setCreateError("Name, slug, and system prompt are required.");
+                    return;
+                  }
+                  setCreating(true);
+                  setCreateError("");
+                  try {
+                    const res = await fetch("/api/agents", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: createForm.name,
+                        slug: createForm.slug,
+                        description: createForm.description,
+                        category: createForm.category,
+                        system_prompt: createForm.systemPrompt,
+                        personality: createForm.personality,
+                        avatar_url: createForm.icon,
+                      }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) {
+                      setCreateError(data.error || "Failed to create agent");
+                      setCreating(false);
+                      return;
+                    }
+                    const newAgent: Agent = {
+                      id: data.agent.slug,
+                      name: data.agent.name,
+                      icon: data.agent.avatar_url || "🤖",
+                      role: data.agent.category,
+                      desc: data.agent.description || `Custom ${data.agent.category} agent`,
+                      systemPrompt: data.agent.system_prompt,
+                      color: "#ff0080",
+                    };
+                    setCustomAgents(prev => [...prev, newAgent]);
+                    setShowCreateModal(false);
+                    setCreateForm({ name: "", slug: "", description: "", category: "general", systemPrompt: "", personality: "", icon: "🤖" });
+                    switchAgent(newAgent);
+                  } catch {
+                    setCreateError("Network error. Try again.");
+                  }
+                  setCreating(false);
+                }}
+                disabled={creating}
+                style={{ padding: "10px", backgroundColor: creating ? "#333" : T.link, color: "white", border: "none", fontWeight: "bold", fontSize: "12px", cursor: creating ? "not-allowed" : "pointer", marginTop: "8px" }}
+              >
+                {creating ? "CREATING..." : "CREATE AGENT"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }

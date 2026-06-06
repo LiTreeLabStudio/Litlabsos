@@ -2,8 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import { rateLimit } from "@/lib/rate-limiter";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { success, remaining, resetTime } = rateLimit(req, 50, 60);
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429, headers: { "Retry-After": String(resetTime), "X-RateLimit-Limit": "50", "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": String(resetTime) },
+    });
+  }
+
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -19,13 +27,24 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     await sb.from("post_likes").insert({ post_id: postId, user_id: user.id }).select();
     await sb.rpc("increment_post_likes", { post_id: postId });
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+    response.headers.set("X-RateLimit-Limit", "50");
+    response.headers.set("X-RateLimit-Remaining", String(remaining));
+    response.headers.set("X-RateLimit-Reset", String(resetTime));
+    return response;
   } catch {
     return NextResponse.json({ success: true, mock: true });
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { success, remaining, resetTime } = rateLimit(req, 50, 60);
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429, headers: { "Retry-After": String(resetTime), "X-RateLimit-Limit": "50", "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": String(resetTime) },
+    });
+  }
+
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -41,7 +60,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     await sb.from("post_likes").delete().match({ post_id: postId, user_id: user.id });
     await sb.rpc("decrement_post_likes", { post_id: postId });
-    return NextResponse.json({ success: true });
+    const response = NextResponse.json({ success: true });
+    response.headers.set("X-RateLimit-Limit", "50");
+    response.headers.set("X-RateLimit-Remaining", String(remaining));
+    response.headers.set("X-RateLimit-Reset", String(resetTime));
+    return response;
   } catch {
     return NextResponse.json({ success: true, mock: true });
   }

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 // ─── Demo gallery items ──────────────────────────────────────────────────────
 const DEMO_ITEMS: GalleryItem[] = [
@@ -48,23 +49,69 @@ type GalleryItem = {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Gallery() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { resolvedColors: T } = useTheme();
-  const [items, setItems] = useState<GalleryItem[]>(DEMO_ITEMS);
+  const [apiItems, setApiItems] = useState<GalleryItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
+  const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [viewMode, setViewMode] = useState<"grid" | "masonry">("masonry");
   const [crtEnabled, setCrtEnabled] = useState(true);
+  const [userItems, setUserItems] = useState<GalleryItem[]>([]);
+  const [showUpload, setShowUpload] = useState(false);
+  const [uploadForm, setUploadForm] = useState({ title: "", imageUrl: "", artist: "", category: "abstract" });
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  // Merge demo + real API + user items
+  const items = [...apiItems, ...DEMO_ITEMS, ...userItems].map(item => ({
+    ...item,
+    likes: likeCounts[item.id] !== undefined ? likeCounts[item.id] : item.likes,
+  }));
+
+  const showToast = (msg: string, type: "success" | "error" = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   useEffect(() => {
-    // Check local storage for persistent CRT configuration
+    fetch("/api/gallery")
+      .then(r => r.json())
+      .then((data: { items?: GalleryItem[] }) => {
+        if (data.items && data.items.length > 0) {
+          setApiItems(data.items);
+        }
+      })
+      .catch(() => {
+        // silent fail — demo items still show
+      });
+
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) {
       setCrtEnabled(val === "true");
     }
+    const storedUserItems = localStorage.getItem("litlabs-gallery-user");
+    if (storedUserItems) {
+      try { setUserItems(JSON.parse(storedUserItems)); } catch { /* ignore */ }
+    }
   }, []);
+
+  if (!isLoaded) {
+    return (
+      <div style={{ backgroundColor: T?.bgColor || "#0a0a0f", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: T?.textColor || "#00ff41", fontFamily: "monospace" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "32px", marginBottom: "16px" }}>⏳</div>
+          <div>Loading gallery...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/gallery" />;
+  }
 
   const filteredItems = items
     .filter(i => selectedCategory === "all" || i.category === selectedCategory)
@@ -79,11 +126,45 @@ export default function Gallery() {
   const toggleLike = useCallback((id: string) => {
     setLikedItems(prev => {
       const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      const wasLiked = next.has(id);
+      if (wasLiked) { next.delete(id); } else { next.add(id); }
+      // Update like count
+      setLikeCounts(counts => {
+        const current = counts[id] ?? items.find(i => i.id === id)?.likes ?? 0;
+        return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
+      });
       return next;
     });
-    setItems(prev => prev.map(item => item.id === id ? { ...item, likes: likedItems.has(id) ? item.likes - 1 : item.likes + 1 } : item));
-  }, [likedItems]);
+  }, [items]);
+
+  const handleUpload = () => {
+    if (!uploadForm.title.trim() || !uploadForm.imageUrl.trim()) {
+      showToast("Title and Image URL are required", "error");
+      return;
+    }
+    const newItem: GalleryItem = {
+      id: `user_${Date.now()}`,
+      title: uploadForm.title.trim(),
+      artist: uploadForm.artist.trim() || "You",
+      category: uploadForm.category,
+      imageUrl: uploadForm.imageUrl.trim(),
+      likes: 0,
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+    const updated = [newItem, ...userItems];
+    setUserItems(updated);
+    localStorage.setItem("litlabs-gallery-user", JSON.stringify(updated));
+    setUploadForm({ title: "", imageUrl: "", artist: "", category: "abstract" });
+    setShowUpload(false);
+    showToast("Your creation has been shared to the gallery!");
+  };
+
+  const handleDeleteUserItem = (id: string) => {
+    const updated = userItems.filter(i => i.id !== id);
+    setUserItems(updated);
+    localStorage.setItem("litlabs-gallery-user", JSON.stringify(updated));
+    showToast("Item removed.");
+  };
 
   return (
     <div style={{ backgroundColor: T.bgColor, minHeight: "100vh", color: T.textColor, fontFamily: "monospace", position: "relative" }}>
@@ -124,6 +205,13 @@ export default function Gallery() {
         </div>
       </div>
 
+      {/* Toast */}
+      {toast && (
+        <div className={`lit-toast ${toast.type}`}>
+          {toast.msg}
+        </div>
+      )}
+
       {/* ── Controls Bar ── */}
       <div style={{ padding: "16px 24px", borderBottom: `1px solid ${T.borderColor}`, display: "flex", gap: "12px", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", backgroundColor: T.boxBg }}>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
@@ -142,7 +230,7 @@ export default function Gallery() {
             </button>
           ))}
         </div>
-        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
           <input
             type="text"
             value={searchQuery}
@@ -160,16 +248,56 @@ export default function Gallery() {
           <button onClick={() => setViewMode(v => v === "grid" ? "masonry" : "grid")} style={{ padding: "8px", backgroundColor: "transparent", border: `1px solid ${T.borderColor}`, color: T.textColor, cursor: "pointer", fontSize: "11px" }}>
             {viewMode === "grid" ? "☰ Masonry" : "⊞ Grid"}
           </button>
+          <button onClick={() => setShowUpload(!showUpload)} style={{ padding: "8px 14px", backgroundColor: T.linkColor, color: "#0a0a0f", border: "none", cursor: "pointer", fontSize: "11px", fontWeight: "bold" }}>
+            {showUpload ? "✕ Close" : "+ Share Creation"}
+          </button>
         </div>
       </div>
 
+      {/* ── Upload Form ── */}
+      {showUpload && (
+        <div style={{ padding: "24px", borderBottom: `1px solid ${T.borderColor}`, backgroundColor: T.boxBg }}>
+          <div className="lit-box p-4 max-w-xl mx-auto" style={{ borderColor: T.borderColor, backgroundColor: T.bgColor }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Share Your Creation</div>
+            <div style={{ display: "grid", gap: "12px" }}>
+              <div>
+                <label style={{ fontSize: "10px", color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.1em" }}>Title</label>
+                <input type="text" value={uploadForm.title} onChange={e => setUploadForm({ ...uploadForm, title: e.target.value })} placeholder="Name your piece..." style={{ width: "100%", padding: "8px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: T.textColor, fontSize: "12px", outline: "none", marginTop: "4px" }} />
+              </div>
+              <div>
+                <label style={{ fontSize: "10px", color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.1em" }}>Image URL</label>
+                <input type="text" value={uploadForm.imageUrl} onChange={e => setUploadForm({ ...uploadForm, imageUrl: e.target.value })} placeholder="https://..." style={{ width: "100%", padding: "8px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: T.textColor, fontSize: "12px", outline: "none", marginTop: "4px" }} />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div>
+                  <label style={{ fontSize: "10px", color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.1em" }}>Artist</label>
+                  <input type="text" value={uploadForm.artist} onChange={e => setUploadForm({ ...uploadForm, artist: e.target.value })} placeholder="Your name..." style={{ width: "100%", padding: "8px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: T.textColor, fontSize: "12px", outline: "none", marginTop: "4px" }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: "10px", color: T.textMuted, textTransform: "uppercase", letterSpacing: "0.1em" }}>Category</label>
+                  <select value={uploadForm.category} onChange={e => setUploadForm({ ...uploadForm, category: e.target.value })} style={{ width: "100%", padding: "8px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: T.textColor, fontSize: "12px", outline: "none", marginTop: "4px" }}>
+                    <option value="abstract">Abstract</option>
+                    <option value="character">Character</option>
+                    <option value="landscape">Landscape</option>
+                    <option value="360-worlds">360° Worlds</option>
+                  </select>
+                </div>
+              </div>
+              <button onClick={handleUpload} style={{ padding: "10px", backgroundColor: T.accentColor, color: "#0a0a0f", border: "none", cursor: "pointer", fontSize: "12px", fontWeight: "bold" }}>
+                🚀 Publish to Gallery
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Gallery Grid ── */}
-      <div style={{ padding: "24px", display: "grid", gap: "16px", gridTemplateColumns: viewMode === "grid" ? "repeat(auto-fill, minmax(280px, 1fr))" : "repeat(auto-fill, minmax(240px, 1fr))" }}>
+      <div className="px-4 py-6 md:px-6" style={{ display: "grid", gap: "16px", gridTemplateColumns: viewMode === "grid" ? "repeat(auto-fill, minmax(260px, 1fr))" : "repeat(auto-fill, minmax(220px, 1fr))" }}>
         {filteredItems.map(item => (
           <div
             key={item.id}
             onClick={() => setSelectedItem(item)}
-            className="myspace-box"
+            className="lit-box group"
             style={{
               borderColor: T.borderColor, backgroundColor: T.boxBg, cursor: "pointer",
               padding: "0px", margin: "0", overflow: "hidden"
@@ -180,6 +308,14 @@ export default function Gallery() {
               <div style={{ position: "absolute", top: "8px", right: "8px", padding: "4px 8px", backgroundColor: "rgba(0,0,0,0.8)", border: `1px solid ${T.borderColor}`, color: T.accentColor, fontSize: "9px", textTransform: "uppercase" }}>
                 {item.category}
               </div>
+              {item.id.startsWith("user_") && (
+                <button
+                  onClick={e => { e.stopPropagation(); handleDeleteUserItem(item.id); }}
+                  style={{ position: "absolute", top: "8px", left: "8px", padding: "4px 8px", backgroundColor: "rgba(255,0,0,0.7)", color: "white", border: "none", cursor: "pointer", fontSize: "10px", fontWeight: "bold" }}
+                >
+                  🗑
+                </button>
+              )}
             </div>
             <div style={{ padding: "12px" }}>
               <div style={{ color: T.headerColor, fontSize: "13px", fontWeight: "bold", marginBottom: "4px" }}>{item.title}</div>
@@ -210,7 +346,7 @@ export default function Gallery() {
           onClick={() => setSelectedItem(null)}
           style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.95)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}
         >
-          <div onClick={e => e.stopPropagation()} className="myspace-box" style={{ maxWidth: "900px", width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column", backgroundColor: T.boxBg, borderColor: T.borderColor, padding: "0" }}>
+          <div onClick={e => e.stopPropagation()} className="lit-box" style={{ maxWidth: "900px", width: "100%", maxHeight: "90vh", display: "flex", flexDirection: "column", backgroundColor: T.boxBg, borderColor: T.borderColor, padding: "0" }}>
             <div style={{ position: "relative", flex: 1, minHeight: "300px", height: "50vh" }}>
               <Image src={selectedItem.imageUrl} alt={selectedItem.title} fill style={{ objectFit: "contain" }} sizes="900px" unoptimized />
               <button onClick={() => setSelectedItem(null)} style={{ position: "absolute", top: "12px", right: "12px", backgroundColor: "rgba(0,0,0,0.7)", border: `1px solid ${T.borderColor}`, color: "white", padding: "8px 12px", cursor: "pointer", fontSize: "14px" }}>✕</button>

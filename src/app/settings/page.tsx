@@ -11,9 +11,16 @@ export default function SettingsPage() {
   const { theme, resolvedColors, setMode, setSkin, setAccent, setBackgroundMode, resetTheme } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
-  const [activeTab, setActiveTab] = useState<"theme" | "profile" | "agents" | "advanced">("theme");
+  const [activeTab, setActiveTab] = useState<"theme" | "profile" | "agents" | "advanced" | "interface">("theme");
   const [saved, setSaved] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(false);
+
+  // Interface settings
+  const [animSpeed, setAnimSpeed] = useState<string>("normal");
+  const [compactMode, setCompactMode] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  const [soundEffects, setSoundEffects] = useState(false);
+  const [customCSS, setCustomCSS] = useState("");
 
   const skinPresets: SkinPreset[] = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink", "synthwave", "volcanic", "gold", "arctic", "emerald", "midnight", "neon", "blood", "cosmic", "miami"];
   const backgroundModes: { mode: BackgroundMode; label: string }[] = [
@@ -30,6 +37,12 @@ export default function SettingsPage() {
     if (val !== null) {
       setCrtEnabled(val === "true");
     }
+    // Load interface settings
+    setAnimSpeed(localStorage.getItem("litlabs-anim-speed") || "normal");
+    setCompactMode(localStorage.getItem("litlabs-compact") === "true");
+    setReducedMotion(localStorage.getItem("litlabs-reduced-motion") === "true");
+    setSoundEffects(localStorage.getItem("litlabs-sound") === "true");
+    setCustomCSS(localStorage.getItem("litlabs-custom-css") || "");
   }, []);
 
   // Require authentication (after all hooks to respect Rules of Hooks)
@@ -60,6 +73,24 @@ export default function SettingsPage() {
   const showSaved = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 1500);
+  };
+
+  const saveInterface = (key: string, value: string | boolean) => {
+    localStorage.setItem(`litlabs-${key}`, String(value));
+    showSaved();
+    // Apply reduced motion immediately
+    if (key === "reduced-motion") {
+      document.documentElement.style.setProperty("--anim-duration-multiplier", value ? "0" : "1");
+    }
+    if (key === "custom-css") {
+      let style = document.getElementById("litlabs-custom-css") as HTMLStyleElement | null;
+      if (!style) {
+        style = document.createElement("style");
+        style.id = "litlabs-custom-css";
+        document.head.appendChild(style);
+      }
+      style.textContent = value as string;
+    }
   };
 
   const T = resolvedColors;
@@ -96,7 +127,7 @@ export default function SettingsPage() {
 
         {/* Tabs */}
         <div className="flex gap-1.5 mb-6 flex-wrap">
-          {(["theme", "profile", "agents", "advanced"] as const).map((tab) => (
+          {(["theme", "profile", "agents", "interface", "advanced"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -117,8 +148,8 @@ export default function SettingsPage() {
           <div className="space-y-6 animate-fadeIn">
             
             {/* Global Monitor Setting */}
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Background Effect</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Background Effect</div>
               <p className="text-[11px] mb-3 opacity-80 leading-normal">
                 Choose a live animated background style for the workspace.
               </p>
@@ -140,8 +171,8 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Options</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Options</div>
               <p className="text-[11px] mb-3 opacity-80 leading-normal">
                 Toggle the CRT scanline overlay effect.
               </p>
@@ -161,8 +192,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Dark / Light */}
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Terminal Mode</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Terminal Mode</div>
               <p className="text-[11px] mb-3 opacity-80">Toggle the primary luminance factor.</p>
               <div className="flex gap-3">
                 <button onClick={() => { setMode("dark"); showSaved(); }} className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: theme.mode === "dark" ? T.linkColor : "transparent", color: theme.mode === "dark" ? "black" : T.textColor }}>Dark Mode</button>
@@ -171,8 +202,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Skin Presets */}
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Skin Override Presets</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Skin Override Presets</div>
               <p className="text-[11px] mb-3 opacity-80">Inject a preconfigured CSS palette variable mapping.</p>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                 {skinPresets.map((skin) => (
@@ -193,8 +224,8 @@ export default function SettingsPage() {
             </div>
 
             {/* Accent Colors */}
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Neon Accent Color</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Neon Accent Color</div>
               <p className="text-[11px] mb-3 opacity-80">Adjust secondary neon phosphor highlights.</p>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {accentColors.map((accent) => (
@@ -221,8 +252,8 @@ export default function SettingsPage() {
         {/* Profile Tab */}
         {activeTab === "profile" && (
           <div className="space-y-4 animate-fadeIn">
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Name</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Name</div>
               <input
                 type="text"
                 value={profile.displayName}
@@ -232,8 +263,8 @@ export default function SettingsPage() {
               />
             </div>
             
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Bio & Mission Parameters</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Bio & Mission Parameters</div>
               <textarea
                 value={profile.bio}
                 onChange={(e) => { updateProfile({ bio: e.target.value }); showSaved(); }}
@@ -243,8 +274,8 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Active Custom Mood</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Active Custom Mood</div>
               <input
                 type="text"
                 value={profile.mood}
@@ -254,8 +285,8 @@ export default function SettingsPage() {
               />
             </div>
 
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Network Target URL</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Network Target URL</div>
               <input
                 type="text"
                 value={profile.website}
@@ -272,16 +303,16 @@ export default function SettingsPage() {
         {/* Agents Tab */}
         {activeTab === "agents" && (
           <div className="space-y-4 animate-fadeIn">
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>ActivePieces Webhook</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>ActivePieces Webhook</div>
               <p className="text-[11px] mb-2 opacity-80 leading-normal">Your multi-agent flow is fully linked. The Director plans, and specialists execute.</p>
               <code className="block p-3.5 text-[10px] border font-mono break-all" style={{ borderColor: T.borderColor, backgroundColor: T.bgColor, color: T.accentColor }}>
                 https://cloud.activepieces.com/api/v1/webhooks/VoccE3SEr4bciLvkThTlO
               </code>
             </div>
 
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Built-in Core Agents</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Built-in Core Agents</div>
               <p className="text-[11px] mb-3 opacity-80">These core models are locked in active service arrays.</p>
               <div className="space-y-2 text-xs">
                 {[
@@ -303,11 +334,107 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {/* Interface Tab */}
+        {activeTab === "interface" && (
+          <div className="space-y-4 animate-fadeIn">
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Animation Speed</div>
+              <p className="text-[11px] mb-3 opacity-80">Control the pacing of page transitions and micro-interactions.</p>
+              <div className="flex gap-2 flex-wrap">
+                {["fast", "normal", "slow", "off"].map((speed) => (
+                  <button
+                    key={speed}
+                    onClick={() => { setAnimSpeed(speed); saveInterface("anim-speed", speed); }}
+                    className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                    style={{
+                      borderColor: animSpeed === speed ? T.accentColor : T.borderColor,
+                      backgroundColor: animSpeed === speed ? `${T.accentColor}18` : "transparent",
+                      color: animSpeed === speed ? T.accentColor : T.textColor,
+                    }}
+                  >
+                    {speed.charAt(0).toUpperCase() + speed.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Density</div>
+              <p className="text-[11px] mb-3 opacity-80">Toggle a tighter, more compact layout with reduced spacing.</p>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => { setCompactMode(true); saveInterface("compact", true); }}
+                  className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                  style={{ borderColor: compactMode ? T.accentColor : T.borderColor, backgroundColor: compactMode ? `${T.accentColor}18` : "transparent", color: compactMode ? T.accentColor : T.textColor }}
+                >
+                  Compact
+                </button>
+                <button
+                  onClick={() => { setCompactMode(false); saveInterface("compact", false); }}
+                  className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                  style={{ borderColor: !compactMode ? T.accentColor : T.borderColor, backgroundColor: !compactMode ? `${T.accentColor}18` : "transparent", color: !compactMode ? T.accentColor : T.textColor }}
+                >
+                  Comfortable
+                </button>
+              </div>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Accessibility</div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-xs">Reduced Motion</div>
+                    <div className="text-[10px] opacity-70">Disable animated transitions and effects.</div>
+                  </div>
+                  <button
+                    onClick={() => { const next = !reducedMotion; setReducedMotion(next); saveInterface("reduced-motion", next); }}
+                    className="px-3 py-1.5 border-2 font-bold text-xs transition-transform"
+                    style={{ borderColor: reducedMotion ? T.accentColor : T.borderColor, backgroundColor: reducedMotion ? T.accentColor : "transparent", color: reducedMotion ? "#0a0a0f" : T.textColor }}
+                  >
+                    {reducedMotion ? "ON" : "OFF"}
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-bold text-xs">Sound Effects</div>
+                    <div className="text-[10px] opacity-70">Play subtle UI audio cues (coming soon).</div>
+                  </div>
+                  <button
+                    onClick={() => { const next = !soundEffects; setSoundEffects(next); saveInterface("sound", next); }}
+                    className="px-3 py-1.5 border-2 font-bold text-xs transition-transform"
+                    style={{ borderColor: soundEffects ? T.accentColor : T.borderColor, backgroundColor: soundEffects ? T.accentColor : "transparent", color: soundEffects ? "#0a0a0f" : T.textColor }}
+                  >
+                    {soundEffects ? "ON" : "OFF"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
+                <span>Custom CSS Injection</span>
+                <button onClick={() => { setCustomCSS(""); saveInterface("custom-css", ""); }} className="text-[9px] px-2 py-0.5 border" style={{ borderColor: T.accentColor, color: T.accentColor }}>Clear</button>
+              </div>
+              <p className="text-[11px] mb-3 opacity-80">Inject your own CSS rules directly into the DOM. Use with caution.</p>
+              <textarea
+                value={customCSS}
+                onChange={(e) => setCustomCSS(e.target.value)}
+                onBlur={(e) => saveInterface("custom-css", e.target.value)}
+                rows={6}
+                placeholder={":root { --border-color: #ff00ff; }\n.my-class { color: red; }"}
+                className="w-full p-2 border-2 bg-transparent text-[10px] font-mono outline-none resize-none"
+                style={{ borderColor: T.borderColor, color: T.textColor }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Advanced Tab */}
         {activeTab === "advanced" && (
           <div className="space-y-4 animate-fadeIn">
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Environment Registers</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Environment Registers</div>
               <p className="text-[11px] mb-3 opacity-80">Static credentials loaded in deployment environments.</p>
               <div className="space-y-2 text-[10px] font-mono">
                 <div className="flex justify-between border-b border-gray-900 pb-1"><span>NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY</span><span className="text-green-500 font-bold">pk_test_***</span></div>
@@ -319,8 +446,8 @@ export default function SettingsPage() {
               </p>
             </div>
 
-            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Local Storage Clusters</div>
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Local Storage Clusters</div>
               <p className="text-[11px] opacity-80 mb-3">Clearing these will erase all local configurations, claimed LiTBit Coins, and custom moods.</p>
               <button
                 onClick={() => { localStorage.clear(); window.location.reload(); }}

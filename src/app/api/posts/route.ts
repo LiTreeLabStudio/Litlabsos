@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import { withRateLimit } from "@/lib/rate-limiter";
 
 // Mock feed data when DB is not configured
 const MOCK_FEED = [
@@ -57,7 +58,7 @@ const MOCK_FEED = [
   },
 ];
 
-export async function GET() {
+async function getHandler() {
   if (!isAdminSupabaseConfigured()) {
     return NextResponse.json({ posts: MOCK_FEED, mock: true });
   }
@@ -79,7 +80,7 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
+async function postHandler(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -124,3 +125,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
   }
 }
+
+export const GET = withRateLimit(getHandler, 100, 60);
+export const POST = withRateLimit(postHandler, 20, 60);

@@ -12,25 +12,25 @@ export default function ShowcasePage() {
 
   const showcaseImages = [
     {
-      src: "https://image.pollinations.ai/prompt/futuristic%20AI%20multi-agent%20neural%20network%20architecture%2C%20dark%20background%2C%20neon%20cyan%20and%20magenta%20connections%2C%20holographic%20brain%20nodes%2C%20cinematic%20lighting%2C%20synthwave%20aesthetic?width=1024&height=576&seed=100&nologo=true",
+      src: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?q=80&w=1024&auto=format&fit=crop",
       title: "The Cover",
       label: "Automated Multi-Agent Architecture",
       desc: "A bold, cinematic visualization of the dual-agent system. Two AI agents connected by a luminous neural pathway — the centerpiece hook for high-value clients."
     },
     {
-      src: "https://image.pollinations.ai/prompt/cyberpunk%20terminal%20screen%20showing%20AI%20agent%20routing%20logs%2C%20task%20flow%20director%20to%20executor%2C%20dark%20UI%20with%20glowing%20cyan%20text%2C%20system%20dashboard%2C%20futuristic?width=1024&height=576&seed=101&nologo=true",
+      src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1024&auto=format&fit=crop",
       title: "The Engine",
       label: "Agent Routing in Action",
       desc: "Clean terminal view showing the Director agent routing a task to the Executor. Real-time logs prove the system actually works — no smoke and mirrors."
     },
     {
-      src: "https://image.pollinations.ai/prompt/dark%20futuristic%20command%20center%20dashboard%2C%20live%20telemetry%20monitors%2C%20agent%20status%20grid%2C%20holographic%20displays%2C%20neon%20cyan%20accents%2C%20premium%20enterprise%20UI?width=1024&height=576&seed=102&nologo=true",
+      src: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1024&auto=format&fit=crop",
       title: "The Control Center",
       label: "Live Telemetry Dashboard",
       desc: "The monitoring layer. Agent status, live log streams, system metrics — all in a premium dark volcanic UI that communicates enterprise-grade infrastructure."
     },
     {
-      src: "https://image.pollinations.ai/prompt/split%20screen%20workflow%20automation%20before%20and%20after%20comparison%2C%20dark%20theme%2C%20cyan%20glow%2C%20clean%20infographic%20style%2C%20time%20saved%20metrics%2C%20modern%20tech?width=1024&height=576&seed=103&nologo=true",
+      src: "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1024&auto=format&fit=crop",
       title: "Before & After",
       label: "The Transformation",
       desc: "A side-by-side comparison of a manual workflow vs your automated system. Visual proof of time saved and chaos eliminated — the fastest way to communicate value."

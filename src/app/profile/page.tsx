@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme, darkSkins, lightSkins, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
 import { useProfile, type UserProfile } from "@/context/ProfileContext";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function ProfilePage() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { resolvedColors } = useTheme();
   const { profile, updateProfile } = useProfile();
   
@@ -20,7 +22,7 @@ export default function ProfilePage() {
   const [comments, setComments] = useState([
     { author: "TechBro99", avatar: "💻", time: "2 hours ago", text: "Yo this profile is fire! 🔥 Let's sync on that next-gen orchestrator build." },
     { author: "CodeQueen", avatar: "👑", time: "5 hours ago", text: "The custom volcano skin variables compile beautifully. Outstanding theme!" },
-    { author: "DesignDave", avatar: "🎨", time: "1 day ago", text: "Love the MySpace nostalgic layout fused with Gemini agents. Absolutely genius design!" },
+    { author: "DesignDave", avatar: "🎨", time: "1 day ago", text: "Love the LiTPage aesthetic fused with Gemini agents. Absolutely genius design!" },
   ]);
   const [newCommentText, setNewCommentText] = useState("");
 
@@ -85,6 +87,21 @@ export default function ProfilePage() {
 
   const T = resolvedColors;
 
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-mono" style={{ backgroundColor: T?.bgColor || "#0a0a0f", color: T?.textColor || "#00ff41" }}>
+        <div className="text-center">
+          <div className="text-3xl mb-4">⏳</div>
+          <div>Loading profile...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/profile" />;
+  }
+
   return (
     <div 
       className="min-h-screen relative font-mono text-xs pb-12" 
@@ -130,7 +147,7 @@ export default function ProfilePage() {
         <div className="md:col-span-4 space-y-4">
           
           {/* Avatar & Display Name editable card */}
-          <div className="myspace-box p-4 text-center" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+          <div className="lit-box p-4 text-center" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
             <input type="file" ref={avatarInputRef} onChange={handleAvatarUpload} accept="image/*" className="hidden" />
             
             <div
@@ -233,8 +250,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Quick Actions Panel */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Node Interactions</div>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Node Interactions</div>
             <div className="grid grid-cols-2 gap-2 text-[10px] font-bold">
               <button className="p-2 border hover:scale-105 active:scale-95 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: "transparent" }}>
                 📧 SEND MSG
@@ -252,8 +269,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Persistent Music Station */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>🎵 Audio Deck</div>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>🎵 Audio Deck</div>
             {editingSection === "music" ? (
               <div className="space-y-1.5">
                 <input
@@ -315,8 +332,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Earned Achievements */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>🏆 Studio Badges</div>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>🏆 Studio Badges</div>
             <div className="flex flex-wrap gap-1.5">
               {profile.badges.map((badge, i) => (
                 <span key={i} className="px-2 py-0.5 border text-[9px] font-bold uppercase tracking-wider" style={{ borderColor: T.accentColor, color: T.accentColor, backgroundColor: `${T.accentColor}11` }}>
@@ -342,8 +359,8 @@ export default function ProfilePage() {
           </div>
 
           {/* About Me */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
               <span>Bio & Objectives</span>
               <button 
                 onClick={() => setEditingSection(editingSection === "bio" ? null : "bio")}
@@ -404,8 +421,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Interests Section */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
               <span>Specialty Tags</span>
               <button 
                 onClick={() => setEditingSection(editingSection === "interests" ? null : "interests")}
@@ -462,9 +479,9 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* Friends list (MySpace style Top Nodes) */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
+          {/* Linked Co-Builder Array */}
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
               <span>Linked Co-Builder Array</span>
               <span className="text-[10px] font-mono tracking-widest text-white/50">TOP 8 ACTIVE NODES</span>
             </div>
@@ -495,8 +512,8 @@ export default function ProfilePage() {
           </div>
 
           {/* Photo Gallery Grid */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3 flex justify-between items-center" style={{ color: "white" }}>
               <span>Captured Visual Buffers</span>
               <span className="text-[9px] opacity-50">GALLERY DISK ARRAY</span>
             </div>
@@ -516,9 +533,9 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Comments Section (MySpace Retro Style) */}
-          <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-            <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Public Node Comment Registry</div>
+          {/* Public Node Comment Registry */}
+          <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+            <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Public Node Comment Registry</div>
             
             <div className="space-y-3.5 max-h-[300px] overflow-y-auto pr-1 mb-4">
               {comments.map((comment, i) => (

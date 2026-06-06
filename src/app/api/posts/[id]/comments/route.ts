@@ -2,8 +2,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import { rateLimit } from "@/lib/rate-limiter";
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { success, remaining, resetTime } = rateLimit(req, 100, 60);
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429, headers: { "Retry-After": String(resetTime), "X-RateLimit-Limit": "100", "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": String(resetTime) },
+    });
+  }
+
   const { id: postId } = await params;
   if (!isAdminSupabaseConfigured()) {
     return NextResponse.json({ comments: [] });
@@ -16,7 +24,11 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .eq("post_id", postId)
       .order("created_at", { ascending: true });
     if (error) throw error;
-    return NextResponse.json({ comments: data || [] });
+    const response = NextResponse.json({ comments: data || [] });
+    response.headers.set("X-RateLimit-Limit", "100");
+    response.headers.set("X-RateLimit-Remaining", String(remaining));
+    response.headers.set("X-RateLimit-Reset", String(resetTime));
+    return response;
   } catch (err) {
     console.error("GET comments error:", err);
     return NextResponse.json({ comments: [] });
@@ -24,6 +36,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { success, remaining, resetTime } = rateLimit(req, 30, 60);
+  if (!success) {
+    return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
+      status: 429, headers: { "Retry-After": String(resetTime), "X-RateLimit-Limit": "30", "X-RateLimit-Remaining": "0", "X-RateLimit-Reset": String(resetTime) },
+    });
+  }
+
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -50,7 +69,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 
     if (error) throw error;
     await sb.rpc("increment_post_comments", { post_id: postId });
-    return NextResponse.json({ success: true, comment });
+    const response = NextResponse.json({ success: true, comment });
+    response.headers.set("X-RateLimit-Limit", "30");
+    response.headers.set("X-RateLimit-Remaining", String(remaining));
+    response.headers.set("X-RateLimit-Reset", String(resetTime));
+    return response;
   } catch (err) {
     console.error("POST comment error:", err);
     return NextResponse.json({ error: "Failed to create comment" }, { status: 500 });

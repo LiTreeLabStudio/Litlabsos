@@ -13,8 +13,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "LiTTree Lab Studios — AI Agent Platform",
-  description: "The revolutionary MySpace + Facebook hybrid of AI automations. Deploy specialized AI agents, build workflows, and dominate your niche.",
-  keywords: ["AI agents", "automation", "MySpace", "Facebook", "workflow", "artificial intelligence", "NoCode", "LiTTree"],
+  description: "LiTPage — Your AI Universe. Deploy specialized AI agents, build workflows, and dominate your niche.",
+  keywords: ["AI agents", "automation", "workflow", "artificial intelligence", "NoCode", "LiTTree", "LiTPage"],
   authors: [{ name: "LiTTree Lab Studios" }],
   creator: "LiTTree Lab Studios",
   publisher: "LiTTree Lab Studios",
@@ -25,12 +25,12 @@ export const metadata: Metadata = {
     url: "https://litlabs.net",
     siteName: "LiTTree Lab Studios",
     title: "LiTTree Lab Studios — AI Agent Platform",
-    description: "Deploy specialized AI agents. Automate workflows. Dominate your niche.",
+    description: "LiTPage — Your AI Universe. Deploy agents. Automate workflows. Dominate your niche.",
   },
   twitter: {
     card: "summary_large_image",
     title: "LiTTree Lab Studios — AI Agent Platform",
-    description: "Deploy specialized AI agents. Automate workflows. Dominate your niche.",
+    description: "LiTPage — Your AI Universe. Deploy agents. Automate workflows. Dominate your niche.",
     creator: "@litlabs",
   },
   verification: {

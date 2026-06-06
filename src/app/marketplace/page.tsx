@@ -12,15 +12,6 @@ function formatPrice(cents: number): string {
   return cents + ' LBC'; // price in LiTBit Coins
 }
 
-function getLitBitCoinBalance(): number {
-  if (typeof window === 'undefined') return 500;
-  return parseInt(localStorage.getItem('litbitcoins') || '500', 10);
-}
-
-function setLitBitCoinBalance(val: number) {
-  if (typeof window !== 'undefined') localStorage.setItem('litbitcoins', String(Math.max(0, val)));
-}
-
 // CREDIT PACKS — Stripe price_id required for each (create in Stripe Dashboard)
 const CREDIT_PACKS: { id: string; coins: number; price: number; priceId: string; label: string; popular: boolean; savings: string }[] = [
   { id: 'starter', coins: 500, price: 1, priceId: '', label: 'Starter', popular: false, savings: 'Entry pack' },
@@ -99,23 +90,21 @@ export default function Marketplace() {
 
   const [crtEnabled, setCrtEnabled] = useState(true);
 
-  useEffect(() => {
-    // Try to fetch real wallet from API if signed in
-    if (isSignedIn) {
-      fetch('/api/wallet')
-        .then(r => r.json())
-        .then((data: { balance?: number }) => {
-          if (typeof data.balance === 'number') {
-            setLitBitCoins(data.balance);
-            setLitBitCoinBalance(data.balance);
-          } else {
-            setLitBitCoins(getLitBitCoinBalance());
-          }
-        })
-        .catch(() => setLitBitCoins(getLitBitCoinBalance()));
-    } else {
-      setLitBitCoins(getLitBitCoinBalance());
+  // Fetch wallet from API (source of truth)
+  const fetchWallet = async () => {
+    try {
+      const res = await fetch('/api/wallet');
+      const data = await res.json();
+      if (typeof data.balance === 'number') {
+        setLitBitCoins(data.balance);
+      }
+    } catch {
+      // silent fail
     }
+  };
+
+  useEffect(() => {
+    fetchWallet();
 
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) setCrtEnabled(val === "true");
@@ -179,7 +168,6 @@ export default function Marketplace() {
       const data = await res.json();
       if (res.ok) {
         setLitBitCoins(data.balance);
-        setLitBitCoinBalance(data.balance);
         showToast(`+50 LBC Daily bonus claimed. Balance: ${data.balance}`, 'success');
       } else {
         showToast(data.error || 'Failed to claim daily bonus.', 'error');
@@ -218,11 +206,10 @@ export default function Marketplace() {
       const data = await res.json();
       if (res.ok && typeof data.balance === 'number') {
         setLitBitCoins(data.balance);
-        setLitBitCoinBalance(data.balance);
         return data.balance;
       }
     } catch {
-      // silent fail, keep local state
+      // silent fail
     }
     return null;
   };
@@ -236,10 +223,11 @@ export default function Marketplace() {
         showToast(`Not enough 🪙 LiTBit Coins! Need ${cost}, have ${litBitCoins}. Earn more below.`, 'error');
         return;
       }
-      const newBal = litBitCoins - cost;
-      setLitBitCoins(newBal);
-      setLitBitCoinBalance(newBal);
-      await syncWallet(-cost);
+      const newBal = await syncWallet(-cost);
+      if (newBal === null) {
+        showToast('Purchase failed. Could not deduct coins. Try again.', 'error');
+        return;
+      }
       showToast(`✅ Installed ${agent.name}! -${cost} 🪙 · Balance: ${newBal}`, 'success');
     } else {
       showToast(`✅ ${agent.name} installed for free!`, 'success');
@@ -247,12 +235,14 @@ export default function Marketplace() {
     setInstalledAgents(prev => new Set([...prev, agentId]));
   }, [agents, litBitCoins]);
 
-  const listForSale = useCallback((agentId: string, price: number) => {
-    setListedAgents(prev => new Set([...prev, agentId]));
+  const listForSale = useCallback(async (agentId: string, price: number) => {
     const earned = Math.floor(price * 0.1);
-    const newBal = litBitCoins + earned;
-    setLitBitCoins(newBal);
-    setLitBitCoinBalance(newBal);
+    const newBal = await syncWallet(earned);
+    if (newBal === null) {
+      showToast('Listing failed. Could not credit bonus. Try again.', 'error');
+      return;
+    }
+    setListedAgents(prev => new Set([...prev, agentId]));
     showToast(`🏪 Agent listed! You earned ${earned} 🪙 listing bonus.`, 'info');
     setSellModalAgent(null);
     setSellPrice('');
@@ -343,7 +333,7 @@ export default function Marketplace() {
         {featuredAgents.length > 0 && !searchQuery && (
           <div style={{ marginBottom: '32px' }}>
             <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '2px', marginBottom: '12px', fontWeight: 'bold' }}>⭐ FEATURED AGENTS</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
               {featuredAgents.map(agent => <AgentCard key={agent.id} agent={agent} isInstalled={installedAgents.has(agent.id)} onInstall={() => installAgent(agent.id)} onPreview={() => setPreviewAgent(agent)} theme={T} />)}
             </div>
           </div>
@@ -353,7 +343,7 @@ export default function Marketplace() {
             {selectedCategory ? selectedCategory.toUpperCase() + ' AGENTS' : 'ALL AGENTS'}
             <span style={{ color: T.textColor, opacity: 0.5, marginLeft: '8px' }}>({filteredAgents.length})</span>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
             {(searchQuery ? filteredAgents : regularAgents).map(agent => <AgentCard key={agent.id} agent={agent} isInstalled={installedAgents.has(agent.id)} onInstall={() => installAgent(agent.id)} onPreview={() => setPreviewAgent(agent)} theme={T} />)}
           </div>
         </div>
@@ -444,10 +434,11 @@ export default function Marketplace() {
                           showToast(`Need ${feat.cost} LBC. You have ${litBitCoins}`, 'error');
                           return;
                         }
-                        const newBal = litBitCoins - feat.cost;
-                        setLitBitCoins(newBal);
-                        setLitBitCoinBalance(newBal);
-                        await syncWallet(-feat.cost);
+                        const newBal = await syncWallet(-feat.cost);
+                        if (newBal === null) {
+                          showToast('Transaction failed. Could not deduct coins.', 'error');
+                          return;
+                        }
                         showToast(`${feat.action} ${feat.title}. -${feat.cost} LBC. Balance: ${newBal}`, 'success');
                       }}
                       style={{ padding: '4px 10px', backgroundColor: T.linkColor, color: 'white', border: 'none', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}

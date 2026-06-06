@@ -1,18 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: __dirname,
-
   // ============================================
   // PERFORMANCE OPTIMIZATIONS
   // ============================================
 
-  // React Compiler disabled for now
-  // reactCompiler: true,
-  
   experimental: {
     optimizePackageImports: ["@supabase/supabase-js"],
   },
+
+  // Externalize jose from middleware bundling (fixes NFT build error)
+  serverExternalPackages: ["jose"],
 
   // Image optimization
   images: {

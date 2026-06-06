@@ -58,7 +58,7 @@ export default function DMInbox({ onClose }: DMInboxProps) {
   // Auto-scroll to bottom
   useEffect(() => {
     if (messages.length > 0) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+      bottomRef.current?.scrollIntoView({ behavior: "auto" });
     }
   }, [messages]);
 

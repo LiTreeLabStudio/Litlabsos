@@ -24,37 +24,38 @@ export default function DashboardPage() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-[#333] border-t-[#f97316] rounded-full animate-spin" />
+      <div className="min-h-screen bg-ide-bg flex items-center justify-center">
+        <div className="w-5 h-5 border border-zinc-800 border-t-syntax-string rounded-sm animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-ide-bg font-sans">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white">
-            Welcome back, <span className="text-[#f97316]">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
+        <div className="mb-10 border-l-2 border-zinc-800 pl-6">
+          <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] mb-2 font-code">WORKSPACE_INIT</div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">
+            Welcome back, <span className="text-syntax-keyword font-code">{user?.name || user?.email?.split("@")[0] || "Architect"}</span>
           </h1>
-          <p className="text-sm text-[#71717a] mt-1">Your AI workspace. Everything&apos;s running smoothly.</p>
+          <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest font-code mt-1">Awaiting logic execution.</p>
         </div>
 
         {/* System Status Bar */}
-        <div className="card p-4 mb-8 flex flex-wrap items-center gap-6">
+        <div className="bg-ide-surface border border-ide-border p-4 mb-8 flex flex-wrap items-center gap-6 rounded-sm">
           <div className="flex items-center gap-2">
             <div className={`status-dot ${status?.status === "stable" ? "online" : status?.status === "in_progress" ? "busy" : "offline"}`} />
-            <span className="text-sm text-[#a1a1aa]">
-              {status?.status === "stable" ? "All systems operational" : status?.activeMilestone || "Loading..."}
+            <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider font-code">
+              {status?.status === "stable" ? "SYSTEM_OPERATIONAL" : status?.activeMilestone || "CONNECTING..."}
             </span>
           </div>
           {status?.agents && (
             <div className="flex items-center gap-4 ml-auto">
               {status.agents.map(a => (
-                <div key={a.name} className="flex items-center gap-1.5">
+                <div key={a.name} className="flex items-center gap-1.5 px-2 py-0.5 bg-black/20 border border-ide-border rounded-sm">
                   <div className={`status-dot ${a.status === "online" ? "online" : "offline"}`} />
-                  <span className="text-xs text-[#71717a]">{a.name}</span>
+                  <span className="text-[10px] font-bold text-zinc-600 font-code">{a.name}</span>
                 </div>
               ))}
             </div>
@@ -62,131 +63,80 @@ export default function DashboardPage() {
         </div>
 
         {/* Agent Monitor */}
-        <div className="mb-8">
+        <div className="mb-12">
           <AgentMonitor />
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+        <div className="mb-12">
+          <h2 className="text-[10px] font-black text-orange-500/80 uppercase tracking-[0.4em] mb-6">Execution_Directives</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link href="/chat" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-[#f97316]/10 flex items-center justify-center text-xl">💬</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Open Chat</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">Talk to your AI assistant, get help, run commands.</p>
-            </Link>
-
-            <Link href="/social" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-xl">👥</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Social Feed</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">See what&apos;s happening, share updates, connect.</p>
-            </Link>
-
-            <Link href="/builder" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-xl">🛠️</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Build Agent</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">Create a new AI agent with custom personality and skills.</p>
-            </Link>
-
-            <Link href="/marketplace" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center text-xl">🔧</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Marketplace</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">Browse and deploy pre-built agents and tools.</p>
-            </Link>
-
-            <Link href="/settings" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-xl">⚙️</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Settings</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">Manage your account, preferences, and billing.</p>
-            </Link>
-
-            <a href="https://litree-ceo.github.io/larryb-portfolio/" target="_blank" rel="noopener noreferrer" className="card p-5 hover:border-[#f97316]/30 transition-colors group">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center text-xl">🌐</div>
-                <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Portfolio</h3>
-              </div>
-              <p className="text-sm text-[#71717a]">View your public portfolio and project showcase.</p>
-            </a>
+            {[
+              { href: "/chat", icon: "💬", title: "Open_Chat", desc: "Initialize neural link with the Hive Mind.", color: "text-syntax-function" },
+              { href: "/social", icon: "👥", title: "Social_Feed", desc: "Monitor incoming data transmissions.", color: "text-syntax-string" },
+              { href: "/builder", icon: "🛠️", title: "Forge_Agent", desc: "Construct and deploy a new daemon.", color: "text-syntax-keyword" },
+              { href: "/marketplace", icon: "🔧", title: "Marketplace", desc: "Acquire pre-built logic templates.", color: "text-syntax-variable" },
+              { href: "/settings", icon: "⚙️", title: "Settings", desc: "Configure system-level parameters.", color: "text-zinc-400" },
+              { href: "https://litree-ceo.github.io/larryb-portfolio/", icon: "🌐", title: "Portfolio", desc: "Public project showcase repository.", color: "text-syntax-comment" },
+            ].map(action => (
+              <Link key={action.href} href={action.href} className="bg-ide-surface/40 border border-ide-border p-6 hover:bg-ide-surface/80 hover:border-zinc-500 transition-all group rounded-sm flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-sm bg-black/40 border border-ide-border flex items-center justify-center text-xl shadow-sm transition-transform group-hover:scale-105">
+                    {action.icon}
+                  </div>
+                  <h3 className={`text-sm font-bold uppercase tracking-widest font-code group-hover:text-white transition-colors ${action.color}`}>{action.title}</h3>
+                </div>
+                <p className="text-xs text-zinc-600 font-medium leading-relaxed">{action.desc}</p>
+                <div className="mt-auto pt-2 text-[9px] font-bold text-zinc-800 group-hover:text-zinc-500 transition-colors self-end font-code uppercase tracking-widest">
+                  EXECUTE &gt;
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
 
-        {/* Recent Activity / Stats */}
+        {/* Stats Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 card p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Recent Activity</h2>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#0a0a0a]">
-                <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                <span className="text-sm text-[#a1a1aa]">System scan completed — 25 opportunities found</span>
-                <span className="text-xs text-[#555] ml-auto">2h ago</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#0a0a0a]">
-                <div className="w-2 h-2 rounded-full bg-[#f97316]" />
-                <span className="text-sm text-[#a1a1aa]">Website deployed to production</span>
-                <span className="text-xs text-[#555] ml-auto">3h ago</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#0a0a0a]">
-                <div className="w-2 h-2 rounded-full bg-[#3b82f6]" />
-                <span className="text-sm text-[#a1a1aa]">Gig hunter agent activated</span>
-                <span className="text-xs text-[#555] ml-auto">4h ago</span>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[#0a0a0a]">
-                <div className="w-2 h-2 rounded-full bg-[#22c55e]" />
-                <span className="text-sm text-[#a1a1aa]">All services healthy — uptime 99.9%</span>
-                <span className="text-xs text-[#555] ml-auto">5h ago</span>
-              </div>
+          <div className="lg:col-span-2 bg-ide-surface border border-ide-border p-8 rounded-sm">
+            <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-8 font-code">TRANSMISSION_LOG</h2>
+            <div className="space-y-4">
+              {[
+                { label: "System scan completed — 25 opportunities found", color: "bg-syntax-string", time: "2h ago" },
+                { label: "Website deployed to production", color: "bg-orange-600", time: "3h ago" },
+                { label: "Gig hunter agent activated", color: "bg-syntax-function", time: "4h ago" },
+                { label: "All services healthy — uptime 99.9%", color: "bg-syntax-string", time: "5h ago" },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-4 p-3 bg-black/20 border border-ide-border hover:border-zinc-700 transition-colors group">
+                  <div className={`w-1.5 h-1.5 rounded-none ${item.color} group-hover:scale-125 transition-transform`} />
+                  <span className="text-xs font-medium text-zinc-400 group-hover:text-zinc-200 transition-colors font-code">{item.label}</span>
+                  <span className="text-[10px] font-bold text-zinc-800 ml-auto font-code tracking-tighter">{item.time}</span>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="card p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Stats</h2>
-            <div className="space-y-4">
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#71717a]">Active Agents</span>
-                  <span className="text-white font-medium">5</span>
+          <div className="bg-ide-surface border border-ide-border p-8 rounded-sm flex flex-col">
+            <h2 className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-8 font-code">TELEMETRY_DATA</h2>
+            <div className="space-y-8 flex-1">
+              {[
+                { label: "ACTIVE_AGENTS", val: "05", width: "83%", color: "bg-syntax-keyword" },
+                { label: "SYSTEM_UPTIME", val: "99.9%", width: "99.9%", color: "bg-syntax-string" },
+                { label: "TASKS_EXEC", val: "142", width: "71%", color: "bg-syntax-function" },
+                { label: "PROPOSALS", val: "00", width: "5%", color: "bg-zinc-800" },
+              ].map(stat => (
+                <div key={stat.label}>
+                  <div className="flex justify-between items-end mb-2">
+                    <span className="text-[9px] font-black text-zinc-700 tracking-widest font-code">{stat.label}</span>
+                    <span className="text-xs font-bold text-white font-code">{stat.val}</span>
+                  </div>
+                  <div className="h-1 bg-black/40 rounded-none overflow-hidden">
+                    <div className={`h-full ${stat.color} transition-all duration-1000`} style={{ width: stat.width }} />
+                  </div>
                 </div>
-                <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#f97316] rounded-full" style={{ width: "83%" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#71717a]">Uptime</span>
-                  <span className="text-white font-medium">99.9%</span>
-                </div>
-                <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#22c55e] rounded-full" style={{ width: "99.9%" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#71717a]">Tasks Completed</span>
-                  <span className="text-white font-medium">142</span>
-                </div>
-                <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#3b82f6] rounded-full" style={{ width: "71%" }} />
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-[#71717a]">Proposals Ready</span>
-                  <span className="text-white font-medium">0</span>
-                </div>
-                <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#71717a] rounded-full" style={{ width: "0%" }} />
-                </div>
-              </div>
+              ))}
+            </div>
+            <div className="mt-8 pt-6 border-t border-ide-border text-center">
+              <div className="text-[8px] font-bold text-zinc-800 uppercase tracking-[0.3em] font-code">Data_Stale: 0.2ms ago</div>
             </div>
           </div>
         </div>

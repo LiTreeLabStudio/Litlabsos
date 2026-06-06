@@ -27,12 +27,12 @@ export default function DashboardGrid() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       {/* Header */}
-      <div className="mb-10 border-l-2 border-orange-500 pl-6">
-        <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] mb-2 animate-pulse">Session_Active</div>
-        <h1 className="text-3xl font-black uppercase tracking-widest font-mono text-white mb-1">
-          Welcome back, <span className="text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)]">{user?.name || user?.email?.split("@")[0] || "Architect"}</span>
+      <div className="mb-10 border-l-2 border-zinc-800 pl-6">
+        <div className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.4em] mb-2 font-code">SESSION_ACTIVE</div>
+        <h1 className="text-3xl font-bold text-white mb-1 font-code tracking-tight">
+          Welcome back, <span className="text-orange-500">{user?.name || user?.email?.split("@")[0] || "Architect"}</span>
         </h1>
-        <p className="text-xs font-bold text-zinc-600 uppercase tracking-widest">Hive Mind synchronization complete. Awaiting directives.</p>
+        <p className="text-[10px] font-bold text-zinc-700 uppercase tracking-widest font-code">Synchronized. Awaiting logic execution.</p>
       </div>
 
       {/* Quick Actions Grid */}
@@ -41,21 +41,19 @@ export default function DashboardGrid() {
           <Link
             key={action.id}
             href={action.href}
-            className="flex flex-col gap-4 rounded-none border border-orange-500/10 bg-zinc-950/50 p-6 hover:bg-orange-500/5 hover:border-orange-500/40 hover:shadow-[0_0_20px_rgba(249,115,22,0.1)] transition-all group relative overflow-hidden"
+            className="flex flex-col gap-4 rounded-sm border border-ide-border bg-ide-surface/40 p-6 hover:bg-ide-surface/80 hover:border-zinc-500 transition-all group relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-16 h-16 bg-linear-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            
-            <div className={`w-12 h-12 rounded-none bg-linear-to-br ${action.color} flex items-center justify-center text-2xl shadow-[0_0_15px_rgba(249,115,22,0.2)] group-hover:shadow-[0_0_25px_rgba(249,115,22,0.4)] group-hover:scale-110 transition-all`}>
+            <div className="w-12 h-12 rounded-sm bg-zinc-900 border border-ide-border flex items-center justify-center text-2xl shadow-sm transition-transform group-hover:scale-105">
               {action.icon}
             </div>
             
             <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-black uppercase tracking-widest text-white font-mono group-hover:text-orange-500 transition-colors">{action.title}</h3>
-              <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-tighter mt-1">{action.subtitle}</p>
+              <h3 className="text-sm font-bold uppercase tracking-widest text-white font-code group-hover:text-orange-500 transition-colors">{action.title}</h3>
+              <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-tighter mt-1">{action.subtitle}</p>
             </div>
             
-            <div className="mt-2 text-[10px] font-black text-orange-500/40 group-hover:text-orange-500 transition-colors self-end uppercase tracking-[0.2em]">
-              Initialize_Link →
+            <div className="mt-2 text-[9px] font-bold text-zinc-700 group-hover:text-zinc-400 transition-colors self-end uppercase tracking-widest font-code">
+              EXEC_INTERNAL_LINK &gt;
             </div>
           </Link>
         ))}

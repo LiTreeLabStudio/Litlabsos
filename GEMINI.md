@@ -19,7 +19,10 @@ All AI agents and developers operating in this repository MUST follow the Autono
 
 ## Standards
 - **TypeScript:** Strict typing is mandatory. Avoid `any` and `ts-ignore`.
-- **Aesthetics:** Adhere to the "Volcanic Cyber" theme (Dark mode, deep oranges/blues, neon accents).
+- **Aesthetics:** Adhere to the "IDE Native" theme (Professional dark grays, flat 1px borders, data-dense layouts). 
+    - **Palette:** Deep charcoal backgrounds (#0d0d0d), semantic syntax highlighting colors for accents.
+    - **Typography:** Inter for UI/Body, JetBrains Mono for all technical, monospaced, or data-heavy elements.
+    - **Forbidden:** No glowing gradients, no neon effects, no scanlines, no flashy animations.
 - **Communication:** Document your progress in the `tasks/` directory if completing a multi-stage autonomous loop.
 
 ## Larry's Personal Setup

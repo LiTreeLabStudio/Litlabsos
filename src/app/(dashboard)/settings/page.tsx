@@ -35,11 +35,10 @@ const SECTIONS: { id: Section; label: string; icon: string }[] = [
 const AVATAR_EMOJIS = ["🤖", "👾", "🦾", "🧠", "⚡", "🔥", "💎", "🚀", "🌟", "🎯", "🛡", "🎮"];
 
 const ACCENT_COLORS = [
-  { id: "cyan", label: "Cyan", var: "var(--neon-cyan)", hex: "#00f2fe" },
-  { id: "purple", label: "Purple", var: "var(--neon-purple)", hex: "#9b51e0" },
-  { id: "gold", label: "Gold", var: "var(--neon-gold)", hex: "#ffd700" },
-  { id: "green", label: "Green", var: "#00ff88", hex: "#00ff88" },
-  { id: "red", label: "Red", var: "#ff5050", hex: "#ff5050" },
+  { id: "function", label: "Function", var: "var(--color-syntax-function)", hex: "#8be9fd" },
+  { id: "keyword", label: "Keyword", var: "var(--color-syntax-keyword)", hex: "#ff79c6" },
+  { id: "string", label: "String", var: "var(--color-syntax-string)", hex: "#50fa7b" },
+  { id: "comment", label: "Comment", var: "var(--color-syntax-comment)", hex: "#6272a4" },
 ];
 
 const INTEGRATIONS = [

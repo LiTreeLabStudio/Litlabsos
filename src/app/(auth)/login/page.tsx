@@ -7,53 +7,50 @@ export default async function LoginPage({
   const error = params.error || null;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cyber-bg p-6 relative overflow-hidden">
-      {/* Background glow */}
-      <div className="absolute top-[-10%] left-[-5%] w-125 h-125 bg-blue-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-100 h-100 bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen flex items-center justify-center bg-ide-bg p-6 relative overflow-hidden font-sans">
       <div className="w-full max-w-md relative z-10">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-1">
-            lit<span className="text-blue-500">labs</span>
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-12 h-12 rounded-sm bg-ide-surface-2 border border-ide-border flex items-center justify-center shadow-sm mb-4">
+            <span className="text-white font-code font-bold text-xl">L</span>
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-white mb-1 font-code">
+            Execute_Login
           </h1>
-          <p className="text-sm text-zinc-500">Build AI Agents</p>
+          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest font-code">Initialize secure connection</p>
         </div>
 
         {/* Card */}
-        <div className="rounded-xl border border-white/10 bg-white/3 p-8">
-          <h2 className="text-lg font-bold mb-6 text-center">Sign In</h2>
-
+        <div className="rounded-sm border border-ide-border bg-ide-surface/40 p-8">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg p-3 text-sm font-medium mb-4">
-              {decodeURIComponent(error.replace(/\+/g, " "))}
+            <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-sm p-3 text-xs font-bold font-code mb-6 uppercase tracking-wider">
+              ERR: {decodeURIComponent(error.replace(/\+/g, " "))}
             </div>
           )}
 
-          <form method="POST" action="/api/auth/login" className="space-y-4">
+          <form method="POST" action="/api/auth/login" className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-xs font-medium text-zinc-400 mb-1.5">
-                Email
+              <label htmlFor="email" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 font-code">
+                Identity_Link
               </label>
               <input
                 id="email"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors"
+                className="input font-code text-xs"
                 type="email"
                 name="email"
                 required
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder="node@network.local"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-xs font-medium text-zinc-400 mb-1.5">
-                Password
+              <label htmlFor="password" className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2 font-code">
+                Encryption_Key
               </label>
               <input
                 id="password"
-                className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-blue-500 transition-colors"
+                className="input font-code text-xs"
                 type="password"
                 name="password"
                 required
@@ -62,14 +59,14 @@ export default async function LoginPage({
               />
             </div>
 
-            <button type="submit" className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors">
-              Sign In
+            <button type="submit" className="btn btn-primary w-full py-3 text-[10px] font-black uppercase tracking-widest mt-4">
+              Authorize_Access
             </button>
           </form>
         </div>
 
-        <p className="text-center text-xs text-zinc-600 mt-6">
-          LitLabs v3.0 · AI-Powered Platform
+        <p className="text-center text-[9px] text-zinc-600 mt-8 font-code uppercase tracking-widest">
+          LitLabs v3.0 // Autonomous Engineering
         </p>
       </div>
     </div>

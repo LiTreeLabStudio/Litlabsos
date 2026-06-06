@@ -41,14 +41,14 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-[#050505]/95 backdrop-blur-md border-b border-[#1a1a1a]">
+      <nav className="sticky top-0 z-50 bg-ide-bg/95 backdrop-blur-md border-b border-ide-border">
         <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
           {/* Logo */}
-          <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#f97316] flex items-center justify-center">
-              <span className="text-black font-black text-sm">L</span>
+          <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
+            <div className="w-6 h-6 rounded-sm bg-orange-600 flex items-center justify-center transition-transform group-hover:scale-105">
+              <span className="text-black font-black text-[10px]">L</span>
             </div>
-            <span className="font-bold text-white text-lg tracking-tight">LitLabs</span>
+            <span className="font-bold text-white text-base tracking-tight font-code">Larry.B</span>
           </Link>
 
           {/* Center Nav — desktop */}
@@ -60,13 +60,13 @@ export default function Navbar() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-colors ${
                       isActive
-                        ? "bg-[#f97316]/10 text-[#f97316]"
-                        : "text-[#71717a] hover:text-white hover:bg-white/5"
+                        ? "bg-zinc-800 text-white border border-zinc-700"
+                        : "text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent"
                     }`}
                   >
-                    <Icon name={item.icon} className="w-4 h-4" />
+                    <Icon name={item.icon} className="w-3.5 h-3.5" />
                     {item.label}
                   </Link>
                 );
@@ -77,19 +77,19 @@ export default function Navbar() {
           {/* Right side */}
           <div className="flex items-center gap-3">
             {loading ? (
-              <div className="w-8 h-8 rounded-full bg-[#1a1a1a] animate-pulse" />
+              <div className="w-6 h-6 rounded-full bg-zinc-800 animate-pulse" />
             ) : user ? (
               <>
-                <Link href="/settings" className="hidden sm:flex w-9 h-9 rounded-full bg-[#1a1a1a] items-center justify-center text-[#71717a] hover:text-white hover:bg-[#222] transition-colors">
+                <Link href="/settings" className="hidden sm:flex w-8 h-8 rounded-sm bg-zinc-900 border border-ide-border items-center justify-center text-zinc-500 hover:text-white transition-colors">
                   <Icon name="settings" className="w-4 h-4" />
                 </Link>
-                <Link href="/social" className="avatar w-9 h-9 text-xs">
+                <Link href="/social" className="avatar w-8 h-8 text-[10px] rounded-sm">
                   {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
                 </Link>
               </>
             ) : (
-              <Link href="/login" className="btn btn-primary text-sm py-2 px-4">
-                Sign In
+              <Link href="/login" className="btn btn-primary text-[10px] font-black uppercase px-4 h-8">
+                Login_Exec
               </Link>
             )}
 

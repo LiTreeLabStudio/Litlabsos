@@ -14,13 +14,12 @@ interface StatusData {
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<StatusData | null>(null);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
     fetch("/api/live/status")
       .then(r => r.json())
       .then(setStatus)
-      .catch(() => setError(true));
+      .catch(() => {});
   }, []);
 
   if (authLoading) {
@@ -39,7 +38,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-white">
             Welcome back, <span className="text-[#f97316]">{user?.name || user?.email?.split("@")[0] || "Builder"}</span>
           </h1>
-          <p className="text-sm text-[#71717a] mt-1">Your AI workspace. Everything running smoothly.</p>
+          <p className="text-sm text-[#71717a] mt-1">Your AI workspace. Everything&apos;s running smoothly.</p>
         </div>
 
         {/* System Status Bar */}
@@ -84,7 +83,7 @@ export default function DashboardPage() {
                 <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center text-xl">👥</div>
                 <h3 className="font-semibold text-white group-hover:text-[#f97316] transition-colors">Social Feed</h3>
               </div>
-              <p className="text-sm text-[#71717a]">See what's happening, share updates, connect.</p>
+              <p className="text-sm text-[#71717a]">See what&apos;s happening, share updates, connect.</p>
             </Link>
 
             <Link href="/builder" className="card p-5 hover:border-[#f97316]/30 transition-colors group">

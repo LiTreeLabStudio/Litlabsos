@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface DataPoint {
   time: Date;
@@ -8,11 +8,10 @@ interface DataPoint {
 }
 
 export default function AgentMonitor() {
-  const svgRef = useRef<SVGSVGElement>(null);
   const [data, setData] = useState<DataPoint[]>([]);
   const [stats, setStats] = useState({ uptime: "99.9%", meanLoad: "24%", interactions: "1,402" });
 
-  const fetchTelemetry = async () => {
+  const fetchTelemetry = useCallback(async () => {
     try {
       const res = await fetch("/api/telemetry");
       const json = await res.json();
@@ -32,13 +31,16 @@ export default function AgentMonitor() {
     } catch {
       // Silently fail — telemetry API may not be available on Vercel
     }
-  };
+  }, []);
 
   useEffect(() => {
-    fetchTelemetry();
+    const init = async () => {
+      await fetchTelemetry();
+    };
+    init();
     const interval = setInterval(fetchTelemetry, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchTelemetry]);
 
   // Generate sparkline SVG
   const renderSparkline = () => {

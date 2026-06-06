@@ -44,10 +44,22 @@ export default function ChatPage() {
     } catch (err) { console.error("Failed to load messages:", err); }
   }, []);
 
-  useEffect(() => { loadSessions(); }, [loadSessions]);
   useEffect(() => {
-    if (currentSessionId) loadMessages(currentSessionId);
-    else setMessages([]);
+    const init = async () => {
+      await loadSessions();
+    };
+    init();
+  }, [loadSessions]);
+
+  useEffect(() => {
+    const init = async () => {
+      if (currentSessionId) {
+        await loadMessages(currentSessionId);
+      } else {
+        setMessages([]);
+      }
+    };
+    init();
   }, [currentSessionId, loadMessages]);
 
   useEffect(() => {

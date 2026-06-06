@@ -5,8 +5,8 @@
   "scripts": {
     "dev": "next dev --webpack",
     "dev:loop": "./bin/dev.sh",
-    "sync": "./bin/sync.sh",
-    "save": "./bin/save.sh",
+    "sync": "tsx src/lib/ghost/index.ts sync",
+    "save": "tsx src/lib/ghost/index.ts save",
     "auto-fix": "./bin/auto-fix.sh",
     "build": "next build --webpack",
     "start": "next start",
@@ -24,7 +24,8 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "server-only": "^0.0.1",
-    "stripe": "^22.2.0"
+    "stripe": "^22.2.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@supabase/supabase-js": "^2.106.2",
@@ -35,6 +36,7 @@
     "eslint": "^9.0.0",
     "eslint-config-next": "16.2.6",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
 }

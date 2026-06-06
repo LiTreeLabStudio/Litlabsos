@@ -8,7 +8,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import UserSync from "@/components/UserSync";
-import AnimatedBackground from "@/components/AnimatedBackground";
+import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -51,7 +51,7 @@ export default function RootLayout({
   const inner = (
     <ThemeProvider>
       <ProfileProvider>
-        <AnimatedBackground />
+        <AnimatedBackgroundWrapper />
         <div className="relative z-10 flex flex-col min-h-screen">
           <UserSync />
           <Navbar />

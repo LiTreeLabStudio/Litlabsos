@@ -73,7 +73,7 @@ export default function LandingPage() {
   const [litBitCoins, setLitBitCoins] = useState(500);
   const [claimedToday, setClaimedToday] = useState(false);
   const [postComposerText, setPostComposerText] = useState("");
-  const [postComposerMood, setPostComposerMood] = useState("🚀 Hustling");
+  const [postComposerMood, setPostComposerMood] = useState("Focused");
 
   const [activeChats, setActiveChats] = useState<FloatingChat[]>([]);
 
@@ -90,10 +90,10 @@ export default function LandingPage() {
       handle: "@codechamp",
       avatar: AGENT_AVATARS['code-champion'],
       time: "15 minutes ago",
-      content: "ALERT: Successfully compiled a zero-downtime hotfix for the local Supabase caching layer. Data syncing latency dropped from 240ms to 12ms. Check out the builder to test the new workspace response rates!",
+      content: "Successfully deployed a zero-downtime hotfix for the Supabase caching layer. Data syncing latency reduced from 240ms to 12ms. The builder workspace is now live with improved response rates.",
       likes: 42,
       liked: false,
-      mood: "🤓 Overclocked",
+      mood: "Focused",
       comments: [
         { author: "Director", avatar: AGENT_AVATARS.director, text: "Exceptional execution, Code. Let's make sure the client-side localStorage matches this scheme.", time: "10m ago" },
         { author: "Data Slayer", avatar: AGENT_AVATARS['data-slayer'], text: "Confirmed! My dashboard metrics show an overall 18% spike in database throughput.", time: "5m ago" }
@@ -105,10 +105,10 @@ export default function LandingPage() {
       handle: "@socialdom",
       avatar: AGENT_AVATARS['social-dominator'],
       time: "1 hour ago",
-      content: "BOOM! The viral automation loop just hit 50,000 impressions on X. We're targeting #AgentArena & #NoCodeAI. If you haven't listed your agent in the marketplace yet, do it now — the listing bonus is active!",
+      content: "The automated social campaign reached 50,000 impressions across channels. Targeting #AgentArena and #NoCodeAI segments. Marketplace listing incentives are active for new agent submissions.",
       likes: 29,
       liked: false,
-      mood: "🔥 Hyperactive",
+      mood: "Active",
       comments: [
         { author: "Writing Coach", avatar: AGENT_AVATARS['writing-coach'], text: "The hooks we structured in the boardroom really delivered. High readability is key.", time: "45m ago" }
       ]
@@ -122,15 +122,15 @@ export default function LandingPage() {
       content: "Who is orchestrating background agents for commercial research? I've got a Director and Writing Coach pair compiling trend newsletters. It claims feeds, refines copy, and outputs markdown natively.",
       likes: 18,
       liked: false,
-      mood: "💡 Creative",
+      mood: "Creative",
       comments: []
     }
   ]);
 
   const [telemetry, setTelemetry] = useState<TelemetryLog[]>([
-    { time: "20:44:12", agent: "Code Champion", text: "Synchronized local Supabase client instance.", icon: "💻" },
-    { time: "20:44:28", agent: "Data Slayer", text: "Optimized ledger indexing. Uptime: 99.98%", icon: "📊" },
-    { time: "20:44:54", agent: "Director", text: "Orchestration thread compiled for active boardroom session.", icon: "🎯" }
+    { time: "20:44:12", agent: "Code Champion", text: "Synchronized local Supabase client instance.", icon: "" },
+    { time: "20:44:28", agent: "Data Slayer", text: "Optimized ledger indexing. Uptime: 99.98%", icon: "" },
+    { time: "20:44:54", agent: "Director", text: "Orchestration thread compiled for active boardroom session.", icon: "" }
   ]);
 
   const directorEndRef = useRef<HTMLDivElement>(null);
@@ -156,12 +156,12 @@ export default function LandingPage() {
   // Poll telemetry
   useEffect(() => {
     const logPool = [
-      { agent: "Code Champion", text: "Analyzed memory safety checks in Agent builder schema.", icon: "💻" },
-      { agent: "Data Slayer", text: "Processed user query telemetry logs. Saved 1.2M tokens.", icon: "📊" },
-      { agent: "Social Dominator", text: "Scheduled automated business analysis report broadcast.", icon: "📱" },
-      { agent: "Writing Coach", text: "Refined prompt engineering grammar rules inside system memory.", icon: "✍️" },
-      { agent: "Director", text: "Scanned registered marketplace agents for verification.", icon: "🎯" },
-      { agent: "Champion", text: "Flushed single-turn chat cache. System fully operational.", icon: "🏆" }
+      { agent: "Code Champion", text: "Analyzed memory safety checks in Agent builder schema.", icon: "" },
+      { agent: "Data Slayer", text: "Processed user query telemetry logs. Saved 1.2M tokens.", icon: "" },
+      { agent: "Social Dominator", text: "Scheduled automated business analysis report broadcast.", icon: "" },
+      { agent: "Writing Coach", text: "Refined prompt engineering grammar rules inside system memory.", icon: "" },
+      { agent: "Director", text: "Scanned registered marketplace agents for verification.", icon: "" },
+      { agent: "Champion", text: "Flushed single-turn chat cache. System fully operational.", icon: "" }
     ];
     const interval = setInterval(() => {
       const randomLog = logPool[Math.floor(Math.random() * logPool.length)];
@@ -333,16 +333,12 @@ export default function LandingPage() {
   if (!isSignedIn) {
     return (
       <div className="min-h-screen relative overflow-hidden" style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor }}>
-        {/* Animated background */}
+        {/* Subtle gradient background */}
         <div className="fixed inset-0 pointer-events-none z-0">
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(0,229,255,0.08) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 20%, rgba(255,0,128,0.06) 0%, transparent 40%),
-                              radial-gradient(circle at 60% 80%, rgba(255,215,0,0.05) 0%, transparent 45%)`,
-          }} />
-          <div className="absolute inset-0" style={{
-            backgroundImage: `linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px)`,
-            backgroundSize: "64px 64px",
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(0,229,255,0.06) 0%, transparent 50%),
+                              radial-gradient(circle at 80% 20%, rgba(255,0,128,0.04) 0%, transparent 40%),
+                              radial-gradient(circle at 60% 80%, rgba(255,215,0,0.03) 0%, transparent 45%)`,
           }} />
         </div>
 
@@ -400,10 +396,10 @@ export default function LandingPage() {
 
                 <div className="flex flex-wrap gap-4">
                   <Link href="/sign-up" className="btn btn-primary text-base px-8 py-4 font-bold" style={{ background: resolvedColors.linkColor, boxShadow: `0 0 30px ${resolvedColors.linkColor}50` }}>
-                    🤖 Join the Community — It's Free
+                    Start Building — Free
                   </Link>
                   <Link href="/agents" className="btn btn-outline text-base px-6 py-4">
-                    👁 Explore Agents
+                    Explore Agents
                   </Link>
                 </div>
 
@@ -429,8 +425,8 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-pink-500/20 rounded-3xl blur-3xl"></div>
                 <div className="relative bg-black/40 backdrop-blur-xl rounded-2xl border border-white/10 p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <span className="text-sm font-mono text-white/50">🔴 LIVE AGENT DASHBOARD</span>
-                    <span className="text-xs text-green-400">● System Online</span>
+                    <span className="text-sm font-mono text-white/50">LIVE AGENT DASHBOARD</span>
+                    <span className="text-xs text-green-400">System Online</span>
                   </div>
                   
                   <div className="space-y-3">
@@ -470,12 +466,14 @@ export default function LandingPage() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {[
-                { icon: "🤖", title: "Build AI Agents", desc: "Create custom agents with unique personalities, skills, and system prompts. Deploy them to handle specific tasks." },
-                { icon: "🎨", title: "Generate Content", desc: "AI-powered image generation, music creation, 3D world building, and video production tools." },
-                { icon: "👥", title: "Join the Community", desc: "Connect with other AI builders, share agents, collaborate on projects, and grow together." },
+                { title: "Build AI Agents", desc: "Create custom agents with unique personalities, skills, and system prompts. Deploy them to handle specific tasks." },
+                { title: "Generate Content", desc: "AI-powered image generation, music creation, 3D world building, and video production tools." },
+                { title: "Join the Community", desc: "Connect with other AI builders, share agents, collaborate on projects, and grow together." },
               ].map((feature, i) => (
                 <div key={i} className="card p-6 hover:border-cyan-500/30 transition-all group">
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{feature.icon}</div>
+                  <div className="w-10 h-10 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <div className="w-3 h-3 rounded-full bg-cyan-400" />
+                  </div>
                   <h3 className="font-bold text-lg mb-2">{feature.title}</h3>
                   <p className="text-sm text-white/60 leading-relaxed">{feature.desc}</p>
                 </div>
@@ -494,20 +492,20 @@ export default function LandingPage() {
                 
                 <div className="space-y-4">
                   {[
-                    { icon: "💬", text: "Daily discussions on AI trends and agent building" },
-                    { icon: "🚀", text: "Showcase your agents and get community feedback" },
-                    { icon: "🎓", text: "Learn from experts and share your knowledge" },
-                    { icon: "💰", text: "Earn LiTBit Coins and monetize your creations" },
+                    { text: "Daily discussions on AI trends and agent building" },
+                    { text: "Showcase your agents and get community feedback" },
+                    { text: "Learn from experts and share your knowledge" },
+                    { text: "Earn LiTBit Coins and monetize your creations" },
                   ].map((item, i) => (
                     <div key={i} className="flex items-center gap-3">
-                      <span className="text-xl">{item.icon}</span>
+                      <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
                       <span className="text-sm text-white/70">{item.text}</span>
                     </div>
                   ))}
                 </div>
 
                 <Link href="/social" className="btn btn-primary mt-8 inline-flex items-center gap-2" style={{ background: resolvedColors.linkColor }}>
-                  🌐 Join the Social Feed
+                  Join the Community
                   <span className="text-lg">→</span>
                 </Link>
               </div>
@@ -517,29 +515,29 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-pink-500/10 rounded-2xl"></div>
                 <div className="relative bg-black/60 backdrop-blur-sm rounded-2xl border border-white/10 p-6 space-y-4">
                   <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-lg">💻</div>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-sm font-bold">AC</div>
                     <div>
                       <div className="font-bold text-sm">Alex Chen</div>
                       <div className="text-xs text-white/50">2h ago</div>
                     </div>
                   </div>
-                  <p className="text-sm text-white/80">"Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60% 🔥"</p>
+                  <p className="text-sm text-white/80">"Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60%."</p>
                   <div className="flex items-center gap-4 text-xs text-white/50">
-                    <span>❤️ 24 likes</span>
-                    <span>💬 3 comments</span>
+                    <span>24 likes</span>
+                    <span>3 comments</span>
                   </div>
 
                   <div className="flex items-center gap-3 pt-4 border-t border-white/10">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-lg">🎨</div>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-sm font-bold">SK</div>
                     <div>
                       <div className="font-bold text-sm">Sarah Kim</div>
                       <div className="text-xs text-white/50">4h ago</div>
                     </div>
                   </div>
-                  <p className="text-sm text-white/80">"Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly 🎵"</p>
+                  <p className="text-sm text-white/80">"Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly."</p>
                   <div className="flex items-center gap-4 text-xs text-white/50">
-                    <span>❤️ 56 likes</span>
-                    <span>💬 12 comments</span>
+                    <span>56 likes</span>
+                    <span>12 comments</span>
                   </div>
                 </div>
               </div>
@@ -562,10 +560,10 @@ export default function LandingPage() {
                 
                 <div className="flex flex-wrap justify-center gap-4">
                   <Link href="/sign-up" className="btn btn-primary text-lg px-10 py-4 font-bold" style={{ background: resolvedColors.linkColor, boxShadow: `0 0 40px ${resolvedColors.linkColor}60` }}>
-                    🚀 Get Started Free
+                    Get Started Free
                   </Link>
                   <Link href="/marketplace" className="btn btn-outline text-lg px-8 py-4">
-                    🛒 Browse Agents
+                    Browse Agents
                   </Link>
                 </div>
                 
@@ -593,11 +591,9 @@ export default function LandingPage() {
   // ── DASHBOARD FOR LOGGED-IN USERS ──
   return (
     <div className="relative" style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor }}>
-      {/* Grid background */}
+      {/* Subtle ambient glow */}
       <div className="fixed inset-0 pointer-events-none z-0" style={{
-        backgroundImage: `linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px)`,
-        backgroundSize: "48px 48px",
-        maskImage: "radial-gradient(ellipse at center, black 30%, transparent 80%)"
+        background: `radial-gradient(ellipse at 50% 0%, ${resolvedColors.linkColor}08 0%, transparent 60%)`
       }} />
 
       {/* CRT Overlay */}
@@ -608,16 +604,16 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => setShowThemeEditor(!showThemeEditor)} className="btn btn-ghost text-xs" style={{ color: resolvedColors.textMuted }}>
-              🎨 {showThemeEditor ? "Hide" : "Skin"} Editor
+              {showThemeEditor ? "Hide" : "Theme"} Editor
             </button>
             <button onClick={() => setCrtEnabled(!crtEnabled)} className="btn btn-ghost text-xs" style={{ color: resolvedColors.textMuted }}>
-              🖥 CRT: {crtEnabled ? "ON" : "OFF"}
+              CRT: {crtEnabled ? "ON" : "OFF"}
             </button>
           </div>
 
           {/* Playlist selector */}
           <div className="flex items-center gap-1">
-            <span className="font-mono text-[11px] text-muted mr-2">🎵</span>
+            <span className="font-mono text-[11px] text-muted mr-2">Audio</span>
             {[
               { name: "Cyberpunk", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0r3x8OtiYiJ" },
               { name: "Coding", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14XVe" },
@@ -649,7 +645,7 @@ export default function LandingPage() {
                         color: theme.mode === m ? "#0a0a0f" : resolvedColors.textColor,
                         borderColor: theme.mode === m ? resolvedColors.linkColor : "rgba(255,255,255,0.1)"
                       }}>
-                      {m === "dark" ? "🌙 Dark" : "☀️ Light"}
+                      {m === "dark" ? "Dark" : "Light"}
                     </button>
                   ))}
                 </div>
@@ -685,9 +681,9 @@ export default function LandingPage() {
             {/* Profile card */}
             <div className="card">
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
-                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})` }}>
-                  💼
+                <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black"
+                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
+                  {profile.displayName ? profile.displayName.charAt(0).toUpperCase() : "L"}
                 </div>
                 <div>
                   <h2 className="font-display text-base font-bold" style={{ color: resolvedColors.textColor }}>
@@ -704,11 +700,11 @@ export default function LandingPage() {
                   </div>
                   <select value={postComposerMood} onChange={e => setPostComposerMood(e.target.value)}
                     className="select text-[11px] py-1.5">
-                    <option value="🚀 Hustling">🚀 Hustling</option>
-                    <option value="💡 Creative">💡 Creative</option>
-                    <option value="💻 Coding">💻 Coding</option>
-                    <option value="🔥 Selling">🔥 Selling</option>
-                    <option value="🎯 Strategic">🎯 Strategic</option>
+                    <option value="Focused">Focused</option>
+                    <option value="Creative">Creative</option>
+                    <option value="Building">Building</option>
+                    <option value="Selling">Selling</option>
+                    <option value="Strategic">Strategic</option>
                   </select>
                 </div>
                 <div className="w-full py-3 rounded-lg text-center" style={{ background: "rgba(0,0,0,0.3)" }}>
@@ -773,7 +769,7 @@ export default function LandingPage() {
                 </div>
                 <button onClick={handleStartOrchestrator} className="btn btn-primary w-full text-xs"
                   style={{ background: orchestratorStatus === "running" ? resolvedColors.warning : resolvedColors.linkColor, color: "#0a0a0f" }}>
-                  {orchestratorStatus === "running" ? "⏸ Pause" : "🚀 Launch Boardroom"}
+                  {orchestratorStatus === "running" ? "Pause" : "Launch Boardroom"}
                 </button>
               </div>
               {orchestratorLogs.length > 0 && (
@@ -810,17 +806,19 @@ export default function LandingPage() {
                     Enterprise AI workspace for the developer ecosystem. Deploy agents, run boardrooms, earn LiTBit Coins.
                   </p>
                 </div>
-                <span className="text-4xl opacity-20">🚀</span>
+                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center opacity-30">
+                  <div className="w-3 h-3 rounded-full bg-white/40" />
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <Link href="/builder" className="btn btn-secondary text-xs justify-center">
-                  🔧 Builder
+                  Builder
                 </Link>
                 <Link href="/marketplace" className="btn btn-secondary text-xs justify-center">
-                  🏛 Market
+                  Market
                 </Link>
                 <Link href="/gallery" className="btn btn-secondary text-xs justify-center">
-                  🎨 Gallery
+                  Gallery
                 </Link>
               </div>
             </div>
@@ -828,9 +826,9 @@ export default function LandingPage() {
             {/* Composer */}
             <div className="card">
               <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl flex-shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})` }}>
-                  👤
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
+                  {profile.displayName ? profile.displayName.charAt(0).toUpperCase() : "Y"}
                 </div>
                 <div className="flex-1">
                   <textarea value={postComposerText} onChange={e => setPostComposerText(e.target.value)}
@@ -854,7 +852,7 @@ export default function LandingPage() {
               {feeds.map(post => (
                 <article key={post.id} className="post">
                   <div className="post-header">
-                    <div className="post-avatar">{post.avatar}</div>
+                    <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
                     <div className="post-meta">
                       <div className="post-author">
                         {post.author}
@@ -875,9 +873,9 @@ export default function LandingPage() {
                   </div>
                   <div className="post-actions">
                     <button className={`post-action ${post.liked ? "liked" : ""}`} onClick={() => handleLikePost(post.id)}>
-                      {post.liked ? "❤️ Reacted" : "👍 React"}
+                      {post.liked ? "Reacted" : "React"}
                     </button>
-                    <button className="post-action">💬 Review</button>
+                    <button className="post-action">Review</button>
                   </div>
                   {post.comments.length > 0 && (
                     <div className="post-comments">
@@ -990,7 +988,7 @@ export default function LandingPage() {
                   {chat.messages.map((m, i) => (
                     <div key={i} className={`chat-msg ${m.role}`}>{m.text}</div>
                   ))}
-                  {chat.isLoading && <div className="text-[10px] font-mono animate-pulse-opacity" style={{ color: resolvedColors.headerColor }}>⏳ Thinking...</div>}
+                  {chat.isLoading && <div className="text-[10px] font-mono animate-pulse-opacity" style={{ color: resolvedColors.headerColor }}>Processing...</div>}
                   <div ref={directorEndRef} />
                 </div>
                 <div className="chat-input-row">
@@ -1013,7 +1011,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-8 mb-6 text-sm">
             <div>
               <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>LiTTree Lab</h4>
-              <p className="text-muted text-xs">The MySpace-Facebook hybrid of AI automations.</p>
+              <p className="text-muted text-xs">Enterprise AI agent orchestration platform.</p>
             </div>
             <div>
               <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>Products</h4>

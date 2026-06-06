@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import type { BackgroundMode } from "@/components/AnimatedBackground";
 
 // Skin presets
 export type SkinPreset =
@@ -40,6 +41,7 @@ export interface Theme {
   mode: ThemeMode;
   skin: SkinPreset;
   accent: AccentColor;
+  backgroundMode: BackgroundMode;
   customColors?: {
     bgColor?: string;
     textColor?: string;
@@ -364,6 +366,7 @@ const defaultTheme: Theme = {
   mode: "dark",
   skin: "cyberpunk",
   accent: "neon-green",
+  backgroundMode: "constellation",
 };
 
 // Context
@@ -373,6 +376,7 @@ interface ThemeContextType {
   setMode: (mode: ThemeMode) => void;
   setSkin: (skin: SkinPreset) => void;
   setAccent: (accent: AccentColor) => void;
+  setBackgroundMode: (mode: BackgroundMode) => void;
   setCustomColors: (colors: { bgColor?: string; textColor?: string; linkColor?: string; headerColor?: string; borderColor?: string; accentColor?: string; boxBg?: string }) => void;
   resetTheme: () => void;
 }
@@ -452,6 +456,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => ({ ...prev, accent }));
   };
 
+  const setBackgroundMode = (backgroundMode: BackgroundMode) => {
+    setTheme((prev) => ({ ...prev, backgroundMode }));
+  };
+
   const setCustomColors = (colors: { bgColor?: string; textColor?: string; linkColor?: string; headerColor?: string; borderColor?: string; accentColor?: string; boxBg?: string }) => {
     setTheme((prev) => ({ ...prev, customColors: { ...prev.customColors, ...colors } }));
   };
@@ -468,6 +476,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setMode,
         setSkin,
         setAccent,
+        setBackgroundMode,
         setCustomColors,
         resetTheme,
       }}

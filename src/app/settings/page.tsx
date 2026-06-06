@@ -2,19 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { useTheme, darkSkins, lightSkins, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
+import type { BackgroundMode } from "@/components/AnimatedBackground";
 import { useProfile, type UserProfile } from "@/context/ProfileContext";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
-  const { theme, resolvedColors, setMode, setSkin, setAccent, resetTheme } = useTheme();
+  const { theme, resolvedColors, setMode, setSkin, setAccent, setBackgroundMode, resetTheme } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
   const [activeTab, setActiveTab] = useState<"theme" | "profile" | "agents" | "advanced">("theme");
   const [saved, setSaved] = useState(false);
-  const [crtEnabled, setCrtEnabled] = useState(true);
+  const [crtEnabled, setCrtEnabled] = useState(false);
 
-  const skinPresets: SkinPreset[] = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink", "synthwave", "volcanic", "gold", "arctic", "emerald", "midnight"];
+  const skinPresets: SkinPreset[] = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink", "synthwave", "volcanic", "gold", "arctic", "emerald", "midnight", "neon", "blood", "cosmic", "miami"];
+  const backgroundModes: { mode: BackgroundMode; label: string }[] = [
+    { mode: "constellation", label: "Constellation" },
+    { mode: "nebula", label: "Nebula" },
+    { mode: "waves", label: "Waves" },
+    { mode: "minimal", label: "Minimal" },
+  ];
   const accentColors: AccentColor[] = ["neon-green", "hot-pink", "electric-blue", "cyber-yellow", "matrix-green", "sunset-orange", "ocean-blue", "purple-haze"];
 
   useEffect(() => {
@@ -68,12 +75,12 @@ export default function SettingsPage() {
         }} />
       )}
 
-      {/* Retro Ticker */}
+      {/* Status Ticker */}
       <div className="w-full bg-black py-1 border-b-2 overflow-hidden flex" style={{ borderColor: T.borderColor, color: T.accentColor }}>
         <div className="whitespace-nowrap animate-marquee flex gap-12 font-bold uppercase tracking-wider text-[10px]">
-          <span>⚙️ BIOS CONFIGURATION UTILITY v2.06 // SECTOR 7 COMMAND CENTER</span>
-          <span>⚡ THEME ENGINE LOADED SUCCESSFULLY // SKIN PRESENTS REGISTERED: 6 PRESETS</span>
-          <span>🛡️ SECURITY SHIELDS ACTIVE // SESSION STATUS: DEPLOYED</span>
+          <span>SYSTEM CONFIGURATION // LiTTree Lab Studios Platform v2.0</span>
+          <span>THEME ENGINE ACTIVE // 16 SKIN PRESETS REGISTERED</span>
+          <span>SESSION SECURED // AUTHENTICATION VERIFIED</span>
         </div>
       </div>
 
@@ -82,10 +89,9 @@ export default function SettingsPage() {
         {/* Title Header */}
         <div className="border-2 p-4 bg-black/60 mb-6 flex justify-between items-center shadow-lg" style={{ borderColor: T.borderColor }}>
           <div className="flex items-center gap-2">
-            <span className="text-xl animate-pulse">⚙️</span>
-            <h1 className="text-sm font-bold tracking-widest uppercase" style={{ color: T.headerColor }}>STUDIO SETTINGS</h1>
+            <h1 className="text-sm font-bold tracking-widest uppercase" style={{ color: T.headerColor }}>Platform Settings</h1>
           </div>
-          <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Node CLI Configuration</span>
+          <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Configuration</span>
         </div>
 
         {/* Tabs */}
@@ -101,7 +107,7 @@ export default function SettingsPage() {
                 color: activeTab === tab ? T.accentColor : T.textColor,
               }}
             >
-              {tab === "agents" ? "Agent Prefs 🤖" : tab === "theme" ? "Theme 🎨" : tab === "profile" ? "Profile 👤" : "Advanced ⚙️"}
+              {tab}
             </button>
           ))}
         </div>
@@ -112,21 +118,44 @@ export default function SettingsPage() {
             
             {/* Global Monitor Setting */}
             <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Monitor Configuration</div>
+              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Background Effect</div>
               <p className="text-[11px] mb-3 opacity-80 leading-normal">
-                Toggle the global CRT analog filter. This will simulate a vintage 1990 high-phosphor computer terminal.
+                Choose a live animated background style for the workspace.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {backgroundModes.map((bm) => (
+                  <button
+                    key={bm.mode}
+                    onClick={() => { setBackgroundMode(bm.mode); showSaved(); }}
+                    className="p-2 border-2 text-center text-xs font-bold capitalize transition-all hover:scale-105"
+                    style={{
+                      borderColor: theme.backgroundMode === bm.mode ? T.accentColor : T.borderColor,
+                      backgroundColor: theme.backgroundMode === bm.mode ? `${T.accentColor}18` : "transparent",
+                      color: T.textColor,
+                    }}
+                  >
+                    {bm.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Options</div>
+              <p className="text-[11px] mb-3 opacity-80 leading-normal">
+                Toggle the CRT scanline overlay effect.
               </p>
               <div className="flex gap-3">
-                <button 
-                  onClick={toggleCrtGlobally} 
-                  className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" 
-                  style={{ 
-                    borderColor: T.borderColor, 
-                    backgroundColor: crtEnabled ? T.linkColor : "transparent", 
-                    color: crtEnabled ? "black" : T.textColor 
+                <button
+                  onClick={toggleCrtGlobally}
+                  className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                  style={{
+                    borderColor: T.borderColor,
+                    backgroundColor: crtEnabled ? T.linkColor : "transparent",
+                    color: crtEnabled ? "black" : T.textColor
                   }}
                 >
-                  🖥️ CRT Scanline Overlay: {crtEnabled ? "ENABLED" : "DISABLED"}
+                  CRT Overlay: {crtEnabled ? "ON" : "OFF"}
                 </button>
               </div>
             </div>
@@ -136,8 +165,8 @@ export default function SettingsPage() {
               <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Terminal Mode</div>
               <p className="text-[11px] mb-3 opacity-80">Toggle the primary luminance factor.</p>
               <div className="flex gap-3">
-                <button onClick={() => { setMode("dark"); showSaved(); }} className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: theme.mode === "dark" ? T.linkColor : "transparent", color: theme.mode === "dark" ? "black" : T.textColor }}>🌙 Dark Mode (Classic Terminal)</button>
-                <button onClick={() => { setMode("light"); showSaved(); }} className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: theme.mode === "light" ? T.linkColor : "transparent", color: theme.mode === "light" ? "black" : T.textColor }}>☀️ Light Mode (High Contrast)</button>
+                <button onClick={() => { setMode("dark"); showSaved(); }} className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: theme.mode === "dark" ? T.linkColor : "transparent", color: theme.mode === "dark" ? "black" : T.textColor }}>Dark Mode</button>
+                <button onClick={() => { setMode("light"); showSaved(); }} className="px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform" style={{ borderColor: T.borderColor, backgroundColor: theme.mode === "light" ? T.linkColor : "transparent", color: theme.mode === "light" ? "black" : T.textColor }}>Light Mode</button>
               </div>
             </div>
 

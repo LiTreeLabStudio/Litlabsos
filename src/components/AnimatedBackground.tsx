@@ -14,11 +14,15 @@ interface Particle {
   pulseSpeed: number;
 }
 
-export default function AnimatedBackground() {
+export type BackgroundMode = "constellation" | "nebula" | "waves" | "minimal";
+
+export default function AnimatedBackground({ mode = "constellation" }: { mode?: BackgroundMode }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolvedColors } = useTheme();
   const colorsRef = useRef(resolvedColors);
+  const modeRef = useRef(mode);
   colorsRef.current = resolvedColors;
+  modeRef.current = mode;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -30,8 +34,8 @@ export default function AnimatedBackground() {
     let w = 0;
     let h = 0;
     const particles: Particle[] = [];
-    const PARTICLE_COUNT = 80;
-    const CONNECTION_DIST = 150;
+    const PARTICLE_COUNT = 40;
+    const CONNECTION_DIST = 120;
     const MOUSE_DIST = 250;
     let mouse = { x: -1000, y: -1000 };
 
@@ -48,10 +52,10 @@ export default function AnimatedBackground() {
           y: Math.random() * h,
           vx: (Math.random() - 0.5) * 0.4,
           vy: (Math.random() - 0.5) * 0.4,
-          radius: Math.random() * 2 + 1,
-          alpha: Math.random() * 0.5 + 0.2,
+          radius: Math.random() * 1.5 + 0.5,
+          alpha: Math.random() * 0.3 + 0.1,
           pulse: Math.random() * Math.PI * 2,
-          pulseSpeed: 0.01 + Math.random() * 0.02,
+          pulseSpeed: 0.008 + Math.random() * 0.015,
         });
       }
     }
@@ -78,26 +82,6 @@ export default function AnimatedBackground() {
       grad.addColorStop(1, "transparent");
       ctx!.fillStyle = grad;
       ctx!.fillRect(0, 0, w, h);
-
-      // Grid lines
-      ctx!.strokeStyle = `rgba(${linkRgb.r},${linkRgb.g},${linkRgb.b},0.015)`;
-      ctx!.lineWidth = 1;
-      const gridSize = 80;
-      const time = Date.now() * 0.0003;
-      const offsetX = (time * 10) % gridSize;
-      const offsetY = (time * 6) % gridSize;
-      for (let x = -gridSize + offsetX; x < w; x += gridSize) {
-        ctx!.beginPath();
-        ctx!.moveTo(x, 0);
-        ctx!.lineTo(x, h);
-        ctx!.stroke();
-      }
-      for (let y = -gridSize + offsetY; y < h; y += gridSize) {
-        ctx!.beginPath();
-        ctx!.moveTo(0, y);
-        ctx!.lineTo(w, y);
-        ctx!.stroke();
-      }
 
       // Update & draw particles
       for (let i = 0; i < particles.length; i++) {

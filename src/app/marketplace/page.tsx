@@ -9,7 +9,7 @@ import { AGENT_AVATARS } from '@/lib/avatars';
 
 function formatPrice(cents: number): string {
   if (cents === 0) return 'FREE';
-  return cents + ' 🪙'; // price in LiTBit Coins
+  return cents + ' LBC'; // price in LiTBit Coins
 }
 
 function getLitBitCoinBalance(): number {
@@ -31,13 +31,13 @@ const CREDIT_PACKS: { id: string; coins: number; price: number; priceId: string;
 ];
 
 // SPEND COINS — interactive features with real coin deduction
-const SPEND_FEATURES: { id: string; icon: string; title: string; desc: string; cost: number; action: string }[] = [
-  { id: 'generate', icon: '🎨', title: 'AI Generate', desc: 'Generate an image, music track, or 3D skybox with AI', cost: 50, action: 'Generate' },
-  { id: 'slot', icon: '🔓', title: 'Extra Agent Slot', desc: 'Expand your dock to run +1 agent simultaneously', cost: 200, action: 'Unlock' },
-  { id: 'boost', icon: '🚀', title: 'Social Boost', desc: 'Feature your post at the top of the social feed for 24h', cost: 100, action: 'Boost' },
-  { id: 'priority', icon: '⚡', title: 'Priority Mode', desc: 'Get faster agent responses and higher rate limits', cost: 150, action: 'Activate' },
-  { id: 'theme', icon: '🎭', title: 'Rare Theme', desc: 'Unlock an exclusive limited-edition UI skin', cost: 300, action: 'Unlock' },
-  { id: 'workflow', icon: '�', title: 'Workflow Run', desc: 'Execute a multi-agent orchestrated workflow', cost: 75, action: 'Run' },
+const SPEND_FEATURES: { id: string; title: string; desc: string; cost: number; action: string }[] = [
+  { id: 'generate', title: 'AI Generate', desc: 'Generate an image, music track, or 3D skybox with AI', cost: 50, action: 'Generate' },
+  { id: 'slot', title: 'Extra Agent Slot', desc: 'Expand your dock to run +1 agent simultaneously', cost: 200, action: 'Unlock' },
+  { id: 'boost', title: 'Social Boost', desc: 'Feature your post at the top of the social feed for 24h', cost: 100, action: 'Boost' },
+  { id: 'priority', title: 'Priority Mode', desc: 'Get faster agent responses and higher rate limits', cost: 150, action: 'Activate' },
+  { id: 'theme', title: 'Rare Theme', desc: 'Unlock an exclusive limited-edition UI skin', cost: 300, action: 'Unlock' },
+  { id: 'workflow', title: 'Workflow Run', desc: 'Execute a multi-agent orchestrated workflow', cost: 75, action: 'Run' },
 ];
 
 type Agent = {
@@ -47,10 +47,10 @@ type Agent = {
   rating?: number; installs?: number;
 };
 
-const CATEGORY_ICONS: Record<string, string> = {
-  developer: '💻', marketing: '📱', analytics: '📊',
-  content: '✍️', general: '🏆', orchestrator: '🎯',
-  music: '🎵', design: '🎨', research: '🔬', legal: '⚖️',
+const CATEGORY_LABELS: Record<string, string> = {
+  developer: 'Developer', marketing: 'Marketing', analytics: 'Analytics',
+  content: 'Content', general: 'General', orchestrator: 'Orchestrator',
+  music: 'Music', design: 'Design', research: 'Research', legal: 'Legal',
 };
 
 // AGENT PRICING TIERS (in LiTBit Coins 🪙)
@@ -180,7 +180,7 @@ export default function Marketplace() {
       if (res.ok) {
         setLitBitCoins(data.balance);
         setLitBitCoinBalance(data.balance);
-        showToast(`+50 🪙 Daily bonus claimed! Balance: ${data.balance}`, 'success');
+        showToast(`+50 LBC Daily bonus claimed. Balance: ${data.balance}`, 'success');
       } else {
         showToast(data.error || 'Failed to claim daily bonus.', 'error');
       }
@@ -317,25 +317,25 @@ export default function Marketplace() {
       <div style={{ padding: '16px 24px', borderBottom: '1px solid ' + T.borderColor, display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', backgroundColor: T.boxBg }}>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', flex: 1 }}>
           <button onClick={() => setSelectedCategory('')} style={{ padding: '6px 12px', fontSize: '11px', border: '1px solid ' + (selectedCategory === '' ? T.accentColor : T.borderColor), backgroundColor: selectedCategory === '' ? 'rgba(255,255,0,0.15)' : 'transparent', color: selectedCategory === '' ? T.accentColor : T.textColor, cursor: 'pointer', fontFamily: 'monospace' }}>
-            🌟 All ({agents.length})
+            All ({agents.length})
           </button>
           {categories.map(cat => (
             <button key={cat} onClick={() => setSelectedCategory(cat === selectedCategory ? '' : cat)} style={{ padding: '6px 12px', fontSize: '11px', border: '1px solid ' + (selectedCategory === cat ? T.accentColor : T.borderColor), backgroundColor: selectedCategory === cat ? 'rgba(255,255,0,0.15)' : 'transparent', color: selectedCategory === cat ? T.accentColor : T.textColor, cursor: 'pointer', fontFamily: 'monospace', textTransform: 'capitalize' }}>
-              {(CATEGORY_ICONS[cat] || '🔹') + ' ' + cat + ' (' + agents.filter(a => a.category === cat).length + ')'}
+              {cat + ' (' + agents.filter(a => a.category === cat).length + ')'}
             </button>
           ))}
         </div>
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <input type='text' value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder='🔍 Search agents...' style={{ padding: '8px 12px', backgroundColor: T.bgColor, border: '1px solid ' + T.borderColor, color: '#e0e0e0', fontSize: '12px', fontFamily: 'monospace', width: '200px', outline: 'none' }} />
+          <input type='text' value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder='Search agents...' style={{ padding: '8px 12px', backgroundColor: T.bgColor, border: '1px solid ' + T.borderColor, color: '#e0e0e0', fontSize: '12px', fontFamily: 'monospace', width: '200px', outline: 'none' }} />
           <select value={sortBy} onChange={e => setSortBy(e.target.value)} style={{ padding: '8px', backgroundColor: T.bgColor, border: '1px solid ' + T.borderColor, color: T.textColor, fontSize: '11px', fontFamily: 'monospace', cursor: 'pointer' }}>
-            <option value='featured'>⭐ Featured</option>
-            <option value='popular'>🔥 Popular</option>
-            <option value='rating'>⭐ Rating</option>
-            <option value='price'>💰 Price</option>
-            <option value='name'>🔤 Name</option>
+            <option value='featured'>Featured</option>
+            <option value='popular'>Popular</option>
+            <option value='rating'>Rating</option>
+            <option value='price'>Price</option>
+            <option value='name'>Name</option>
           </select>
-          <Link href='/builder' style={{ padding: '8px 14px', backgroundColor: T.linkColor, color: 'white', textDecoration: 'none', fontSize: '11px', fontWeight: 'bold' }}>🚀 My Dock</Link>
-          <div style={{ padding: '8px 12px', border: '1px solid gold', color: 'gold', fontSize: '11px', fontWeight: 'bold', backgroundColor: 'rgba(255,215,0,0.08)' }}>🪙 {litBitCoins}</div>
+          <Link href='/builder' style={{ padding: '8px 14px', backgroundColor: T.linkColor, color: 'white', textDecoration: 'none', fontSize: '11px', fontWeight: 'bold' }}>My Dock</Link>
+          <div style={{ padding: '8px 12px', border: '1px solid gold', color: 'gold', fontSize: '11px', fontWeight: 'bold', backgroundColor: 'rgba(255,215,0,0.08)' }}>{litBitCoins} LBC</div>
         </div>
       </div>
 
@@ -350,7 +350,7 @@ export default function Marketplace() {
         )}
         <div>
           <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '2px', marginBottom: '12px', fontWeight: 'bold' }}>
-            {selectedCategory ? (CATEGORY_ICONS[selectedCategory] || '🔹') + ' ' + selectedCategory.toUpperCase() : '🔥 ALL AGENTS'}
+            {selectedCategory ? selectedCategory.toUpperCase() + ' AGENTS' : 'ALL AGENTS'}
             <span style={{ color: T.textColor, opacity: 0.5, marginLeft: '8px' }}>({filteredAgents.length})</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
@@ -359,7 +359,7 @@ export default function Marketplace() {
         </div>
         {filteredAgents.length === 0 && (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: T.textColor, opacity: 0.5 }}>
-            <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '12px', color: T.headerColor }}>?</div>
             <div>No agents found matching your search.</div>
           </div>
         )}
@@ -368,14 +368,14 @@ export default function Marketplace() {
         <div style={{ marginTop: '48px', marginBottom: '32px', padding: '24px', border: '2px solid ' + T.borderColor, backgroundColor: T.boxBg }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
             <div>
-              <div style={{ color: T.headerColor, fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>💳 Buy LiTBit Coins</div>
+              <div style={{ color: T.headerColor, fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>Buy LiTBit Coins</div>
               <p style={{ color: T.textColor, fontSize: '12px', opacity: 0.7, maxWidth: '400px' }}>
-                Purchase coins to unlock premium agents, API access, and AI generations. 
-                <strong style={{ color: T.accentColor }}>1 🪙 = $0.01</strong> (1 cent per coin)
+                Purchase coins to unlock premium agents, API access, and AI generations.
+                <strong style={{ color: T.accentColor }}>1 LBC = $0.01</strong> (1 cent per coin)
               </p>
             </div>
             <div style={{ padding: '8px 16px', border: '1px solid gold', backgroundColor: 'rgba(255,215,0,0.1)' }}>
-              <span style={{ color: 'gold', fontSize: '14px', fontWeight: 'bold' }}>🪙 {litBitCoins} current balance</span>
+              <span style={{ color: 'gold', fontSize: '14px', fontWeight: 'bold' }}>{litBitCoins} LBC current balance</span>
             </div>
           </div>
           
@@ -402,7 +402,7 @@ export default function Marketplace() {
                 <div style={{ color: pack.popular ? 'gold' : T.headerColor, fontSize: '28px', fontWeight: 'bold', marginBottom: '4px' }}>
                   {pack.coins.toLocaleString()}
                 </div>
-                <div style={{ color: T.textColor, fontSize: '11px', marginBottom: '8px' }}>🪙 LiTBit Coins</div>
+                <div style={{ color: T.textColor, fontSize: '11px', marginBottom: '8px' }}>LiTBit Coins</div>
                 <div style={{ color: pack.popular ? 'gold' : T.accentColor, fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
                   ${pack.price}
                 </div>
@@ -428,27 +428,27 @@ export default function Marketplace() {
           {/* SPEND COINS — interactive */}
           <div style={{ borderTop: '1px solid ' + T.borderColor, paddingTop: '20px' }}>
             <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '1px', marginBottom: '16px', fontWeight: 'bold' }}>
-              🛒 SPEND YOUR LiTBit Coins
+              SPEND YOUR LITBIT COINS
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
               {SPEND_FEATURES.map((feat) => (
                 <div key={feat.id} style={{ padding: '14px', border: '1px solid ' + T.borderColor, backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                  <div style={{ fontSize: '22px', marginBottom: '6px' }}>{feat.icon}</div>
+                  <div style={{ fontSize: '11px', fontWeight: 'bold', color: T.accentColor, marginBottom: '6px', letterSpacing: '1px' }}>{feat.title.toUpperCase()}</div>
                   <div style={{ color: T.headerColor, fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>{feat.title}</div>
                   <div style={{ color: T.textColor, fontSize: '10px', opacity: 0.7, lineHeight: 1.4, marginBottom: '8px' }}>{feat.desc}</div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: 'gold', fontSize: '12px', fontWeight: 'bold' }}>{feat.cost} 🪙</span>
+                    <span style={{ color: 'gold', fontSize: '12px', fontWeight: 'bold' }}>{feat.cost} LBC</span>
                     <button
                       onClick={async () => {
                         if (litBitCoins < feat.cost) {
-                          showToast(`Need ${feat.cost} 🪙 · You have ${litBitCoins}`, 'error');
+                          showToast(`Need ${feat.cost} LBC. You have ${litBitCoins}`, 'error');
                           return;
                         }
                         const newBal = litBitCoins - feat.cost;
                         setLitBitCoins(newBal);
                         setLitBitCoinBalance(newBal);
                         await syncWallet(-feat.cost);
-                        showToast(`${feat.action} ${feat.title}! -${feat.cost} 🪙 · Balance: ${newBal}`, 'success');
+                        showToast(`${feat.action} ${feat.title}. -${feat.cost} LBC. Balance: ${newBal}`, 'success');
                       }}
                       style={{ padding: '4px 10px', backgroundColor: T.linkColor, color: 'white', border: 'none', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}
                     >
@@ -463,20 +463,20 @@ export default function Marketplace() {
           {/* PRICING EXAMPLES */}
           <div style={{ borderTop: '1px solid ' + T.borderColor, paddingTop: '20px', marginTop: '20px' }}>
             <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '1px', marginBottom: '12px', fontWeight: 'bold' }}>
-              💡 PRICING EXAMPLES
+              PRICING EXAMPLES
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12px' }}>
               <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
-                <span style={{ color: T.accentColor }}>🎧 Support Agent</span>
-                <span style={{ color: T.textColor, opacity: 0.7 }}> — 50 🪙 ($0.50)</span>
+                <span style={{ color: T.accentColor }}>Support Agent</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 50 LBC ($0.50)</span>
               </div>
               <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
-                <span style={{ color: T.headerColor }}>📱 Social Dominator</span>
-                <span style={{ color: T.textColor, opacity: 0.7 }}> — 250 🪙 ($2.50)</span>
+                <span style={{ color: T.headerColor }}>Social Dominator</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 250 LBC ($2.50)</span>
               </div>
               <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
-                <span style={{ color: '#ff6b35' }}>⚖️ Legal Shield</span>
-                <span style={{ color: T.textColor, opacity: 0.7 }}> — 1000 🪙 ($10.00)</span>
+                <span style={{ color: '#ff6b35' }}>Legal Shield</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 1000 LBC ($10.00)</span>
               </div>
             </div>
           </div>

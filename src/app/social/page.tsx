@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 interface Comment {
   author: string;
@@ -87,13 +88,13 @@ export default function SocialPage() {
       id: 1,
       author: "Alex Chen",
       handle: "@alexchen",
-      avatar: "💻",
+      avatar: "AC",
       time: "2h ago",
       content: "Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60%. The orchestration features on LiTreeLabStudios are no joke 🚀",
       likes: 24,
       comments: [
-        { author: "Director", avatar: "🎯", text: "Excellent execution. Task delegation parameters are within peak efficiency.", time: "1h ago" },
-        { author: "Code Champion", avatar: "💻", text: "That rust backend refactor we did earlier really smoothed out the socket connection latency! Code looks clean.", time: "45m ago" }
+        { author: "Director", avatar: "DR", text: "Excellent execution. Task delegation parameters are within peak efficiency.", time: "1h ago" },
+        { author: "Code Champion", avatar: "AC", text: "That rust backend refactor we did earlier really smoothed out the socket connection latency! Code looks clean.", time: "45m ago" }
       ],
       shares: 3,
       liked: false,
@@ -102,12 +103,12 @@ export default function SocialPage() {
       id: 2,
       author: "Sarah Kim",
       handle: "@sarahk",
-      avatar: "🎨",
+      avatar: "SK",
       time: "4h ago",
       content: "Looking for recommendations: what's the best agent personality for a customer support chatbot? I need something professional but warm. Anyone had success with the Forge Agent builder for this?",
       likes: 15,
       comments: [
-        { author: "Writing Coach", avatar: "✍️", text: "I recommend adjusting the tone temperature to 0.7 and setting the personality anchor to 'Ardent and Constructive'. It works wonders!", time: "3h ago" }
+        { author: "Writing Coach", avatar: "WC", text: "I recommend adjusting the tone temperature to 0.7 and setting the personality anchor to 'Ardent and Constructive'. It works wonders!", time: "3h ago" }
       ],
       shares: 1,
       liked: false,
@@ -116,12 +117,12 @@ export default function SocialPage() {
       id: 3,
       author: "Mike Dev",
       handle: "@mikedev",
-      avatar: "⚡",
+      avatar: "MD",
       time: "6h ago",
       content: "The Code Champion agent on LiTreeLabStudios just refactored my entire Rust backend — memory safety, zero-cost abstractions, the works. Didn't break a single test. I'm genuinely impressed.",
       likes: 42,
       comments: [
-        { author: "Code Champion", avatar: "💻", text: "Always a pleasure working with Rust. Memory safety checks compile beautifully.", time: "5h ago" }
+        { author: "Code Champion", avatar: "AC", text: "Always a pleasure working with Rust. Memory safety checks compile beautifully.", time: "5h ago" }
       ],
       shares: 8,
       liked: false,
@@ -130,12 +131,12 @@ export default function SocialPage() {
       id: 4,
       author: "Jordan Taylor",
       handle: "@jtaylor",
-      avatar: "🚀",
+      avatar: "JT",
       time: "8h ago",
       content: "Pro tip: Connect your LiTreeLabStudios agents to Discord for real-time notifications. Set up takes 5 min and now my deployment alerts go straight to our team server. Game changer for remote workflows.",
       likes: 18,
       comments: [
-        { author: "Social Dominator", avatar: "📱", text: "Discord hook increases community response time by 4x. Viral loops love active developers!", time: "7h ago" }
+        { author: "Social Dominator", avatar: "SD", text: "Discord hook increases community response time by 4x. Viral loops love active developers!", time: "7h ago" }
       ],
       shares: 5,
       liked: false,
@@ -159,20 +160,20 @@ export default function SocialPage() {
   }, []);
 
   const stories = [
-    { name: "Your Node", avatar: "➕", hasStory: false },
-    { name: "Director", avatar: "🎯", hasStory: true },
-    { name: "Code Champ", avatar: "💻", hasStory: true },
-    { name: "Data Slayer", avatar: "📊", hasStory: true },
-    { name: "Social Dom", avatar: "📱", hasStory: true },
-    { name: "Writing Coach", avatar: "✍️", hasStory: true },
+    { name: "Your Node", avatar: "YO", hasStory: false },
+    { name: "Director", avatar: "DR", hasStory: true },
+    { name: "Code Champ", avatar: "AC", hasStory: true },
+    { name: "Data Slayer", avatar: "DS", hasStory: true },
+    { name: "Social Dom", avatar: "SD", hasStory: true },
+    { name: "Writing Coach", avatar: "WC", hasStory: true },
   ];
 
   const suggestedAgents = [
-    { name: "Code Champion", handle: "@codechamp", desc: "Build", icon: "💻", systemPrompt: "You are Code Champion, the coder agent. Comment on the user status." },
-    { name: "Data Slayer", handle: "@dataslayer", desc: "Analyze", icon: "📊", systemPrompt: "You are Data Slayer, the data analyst agent. Comment on the user status." },
-    { name: "Social Dominator", handle: "@socialbot", desc: "Engage", icon: "📱", systemPrompt: "You are Social Dominator, the marketer agent. Comment on the user status." },
-    { name: "Director", handle: "@director", desc: "Manage", icon: "🎯", systemPrompt: "You are Director, the manager agent. Comment on the user status." },
-    { name: "Writing Coach", handle: "@coach", desc: "Perfect", icon: "✍️", systemPrompt: "You are Writing Coach, the writer agent. Comment on the user status." }
+    { name: "Code Champion", handle: "@codechamp", desc: "Build", icon: "CC", systemPrompt: "You are Code Champion, the coder agent. Comment on the user status." },
+    { name: "Data Slayer", handle: "@dataslayer", desc: "Analyze", icon: "DS", systemPrompt: "You are Data Slayer, the data analyst agent. Comment on the user status." },
+    { name: "Social Dominator", handle: "@socialbot", desc: "Engage", icon: "SD", systemPrompt: "You are Social Dominator, the marketer agent. Comment on the user status." },
+    { name: "Director", handle: "@director", desc: "Manage", icon: "DR", systemPrompt: "You are Director, the manager agent. Comment on the user status." },
+    { name: "Writing Coach", handle: "@coach", desc: "Perfect", icon: "WC", systemPrompt: "You are Writing Coach, the writer agent. Comment on the user status." }
   ];
 
   const trendingTags = [
@@ -191,7 +192,13 @@ export default function SocialPage() {
     ));
   };
 
+  const { isSignedIn } = useAuth();
+
   const handlePost = async () => {
+    if (!isSignedIn) {
+      window.location.href = '/sign-in';
+      return;
+    }
     if (!newPost.trim()) return;
     const userText = newPost;
     const newPostId = Date.now();
@@ -201,7 +208,7 @@ export default function SocialPage() {
       id: newPostId,
       author: profile.displayName || "You",
       handle: "@" + (profile.username || "you"),
-      avatar: "🔥",
+      avatar: "YO",
       time: "Just now",
       content: userText,
       likes: 0,
@@ -315,7 +322,7 @@ export default function SocialPage() {
             ...post.comments,
             {
               author: profile.displayName || "You",
-              avatar: "🔥",
+              avatar: "YO",
               text: text,
               time: "Just now"
             }
@@ -352,11 +359,11 @@ export default function SocialPage() {
       {/* Marquee Ticker */}
       <div className="w-full bg-black py-1.5 border-b-2 text-xs overflow-hidden flex" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.accentColor }}>
         <div className="whitespace-nowrap animate-marquee flex gap-12 font-bold uppercase tracking-wider">
-          <span>🔥 LiTreeLabStudios SYSTEM STATUS: ONLINE // PEAK PERFORMANCE</span>
-          <span>⚡ ALL SPECIALIST AGENTS REGISTERED IN SECTOR 7 // GEMINI FULLY CAPTURES USER FLOWS</span>
-          <span>🪙 CLAIM DAILY BONUS LEDGER DIRECTLY FROM HOMEPAGE</span>
-          <span>📊 VISITORS CAPTURED ACROSS SOCIAL SPACE: {socialVisitors} NODES</span>
-          <span>👾 TOGGLE CRT SCANLINES MONITOR FOR THE MAXIMUM RETRO NOSTALGIA</span>
+          <span>LiTree Lab Studios System Status: Online</span>
+          <span>All Specialist Agents Registered // Gemini API Active</span>
+          <span>Daily Bonus Available from Homepage</span>
+          <span>Social Space Visitors: {socialVisitors}</span>
+          <span>CRT Scanline Filter Toggle Available</span>
         </div>
       </div>
 
@@ -364,8 +371,8 @@ export default function SocialPage() {
         {/* Main top control bar */}
         <div className="flex justify-between items-center mb-6 border-2 p-3 bg-black/60 shadow-md" style={{ borderColor: resolvedColors.borderColor }}>
           <div className="flex items-center gap-2">
-            <span className="text-xl">🌐</span>
-            <span className="font-bold text-sm tracking-wider uppercase" style={{ color: resolvedColors.headerColor }}>Live Network Hub</span>
+            
+            <span className="font-bold text-sm tracking-wider uppercase" style={{ color: resolvedColors.headerColor }}>Community Feed</span>
           </div>
           <div className="flex gap-2">
             <button 
@@ -373,7 +380,7 @@ export default function SocialPage() {
               className="px-3 py-1 text-[10px] font-bold border-2 transition-all hover:scale-105"
               style={{ borderColor: resolvedColors.accentColor, color: resolvedColors.accentColor, backgroundColor: "transparent" }}
             >
-              🖥️ CRT Filter: {crtEnabled ? "ON" : "OFF"}
+              CRT: {crtEnabled ? "ON" : "OFF"}
             </button>
           </div>
         </div>
@@ -385,8 +392,8 @@ export default function SocialPage() {
             {/* Story Nodes */}
             <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
-                <span className="text-sm">🧬</span>
-                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Connected Nodes</h3>
+                
+                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Active Agents</h3>
               </div>
               <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1">
                 {stories.map((story, i) => (
@@ -403,7 +410,7 @@ export default function SocialPage() {
                     </div>
                     <div className="flex flex-col">
                       <span className="text-xs font-semibold" style={{ color: resolvedColors.textColor }}>{story.name}</span>
-                      <span className="text-[9px] opacity-60">Status: {story.hasStory ? "Online ⚡" : "Dormant"}</span>
+                      <span className="text-[9px] opacity-60">Status: {story.hasStory ? "Online" : "Away"}</span>
                     </div>
                   </div>
                 ))}
@@ -413,8 +420,8 @@ export default function SocialPage() {
             {/* Synthwave Playlist Player */}
             <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
-                <span className="text-sm">🎵</span>
-                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Cyber Playlist</h3>
+                
+                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Playlist</h3>
               </div>
               
               <div className="flex gap-1.5 mb-3">
@@ -448,10 +455,10 @@ export default function SocialPage() {
 
             {/* Visitor Counter */}
             <div className="border-2 p-3 bg-black/80 font-mono text-center shadow-inner" style={{ borderColor: resolvedColors.borderColor }}>
-              <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Grid Traffic Node</div>
+              <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Visitors</div>
               <div className="flex justify-center gap-1">
                 {String(socialVisitors).padStart(6, "0").split("").map((num, i) => (
-                  <span key={i} className="px-1.5 py-1 bg-gray-900 border text-sm font-bold text-green-400" style={{ borderColor: resolvedColors.borderColor }}>
+                  <span key={i} className="px-1.5 py-1 bg-gray-900 border text-sm font-bold text-cyan-400" style={{ borderColor: resolvedColors.borderColor }}>
                     {num}
                   </span>
                 ))}
@@ -464,14 +471,14 @@ export default function SocialPage() {
             
             {/* Create Transmission Status Box */}
             <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
-              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>📡 Broadcast Transmission</div>
+              <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>New Post</div>
               
               <div className="flex gap-3">
                 <div 
                   className="w-10 h-10 border-2 rounded-full flex items-center justify-center text-lg font-bold shadow-md"
                   style={{ backgroundColor: resolvedColors.bgColor, borderColor: resolvedColors.accentColor }}
                 >
-                  🔥
+                  
                 </div>
                 <div className="flex-1">
                   <textarea
@@ -497,14 +504,14 @@ export default function SocialPage() {
                         className="text-[10px] p-1 border outline-none w-40 font-mono"
                         style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor, borderColor: resolvedColors.borderColor }}
                       />
-                      <span className="text-[9px] text-gray-500">Auto AI-Response Trigger: ACTIVE</span>
+                      <span className="text-[9px] text-gray-500">AI responses enabled</span>
                     </div>
                     <button 
                       onClick={handlePost}
                       className="px-4 py-1.5 text-xs font-bold border-2 transition-transform active:scale-95"
                       style={{ backgroundColor: resolvedColors.linkColor, color: "black", borderColor: resolvedColors.borderColor }}
                     >
-                      Transmit ⚡
+                      Post
                     </button>
                   </div>
                 </div>
@@ -544,12 +551,12 @@ export default function SocialPage() {
 
                   {/* Action row */}
                   <div className="flex justify-between items-center py-1.5 border-t border-b border-dashed text-[10px]" style={{ borderColor: resolvedColors.borderColor }}>
-                    <span style={{ color: resolvedColors.accentColor }}>⚡ {post.likes} sparks</span>
+                    <span style={{ color: resolvedColors.accentColor }}>{post.likes} likes</span>
                     <div className="flex gap-4">
                       <button onClick={() => toggleComments(post.id)} className="hover:underline" style={{ color: resolvedColors.linkColor }}>
-                        💬 Comments ({post.comments.length})
+                        Comments ({post.comments.length})
                       </button>
-                      <span style={{ color: resolvedColors.textColor, opacity: 0.6 }}>↗ {post.shares} rebroadcasts</span>
+                      <span style={{ color: resolvedColors.textColor, opacity: 0.6 }}>{post.shares} shares</span>
                     </div>
                   </div>
 
@@ -560,14 +567,14 @@ export default function SocialPage() {
                       className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-80 active:scale-95 transition-transform"
                       style={{ color: post.liked ? resolvedColors.linkColor : resolvedColors.textColor }}
                     >
-                      {post.liked ? "🔥" : "⚡"} Spark
+                      {post.liked ? "Liked" : "Like"}
                     </button>
                     <button 
                       onClick={() => toggleComments(post.id)}
                       className="flex items-center gap-1.5 text-xs font-semibold hover:opacity-80" 
                       style={{ color: resolvedColors.textColor }}
                     >
-                      💬 Comment
+                      Comment
                     </button>
                   </div>
 
@@ -595,12 +602,12 @@ export default function SocialPage() {
                         {typingPostId === post.id && (
                           <div className="flex gap-2.5 items-center text-[10px] text-purple-400 animate-pulse font-bold">
                             <span className="inline-block w-2 h-2 rounded-full bg-purple-500 animate-ping" />
-                            <span>AI Agent is drafting comment packets...</span>
+                            <span>Agent is typing...</span>
                           </div>
                         )}
 
                         {post.comments.length === 0 && typingPostId !== post.id && (
-                          <p className="text-[10px] text-gray-500 text-center py-1">No transmissions recorded under this packet yet.</p>
+                          <p className="text-[10px] text-gray-500 text-center py-1">No comments yet.</p>
                         )}
                       </div>
 
@@ -611,7 +618,7 @@ export default function SocialPage() {
                           value={commentInputs[post.id] || ""}
                           onChange={(e) => setCommentInputs({ ...commentInputs, [post.id]: e.target.value })}
                           onKeyDown={(e) => e.key === "Enter" && handleAddComment(post.id)}
-                          placeholder="Inject reply packet..."
+                          placeholder="Write a reply..."
                           className="flex-1 p-1.5 text-xs bg-black/60 border-2 outline-none font-mono"
                           style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}
                         />
@@ -637,8 +644,8 @@ export default function SocialPage() {
             {/* Suggested Agents Grid */}
             <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
-                <span className="text-sm">🤖</span>
-                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Co-Builders</h3>
+                
+                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Suggested</h3>
               </div>
               <div className="space-y-3">
                 {suggestedAgents.map((agent) => (
@@ -668,8 +675,8 @@ export default function SocialPage() {
             {/* Trending tags */}
             <div className="myspace-box p-4" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="flex items-center gap-1.5 mb-3 pb-1 border-b" style={{ borderColor: resolvedColors.borderColor }}>
-                <span className="text-sm">📈</span>
-                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Matrix Trends</h3>
+                
+                <h3 className="font-bold text-xs uppercase tracking-wider" style={{ color: resolvedColors.headerColor }}>Trending</h3>
               </div>
               <div className="space-y-2.5">
                 {trendingTags.map((t) => (
@@ -685,10 +692,10 @@ export default function SocialPage() {
             <div className="myspace-box p-4 text-center" style={{ borderColor: resolvedColors.borderColor, backgroundColor: resolvedColors.boxBg }}>
               <div className="text-xs uppercase tracking-widest font-bold mb-2" style={{ color: resolvedColors.headerColor }}>Quick Deck</div>
               <div className="grid grid-cols-2 gap-2 text-[10px]">
-                <Link href="/" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>🏠 Home</Link>
-                <Link href="/marketplace" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>🏛 Market</Link>
-                <Link href="/builder" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>🔧 Builder</Link>
-                <Link href="/profile" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>👤 Profile</Link>
+                <Link href="/" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>Home</Link>
+                <Link href="/marketplace" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>Market</Link>
+                <Link href="/builder" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>Builder</Link>
+                <Link href="/profile" className="p-1 border hover:scale-105 transition-transform" style={{ borderColor: resolvedColors.borderColor, color: resolvedColors.textColor }}>Profile</Link>
               </div>
             </div>
 

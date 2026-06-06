@@ -12,25 +12,25 @@ export default function ShowcasePage() {
 
   const showcaseImages = [
     {
-      src: "/showcase/cover-architecture.png",
+      src: "https://image.pollinations.ai/prompt/futuristic%20AI%20multi-agent%20neural%20network%20architecture%2C%20dark%20background%2C%20neon%20cyan%20and%20magenta%20connections%2C%20holographic%20brain%20nodes%2C%20cinematic%20lighting%2C%20synthwave%20aesthetic?width=1024&height=576&seed=100&nologo=true",
       title: "The Cover",
       label: "Automated Multi-Agent Architecture",
       desc: "A bold, cinematic visualization of the dual-agent system. Two AI agents connected by a luminous neural pathway — the centerpiece hook for high-value clients."
     },
     {
-      src: "/showcase/engine-routing.png",
+      src: "https://image.pollinations.ai/prompt/cyberpunk%20terminal%20screen%20showing%20AI%20agent%20routing%20logs%2C%20task%20flow%20director%20to%20executor%2C%20dark%20UI%20with%20glowing%20cyan%20text%2C%20system%20dashboard%2C%20futuristic?width=1024&height=576&seed=101&nologo=true",
       title: "The Engine",
       label: "Agent Routing in Action",
       desc: "Clean terminal view showing the Director agent routing a task to the Executor. Real-time logs prove the system actually works — no smoke and mirrors."
     },
     {
-      src: "/showcase/control-center.png",
+      src: "https://image.pollinations.ai/prompt/dark%20futuristic%20command%20center%20dashboard%2C%20live%20telemetry%20monitors%2C%20agent%20status%20grid%2C%20holographic%20displays%2C%20neon%20cyan%20accents%2C%20premium%20enterprise%20UI?width=1024&height=576&seed=102&nologo=true",
       title: "The Control Center",
       label: "Live Telemetry Dashboard",
       desc: "The monitoring layer. Agent status, live log streams, system metrics — all in a premium dark volcanic UI that communicates enterprise-grade infrastructure."
     },
     {
-      src: "/showcase/before-after-flow.png",
+      src: "https://image.pollinations.ai/prompt/split%20screen%20workflow%20automation%20before%20and%20after%20comparison%2C%20dark%20theme%2C%20cyan%20glow%2C%20clean%20infographic%20style%2C%20time%20saved%20metrics%2C%20modern%20tech?width=1024&height=576&seed=103&nologo=true",
       title: "Before & After",
       label: "The Transformation",
       desc: "A side-by-side comparison of a manual workflow vs your automated system. Visual proof of time saved and chaos eliminated — the fastest way to communicate value."
@@ -98,7 +98,7 @@ export default function ShowcasePage() {
                     background: "rgba(0,0,0,0.6)", borderRadius: "6px", padding: "6px 10px",
                     fontSize: "11px", color: "#fff", fontFamily: "var(--font-display)"
                   }}>
-                    🔍 Expand
+                    Expand
                   </div>
                 </div>
                 <div style={{ padding: "20px" }}>
@@ -116,7 +116,7 @@ export default function ShowcasePage() {
           {/* Strategy Note */}
           <div className="mt-12 p-6 rounded-lg" style={{ background: "rgba(0,229,255,0.04)", border: `1px solid rgba(0,229,255,0.12)` }}>
             <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: T.headerColor }}>
-              📋 Why These Images Work
+              Why These Images Work
             </h4>
             <div className="grid md:grid-cols-3 gap-4 text-xs" style={{ color: T.textColor, opacity: 0.75 }}>
               <div>
@@ -150,7 +150,7 @@ export default function ShowcasePage() {
                 className="btn btn-secondary text-xs"
                 style={{ fontSize: "11px", padding: "6px 14px" }}
               >
-                ⬇ Print / Save PDF
+                Print / Save PDF
               </button>
             </div>
 
@@ -169,7 +169,7 @@ export default function ShowcasePage() {
                   <div className="text-center">
                     <div className="inline-flex items-center gap-2 px-5 py-3 rounded-lg border-2"
                       style={{ borderColor: T.accentColor, background: "rgba(247,255,0,0.08)" }}>
-                      <span style={{ fontSize: "24px" }}>📥</span>
+                      <span style={{ fontSize: "14px", fontWeight: "bold" }}>IN</span>
                       <div>
                         <div className="font-display text-xs font-bold uppercase tracking-wider" style={{ color: T.accentColor }}>Input Trigger</div>
                         <div className="font-mono text-[10px]" style={{ color: T.textColor, opacity: 0.6 }}>Email / Webhook / API / Schedule</div>
@@ -194,7 +194,7 @@ export default function ShowcasePage() {
                       background: `linear-gradient(135deg, rgba(255,45,138,0.12), rgba(0,229,255,0.08))`,
                       boxShadow: `0 0 24px rgba(255,45,138,0.2)`
                     }}>
-                    <span style={{ fontSize: "32px" }}>🎯</span>
+                    <span style={{ fontSize: "18px", fontWeight: "bold" }}>DR</span>
                     <div className="text-left">
                       <div className="font-display text-base font-bold" style={{ color: T.linkColor }}>Director Agent</div>
                       <div className="font-mono text-[10px] mt-0.5" style={{ color: T.textColor, opacity: 0.7 }}>

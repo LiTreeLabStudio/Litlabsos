@@ -738,7 +738,7 @@ export default function LandingPage() {
             {musicUrl && (
               <div className="card">
                 <div className="card-header">
-                  <div className="card-title"><span className="dot" />Audio</div>
+                  <div className="card-title"><span className="dot" />Playlist</div>
                   <span className="status-dot online" />
                 </div>
                 <iframe src={musicUrl} className="w-full rounded" height="80" frameBorder="0" allow="encrypted-media" />

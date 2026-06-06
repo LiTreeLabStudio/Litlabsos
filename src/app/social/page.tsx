@@ -134,7 +134,7 @@ export default function SocialPage() {
     { tag: "#AIAgents", count: "3.1K streams" },
     { tag: "#OrchestratorFlow", count: "2.4K streams" },
     { tag: "#MatrixReborn", count: "1.8K streams" },
-    { tag: "#LitCoins", count: "956 claims" },
+    { tag: "#LiTBitCoins", count: "956 claims" },
     { tag: "#SynthwaveCoding", count: "742 users" },
   ];
 

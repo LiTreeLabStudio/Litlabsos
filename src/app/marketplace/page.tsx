@@ -6,16 +6,16 @@ import { useTheme } from '@/context/ThemeContext';
 
 function formatPrice(cents: number): string {
   if (cents === 0) return 'FREE';
-  return cents + ' 🪙'; // price in LitCoins
+  return cents + ' 🪙'; // price in LiTBit Coins
 }
 
-function getLitCoinBalance(): number {
+function getLitBitCoinBalance(): number {
   if (typeof window === 'undefined') return 500;
-  return parseInt(localStorage.getItem('litcoins') || '500', 10);
+  return parseInt(localStorage.getItem('litbitcoins') || '500', 10);
 }
 
-function setLitCoinBalance(val: number) {
-  if (typeof window !== 'undefined') localStorage.setItem('litcoins', String(Math.max(0, val)));
+function setLitBitCoinBalance(val: number) {
+  if (typeof window !== 'undefined') localStorage.setItem('litbitcoins', String(Math.max(0, val)));
 }
 
 type Agent = {
@@ -52,7 +52,7 @@ export default function Marketplace() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('featured');
   const [previewAgent, setPreviewAgent] = useState<Agent | null>(null);
-  const [litCoins, setLitCoins] = useState(500);
+  const [litBitCoins, setLitBitCoins] = useState(500);
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' | 'info' } | null>(null);
   const [sellModalAgent, setSellModalAgent] = useState<Agent | null>(null);
   const [sellPrice, setSellPrice] = useState('');
@@ -61,7 +61,7 @@ export default function Marketplace() {
   const [crtEnabled, setCrtEnabled] = useState(true);
 
   useEffect(() => {
-    setLitCoins(getLitCoinBalance());
+    setLitBitCoins(getLitBitCoinBalance());
     // Check local storage for persistent CRT configuration
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) {
@@ -76,10 +76,10 @@ export default function Marketplace() {
 
   const earnCoins = () => {
     const earned = 50;
-    const newBal = litCoins + earned;
-    setLitCoins(newBal);
-    setLitCoinBalance(newBal);
-    showToast(`+${earned} 🪙 LitCoins earned! Balance: ${newBal}`, 'success');
+    const newBal = litBitCoins + earned;
+    setLitBitCoins(newBal);
+    setLitBitCoinBalance(newBal);
+    showToast(`+${earned} 🪙 LiTBit Coins earned! Balance: ${newBal}`, 'success');
   };
 
   const categories = Array.from(new Set(agents.map(a => a.category)));
@@ -104,36 +104,36 @@ export default function Marketplace() {
     if (!agent) return;
     if (agent.price_cents > 0) {
       const cost = agent.price_cents;
-      if (litCoins < cost) {
-        showToast(`Not enough 🪙 LitCoins! Need ${cost}, have ${litCoins}. Earn more below.`, 'error');
+      if (litBitCoins < cost) {
+        showToast(`Not enough 🪙 LiTBit Coins! Need ${cost}, have ${litBitCoins}. Earn more below.`, 'error');
         return;
       }
-      const newBal = litCoins - cost;
-      setLitCoins(newBal);
-      setLitCoinBalance(newBal);
+      const newBal = litBitCoins - cost;
+      setLitBitCoins(newBal);
+      setLitBitCoinBalance(newBal);
       showToast(`✅ Installed ${agent.name}! -${cost} 🪙 · Balance: ${newBal}`, 'success');
     } else {
       showToast(`✅ ${agent.name} installed for free!`, 'success');
     }
     setInstalledAgents(prev => new Set([...prev, agentId]));
-  }, [agents, litCoins]);
+  }, [agents, litBitCoins]);
 
   const listForSale = useCallback((agentId: string, price: number) => {
     setListedAgents(prev => new Set([...prev, agentId]));
     const earned = Math.floor(price * 0.1);
-    const newBal = litCoins + earned;
-    setLitCoins(newBal);
-    setLitCoinBalance(newBal);
+    const newBal = litBitCoins + earned;
+    setLitBitCoins(newBal);
+    setLitBitCoinBalance(newBal);
     showToast(`🏪 Agent listed! You earned ${earned} 🪙 listing bonus.`, 'info');
     setSellModalAgent(null);
     setSellPrice('');
-  }, [litCoins]);
+  }, [litBitCoins]);
 
   const stats: Record<string, number | string> = {
     total: agents.length,
     free: agents.filter(a => a.price_cents === 0).length,
     installed: installedAgents.size,
-    coins: litCoins + ' 🪙',
+    coins: litBitCoins + ' 🪙',
   };
 
   return (
@@ -157,7 +157,7 @@ export default function Marketplace() {
         <p style={{ color: T.textColor, fontSize: '13px', opacity: 0.7, maxWidth: '500px', margin: '0 auto 12px' }}>Discover, install, and deploy AI agents to your workspace</p>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '16px' }}>
           <button onClick={earnCoins} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.15)', border: '1px solid gold', color: 'gold', fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 'bold' }}>🪙 Daily Bonus</button>
-          <button onClick={() => showToast('Buy LitCoins: connect wallet coming soon!', 'info')} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.1)', border: '1px solid ' + T.borderColor, color: T.textColor, fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>💳 Buy LitCoins</button>
+          <button onClick={() => showToast('Buy LiTBit Coins: connect wallet coming soon!', 'info')} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.1)', border: '1px solid ' + T.borderColor, color: T.textColor, fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>💳 Buy LiTBit Coins</button>
         </div>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
           {[{ label: 'Total Agents', value: stats.total }, { label: 'Free', value: stats.free }, { label: 'Installed', value: stats.installed }, { label: 'Your Wallet', value: stats.coins }].map(stat => (
@@ -190,7 +190,7 @@ export default function Marketplace() {
             <option value='name'>🔤 Name</option>
           </select>
           <Link href='/builder' style={{ padding: '8px 14px', backgroundColor: T.linkColor, color: 'white', textDecoration: 'none', fontSize: '11px', fontWeight: 'bold' }}>🚀 My Dock</Link>
-          <div style={{ padding: '8px 12px', border: '1px solid gold', color: 'gold', fontSize: '11px', fontWeight: 'bold', backgroundColor: 'rgba(255,215,0,0.08)' }}>🪙 {litCoins}</div>
+          <div style={{ padding: '8px 12px', border: '1px solid gold', color: 'gold', fontSize: '11px', fontWeight: 'bold', backgroundColor: 'rgba(255,215,0,0.08)' }}>🪙 {litBitCoins}</div>
         </div>
       </div>
 
@@ -255,7 +255,7 @@ export default function Marketplace() {
                     )}
                   </>
                 ) : (
-                  <button onClick={() => { installAgent(previewAgent.id); if (previewAgent.price_cents === 0 || litCoins >= previewAgent.price_cents) setPreviewAgent(null); }} style={{ flex: 1, padding: '12px', backgroundColor: T.linkColor, color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
+                  <button onClick={() => { installAgent(previewAgent.id); if (previewAgent.price_cents === 0 || litBitCoins >= previewAgent.price_cents) setPreviewAgent(null); }} style={{ flex: 1, padding: '12px', backgroundColor: T.linkColor, color: 'white', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}>
                     {previewAgent.price_cents === 0 ? '🚀 Install Free' : '🪙 Buy — ' + formatPrice(previewAgent.price_cents)}
                   </button>
                 )}
@@ -272,10 +272,10 @@ export default function Marketplace() {
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', width: '100%', backgroundColor: T.boxBg, border: '2px solid gold', padding: '28px' }}>
             <h2 style={{ color: 'gold', fontSize: '18px', fontWeight: 'bold', marginBottom: '8px' }}>🏪 List Agent for Sale</h2>
             <p style={{ color: T.textColor, fontSize: '12px', marginBottom: '20px', opacity: 0.8 }}>
-              List <strong style={{ color: T.headerColor }}>{sellModalAgent.name}</strong> on the marketplace. Other users can buy it with 🪙 LitCoins. You earn 90% of each sale.
+              List <strong style={{ color: T.headerColor }}>{sellModalAgent.name}</strong> on the marketplace. Other users can buy it with 🪙 LiTBit Coins. You earn 90% of each sale.
             </p>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ color: T.accentColor, fontSize: '10px', letterSpacing: '1px', display: 'block', marginBottom: '6px' }}>SET PRICE (🪙 LitCoins)</label>
+              <label style={{ color: T.accentColor, fontSize: '10px', letterSpacing: '1px', display: 'block', marginBottom: '6px' }}>SET PRICE (🪙 LiTBit Coins)</label>
               <input
                 type='number'
                 min='1'

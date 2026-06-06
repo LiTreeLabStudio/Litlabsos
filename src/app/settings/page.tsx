@@ -274,7 +274,7 @@ export default function SettingsPage() {
 
             <div className="myspace-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
               <div className="myspace-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Local Storage Clusters</div>
-              <p className="text-[11px] opacity-80 mb-3">Clearing these will erase all local configurations, claimed LitCoins, and custom moods.</p>
+              <p className="text-[11px] opacity-80 mb-3">Clearing these will erase all local configurations, claimed LiTBit Coins, and custom moods.</p>
               <button
                 onClick={() => { localStorage.clear(); window.location.reload(); }}
                 className="px-4 py-2 text-[10px] font-bold border-2 transition-all active:scale-95"

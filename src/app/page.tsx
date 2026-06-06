@@ -64,7 +64,7 @@ export default function LandingPage() {
   const [crtEnabled, setCrtEnabled] = useState(false);
   const [visitorCount, setVisitorCount] = useState(133742);
   const [musicUrl, setMusicUrl] = useState("https://open.spotify.com/embed/playlist/37i9dQZF1DX0r3x8OtiYiJ");
-  const [litCoins, setLitCoins] = useState(500);
+  const [litBitCoins, setLitBitCoins] = useState(500);
   const [claimedToday, setClaimedToday] = useState(false);
   const [postComposerText, setPostComposerText] = useState("");
   const [postComposerMood, setPostComposerMood] = useState("🚀 Hustling");
@@ -140,10 +140,10 @@ export default function LandingPage() {
     } else {
       localStorage.setItem("litlabs_visitor_count", "133742");
     }
-    const storedCoins = localStorage.getItem("litcoins");
-    if (storedCoins) setLitCoins(parseInt(storedCoins));
-    else localStorage.setItem("litcoins", "500");
-    const lastClaim = localStorage.getItem("litcoins_last_claimed");
+    const storedCoins = localStorage.getItem("litbitcoins");
+    if (storedCoins) setLitBitCoins(parseInt(storedCoins));
+    else localStorage.setItem("litbitcoins", "500");
+    const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
     if (lastClaim === new Date().toISOString().split("T")[0]) setClaimedToday(true);
   }, []);
 
@@ -180,15 +180,15 @@ export default function LandingPage() {
 
   const claimDailyBonus = () => {
     if (claimedToday) return;
-    const newBal = litCoins + 50;
-    setLitCoins(newBal);
-    localStorage.setItem("litcoins", newBal.toString());
-    localStorage.setItem("litcoins_last_claimed", new Date().toISOString().split("T")[0]);
+    const newBal = litBitCoins + 50;
+    setLitBitCoins(newBal);
+    localStorage.setItem("litbitcoins", newBal.toString());
+    localStorage.setItem("litbitcoins_last_claimed", new Date().toISOString().split("T")[0]);
     setClaimedToday(true);
     const timeStr = new Date().toTimeString().split(" ")[0];
     setTelemetry(prev => [
       ...prev,
-      { time: timeStr, agent: "System", text: `Claimed daily LitCoins bonus: +50 coins!`, icon: "🪙" }
+      { time: timeStr, agent: "System", text: `Claimed daily LiTBit Coins bonus: +50 coins!`, icon: "🪙" }
     ]);
   };
 
@@ -451,14 +451,14 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* LitCoins Wallet */}
+            {/* LiTBit Coins Wallet */}
             <div className="card">
               <div className="card-header">
-                <div className="card-title"><span className="dot" style={{ background: resolvedColors.accentColor, boxShadow: `0 0 8px ${resolvedColors.accentColor}` }} />LitCoins Wallet</div>
+                <div className="card-title"><span className="dot" style={{ background: resolvedColors.accentColor, boxShadow: `0 0 8px ${resolvedColors.accentColor}` }} />LiTBit Coins</div>
               </div>
               <div className="flex items-center justify-between mb-3">
                 <span className="font-mono text-xs" style={{ color: resolvedColors.textMuted }}>Balance</span>
-                <span className="font-mono text-xl font-bold" style={{ color: resolvedColors.accentColor }}>{litCoins}</span>
+                <span className="font-mono text-xl font-bold" style={{ color: resolvedColors.accentColor }}>{litBitCoins}</span>
               </div>
               <button onClick={claimDailyBonus} disabled={claimedToday}
                 className="btn btn-primary w-full text-xs"
@@ -537,7 +537,7 @@ export default function LandingPage() {
                     <span className="gradient-text">LiTTree Lab Studios</span>
                   </h1>
                   <p className="text-sm mt-2" style={{ color: resolvedColors.textMuted }}>
-                    Enterprise AI workspace for the developer ecosystem. Deploy agents, run boardrooms, earn LitCoins.
+                    Enterprise AI workspace for the developer ecosystem. Deploy agents, run boardrooms, earn LiTBit Coins.
                   </p>
                 </div>
                 <span className="text-4xl opacity-20">🚀</span>

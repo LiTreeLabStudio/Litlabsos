@@ -62,7 +62,7 @@ export default function CookiesPage() {
           <section>
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: "#ff0080" }}>Local Storage</h2>
             <p>
-              In addition to cookies, we use browser localStorage to persist user preferences (themes, profiles, LitCoins balances, visitor counts). This data never leaves your device and is not transmitted to our servers unless explicitly synced.
+              In addition to cookies, we use browser localStorage to persist user preferences (themes, profiles, LiTBit Coins balances, visitor counts). This data never leaves your device and is not transmitted to our servers unless explicitly synced.
             </p>
           </section>
 

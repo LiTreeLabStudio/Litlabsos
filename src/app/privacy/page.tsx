@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1 opacity-80">
               <li><strong>Personal Data:</strong> Email address, username, profile information provided during registration via Clerk authentication.</li>
               <li><strong>Usage Data:</strong> Browser type, browser version, pages visited, time spent on pages, unique device identifiers, and other diagnostic data.</li>
-              <li><strong>Local Storage:</strong> Theme preferences, LitCoins balance, profile settings, and visitor counts stored locally in your browser.</li>
+              <li><strong>Local Storage:</strong> Theme preferences, LiTBit Coins balance, profile settings, and visitor counts stored locally in your browser.</li>
               <li><strong>Agent Interactions:</strong> Messages sent to AI agents via our API are processed through Google Gemini. We do not permanently store chat logs unless explicitly saved by the user.</li>
             </ul>
           </section>
@@ -38,7 +38,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1 opacity-80">
               <li>Providing and maintaining the Platform functionality.</li>
               <li>Authenticating users and securing accounts via Clerk.</li>
-              <li>Processing marketplace transactions and LitCoins economy.</li>
+              <li>Processing marketplace transactions and LiTBit Coins economy.</li>
               <li>Analyzing usage patterns to improve the Platform.</li>
               <li>Communicating updates, security alerts, and promotional materials.</li>
             </ul>

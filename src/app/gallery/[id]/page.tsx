@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, use } from "react";
 import Navbar from "@/components/Navbar";
+import { AGENT_AVATARS } from "@/lib/avatars";
 
 interface Message {
   role: "user" | "assistant";
@@ -12,37 +13,37 @@ const GALLERY_AGENTS = [
   {
     id: "code-champion",
     name: "Code Champion",
-    emoji: "👨‍💻",
+    avatar: AGENT_AVATARS['code-champion'],
     greeting: "Code Champion online. Transmit your technical problem or architecture idea. How can I help you build today?",
   },
   {
     id: "social-dominator",
     name: "Social Dominator",
-    emoji: "🎭",
+    avatar: AGENT_AVATARS['social-dominator'],
     greeting: "What's the vibe? Give me a topic and I'll craft something worth sharing. Let's make you go viral.",
   },
   {
     id: "data-slayer",
     name: "Data Slayer",
-    emoji: "📊",
+    avatar: AGENT_AVATARS['data-slayer'],
     greeting: "Data Slayer initialized. Transmit your dataset or analytical problem. I'll extract the insights you need.",
   },
   {
     id: "writing-coach",
     name: "Writing Coach",
-    emoji: "✍️",
+    avatar: AGENT_AVATARS['writing-coach'],
     greeting: "Neural link established. Ready to refine your linguistic output. What are we working on?",
   },
   {
     id: "support-agent",
     name: "Support Agent",
-    emoji: "🎧",
+    avatar: AGENT_AVATARS['support-agent'],
     greeting: "Support Node active. How can I assist you or your users today?",
   },
   {
     id: "trading-oracle",
     name: "Trading Oracle",
-    emoji: "📈",
+    avatar: AGENT_AVATARS.champion,
     greeting: "Market analysis node online. Transmit the asset or sector you want me to evaluate.",
   },
 ];
@@ -101,9 +102,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
         {/* Agent Info Header */}
         <div className="flex items-center justify-between gap-4 p-4 sm:p-6 glass-panel rounded-2xl border-white/5 mb-6">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center text-2xl sm:text-4xl shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]">
-              {agent.emoji}
-            </div>
+            <img src={agent.avatar} alt={agent.name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-cover border border-neon-cyan/30 shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]" />
             <div className="min-w-0">
               <div className="text-[10px] sm:text-xs font-bold text-neon-cyan tracking-[0.3em] uppercase mb-1">
                 Active_Deployment

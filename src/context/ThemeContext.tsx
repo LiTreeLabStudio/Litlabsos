@@ -3,7 +3,23 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 // Skin presets
-export type SkinPreset = "cyberpunk" | "retro" | "ocean" | "sunset" | "matrix" | "pink";
+export type SkinPreset =
+  | "cyberpunk"
+  | "retro"
+  | "ocean"
+  | "sunset"
+  | "matrix"
+  | "pink"
+  | "synthwave"
+  | "volcanic"
+  | "gold"
+  | "arctic"
+  | "emerald"
+  | "midnight"
+  | "neon"
+  | "blood"
+  | "cosmic"
+  | "miami";
 
 // Theme mode
 export type ThemeMode = "dark" | "light" | "system";
@@ -91,6 +107,96 @@ const darkSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkCo
     accentColor: "#ff9ff3",
     boxBg: "#3d2440",
   },
+  synthwave: {
+    bgColor: "#1a0b2e",
+    textColor: "#f5d0fe",
+    linkColor: "#ff2e97",
+    headerColor: "#00e5ff",
+    borderColor: "#9d4edd",
+    accentColor: "#ffb800",
+    boxBg: "#2a1245",
+  },
+  volcanic: {
+    bgColor: "#1a0a06",
+    textColor: "#ffd9c0",
+    linkColor: "#ff5722",
+    headerColor: "#ff9100",
+    borderColor: "#e64a19",
+    accentColor: "#ffc400",
+    boxBg: "#2b1109",
+  },
+  gold: {
+    bgColor: "#0d0d0d",
+    textColor: "#f5e6c8",
+    linkColor: "#ffd700",
+    headerColor: "#ffcc33",
+    borderColor: "#bfa14a",
+    accentColor: "#fff3b0",
+    boxBg: "#1a1710",
+  },
+  arctic: {
+    bgColor: "#0a1620",
+    textColor: "#d6f5ff",
+    linkColor: "#38bdf8",
+    headerColor: "#7dd3fc",
+    borderColor: "#0ea5e9",
+    accentColor: "#e0f2fe",
+    boxBg: "#0f2233",
+  },
+  emerald: {
+    bgColor: "#04140d",
+    textColor: "#c8f7dd",
+    linkColor: "#10b981",
+    headerColor: "#34d399",
+    borderColor: "#059669",
+    accentColor: "#6ee7b7",
+    boxBg: "#0a2419",
+  },
+  midnight: {
+    bgColor: "#070a16",
+    textColor: "#c7d2fe",
+    linkColor: "#818cf8",
+    headerColor: "#a5b4fc",
+    borderColor: "#4f46e5",
+    accentColor: "#e0e7ff",
+    boxBg: "#10142a",
+  },
+  neon: {
+    bgColor: "#000000",
+    textColor: "#ffffff",
+    linkColor: "#ff00ff",
+    headerColor: "#00ff00",
+    borderColor: "#ff00ff",
+    accentColor: "#00ffff",
+    boxBg: "#0a0a0a",
+  },
+  blood: {
+    bgColor: "#1a0505",
+    textColor: "#ffcccc",
+    linkColor: "#ff3333",
+    headerColor: "#ff0000",
+    borderColor: "#660000",
+    accentColor: "#ff4444",
+    boxBg: "#2a0a0a",
+  },
+  cosmic: {
+    bgColor: "#0a0a1e",
+    textColor: "#e0e0ff",
+    linkColor: "#b084ff",
+    headerColor: "#00d4ff",
+    borderColor: "#6b4c9a",
+    accentColor: "#ff6b9d",
+    boxBg: "#141430",
+  },
+  miami: {
+    bgColor: "#1a0a2e",
+    textColor: "#ffd4e5",
+    linkColor: "#ff2d95",
+    headerColor: "#00f5ff",
+    borderColor: "#ff2d95",
+    accentColor: "#00f5ff",
+    boxBg: "#2a1245",
+  },
 };
 
 // Light mode variants
@@ -147,6 +253,96 @@ const lightSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkC
     headerColor: "#c2185b",
     borderColor: "#e91e8c",
     accentColor: "#ff4081",
+    boxBg: "#ffffff",
+  },
+  synthwave: {
+    bgColor: "#fdf2ff",
+    textColor: "#4a1d6e",
+    linkColor: "#d6217f",
+    headerColor: "#0891b2",
+    borderColor: "#9d4edd",
+    accentColor: "#d97706",
+    boxBg: "#ffffff",
+  },
+  volcanic: {
+    bgColor: "#fff5f0",
+    textColor: "#5c1e0a",
+    linkColor: "#e64a19",
+    headerColor: "#d84315",
+    borderColor: "#bf360c",
+    accentColor: "#f57f17",
+    boxBg: "#ffffff",
+  },
+  gold: {
+    bgColor: "#fffdf5",
+    textColor: "#3d3416",
+    linkColor: "#b8860b",
+    headerColor: "#9a7209",
+    borderColor: "#bfa14a",
+    accentColor: "#d4af37",
+    boxBg: "#ffffff",
+  },
+  arctic: {
+    bgColor: "#f0f9ff",
+    textColor: "#0c4a6e",
+    linkColor: "#0284c7",
+    headerColor: "#0369a1",
+    borderColor: "#0ea5e9",
+    accentColor: "#38bdf8",
+    boxBg: "#ffffff",
+  },
+  emerald: {
+    bgColor: "#f0fdf4",
+    textColor: "#064e3b",
+    linkColor: "#059669",
+    headerColor: "#047857",
+    borderColor: "#10b981",
+    accentColor: "#34d399",
+    boxBg: "#ffffff",
+  },
+  midnight: {
+    bgColor: "#f5f6ff",
+    textColor: "#1e1b4b",
+    linkColor: "#4f46e5",
+    headerColor: "#4338ca",
+    borderColor: "#6366f1",
+    accentColor: "#818cf8",
+    boxBg: "#ffffff",
+  },
+  neon: {
+    bgColor: "#ffffff",
+    textColor: "#1a1a1a",
+    linkColor: "#cc00cc",
+    headerColor: "#009900",
+    borderColor: "#ff00ff",
+    accentColor: "#00cccc",
+    boxBg: "#f5f5f5",
+  },
+  blood: {
+    bgColor: "#fff5f5",
+    textColor: "#5c1e1e",
+    linkColor: "#cc0000",
+    headerColor: "#990000",
+    borderColor: "#ff9999",
+    accentColor: "#ff4444",
+    boxBg: "#ffffff",
+  },
+  cosmic: {
+    bgColor: "#f0f0ff",
+    textColor: "#2a1a5c",
+    linkColor: "#7c3aed",
+    headerColor: "#0891b2",
+    borderColor: "#a78bfa",
+    accentColor: "#ec4899",
+    boxBg: "#ffffff",
+  },
+  miami: {
+    bgColor: "#fff0f5",
+    textColor: "#4a1d3e",
+    linkColor: "#d946ef",
+    headerColor: "#0891b2",
+    borderColor: "#f472b6",
+    accentColor: "#22d3ee",
     boxBg: "#ffffff",
   },
 };

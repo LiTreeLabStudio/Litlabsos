@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import dynamic from "next/dynamic";
+import {
+  Home, Wrench, ShoppingBag, Image, Sparkles, MessageSquare,
+  User, Settings, Sun, Moon, Zap
+} from "lucide-react";
 
 const NavAuth = dynamic(
   () => import("@/components/ClerkAuth").then((m) => ({ default: m.NavAuth })),
@@ -10,66 +15,90 @@ const NavAuth = dynamic(
 );
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/builder", label: "Builder" },
-  { href: "/marketplace", label: "Market" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/showcase", label: "Showcase" },
-  { href: "/social", label: "Social" },
-  { href: "/profile", label: "Profile" },
-  { href: "/settings", label: "Settings" },
+  { href: "/", label: "Home", icon: Home },
+  { href: "/builder", label: "Builder", icon: Wrench },
+  { href: "/marketplace", label: "Market", icon: ShoppingBag },
+  { href: "/gallery", label: "Gallery", icon: Image },
+  { href: "/showcase", label: "Showcase", icon: Sparkles },
+  { href: "/social", label: "Social", icon: MessageSquare },
+  { href: "/profile", label: "Profile", icon: User },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Navbar() {
   const { theme, resolvedColors, setMode } = useTheme();
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav
-      className="sticky top-0 z-50 border-b"
+      className="sticky top-0 z-50 border-b backdrop-blur-xl"
       style={{
-        borderColor: resolvedColors.borderColor,
-        backgroundColor: resolvedColors.boxBg,
+        borderColor: resolvedColors.borderColor + "40",
+        backgroundColor: resolvedColors.boxBg + "cc",
       }}
     >
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl">🚀</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="relative">
+              <Zap
+                size={22}
+                className="transition-all duration-300 group-hover:scale-110 group-hover:rotate-12"
+                style={{ color: resolvedColors.accentColor }}
+              />
+              <div
+                className="absolute inset-0 blur-md opacity-50"
+                style={{ color: resolvedColors.accentColor }}
+              />
+            </div>
             <span
-              className="font-bold text-lg hidden sm:inline"
+              className="font-black text-base hidden sm:inline tracking-tight"
               style={{ color: resolvedColors.headerColor }}
             >
-              LiTreeLabStudios
+              LiTree Lab's
             </span>
           </Link>
 
           {/* Nav Links */}
-          <div className="flex items-center gap-1 sm:gap-3">
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="px-2 py-1 text-xs sm:text-sm font-medium rounded hover:opacity-80 transition-opacity"
-                style={{ color: resolvedColors.linkColor }}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <div className="flex items-center gap-0.5 sm:gap-1">
+            {links.map((link) => {
+              const active = isActive(link.href);
+              const Icon = link.icon;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 hover:scale-105"
+                  style={{
+                    color: active ? resolvedColors.bgColor : resolvedColors.linkColor,
+                    backgroundColor: active ? resolvedColors.linkColor : "transparent",
+                    border: active ? "none" : `1px solid ${resolvedColors.borderColor}30`,
+                  }}
+                >
+                  <Icon size={14} strokeWidth={active ? 2.5 : 2} />
+                  <span className="hidden md:inline">{link.label}</span>
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right side */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => setMode(theme.mode === "dark" ? "light" : "dark")}
-              className="px-2 py-1 text-xs font-bold border rounded hover:scale-105 transition-transform"
+              className="p-1.5 rounded-lg transition-all duration-200 hover:scale-110"
               style={{
-                borderColor: resolvedColors.accentColor,
+                border: `1px solid ${resolvedColors.accentColor}40`,
                 color: resolvedColors.accentColor,
+                backgroundColor: resolvedColors.accentColor + "10",
               }}
               title="Toggle dark/light"
             >
-              {theme.mode === "dark" ? "☀️" : "🌙"}
+              {theme.mode === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
             <NavAuth linkColor={resolvedColors.linkColor} />
           </div>

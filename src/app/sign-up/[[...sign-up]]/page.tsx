@@ -40,7 +40,9 @@ export default function SignUpPage() {
           backgroundColor: theme.boxBg,
           padding: "20px"
         }}>
-          <SignUp 
+          <SignUp
+            fallbackRedirectUrl="/"
+            signInUrl="/sign-in"
             appearance={{
               elements: {
                 formButtonPrimary: {

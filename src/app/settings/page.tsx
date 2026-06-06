@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react";
 import { useTheme, darkSkins, lightSkins, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
 import { useProfile, type UserProfile } from "@/context/ProfileContext";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function SettingsPage() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { theme, resolvedColors, setMode, setSkin, setAccent, resetTheme } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
@@ -12,7 +14,7 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(true);
 
-  const skinPresets: SkinPreset[] = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink"];
+  const skinPresets: SkinPreset[] = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink", "synthwave", "volcanic", "gold", "arctic", "emerald", "midnight"];
   const accentColors: AccentColor[] = ["neon-green", "hot-pink", "electric-blue", "cyber-yellow", "matrix-green", "sunset-orange", "ocean-blue", "purple-haze"];
 
   useEffect(() => {
@@ -22,6 +24,22 @@ export default function SettingsPage() {
       setCrtEnabled(val === "true");
     }
   }, []);
+
+  // Require authentication (after all hooks to respect Rules of Hooks)
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center font-mono" style={{ backgroundColor: "#0a0a0f", color: "#00ff41" }}>
+        <div className="text-center">
+          <div className="text-3xl mb-4">⏳</div>
+          <div>Loading settings...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/settings" />;
+  }
 
   const toggleCrtGlobally = () => {
     const next = !crtEnabled;

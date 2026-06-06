@@ -1,12 +1,16 @@
 -- ============================================
 -- LiTreeLabStudios Database Schema
--- Run this in Supabase SQL Editor
+-- Compatible with Clerk + Next.js API routes (service role key)
+-- Run this in Supabase Dashboard → SQL Editor → "New Query" → Run
 -- ============================================
 
+-- Drop old auth-dependent constraints if they exist
+alter table if exists public.users drop constraint if exists users_id_fkey;
+
 -- Users table (synced with Clerk)
--- Stores additional user data beyond Clerk's basic info
+-- id = internal UUID, clerk_id = Clerk's external user ID
 create table if not exists public.users (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key default gen_random_uuid(),
   clerk_id text unique not null,
   email text unique not null,
   name text,
@@ -68,104 +72,127 @@ create table if not exists public.wallets (
   unique(user_id)
 );
 
--- Row Level Security (RLS) Policies
--- Enable RLS on all tables
-alter table public.users enable row level security;
-alter table public.user_preferences enable row level security;
-alter table public.user_agents enable row level security;
-alter table public.subscriptions enable row level security;
-alter table public.wallets enable row level security;
+-- Coin Transactions (purchase/earn/spend history)
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.users(id) on delete cascade not null,
+  type text not null, -- 'purchase', 'earn', 'spend', 'refund'
+  amount integer not null,
+  balance_after integer not null,
+  description text,
+  metadata jsonb,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
 
--- Users can read/update their own data
--- Users table: anyone can read basic profile, only owner can update
-create policy "Users can read all profiles" on public.users
-  for select using (true);
+-- Social Posts
+create table if not exists public.posts (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.users(id) on delete cascade not null,
+  content text not null,
+  media_urls text[], -- array of image/video URLs
+  likes_count integer default 0 not null,
+  comments_count integer default 0 not null,
+  is_ai_post boolean default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
 
-create policy "Users can update own profile" on public.users
-  for update using (auth.uid() = id);
+-- Post Likes
+create table if not exists public.post_likes (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references public.posts(id) on delete cascade not null,
+  user_id uuid references public.users(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique(post_id, user_id)
+);
 
-create policy "Users can insert own profile" on public.users
-  for insert with check (auth.uid() = id);
+-- Post Comments
+create table if not exists public.post_comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid references public.posts(id) on delete cascade not null,
+  user_id uuid references public.users(id) on delete cascade not null,
+  content text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
 
--- User Preferences: only owner can read/update
-create policy "Users can read own preferences" on public.user_preferences
-  for select using (auth.uid() = user_id);
+-- User Media (gallery uploads)
+create table if not exists public.user_media (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.users(id) on delete cascade not null,
+  url text not null,
+  type text not null, -- 'image', 'video', 'audio'
+  caption text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
 
-create policy "Users can update own preferences" on public.user_preferences
-  for update using (auth.uid() = user_id);
+-- ============================================
+-- RLS: DISABLED (Server uses service role key)
+-- Auth enforced in Next.js API routes via Clerk
+-- ============================================
 
-create policy "Users can insert own preferences" on public.user_preferences
-  for insert with check (auth.uid() = user_id);
+-- Disable RLS on all tables (service role key bypasses anyway)
+alter table public.users disable row level security;
+alter table public.user_preferences disable row level security;
+alter table public.user_agents disable row level security;
+alter table public.subscriptions disable row level security;
+alter table public.wallets disable row level security;
+alter table public.transactions disable row level security;
+alter table public.posts disable row level security;
+alter table public.post_likes disable row level security;
+alter table public.post_comments disable row level security;
+alter table public.user_media disable row level security;
 
--- User Agents: only owner can read/update
-create policy "Users can read own agents" on public.user_agents
-  for select using (auth.uid() = user_id);
-
-create policy "Users can manage own agents" on public.user_agents
-  for all using (auth.uid() = user_id);
-
--- Subscriptions: only owner can read
-create policy "Users can read own subscription" on public.subscriptions
-  for select using (auth.uid() = user_id);
-
--- Wallets: only owner can read/update
-create policy "Users can read own wallet" on public.wallets
-  for select using (auth.uid() = user_id);
-
-create policy "Users can update own wallet" on public.wallets
-  for update using (auth.uid() = user_id);
-
-create policy "Users can insert own wallet" on public.wallets
-  for insert with check (auth.uid() = user_id);
-
--- Function to auto-create user record on signup
--- This runs when a new user signs up via Clerk
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  -- Create user record
-  INSERT INTO public.users (id, clerk_id, email, name, created_at, updated_at)
-  VALUES (
-    NEW.id,
-    NEW.raw_user_meta_data->>'clerk_id',
-    NEW.email,
-    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
-    NOW(),
-    NOW()
-  )
-  ON CONFLICT (id) DO NOTHING;
-  
-  -- Create default preferences
-  INSERT INTO public.user_preferences (user_id)
-  VALUES (NEW.id)
-  ON CONFLICT (user_id) DO NOTHING;
-  
-  -- Create wallet with starting balance
-  INSERT INTO public.wallets (user_id, balance)
-  VALUES (NEW.id, 500)
-  ON CONFLICT (user_id) DO NOTHING;
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to run on new user creation
--- Note: This requires the auth.users table to be accessible
--- Alternative: Handle user creation via API instead
-
+-- ============================================
 -- Indexes for performance
+-- ============================================
 create index if not exists idx_users_clerk_id on public.users(clerk_id);
 create index if not exists idx_users_email on public.users(email);
 create index if not exists idx_user_agents_user_id on public.user_agents(user_id);
 create index if not exists idx_user_preferences_user_id on public.user_preferences(user_id);
 create index if not exists idx_subscriptions_user_id on public.subscriptions(user_id);
 create index if not exists idx_wallets_user_id on public.wallets(user_id);
+create index if not exists idx_transactions_user_id on public.transactions(user_id);
+create index if not exists idx_posts_user_id on public.posts(user_id);
+create index if not exists idx_posts_created_at on public.posts(created_at desc);
+create index if not exists idx_post_likes_post_id on public.post_likes(post_id);
+create index if not exists idx_post_comments_post_id on public.post_comments(post_id);
+create index if not exists idx_user_media_user_id on public.user_media(user_id);
+
+-- ============================================
+-- RPC Functions (called from API routes)
+-- ============================================
+
+-- Increment post likes
+create or replace function public.increment_post_likes(post_id uuid)
+returns void as $$
+begin
+  update public.posts set likes_count = likes_count + 1, updated_at = now()
+  where id = post_id;
+end;
+$$ language plpgsql;
+
+-- Decrement post likes
+create or replace function public.decrement_post_likes(post_id uuid)
+returns void as $$
+begin
+  update public.posts set likes_count = greatest(0, likes_count - 1), updated_at = now()
+  where id = post_id;
+end;
+$$ language plpgsql;
+
+-- Increment post comments
+create or replace function public.increment_post_comments(post_id uuid)
+returns void as $$
+begin
+  update public.posts set comments_count = comments_count + 1, updated_at = now()
+  where id = post_id;
+end;
+$$ language plpgsql;
 
 -- ============================================
 -- Setup Instructions:
--- 1. Go to Supabase Dashboard → SQL Editor
+-- 1. Go to Supabase Dashboard → SQL Editor → "New Query"
 -- 2. Paste this entire file
 -- 3. Click "Run"
--- 4. Enable Row Level Security is automatic
--- 5. Set up Clerk webhook to sync users (optional)
+-- 4. Done — no RLS needed (auth handled in Next.js API routes)
 -- ============================================

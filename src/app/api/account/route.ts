@@ -1,7 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
+import { getOrCreateUser } from "@/lib/user-db";
 import { withRateLimit } from "@/lib/rate-limiter";
+
+/**
+ * GET /api/account
+ * Ensures the user exists in our database. Called on every page load via UserSync.
+ */
+async function getHandler(req: NextRequest) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // This creates the user + wallet + preferences if they don't exist
+    const result = await getOrCreateUser(clerkId, "", "");
+
+    return NextResponse.json({
+      synced: true,
+      isNew: result.isNew,
+    });
+  } catch (error) {
+    console.error("[Account Sync] Error:", error);
+    return NextResponse.json({ synced: false }, { status: 500 });
+  }
+}
 
 /**
  * DELETE /api/account
@@ -57,4 +82,5 @@ async function deleteHandler(req: NextRequest) {
   }
 }
 
+export const GET = withRateLimit(getHandler, 100, 60);
 export const DELETE = withRateLimit(deleteHandler, 10, 60);

@@ -1,12 +1,45 @@
-// Stripe webhook handler
-// Receives events from Stripe via your Cloudflare Worker
+// Stripe webhook handler — credits wallet on coin pack purchases
 import { NextRequest, NextResponse } from "next/server";
+import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+
+async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: string) {
+  if (!isAdminSupabaseConfigured()) {
+    console.log("[Webhook] Supabase not configured — skipping wallet credit");
+    return;
+  }
+  try {
+    const sb = getAdminSupabase();
+    // Find user
+    const { data: user } = await sb.from("users").select("id").eq("clerk_id", clerkId).single();
+    if (!user) {
+      console.error("[Webhook] User not found for clerk_id:", clerkId);
+      return;
+    }
+    // Get current wallet
+    const { data: wallet } = await sb.from("wallets").select("balance").eq("user_id", user.id).single();
+    const currentBalance = wallet?.balance || 0;
+    const newBalance = currentBalance + coinAmount;
+    // Update wallet
+    await sb.from("wallets").update({ balance: newBalance, updated_at: new Date().toISOString() }).eq("user_id", user.id);
+    // Record transaction
+    await sb.from("transactions").insert({
+      user_id: user.id,
+      type: "purchase",
+      amount: coinAmount,
+      balance_after: newBalance,
+      description: `Purchased ${coinAmount} LiTBit Coins via Stripe`,
+      metadata: { stripe_session_id: sessionId },
+    });
+    console.log(`[Webhook] Credited ${coinAmount} coins to ${clerkId}. New balance: ${newBalance}`);
+  } catch (err) {
+    console.error("[Webhook] Failed to credit coin pack:", err);
+  }
+}
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
-  // Stripe signature from webhook — verification done via event fetch below
   const _sig = req.headers.get("stripe-signature") || void 0;
-  void _sig; // reserved for future signature verification
+  void _sig;
   const signingSecret = process.env.STRIPE_WEBHOOK_SECRET;
   const key = process.env.STRIPE_SECRET_KEY;
 
@@ -29,13 +62,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  // Verify event by fetching from Stripe
   try {
     const stripeResponse = await fetch(
       `https://api.stripe.com/v1/events/${event.id}`,
       { headers: { Authorization: `Bearer ${key}` } }
     );
-
     if (!stripeResponse.ok) {
       console.error("Event verification failed for:", event.id);
       return NextResponse.json({ error: "Event verification failed" }, { status: 400 });
@@ -50,20 +81,23 @@ export async function POST(req: NextRequest) {
     case "checkout.session.completed": {
       const session = event.data.object;
       console.log("Checkout completed:", session.id, "Email:", session.customer_email);
-      // TODO: Grant Pro access to this customer
+      const meta = session.metadata || {};
+      const coinAmount = parseInt(meta.coin_amount || "0", 10);
+      const clerkId = meta.clerk_id;
+      if (coinAmount > 0 && clerkId) {
+        await creditCoinPack(clerkId, coinAmount, session.id);
+      }
       break;
     }
     case "customer.subscription.created":
     case "customer.subscription.updated": {
       const sub = event.data.object;
       console.log("Subscription:", sub.id, "Status:", sub.status);
-      // TODO: Update user subscription in your database
       break;
     }
     case "customer.subscription.deleted": {
       const sub = event.data.object;
       console.log("Subscription cancelled:", sub.id);
-      // TODO: Revoke Pro access
       break;
     }
     case "invoice.payment_succeeded": {
@@ -74,7 +108,6 @@ export async function POST(req: NextRequest) {
     case "invoice.payment_failed": {
       const invoice = event.data.object;
       console.log("Payment failed:", invoice.id);
-      // TODO: Notify customer about failed payment
       break;
     }
     default:

@@ -3,6 +3,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
+import { useAuth, RedirectToSignIn } from '@clerk/nextjs';
+import { useSearchParams } from 'next/navigation';
+import { AGENT_AVATARS } from '@/lib/avatars';
 
 function formatPrice(cents: number): string {
   if (cents === 0) return 'FREE';
@@ -18,6 +21,25 @@ function setLitBitCoinBalance(val: number) {
   if (typeof window !== 'undefined') localStorage.setItem('litbitcoins', String(Math.max(0, val)));
 }
 
+// CREDIT PACKS — Stripe price_id required for each (create in Stripe Dashboard)
+const CREDIT_PACKS: { id: string; coins: number; price: number; priceId: string; label: string; popular: boolean; savings: string }[] = [
+  { id: 'starter', coins: 500, price: 1, priceId: '', label: 'Starter', popular: false, savings: 'Entry pack' },
+  { id: 'popular', coins: 1200, price: 5, priceId: '', label: 'Popular', popular: true, savings: 'Save 20%' },
+  { id: 'pro', coins: 3000, price: 10, priceId: '', label: 'Pro', popular: false, savings: 'Save 33%' },
+  { id: 'whale', coins: 7000, price: 25, priceId: '', label: 'Whale', popular: false, savings: 'Save 43%' },
+  { id: 'max', coins: 15000, price: 50, priceId: '', label: 'Max', popular: false, savings: 'Save 50%' },
+];
+
+// SPEND COINS — interactive features with real coin deduction
+const SPEND_FEATURES: { id: string; icon: string; title: string; desc: string; cost: number; action: string }[] = [
+  { id: 'generate', icon: '🎨', title: 'AI Generate', desc: 'Generate an image, music track, or 3D skybox with AI', cost: 50, action: 'Generate' },
+  { id: 'slot', icon: '🔓', title: 'Extra Agent Slot', desc: 'Expand your dock to run +1 agent simultaneously', cost: 200, action: 'Unlock' },
+  { id: 'boost', icon: '🚀', title: 'Social Boost', desc: 'Feature your post at the top of the social feed for 24h', cost: 100, action: 'Boost' },
+  { id: 'priority', icon: '⚡', title: 'Priority Mode', desc: 'Get faster agent responses and higher rate limits', cost: 150, action: 'Activate' },
+  { id: 'theme', icon: '🎭', title: 'Rare Theme', desc: 'Unlock an exclusive limited-edition UI skin', cost: 300, action: 'Unlock' },
+  { id: 'workflow', icon: '�', title: 'Workflow Run', desc: 'Execute a multi-agent orchestrated workflow', cost: 75, action: 'Run' },
+];
+
 type Agent = {
   id: string; slug: string; name: string; description: string;
   category: string; avatar_url: string; price_cents: number;
@@ -31,21 +53,38 @@ const CATEGORY_ICONS: Record<string, string> = {
   music: '🎵', design: '🎨', research: '🔬', legal: '⚖️',
 };
 
+// AGENT PRICING TIERS (in LiTBit Coins 🪙)
+// Free: Core agents everyone gets
+// Budget (50-150): Basic specialized agents  
+// Pro (200-500): Advanced agents with premium features
+// Elite (1000+): Enterprise-grade specialized agents
 const DEMO_AGENTS: Agent[] = [
-  { id: '1', slug: 'director', name: 'Director', description: 'The master orchestrator. Coordinates strategy, builds agent systems, and delegates tasks across your entire platform.', category: 'orchestrator', avatar_url: '🎯', price_cents: 0, features: ['Multi-agent orchestration', 'Strategy planning', 'Workflow automation'], is_featured: true, personality: 'Strategic, decisive, concise', rating: 4.9, installs: 1240 },
-  { id: '2', slug: 'champion', name: 'Champion', description: 'Your all-purpose AI partner. Brainstorm, research, plan, and execute any task with unlimited versatility.', category: 'general', avatar_url: '🏆', price_cents: 0, features: ['General assistance', 'Brainstorming', 'Research'], is_featured: true, personality: 'Helpful, thorough, direct', rating: 4.8, installs: 2103 },
-  { id: '3', slug: 'code-champion', name: 'Code Champion', description: 'Senior software engineer. Writes, reviews, debugs, and explains code across all languages and frameworks.', category: 'developer', avatar_url: '💻', price_cents: 0, features: ['Code generation', 'Debugging', 'Architecture'], is_featured: true, personality: 'Precise, clean, practical', rating: 4.9, installs: 1567 },
-  { id: '4', slug: 'social-dominator', name: 'Social Dominator', description: 'Growth hacker and content creator. Writes viral posts, crafts strategies, and helps you dominate social media.', category: 'marketing', avatar_url: '📱', price_cents: 0, features: ['Viral content', 'Growth strategy', 'Analytics'], is_featured: false, personality: 'Bold, creative, results-driven', rating: 4.7, installs: 890 },
-  { id: '5', slug: 'data-slayer', name: 'Data Slayer', description: 'Data scientist. Analyzes data, builds models, creates visualizations, and surfaces actionable insights.', category: 'analytics', avatar_url: '📊', price_cents: 0, features: ['Data analysis', 'Modeling', 'Visualization'], is_featured: false, personality: 'Precise, analytical, data-driven', rating: 4.6, installs: 654 },
-  { id: '6', slug: 'writing-coach', name: 'Writing Coach', description: 'Master copywriter. Elevates writing quality — editing, tone adjustment, copywriting, and storytelling.', category: 'content', avatar_url: '✍️', price_cents: 0, features: ['Editing', 'Tone adjustment', 'Copywriting'], is_featured: false, personality: 'Constructive, articulate, refined', rating: 4.8, installs: 1120 },
-  { id: '7', slug: 'music-producer', name: 'Music Producer', description: 'Creates original music from text prompts and lyrics. Generates songs, instrumentals, and covers with AI.', category: 'music', avatar_url: '🎵', price_cents: 0, features: ['Music generation', 'Lyrics writing', 'Style guidance'], is_featured: true, personality: 'Creative, musical, expressive', rating: 4.7, installs: 743 },
-  { id: '8', slug: 'pixel-forge', name: 'Pixel Forge', description: 'AI image and 3D world generation specialist. Creates stunning visuals, textures, and immersive environments.', category: 'design', avatar_url: '🎨', price_cents: 0, features: ['Image generation', '360 worlds', 'Texture design'], is_featured: false, personality: 'Visionary, artistic, detailed', rating: 4.8, installs: 921 },
-  { id: '9', slug: 'research-guru', name: 'Research Guru', description: 'Deep research agent. Synthesizes information from multiple sources, fact-checks, and produces reports.', category: 'research', avatar_url: '🔬', price_cents: 0, features: ['Deep research', 'Fact-checking', 'Reporting'], is_featured: false, personality: 'Thorough, skeptical, rigorous', rating: 4.5, installs: 432 },
-  { id: '10', slug: 'legal-shield', name: 'Legal Shield', description: 'Legal assistant for contracts, compliance, and regulatory guidance. Not a lawyer, but a powerful research aide.', category: 'legal', avatar_url: '⚖️', price_cents: 499, features: ['Contract review', 'Compliance', 'Legal research'], is_featured: false, personality: 'Cautious, precise, thorough', rating: 4.4, installs: 210 },
+  // FREE TIER - Core agents
+  { id: '1', slug: 'director', name: 'Director', description: 'The master orchestrator. Coordinates strategy, builds agent systems, and delegates tasks across your entire platform.', category: 'orchestrator', avatar_url: AGENT_AVATARS.director, price_cents: 0, features: ['Multi-agent orchestration', 'Strategy planning', 'Workflow automation'], is_featured: true, personality: 'Strategic, decisive, concise', rating: 4.9, installs: 1240 },
+  { id: '2', slug: 'champion', name: 'Champion', description: 'Your all-purpose AI partner. Brainstorm, research, plan, and execute any task with unlimited versatility.', category: 'general', avatar_url: AGENT_AVATARS.champion, price_cents: 0, features: ['General assistance', 'Brainstorming', 'Research'], is_featured: true, personality: 'Helpful, thorough, direct', rating: 4.8, installs: 2103 },
+  { id: '3', slug: 'code-champion', name: 'Code Champion', description: 'Senior software engineer. Writes, reviews, debugs, and explains code across all languages and frameworks.', category: 'developer', avatar_url: AGENT_AVATARS['code-champion'], price_cents: 0, features: ['Code generation', 'Debugging', 'Architecture'], is_featured: true, personality: 'Precise, clean, practical', rating: 4.9, installs: 1567 },
+
+  // BUDGET TIER (50-150 coins ~ $0.50-$1.50)
+  { id: '4', slug: 'writing-coach', name: 'Writing Coach', description: 'Master copywriter. Elevates writing quality — editing, tone adjustment, copywriting, and storytelling.', category: 'content', avatar_url: AGENT_AVATARS['writing-coach'], price_cents: 75, features: ['Editing', 'Tone adjustment', 'Copywriting'], is_featured: false, personality: 'Constructive, articulate, refined', rating: 4.8, installs: 1120 },
+  { id: '5', slug: 'research-guru', name: 'Research Guru', description: 'Deep research agent. Synthesizes information from multiple sources, fact-checks, and produces reports.', category: 'research', avatar_url: AGENT_AVATARS['research-guru'], price_cents: 100, features: ['Deep research', 'Fact-checking', 'Reporting'], is_featured: false, personality: 'Thorough, skeptical, rigorous', rating: 4.5, installs: 432 },
+  { id: '6', slug: 'support-agent', name: 'Support Agent', description: 'Customer support specialist. Handles inquiries, troubleshooting, and creates FAQ documentation.', category: 'general', avatar_url: AGENT_AVATARS['support-agent'], price_cents: 50, features: ['Support tickets', 'Documentation', 'Troubleshooting'], is_featured: false, personality: 'Patient, helpful, clear', rating: 4.6, installs: 543 },
+
+  // PRO TIER (200-500 coins ~ $2-$5)
+  { id: '7', slug: 'social-dominator', name: 'Social Dominator', description: 'Growth hacker and content creator. Writes viral posts, crafts strategies, and helps you dominate social media.', category: 'marketing', avatar_url: AGENT_AVATARS['social-dominator'], price_cents: 250, features: ['Viral content', 'Growth strategy', 'Analytics'], is_featured: true, personality: 'Bold, creative, results-driven', rating: 4.7, installs: 890 },
+  { id: '8', slug: 'data-slayer', name: 'Data Slayer', description: 'Data scientist. Analyzes data, builds models, creates visualizations, and surfaces actionable insights.', category: 'analytics', avatar_url: AGENT_AVATARS['data-slayer'], price_cents: 300, features: ['Data analysis', 'Modeling', 'Visualization'], is_featured: true, personality: 'Precise, analytical, data-driven', rating: 4.6, installs: 654 },
+  { id: '9', slug: 'pixel-forge', name: 'Pixel Forge', description: 'AI image and 3D world generation specialist. Creates stunning visuals, textures, and immersive environments.', category: 'design', avatar_url: AGENT_AVATARS['pixel-forge'], price_cents: 200, features: ['Image generation', '360 worlds', 'Texture design'], is_featured: true, personality: 'Visionary, artistic, detailed', rating: 4.8, installs: 921 },
+  { id: '10', slug: 'music-producer', name: 'Music Producer', description: 'Creates original music from text prompts and lyrics. Generates songs, instrumentals, and covers with AI.', category: 'music', avatar_url: AGENT_AVATARS['music-producer'], price_cents: 400, features: ['Music generation', 'Lyrics writing', 'Style guidance'], is_featured: true, personality: 'Creative, musical, expressive', rating: 4.7, installs: 743 },
+
+  // ELITE TIER (1000+ coins ~ $10+)
+  { id: '11', slug: 'legal-shield', name: 'Legal Shield', description: 'Legal assistant for contracts, compliance, and regulatory guidance. Not a lawyer, but a powerful research aide.', category: 'legal', avatar_url: AGENT_AVATARS['legal-shield'], price_cents: 1000, features: ['Contract review', 'Compliance', 'Legal research'], is_featured: false, personality: 'Cautious, precise, thorough', rating: 4.4, installs: 210 },
+  { id: '12', slug: 'security-guru', name: 'Security Guru', description: 'Cybersecurity expert. Audits code, finds vulnerabilities, and recommends security best practices.', category: 'developer', avatar_url: AGENT_AVATARS['security-guru'], price_cents: 1200, features: ['Security audits', 'Vulnerability scanning', 'Best practices'], is_featured: false, personality: 'Paranoid, thorough, vigilant', rating: 4.7, installs: 156 },
+  { id: '13', slug: 'ml-engineer', name: 'ML Engineer', description: 'Machine learning specialist. Builds models, optimizes training, and deploys AI systems.', category: 'analytics', avatar_url: AGENT_AVATARS['ml-engineer'], price_cents: 1500, features: ['Model training', 'Hyperparameter tuning', 'Model deployment'], is_featured: false, personality: 'Methodical, experimental, rigorous', rating: 4.8, installs: 89 },
 ];
 
 export default function Marketplace() {
+  const { isLoaded, isSignedIn, userId } = useAuth();
   const { resolvedColors: T } = useTheme();
+  const searchParams = useSearchParams();
   const [agents] = useState<Agent[]>(DEMO_AGENTS);
   const [installedAgents, setInstalledAgents] = useState<Set<string>>(new Set(['1', '2', '3']));
   const [selectedCategory, setSelectedCategory] = useState<string>('');
@@ -61,25 +100,95 @@ export default function Marketplace() {
   const [crtEnabled, setCrtEnabled] = useState(true);
 
   useEffect(() => {
-    setLitBitCoins(getLitBitCoinBalance());
-    // Check local storage for persistent CRT configuration
-    const val = localStorage.getItem("crt_global_scanlines");
-    if (val !== null) {
-      setCrtEnabled(val === "true");
+    // Try to fetch real wallet from API if signed in
+    if (isSignedIn) {
+      fetch('/api/wallet')
+        .then(r => r.json())
+        .then((data: { balance?: number }) => {
+          if (typeof data.balance === 'number') {
+            setLitBitCoins(data.balance);
+            setLitBitCoinBalance(data.balance);
+          } else {
+            setLitBitCoins(getLitBitCoinBalance());
+          }
+        })
+        .catch(() => setLitBitCoins(getLitBitCoinBalance()));
+    } else {
+      setLitBitCoins(getLitBitCoinBalance());
     }
-  }, []);
+
+    const val = localStorage.getItem("crt_global_scanlines");
+    if (val !== null) setCrtEnabled(val === "true");
+
+    // Stripe return detection
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+    if (success === 'true') {
+      showToast('Payment successful! Your LiTBit Coins will be credited shortly.', 'success');
+    } else if (canceled === 'true') {
+      showToast('Payment canceled. No coins were charged.', 'info');
+    }
+  }, [isSignedIn]);
+
+  const buyPack = async (pack: typeof CREDIT_PACKS[0]) => {
+    if (!pack.priceId || !pack.priceId.startsWith('price_')) {
+      showToast('Stripe setup needed: create a Price in Stripe Dashboard and add its price_xxx ID to CREDIT_PACKS.', 'info');
+      return;
+    }
+    if (!isSignedIn || !userId) {
+      showToast('Please sign in to purchase coins.', 'error');
+      return;
+    }
+    try {
+      const res = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId: pack.priceId,
+          mode: 'payment',
+          metadata: { clerk_id: userId, coin_amount: String(pack.coins) },
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        showToast(data.error || 'Checkout failed. Try again.', 'error');
+      }
+    } catch {
+      showToast('Network error during checkout.', 'error');
+    }
+  };
 
   const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  const earnCoins = () => {
-    const earned = 50;
-    const newBal = litBitCoins + earned;
-    setLitBitCoins(newBal);
-    setLitBitCoinBalance(newBal);
-    showToast(`+${earned} 🪙 LiTBit Coins earned! Balance: ${newBal}`, 'success');
+  const [claimLoading, setClaimLoading] = useState(false);
+
+  const earnCoins = async () => {
+    if (claimLoading) return;
+    setClaimLoading(true);
+    try {
+      const res = await fetch('/api/wallet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'daily' }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setLitBitCoins(data.balance);
+        setLitBitCoinBalance(data.balance);
+        showToast(`+50 🪙 Daily bonus claimed! Balance: ${data.balance}`, 'success');
+      } else {
+        showToast(data.error || 'Failed to claim daily bonus.', 'error');
+      }
+    } catch {
+      showToast('Network error. Try again.', 'error');
+    } finally {
+      setClaimLoading(false);
+    }
   };
 
   const categories = Array.from(new Set(agents.map(a => a.category)));
@@ -99,7 +208,26 @@ export default function Marketplace() {
   const featuredAgents = filteredAgents.filter(a => a.is_featured);
   const regularAgents = filteredAgents.filter(a => !a.is_featured);
 
-  const installAgent = useCallback((agentId: string) => {
+  const syncWallet = async (amount: number) => {
+    try {
+      const res = await fetch('/api/wallet', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+      const data = await res.json();
+      if (res.ok && typeof data.balance === 'number') {
+        setLitBitCoins(data.balance);
+        setLitBitCoinBalance(data.balance);
+        return data.balance;
+      }
+    } catch {
+      // silent fail, keep local state
+    }
+    return null;
+  };
+
+  const installAgent = useCallback(async (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
     if (!agent) return;
     if (agent.price_cents > 0) {
@@ -111,6 +239,7 @@ export default function Marketplace() {
       const newBal = litBitCoins - cost;
       setLitBitCoins(newBal);
       setLitBitCoinBalance(newBal);
+      await syncWallet(-cost);
       showToast(`✅ Installed ${agent.name}! -${cost} 🪙 · Balance: ${newBal}`, 'success');
     } else {
       showToast(`✅ ${agent.name} installed for free!`, 'success');
@@ -128,6 +257,22 @@ export default function Marketplace() {
     setSellModalAgent(null);
     setSellPrice('');
   }, [litBitCoins]);
+
+  // Require authentication (after all hooks to respect Rules of Hooks)
+  if (!isLoaded) {
+    return (
+      <div style={{ backgroundColor: T?.bgColor || '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T?.textColor || '#00ff41', fontFamily: 'monospace' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+          <div>Loading marketplace...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/marketplace" />;
+  }
 
   const stats: Record<string, number | string> = {
     total: agents.length,
@@ -156,7 +301,7 @@ export default function Marketplace() {
         <h1 style={{ color: T.headerColor, fontSize: '32px', fontWeight: 'bold', letterSpacing: '3px', marginBottom: '8px' }}>🤖 AGENT MARKETPLACE</h1>
         <p style={{ color: T.textColor, fontSize: '13px', opacity: 0.7, maxWidth: '500px', margin: '0 auto 12px' }}>Discover, install, and deploy AI agents to your workspace</p>
         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginBottom: '16px' }}>
-          <button onClick={earnCoins} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.15)', border: '1px solid gold', color: 'gold', fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace', fontWeight: 'bold' }}>🪙 Daily Bonus</button>
+          <button onClick={earnCoins} disabled={claimLoading} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.15)', border: '1px solid gold', color: 'gold', fontSize: '11px', cursor: claimLoading ? 'not-allowed' : 'pointer', fontFamily: 'monospace', fontWeight: 'bold', opacity: claimLoading ? 0.6 : 1 }}>{claimLoading ? '⏳ Claiming...' : '🪙 Daily Bonus'}</button>
           <button onClick={() => showToast('Buy LiTBit Coins: connect wallet coming soon!', 'info')} style={{ padding: '6px 14px', backgroundColor: 'rgba(255,215,0,0.1)', border: '1px solid ' + T.borderColor, color: T.textColor, fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>💳 Buy LiTBit Coins</button>
         </div>
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -218,6 +363,124 @@ export default function Marketplace() {
             <div>No agents found matching your search.</div>
           </div>
         )}
+
+        {/* CREDIT PACKS SECTION */}
+        <div style={{ marginTop: '48px', marginBottom: '32px', padding: '24px', border: '2px solid ' + T.borderColor, backgroundColor: T.boxBg }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <div style={{ color: T.headerColor, fontSize: '18px', fontWeight: 'bold', marginBottom: '4px' }}>💳 Buy LiTBit Coins</div>
+              <p style={{ color: T.textColor, fontSize: '12px', opacity: 0.7, maxWidth: '400px' }}>
+                Purchase coins to unlock premium agents, API access, and AI generations. 
+                <strong style={{ color: T.accentColor }}>1 🪙 = $0.01</strong> (1 cent per coin)
+              </p>
+            </div>
+            <div style={{ padding: '8px 16px', border: '1px solid gold', backgroundColor: 'rgba(255,215,0,0.1)' }}>
+              <span style={{ color: 'gold', fontSize: '14px', fontWeight: 'bold' }}>🪙 {litBitCoins} current balance</span>
+            </div>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            {CREDIT_PACKS.map((pack) => (
+              <div 
+                key={pack.id}
+                style={{ 
+                  position: 'relative',
+                  padding: '20px', 
+                  border: `2px solid ${pack.popular ? 'gold' : T.borderColor}`, 
+                  backgroundColor: pack.popular ? 'rgba(255,215,0,0.08)' : 'rgba(0,0,0,0.3)',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                }}
+                onClick={() => showToast(`${pack.label} Pack: ${pack.coins.toLocaleString()} coins for $${pack.price} - Stripe integration coming soon!`, 'info')}
+              >
+                {pack.popular && (
+                  <div style={{ position: 'absolute', top: '-10px', left: '50%', transform: 'translateX(-50%)', backgroundColor: 'gold', color: 'black', padding: '2px 12px', fontSize: '10px', fontWeight: 'bold' }}>
+                    MOST POPULAR
+                  </div>
+                )}
+                <div style={{ color: pack.popular ? 'gold' : T.headerColor, fontSize: '28px', fontWeight: 'bold', marginBottom: '4px' }}>
+                  {pack.coins.toLocaleString()}
+                </div>
+                <div style={{ color: T.textColor, fontSize: '11px', marginBottom: '8px' }}>🪙 LiTBit Coins</div>
+                <div style={{ color: pack.popular ? 'gold' : T.accentColor, fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
+                  ${pack.price}
+                </div>
+                <div style={{ color: T.textColor, fontSize: '10px', opacity: 0.6, marginBottom: '12px' }}>
+                  {pack.savings} · {(pack.coins / pack.price).toFixed(0)} coins/$
+                </div>
+                <button onClick={() => buyPack(pack)} style={{ 
+                  width: '100%', 
+                  padding: '10px', 
+                  backgroundColor: pack.popular ? 'gold' : T.linkColor, 
+                  color: pack.popular ? 'black' : 'white', 
+                  border: 'none', 
+                  fontWeight: 'bold',
+                  fontSize: '12px',
+                  cursor: 'pointer'
+                }}>
+                  Buy {pack.label}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {/* SPEND COINS — interactive */}
+          <div style={{ borderTop: '1px solid ' + T.borderColor, paddingTop: '20px' }}>
+            <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '1px', marginBottom: '16px', fontWeight: 'bold' }}>
+              🛒 SPEND YOUR LiTBit Coins
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px' }}>
+              {SPEND_FEATURES.map((feat) => (
+                <div key={feat.id} style={{ padding: '14px', border: '1px solid ' + T.borderColor, backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                  <div style={{ fontSize: '22px', marginBottom: '6px' }}>{feat.icon}</div>
+                  <div style={{ color: T.headerColor, fontSize: '12px', fontWeight: 'bold', marginBottom: '2px' }}>{feat.title}</div>
+                  <div style={{ color: T.textColor, fontSize: '10px', opacity: 0.7, lineHeight: 1.4, marginBottom: '8px' }}>{feat.desc}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ color: 'gold', fontSize: '12px', fontWeight: 'bold' }}>{feat.cost} 🪙</span>
+                    <button
+                      onClick={async () => {
+                        if (litBitCoins < feat.cost) {
+                          showToast(`Need ${feat.cost} 🪙 · You have ${litBitCoins}`, 'error');
+                          return;
+                        }
+                        const newBal = litBitCoins - feat.cost;
+                        setLitBitCoins(newBal);
+                        setLitBitCoinBalance(newBal);
+                        await syncWallet(-feat.cost);
+                        showToast(`${feat.action} ${feat.title}! -${feat.cost} 🪙 · Balance: ${newBal}`, 'success');
+                      }}
+                      style={{ padding: '4px 10px', backgroundColor: T.linkColor, color: 'white', border: 'none', fontSize: '10px', fontWeight: 'bold', cursor: 'pointer' }}
+                    >
+                      {feat.action}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PRICING EXAMPLES */}
+          <div style={{ borderTop: '1px solid ' + T.borderColor, paddingTop: '20px', marginTop: '20px' }}>
+            <div style={{ color: T.accentColor, fontSize: '11px', letterSpacing: '1px', marginBottom: '12px', fontWeight: 'bold' }}>
+              💡 PRICING EXAMPLES
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '12px' }}>
+              <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
+                <span style={{ color: T.accentColor }}>🎧 Support Agent</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 50 🪙 ($0.50)</span>
+              </div>
+              <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
+                <span style={{ color: T.headerColor }}>📱 Social Dominator</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 250 🪙 ($2.50)</span>
+              </div>
+              <div style={{ padding: '8px 12px', border: '1px solid ' + T.borderColor }}>
+                <span style={{ color: '#ff6b35' }}>⚖️ Legal Shield</span>
+                <span style={{ color: T.textColor, opacity: 0.7 }}> — 1000 🪙 ($10.00)</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {previewAgent && (
@@ -225,7 +488,7 @@ export default function Marketplace() {
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '100%', backgroundColor: T.boxBg, border: '2px solid ' + T.borderColor, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid ' + T.borderColor, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <div style={{ fontSize: '48px' }}>{previewAgent.avatar_url}</div>
+                <img src={previewAgent.avatar_url} alt={previewAgent.name} style={{ width: '64px', height: '64px', borderRadius: '12px', objectFit: 'cover', border: '2px solid ' + T.borderColor }} />
                 <div>
                   <div style={{ color: T.headerColor, fontSize: '20px', fontWeight: 'bold' }}>{previewAgent.name}</div>
                   <div style={{ color: T.textColor, fontSize: '11px', opacity: 0.7, textTransform: 'capitalize' }}>{previewAgent.category} · {previewAgent.personality}</div>
@@ -317,7 +580,7 @@ function AgentCard({ agent, isInstalled, onInstall, onPreview, theme }: { agent:
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ border: '1px solid ' + (hovered ? T.accentColor : T.borderColor), backgroundColor: 'rgba(0,0,0,0.3)', transition: 'all 0.2s', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', boxShadow: hovered ? '0 8px 24px rgba(0,255,255,0.08)' : 'none' }}>
       <div style={{ padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <div style={{ fontSize: '32px' }}>{agent.avatar_url}</div>
+          <img src={agent.avatar_url} alt={agent.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid ' + T.borderColor }} />
           <div style={{ padding: '4px 8px', fontSize: '10px', fontWeight: 'bold', backgroundColor: agent.price_cents === 0 ? T.accentColor : T.headerColor, color: 'black' }}>{formatPrice(agent.price_cents)}</div>
         </div>
         <div style={{ color: T.headerColor, fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>{agent.name}</div>

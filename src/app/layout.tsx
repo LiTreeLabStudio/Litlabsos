@@ -7,6 +7,8 @@ import { ProfileProvider } from "@/context/ProfileContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
+import UserSync from "@/components/UserSync";
+import AnimatedBackground from "@/components/AnimatedBackground";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,27 +48,43 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const content = (
+  const inner = (
+    <ThemeProvider>
+      <ProfileProvider>
+        <AnimatedBackground />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <UserSync />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <CookieConsent />
+        </div>
+      </ProfileProvider>
+    </ThemeProvider>
+  );
+
+  return (
     <html lang="en">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
       </head>
-      <body className="antialiased min-h-screen flex flex-col">
-        <ThemeProvider>
-          <ProfileProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CookieConsent />
-          </ProfileProvider>
-        </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
+      <body className="antialiased min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
+        {clerkReady ? (
+          <ClerkProvider>
+            {inner}
+            <Analytics />
+            <SpeedInsights />
+          </ClerkProvider>
+        ) : (
+          <>
+            {inner}
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );
-
-  return clerkReady ? <ClerkProvider>{content}</ClerkProvider> : content;
 }

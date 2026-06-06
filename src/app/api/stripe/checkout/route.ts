@@ -28,13 +28,22 @@ export async function POST(req: NextRequest) {
 
     const params = new URLSearchParams({
       mode,
-      "success_url": `${origin}/settings/billing?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      "cancel_url": `${origin}/settings/billing?canceled=true`,
+      "success_url": `${origin}/marketplace?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      "cancel_url": `${origin}/marketplace?canceled=true`,
       "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
       "allow_promotion_codes": "true",
       "billing_address_collection": "auto",
     });
+
+    // Pass metadata for coin pack tracking (clerk_id, coin_amount)
+    if (body.metadata && typeof body.metadata === "object") {
+      Object.entries(body.metadata).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(`metadata[${key}]`, String(value));
+        }
+      });
+    }
 
     // If user email is provided, pass it to prefill
     if (body.email) {

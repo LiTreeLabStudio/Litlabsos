@@ -24,12 +24,26 @@ interface Post {
   shares: number;
   liked: boolean;
   isAI?: boolean;
+  media_urls?: string[];
+}
+
+// Time formatter for API timestamps
+function formatTime(iso: string | undefined): string {
+  if (!iso) return "Just now";
+  const then = new Date(iso);
+  const now = new Date();
+  const diff = Math.floor((now.getTime() - then.getTime()) / 1000);
+  if (diff < 60) return "Just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
 }
 
 export default function SocialPage() {
   const { resolvedColors } = useTheme();
   const { profile } = useProfile();
   const [newPost, setNewPost] = useState("");
+  const [newPostImage, setNewPostImage] = useState("");
   const [crtEnabled, setCrtEnabled] = useState(true);
   const [activePlaylist, setActivePlaylist] = useState("synthwave");
   const [typingPostId, setTypingPostId] = useState<number | null>(null);
@@ -39,7 +53,36 @@ export default function SocialPage() {
   // Custom Visitor Counter for the Social space
   const [socialVisitors, setSocialVisitors] = useState(4892);
 
-  const [posts, setPosts] = useState<Post[]>([
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  // Fetch feed from API on mount
+  useEffect(() => {
+    fetch("/api/posts")
+      .then(r => r.json())
+      .then((data: { posts?: any[] }) => {
+        const apiPosts = (data.posts || []).map((p, i) => ({
+          id: typeof p.id === "string" ? i + 1000 : p.id,
+          author: p.author?.name || p.author || "Unknown",
+          handle: "@" + (p.author?.username || "user"),
+          avatar: p.author?.avatar_url || "👤",
+          time: formatTime(p.created_at),
+          content: p.content,
+          likes: p.likes_count || 0,
+          comments: (p.comments || []).map((c: any) => ({
+            author: c.author || c.users?.name || "User",
+            avatar: c.avatar || c.users?.avatar_url || "👤",
+            text: c.text || c.content,
+            time: formatTime(c.created_at) || c.time || "Just now",
+          })),
+          shares: 0,
+          liked: false,
+          isAI: p.is_ai_post || false,
+        }));
+        setPosts(apiPosts);
+      })
+      .catch(() => {
+        // Fallback to default posts on error
+        setPosts([
     {
       id: 1,
       author: "Alex Chen",
@@ -98,6 +141,8 @@ export default function SocialPage() {
       liked: false,
     }
   ]);
+      });
+  }, []);
 
   useEffect(() => {
     // Save random visitors counter increment
@@ -163,11 +208,22 @@ export default function SocialPage() {
       comments: [],
       shares: 0,
       liked: false,
+      media_urls: newPostImage ? [newPostImage] : undefined,
     };
 
     setPosts([addedPost, ...posts]);
     setNewPost("");
+    setNewPostImage("");
     setExpandedComments(prev => ({ ...prev, [newPostId]: true }));
+
+    // Send to API in background (non-blocking)
+    fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: userText, media_urls: newPostImage ? [newPostImage] : [] }),
+    }).catch(() => {
+      // Silent fail — local state already updated
+    });
 
     // Determine relevant agent to comment based on keywords
     const lower = userText.toLowerCase();
@@ -425,8 +481,24 @@ export default function SocialPage() {
                     className="w-full p-2.5 text-xs border-2 min-h-[70px] resize-none outline-none font-mono focus:ring-1 focus:ring-purple-500"
                     style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor, borderColor: resolvedColors.borderColor }}
                   />
+                  {newPostImage && (
+                    <div className="mt-2 relative">
+                      <img src={newPostImage} alt="Preview" className="max-h-[150px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
+                      <button onClick={() => setNewPostImage("")} className="absolute top-1 right-1 bg-black text-white text-[10px] px-1 rounded">✕</button>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center mt-3">
-                    <span className="text-[9px] text-gray-500">Auto AI-Response Trigger: ACTIVE</span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newPostImage}
+                        onChange={(e) => setNewPostImage(e.target.value)}
+                        placeholder="Image URL (optional)"
+                        className="text-[10px] p-1 border outline-none w-40 font-mono"
+                        style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor, borderColor: resolvedColors.borderColor }}
+                      />
+                      <span className="text-[9px] text-gray-500">Auto AI-Response Trigger: ACTIVE</span>
+                    </div>
                     <button 
                       onClick={handlePost}
                       className="px-4 py-1.5 text-xs font-bold border-2 transition-transform active:scale-95"
@@ -464,6 +536,11 @@ export default function SocialPage() {
                   <div className="pb-3 text-xs leading-relaxed" style={{ color: resolvedColors.textColor }}>
                     {post.content}
                   </div>
+                  {post.media_urls && post.media_urls.length > 0 && (
+                    <div className="pb-3">
+                      <img src={post.media_urls[0]} alt="Post media" className="max-h-[200px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
+                    </div>
+                  )}
 
                   {/* Action row */}
                   <div className="flex justify-between items-center py-1.5 border-t border-b border-dashed text-[10px]" style={{ borderColor: resolvedColors.borderColor }}>

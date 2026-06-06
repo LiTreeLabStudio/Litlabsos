@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 const ClerkUserWidget = dynamic(
   () => import("@/components/ClerkUser").then(m => ({ default: m.ClerkUserWidget })),
@@ -118,6 +119,7 @@ const QUICK: Record<string, string[]> = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Builder() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { resolvedColors } = useTheme();
   const T = {
     bg: resolvedColors.bgColor,
@@ -358,6 +360,21 @@ export default function Builder() {
     setIsGeneratingMusic(false);
   }, [musicPrompt, musicLyrics, musicModel, isInstrumental, isGeneratingMusic, selectedAgent]);
 
+  // Require authentication (after all hooks to respect Rules of Hooks)
+  if (!isLoaded) {
+    return (
+      <div style={{ backgroundColor: T.bg, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: T.text, fontFamily: 'monospace' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '32px', marginBottom: '16px' }}>⏳</div>
+          <div>Loading builder...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn redirectUrl="/builder" />;
+  }
 
   return (
     <div style={{ backgroundColor: T.bg, minHeight: "100vh", display: "flex", flexDirection: "column", color: T.text, fontFamily: "monospace", position: "relative" }}>

@@ -1,10 +1,6 @@
-import { execSync } from 'child_process';
-import { loadConfig, GhostConfig } from './config';
+import { execSync } from "child_process";
+import { loadConfig, GhostConfig } from "./config";
 
-/**
- * Ghost Engine Core Logic
- * Consolidates bash logic into strictly typed TypeScript.
- */
 export class GhostCore {
   private config: GhostConfig;
 
@@ -12,107 +8,75 @@ export class GhostCore {
     this.config = loadConfig();
   }
 
-  /**
-   * Autonomic Sync: Stash, Pull/Rebase, Pop, and Install dependencies if needed.
-   */
   async sync(): Promise<{ success: boolean; message: string }> {
     try {
-      console.log('🔄 [Ghost] Starting Autonomic Sync...');
-      
-      const hasChanges = execSync('git status --porcelain').toString().trim().length > 0;
+      console.log("[Ghost] Autonomic Sync...");
+      const hasChanges = execSync("git status --porcelain").toString().trim().length > 0;
       let stashed = false;
-
       if (hasChanges) {
-        console.log('📦 [Ghost] Stashing local changes...');
         execSync(`git stash push -m "ghost-sync-wip-${Date.now()}"`);
         stashed = true;
       }
-
-      console.log('📥 [Ghost] Fetching and rebasing...');
-      const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+      const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
       execSync(`git pull --rebase origin ${branch}`);
-
-      if (stashed) {
-        console.log('📤 [Ghost] Reapplying local changes...');
-        execSync('git stash pop');
-      }
-
-      // Check if dependencies changed
-      const pkgChanged = execSync('git diff --name-only ORIG_HEAD HEAD').toString().includes('package.json');
-      if (pkgChanged) {
-        console.log('📦 [Ghost] Dependencies changed. Updating...');
-        execSync('npm install --silent');
-      }
-
-      return { success: true, message: 'Sync complete' };
+      if (stashed) execSync("git stash pop");
+      const pkgChanged = execSync("git diff --name-only ORIG_HEAD HEAD").toString().includes("package.json");
+      if (pkgChanged) execSync("npm install --silent");
+      return { success: true, message: "Sync complete" };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return { success: false, message };
+      return { success: false, message: error instanceof Error ? error.message : String(error) };
     }
   }
 
-  /**
-   * Autonomic Save: Lint, Type-check, Commit, and Push.
-   */
   async save(message: string): Promise<{ success: boolean; message: string }> {
-    if (!message) throw new Error('Commit message is required');
-
+    if (!message) throw new Error("Commit message is required");
     try {
-      console.log(`💾 [Ghost] Starting Autonomic Save: "${message}"`);
-
-      // 1. Lint
-      console.log('🔍 [Ghost] Running ESLint...');
-      try {
-        execSync('npm run lint', { stdio: 'pipe' });
-      } catch (e: unknown) {
+      console.log(`[Ghost] Save: "${message}"`);
+      try { execSync("npm run lint", { stdio: "pipe" }); } catch (e: unknown) {
         const err = e as { stdout?: Buffer; message: string };
-        return { success: false, message: `ESLint failed: ${err.stdout?.toString() || err.message}` };
+        return { success: false, message: `ESLint: ${err.stdout?.toString() || err.message}` };
       }
-
-      // 2. Type Check
-      console.log('🏗️ [Ghost] Running Type Check...');
-      try {
-        execSync('npx tsc --noEmit', { stdio: 'pipe' });
-      } catch (e: unknown) {
+      try { execSync("npx tsc --noEmit", { stdio: "pipe" }); } catch (e: unknown) {
         const err = e as { stdout?: Buffer; message: string };
-        return { success: false, message: `Type check failed: ${err.stdout?.toString() || err.message}` };
+        return { success: false, message: `TypeCheck: ${err.stdout?.toString() || err.message}` };
       }
-
-      // 3. Git Push
-      console.log('🚀 [Ghost] Pushing to origin...');
-      const branch = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
-      execSync('git add .');
+      const branch = execSync("git rev-parse --abbrev-ref HEAD").toString().trim();
+      execSync("git add .");
       execSync(`git commit -m "${message}"`);
       execSync(`git push origin ${branch}`);
-
-      return { success: true, message: 'Save and push complete' };
+      return { success: true, message: "Pushed" };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return { success: false, message };
+      return { success: false, message: error instanceof Error ? error.message : String(error) };
     }
   }
 
   /**
-   * Syncs the current project to the Windows Monolith via SSH + tar.
+   * Sync project to PC via SSH + tar.
+   * Wipes PC dir, pushes fresh files. Run `npm install` on PC after.
    */
   async syncPc(): Promise<{ success: boolean; message: string }> {
     try {
-      console.log('🛸 [Ghost] Starting PC Bridge Sync to Monolith...');
-      
-      const host = this.config.PC_HOST || 'monolith';
-      const dest = '/mnt/c/Users/litbi/CascadeProjects/litlabs-website/';
-      
-      const excludes = this.config.SYNC_EXCLUDES?.map(e => `--exclude=${e}`).join(' ') || '';
-      
-      // Execute the tar pipe to SSH
-      const command = `tar ${excludes} -czf - -C . . | ssh -o LogLevel=QUIET -o StrictHostKeyChecking=no -o ConnectTimeout=10 ${host} "sudo tar --no-same-permissions --no-same-owner --overwrite -xzf - -C \\"${dest}\\""`;
-      
-      execSync(command, { stdio: 'inherit' });
-      
-      return { success: true, message: 'PC Sync Complete!' };
+      console.log("[Ghost] PC Sync -> Monolith...");
+      const host = this.config.PC_HOST || "monolith";
+      const dest = "/mnt/c/Users/litbi/CascadeProjects/litlabs-website";
+      const excludes = this.config.SYNC_EXCLUDES?.map((e) => `--exclude=${e}`).join(" ") || "";
+
+      // Wipe PC directory (sudo for WSL perms)
+      execSync(
+        `ssh -o LogLevel=QUIET -o StrictHostKeyChecking=no -o ConnectTimeout=10 ${host} "sudo rm -rf ${dest} && sudo mkdir -p ${dest} && sudo chown litbit:litbit ${dest}"`,
+        { stdio: "pipe" }
+      );
+
+      // Push fresh files (no sudo — dir owned by litbit)
+      execSync(
+        `tar ${excludes} -czf - -C . . | ssh -o LogLevel=QUIET -o StrictHostKeyChecking=no -o ConnectTimeout=10 ${host} "tar --overwrite -xzf - -C ${dest}"`,
+        { stdio: "inherit" }
+      );
+
+      console.log("[Ghost] Files synced. Run 'npm install' on PC when ready.");
+      return { success: true, message: "PC Synced! Run npm install on PC." };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      return { success: false, message: `PC Sync failed: ${message}` };
+      return { success: false, message: `PC Sync failed: ${error instanceof Error ? error.message : String(error)}` };
     }
   }
 }

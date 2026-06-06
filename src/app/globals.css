@@ -174,3 +174,52 @@ body {
 .text-glow {
   text-shadow: 0 0 10px rgba(255, 77, 0, 0.5);
 }
+
+/* Cyberpunk HUD FX */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.9; }
+  5% { opacity: 0.8; }
+  10% { opacity: 0.9; }
+  15% { opacity: 1; }
+  20% { opacity: 0.9; }
+  25% { opacity: 0.85; }
+  30% { opacity: 0.95; }
+  100% { opacity: 1; }
+}
+
+.hud-scanlines {
+  position: relative;
+}
+
+.hud-scanlines::after {
+  content: "";
+  position: fixed; /* Use fixed to avoid extending page height */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.1) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 9999;
+  pointer-events: none;
+  animation: scanline 10s linear infinite;
+  opacity: 0.15;
+}
+
+.hud-grid {
+  background-image: linear-gradient(to right, rgba(249, 115, 22, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(249, 115, 22, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.glow-text-orange {
+  text-shadow: 0 0 10px rgba(249, 115, 22, 0.5), 0 0 20px rgba(249, 115, 22, 0.2);
+}

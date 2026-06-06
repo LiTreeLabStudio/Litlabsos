@@ -83,7 +83,11 @@ export default function ChatWidget() {
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
+  useEffect(() => {
+    if (open && bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messages, loading, open]);
 
   const switchAgent = useCallback((idx: number) => {
     setActiveAgent(idx);

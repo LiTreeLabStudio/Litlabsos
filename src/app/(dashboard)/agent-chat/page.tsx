@@ -20,7 +20,11 @@ export default function AgentChatPage() {
   const [activeIdx, setActiveIdx] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
+  useEffect(() => {
+    if (messages.length > 1 || loading) {
+      bottomRef.current?.scrollIntoView({ behavior: "auto" });
+    }
+  }, [messages, loading]);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 
 // User profile type
 export interface UserProfile {
@@ -8,6 +8,7 @@ export interface UserProfile {
   username: string;
   bio: string;
   mood: string;
+  litbit_coins: number;
   avatarUrl: string | null;
   coverUrl: string | null;
   location: string;
@@ -38,6 +39,7 @@ const defaultProfile: UserProfile = {
   username: "litree_ceo",
   bio: "CEO & Founder of LiTreeLabStudios. Building the future of AI agents. Welcome to my corner of the internet!",
   mood: "creative",
+  litbit_coins: 0,
   avatarUrl: null,
   coverUrl: null,
   location: "Everywhere",
@@ -53,7 +55,9 @@ const defaultProfile: UserProfile = {
 interface ProfileContextType {
   profile: UserProfile;
   updateProfile: (updates: Partial<UserProfile>) => void;
+  fetchProfile: () => Promise<void>;
   resetProfile: () => void;
+  isLoading: boolean;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -61,8 +65,28 @@ const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [mounted, setMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load from localStorage on mount
+  const fetchProfile = useCallback(async () => {
+    try {
+      const res = await fetch("/api/account");
+      const data = await res.json();
+      if (data.user) {
+        setProfile((prev) => ({
+          ...prev,
+          displayName: data.user.name || prev.displayName,
+          litbit_coins: data.user.litbit_coins ?? 0,
+          // Merge other fields as needed
+        }));
+      }
+    } catch (err) {
+      console.error("[ProfileContext] Failed to fetch profile:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Load from localStorage on mount and then fetch from server
   useEffect(() => {
     const stored = localStorage.getItem("litlabs-profile");
     if (stored) {
@@ -73,7 +97,8 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       }
     }
     setMounted(true);
-  }, []);
+    fetchProfile();
+  }, [fetchProfile]);
 
   // Save to localStorage on change
   useEffect(() => {
@@ -91,7 +116,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ProfileContext.Provider value={{ profile, updateProfile, resetProfile }}>
+    <ProfileContext.Provider value={{ profile, updateProfile, fetchProfile, resetProfile, isLoading }}>
       {children}
     </ProfileContext.Provider>
   );

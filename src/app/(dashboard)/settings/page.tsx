@@ -85,8 +85,8 @@ function Toggle({
         className="absolute top-[3px] w-5 h-5 rounded-full transition-all duration-300"
         style={{
           left: enabled ? "26px" : "3px",
-          backgroundColor: enabled ? "var(--neon-cyan)" : "rgba(148,163,184,0.6)",
-          boxShadow: enabled ? "0 0 10px var(--neon-cyan)" : "none",
+          backgroundColor: enabled ? "var(--syntax-function)" : "rgba(148,163,184,0.6)",
+          boxShadow: enabled ? "0 0 10px var(--syntax-function)" : "none",
         }}
       />
     </button>
@@ -288,7 +288,7 @@ export default function SettingsPage() {
 
   /* ── Render ── */
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 selection:bg-neon-cyan/30">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 selection:bg-syntax-function/30">
       {/* Toast */}
       <div
         className={`fixed top-6 right-6 z-[100] transition-all duration-500 ${
@@ -296,12 +296,12 @@ export default function SettingsPage() {
         }`}
       >
         <div
-          className={`glass-panel px-6 py-4 flex items-center gap-4 text-xs font-bold uppercase tracking-widest shadow-2xl ${
+          className={`bg-ide-surface border border-ide-border px-6 py-4 flex items-center gap-4 text-xs font-bold uppercase tracking-widest shadow-2xl ${
             toast.type === "success"
               ? "border-green-500/30 text-green-400"
               : toast.type === "error"
               ? "border-red-500/30 text-red-400"
-              : "border-neon-cyan/30 text-neon-cyan"
+              : "border-syntax-function/30 text-syntax-function"
           }`}
         >
           <span className="text-lg">
@@ -313,7 +313,7 @@ export default function SettingsPage() {
 
       {/* Header Area */}
       <div className="mb-12">
-        <div className="text-[10px] font-bold text-neon-cyan tracking-[0.4em] uppercase mb-2">System_Configuration</div>
+        <div className="text-[10px] font-bold text-syntax-function tracking-[0.4em] uppercase mb-2">System_Configuration</div>
         <h1 className="font-heading text-3xl sm:text-4xl font-bold uppercase tracking-tight">System <span className="gradient-text">Config</span></h1>
         <p className="text-text-secondary font-medium text-sm mt-1">Modify workspace parameters and node identity.</p>
       </div>
@@ -330,7 +330,7 @@ export default function SettingsPage() {
                 onClick={() => navigateTo(section.id)}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
                   activeSection === section.id
-                    ? "bg-neon-cyan text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                    ? "bg-syntax-function text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
                     : "bg-white/5 text-text-muted border border-white/5"
                 }`}
               >
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                   onClick={() => navigateTo(section.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-sm transition-all group ${
                     isActive
-                      ? "bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20 shadow-[0_0_20px_rgba(0,242,254,0.05)]"
+                      ? "bg-syntax-function/10 text-syntax-function border border-syntax-function/20 shadow-[0_0_20px_rgba(0,242,254,0.05)]"
                       : "text-text-secondary hover:bg-white/5 hover:text-text-primary border border-transparent"
                   }`}
                 >
@@ -364,7 +364,7 @@ export default function SettingsPage() {
                   </span>
                   <span className="font-medium tracking-tight">{section.label}</span>
                   {isActive && (
-                    <span className="ml-auto w-1 h-1 rounded-full bg-neon-cyan animate-pulse" />
+                    <span className="ml-auto w-1 h-1 rounded-full bg-syntax-function animate-pulse" />
                   )}
                   {!isActive && section.id === "danger" && (
                     <span className="ml-auto badge badge-red text-[8px] tracking-tighter">!</span>
@@ -381,14 +381,14 @@ export default function SettingsPage() {
           {activeSection === "overview" && (
             <div className="space-y-10">
               {/* User Card */}
-              <div className="card bg-gradient-to-br from-neon-cyan/5 to-neon-purple/5 border-neon-cyan/10 p-8 sm:p-12 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-neon-cyan/5 blur-[100px]" />
+              <div className="card bg-gradient-to-br from-syntax-function/5 to-syntax-keyword/5 border-syntax-function/10 p-8 sm:p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-syntax-function/5 " />
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 relative z-10">
-                  <div className="w-24 h-24 rounded-2xl bg-cyber-surface-2 border-2 border-neon-cyan/30 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(0,242,254,0.15)] transition-transform hover:scale-110 duration-500">
+                  <div className="w-24 h-24 rounded-2xl bg-cyber-surface-2 border-2 border-syntax-function/30 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(0,242,254,0.15)] transition-transform hover:scale-110 duration-500">
                     {avatarEmoji}
                   </div>
                   <div className="text-center sm:text-left">
-                    <div className="text-[10px] font-bold text-neon-cyan tracking-[0.4em] uppercase mb-2">Authenticated_Identity</div>
+                    <div className="text-[10px] font-bold text-syntax-function tracking-[0.4em] uppercase mb-2">Authenticated_Identity</div>
                     <h2 className="font-heading text-3xl font-bold text-text-primary uppercase tracking-tight mb-1">
                       {displayName || user?.email?.split("@")[0] || "User"}
                     </h2>
@@ -404,17 +404,17 @@ export default function SettingsPage() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-10">
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-neon-cyan/30 transition-colors">
+                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-syntax-function/30 transition-colors">
                     <div className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2">Daemons_Forged</div>
-                    <div className="font-heading text-4xl font-bold text-neon-cyan text-glow-cyan">12</div>
+                    <div className="font-heading text-4xl font-bold text-syntax-function ">12</div>
                   </div>
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-neon-purple/30 transition-colors">
+                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-syntax-keyword/30 transition-colors">
                     <div className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2">Neural_Transmissions</div>
-                    <div className="font-heading text-4xl font-bold text-neon-purple text-glow-purple">1,847</div>
+                    <div className="font-heading text-4xl font-bold text-syntax-keyword ">1,847</div>
                   </div>
-                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-neon-gold/30 transition-colors">
+                  <div className="bg-black/40 border border-white/5 rounded-2xl p-6 text-center group hover:border-syntax-string/30 transition-colors">
                     <div className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2">Arena_Triumphs</div>
-                    <div className="font-heading text-4xl font-bold text-neon-gold">3</div>
+                    <div className="font-heading text-4xl font-bold text-syntax-string">3</div>
                   </div>
                 </div>
               </div>
@@ -457,7 +457,7 @@ export default function SettingsPage() {
           {/* ─── PROFILE ─── */}
           {activeSection === "profile" && (
             <div className="space-y-8">
-              <div className="card p-8 sm:p-10 border-neon-cyan/5">
+              <div className="card p-8 sm:p-10 border-syntax-function/5">
                 <div className="flex items-center gap-3 mb-10">
                   <h2 className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-text-muted">Identity_Construction</h2>
                   <div className="h-px flex-1 bg-white/5" />
@@ -473,8 +473,8 @@ export default function SettingsPage() {
                         onClick={() => setAvatarEmoji(emoji)}
                         className={`aspect-square flex items-center justify-center text-2xl rounded-xl transition-all ${
                           avatarEmoji === emoji
-                            ? "bg-neon-cyan/20 border-2 border-neon-cyan scale-110 shadow-[0_0_15px_rgba(0,242,254,0.3)]"
-                            : "bg-white/5 border border-white/5 hover:border-neon-cyan/30 hover:scale-105"
+                            ? "bg-syntax-function/20 border-2 border-syntax-function scale-110 shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                            : "bg-white/5 border border-white/5 hover:border-syntax-function/30 hover:scale-105"
                         }`}
                       >
                         {emoji}
@@ -590,7 +590,7 @@ export default function SettingsPage() {
                 <div className="space-y-0">
                   <div className="flex flex-col sm:flex-row sm:justify-between py-4 border-b border-white/5 gap-2">
                     <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Global_ID</span>
-                    <span className="font-code text-xs text-neon-cyan break-all">{user?.id || "N/A"}</span>
+                    <span className="font-code text-xs text-syntax-function break-all">{user?.id || "N/A"}</span>
                   </div>
                   <div className="flex flex-col sm:flex-row sm:justify-between py-4 border-b border-white/5 gap-2">
                     <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Auth_Endpoint</span>
@@ -611,9 +611,9 @@ export default function SettingsPage() {
           {activeSection === "integrations" && (
             <div className="space-y-8">
               {/* n8n Webhook */}
-              <div className="card p-8 border-neon-purple/20">
+              <div className="card p-8 border-syntax-keyword/20">
                 <div className="flex items-center gap-3 mb-6">
-                  <h2 className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-neon-purple">n8n_Automation_Link</h2>
+                  <h2 className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-syntax-keyword">n8n_Automation_Link</h2>
                   <div className="h-px flex-1 bg-white/5" />
                 </div>
                 <p className="text-text-secondary text-sm font-medium mb-6">
@@ -626,7 +626,7 @@ export default function SettingsPage() {
                     onChange={(e) => setN8nWebhookUrl(e.target.value)}
                     placeholder="https://n8n.your-domain.com/webhook/..."
                   />
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-neon-purple uppercase tracking-widest pointer-events-none">Link_Active</div>
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold text-syntax-keyword uppercase tracking-widest pointer-events-none">Link_Active</div>
                 </div>
                 <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest opacity-40">
                   Environment: N8N_WEBHOOK_URL // REQUIRED_FOR_AGENT_EXEC
@@ -691,7 +691,7 @@ export default function SettingsPage() {
           {/* ─── APPEARANCE ─── */}
           {activeSection === "appearance" && (
             <div className="space-y-8">
-              <div className="card p-8 sm:p-10 border-neon-cyan/10">
+              <div className="card p-8 sm:p-10 border-syntax-function/10">
                 <div className="flex items-center gap-3 mb-10">
                   <h2 className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-text-muted">Visual_Optimization</h2>
                   <div className="h-px flex-1 bg-white/5" />
@@ -707,8 +707,8 @@ export default function SettingsPage() {
                         onClick={() => setTheme(t)}
                         className={`px-6 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
                           theme === t
-                            ? "bg-neon-cyan text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
-                            : "bg-white/5 text-text-muted border border-white/5 hover:border-neon-cyan/40"
+                            ? "bg-syntax-function text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                            : "bg-white/5 text-text-muted border border-white/5 hover:border-syntax-function/40"
                         }`}
                       >
                         {t === "dark" ? "🌙 Cyber_Dark" : t === "light" ? "☀️ Solar_Light" : "💻 Mainframe_Sync"}
@@ -751,7 +751,7 @@ export default function SettingsPage() {
                         onClick={() => setFontSize(size)}
                         className={`px-8 py-3 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ${
                           fontSize === size
-                            ? "bg-neon-cyan text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
+                            ? "bg-syntax-function text-cyber-bg shadow-[0_0_15px_rgba(0,242,254,0.3)]"
                             : "bg-white/5 text-text-muted border border-white/5"
                         }`}
                       >
@@ -775,7 +775,7 @@ export default function SettingsPage() {
           {/* ─── NOTIFICATIONS ─── */}
           {activeSection === "notifications" && (
             <div className="space-y-8">
-              <div className="card p-8 border-neon-cyan/5">
+              <div className="card p-8 border-syntax-function/5">
                 <div className="flex items-center gap-3 mb-10">
                   <h2 className="font-heading text-sm font-bold uppercase tracking-[0.2em] text-text-muted">Neural_Notification_Bypass</h2>
                   <div className="h-px flex-1 bg-white/5" />
@@ -818,19 +818,19 @@ export default function SettingsPage() {
           {activeSection === "billing" && (
             <div className="space-y-10">
               {/* Current Plan */}
-              <div className="card bg-gradient-to-br from-neon-gold/10 to-neon-purple/5 border-neon-gold/20 p-8 sm:p-12 relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-80 h-80 bg-neon-gold/5 blur-[120px]" />
+              <div className="card bg-gradient-to-br from-syntax-string/10 to-syntax-keyword/5 border-syntax-string/20 p-8 sm:p-12 relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-syntax-string/5 " />
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-8 relative z-10">
                   <div>
-                    <div className="text-[10px] font-bold text-neon-gold tracking-[0.4em] uppercase mb-2">Resource_Allocation</div>
+                    <div className="text-[10px] font-bold text-syntax-string tracking-[0.4em] uppercase mb-2">Resource_Allocation</div>
                     <h3 className="font-heading text-4xl font-bold uppercase tracking-tight text-white mb-2">
-                      FREE <span className="text-neon-gold">PLAN</span>
+                      FREE <span className="text-syntax-string">PLAN</span>
                     </h3>
                     <div className="text-sm font-bold text-text-muted uppercase tracking-[0.2em] opacity-60">COST: $0.00 / CYCLE</div>
                   </div>
                   <button
                     className="btn-primary px-10 py-4 uppercase tracking-[0.2em] font-bold text-xs shadow-[0_0_30px_rgba(255,215,0,0.2)]"
-                    style={{ background: "linear-gradient(135deg, var(--neon-gold), #ff8c00)", color: "#000" }}
+                    style={{ background: "linear-gradient(135deg, var(--syntax-string), #ff8c00)", color: "#000" }}
                   >
                     ✨ Upgrade_To_PRO_v3
                   </button>
@@ -840,11 +840,11 @@ export default function SettingsPage() {
                 <div className="mt-12">
                   <div className="flex justify-between items-end mb-4">
                     <div className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Data_Packet_Usage</div>
-                    <div className="text-sm font-bold font-code text-neon-gold">47% OPERATIONAL</div>
+                    <div className="text-sm font-bold font-code text-syntax-string">47% OPERATIONAL</div>
                   </div>
                   <div className="w-full h-3 bg-black/40 border border-white/5 rounded-full overflow-hidden p-0.5">
                     <div
-                      className="h-full bg-gradient-to-r from-neon-gold to-neon-purple rounded-full shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-1000"
+                      className="h-full bg-gradient-to-r from-syntax-string to-syntax-keyword rounded-full shadow-[0_0_15px_rgba(255,215,0,0.3)] transition-all duration-1000"
                       style={{ width: "47%" }}
                     />
                   </div>
@@ -871,8 +871,8 @@ export default function SettingsPage() {
                       <tr className="border-b border-white/10">
                         <th className="text-left py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Module_Feature</th>
                         <th className="text-center py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Base</th>
-                        <th className="text-center py-4 text-[10px] font-bold text-neon-cyan uppercase tracking-widest">PRO_v3</th>
-                        <th className="text-center py-4 text-[10px] font-bold text-neon-purple uppercase tracking-widest">ENT_v3</th>
+                        <th className="text-center py-4 text-[10px] font-bold text-syntax-function uppercase tracking-widest">PRO_v3</th>
+                        <th className="text-center py-4 text-[10px] font-bold text-syntax-keyword uppercase tracking-widest">ENT_v3</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -889,8 +889,8 @@ export default function SettingsPage() {
                         <tr key={i} className="border-b border-white/5 group hover:bg-white/5 transition-colors">
                           <td className="py-4 text-xs font-bold uppercase tracking-tight text-text-primary">{feature}</td>
                           <td className="py-4 text-center text-xs font-code text-text-muted">{free}</td>
-                          <td className="py-4 text-center text-xs font-code text-neon-cyan">{pro}</td>
-                          <td className="py-4 text-center text-xs font-code text-neon-purple">{enterprise}</td>
+                          <td className="py-4 text-center text-xs font-code text-syntax-function">{pro}</td>
+                          <td className="py-4 text-center text-xs font-code text-syntax-keyword">{enterprise}</td>
                         </tr>
                       ))}
                     </tbody>

@@ -66,13 +66,12 @@ interface TelemetryLog {
 
 export default function LandingPage() {
   const { theme, resolvedColors, setMode, setSkin } = useTheme();
-  const { profile } = useProfile();
+  const { profile, fetchProfile } = useProfile();
 
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(false);
   const [visitorCount, setVisitorCount] = useState(133742);
   const [musicUrl, setMusicUrl] = useState("https://open.spotify.com/embed/playlist/37i9dQZF1DX0r3x8OtiYiJ");
-  const [litBitCoins, setLitBitCoins] = useState(500);
   const [claimedToday, setClaimedToday] = useState(false);
   const [postComposerText, setPostComposerText] = useState("");
   const [postComposerMood, setPostComposerMood] = useState("Focused");
@@ -148,11 +147,6 @@ export default function LandingPage() {
     } else {
       localStorage.setItem("litlabs_visitor_count", "133742");
     }
-    const storedCoins = localStorage.getItem("litbitcoins");
-    if (storedCoins) setLitBitCoins(parseInt(storedCoins));
-    else localStorage.setItem("litbitcoins", "500");
-    const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
-    if (lastClaim === new Date().toISOString().split("T")[0]) setClaimedToday(true);
   }, []);
 
   // Poll telemetry
@@ -187,18 +181,26 @@ export default function LandingPage() {
     telemetryEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [telemetry]);
 
-  const claimDailyBonus = () => {
+  const claimDailyBonus = async () => {
     if (claimedToday) return;
-    const newBal = litBitCoins + 50;
-    setLitBitCoins(newBal);
-    localStorage.setItem("litbitcoins", newBal.toString());
-    localStorage.setItem("litbitcoins_last_claimed", new Date().toISOString().split("T")[0]);
-    setClaimedToday(true);
-    const timeStr = new Date().toTimeString().split(" ")[0];
-    setTelemetry(prev => [
-      ...prev,
-      { time: timeStr, agent: "System", text: `Claimed daily LiTBit Coins bonus: +50 coins!`, icon: "🪙" }
-    ]);
+    try {
+      const res = await fetch("/api/account/claim-bonus", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setClaimedToday(true);
+        fetchProfile(); // Refresh coins
+        const timeStr = new Date().toTimeString().split(" ")[0];
+        setTelemetry(prev => [
+          ...prev,
+          { time: timeStr, agent: "System", text: `Claimed daily LiTBit Coins bonus: +50 coins!`, icon: "🪙" }
+        ]);
+      } else {
+        alert(data.error || "Failed to claim bonus");
+        if (data.error.includes("already claimed")) setClaimedToday(true);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const openMessengerChat = (agent: UIAgent) => {
@@ -744,7 +746,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center justify-between mb-3">
                 <span className="font-mono text-xs" style={{ color: resolvedColors.textMuted }}>Balance</span>
-                <span className="font-mono text-xl font-bold" style={{ color: resolvedColors.accentColor }}>{litBitCoins}</span>
+                <span className="font-mono text-xl font-bold" style={{ color: resolvedColors.accentColor }}>{profile.litbit_coins || 0}</span>
               </div>
               <button onClick={claimDailyBonus} disabled={claimedToday}
                 className="btn btn-primary w-full text-xs"

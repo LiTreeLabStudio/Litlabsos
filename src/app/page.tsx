@@ -77,7 +77,7 @@ export default function PortfolioPage() {
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight mb-8 max-w-5xl leading-[1.1]">
-            Engineering autonomous systems that <span className="text-orange-500 font-code underline underline-offset-8 decoration-orange-500/30">execute</span> while you sleep.
+            Engineering autonomous systems that <span className="text-syntax-keyword font-code underline underline-offset-8 decoration-syntax-keyword/30">execute</span> while you sleep.
           </h1>
           
           <p className="text-lg text-text-secondary max-w-2xl leading-relaxed mb-12 font-medium">

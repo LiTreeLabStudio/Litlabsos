@@ -198,22 +198,19 @@ export default function AgentsDashboard() {
 
           {/* Active Task */}
           {activeTask && (
-            <section className="rounded-2xl border border-white/10 bg-[#1a1005] p-6 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                <svg className="w-24 h-24 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-              </div>
-              <h2 className="text-lg font-bold text-orange-400 mb-4 flex items-center gap-2">
-                🎯 Current Milestone
+            <section className="rounded-sm border border-ide-border bg-ide-surface/80 p-6 shadow-sm relative overflow-hidden">
+              <h2 className="text-sm font-bold text-white mb-4 flex items-center gap-2 font-code uppercase tracking-widest">
+                Current_Milestone
               </h2>
               <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20 backdrop-blur-sm">
-                  <h3 className="text-orange-200 font-bold mb-1">{activeTask.milestone}</h3>
-                  <p className="text-sm text-orange-200/60 leading-relaxed italic">
+                <div className="p-4 rounded-sm bg-black/40 border border-ide-border">
+                  <h3 className="text-white font-bold mb-1 font-code text-[11px] uppercase tracking-widest">{activeTask.milestone}</h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed italic font-code">
                     &quot;{activeTask.director_instructions}&quot;
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 uppercase tracking-widest">
+                  <span className="text-[9px] font-bold px-3 py-1 rounded-sm bg-syntax-keyword/10 text-syntax-keyword border border-syntax-keyword/30 uppercase tracking-[0.2em] font-code">
                     {activeTask.status}
                   </span>
                 </div>

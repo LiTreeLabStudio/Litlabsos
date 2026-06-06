@@ -9,8 +9,9 @@ export function getSupabaseServerClient() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !serviceKey) {
-    // Only throw at runtime when the function is actually called
-    throw new Error("❌ Server Error: Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY.");
+    console.error("❌ SUPABASE_URL:", url ? "SET" : "MISSING");
+    console.error("❌ SUPABASE_SERVICE_ROLE_KEY:", serviceKey ? "SET" : "MISSING");
+    throw new Error(`❌ Server Error: Missing critical Supabase config. URL: ${url ? 'OK' : 'MISSING'}, KEY: ${serviceKey ? 'OK' : 'MISSING'}`);
   }
 
   return createClient(url, serviceKey, {

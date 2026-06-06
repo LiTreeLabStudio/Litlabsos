@@ -111,7 +111,7 @@ export default function ChatPage() {
     } catch {
       setMessages(prev => [...prev, {
         session_id: sid || "",
-        sender_id: "assistant",
+        sender_id: "system",
         content: "Sorry, something went wrong. Please try again.",
         created_at: new Date().toISOString(),
       }]);
@@ -121,63 +121,63 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] bg-[#050505]">
+    <div className="flex h-[calc(100vh-3.5rem)] bg-ide-bg font-sans">
       {/* Sidebar — Sessions */}
-      <aside className={`${sidebarOpen ? "w-72" : "w-0"} flex-shrink-0 border-r border-[#1a1a1a] bg-[#0a0a0a] transition-all overflow-hidden`}>
+      <aside className={`${sidebarOpen ? "w-72" : "w-0"} flex-shrink-0 border-r border-ide-border bg-ide-surface/40 transition-all overflow-hidden`}>
         <div className="p-4">
-          <button onClick={handleNewChat} className="btn btn-primary w-full text-sm">
-            + New Chat
+          <button onClick={handleNewChat} className="btn btn-primary w-full text-[10px] font-bold uppercase tracking-widest h-8">
+            + New_Session
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-3 pb-4">
-          <div className="text-xs font-medium text-[#555] uppercase tracking-wider px-2 mb-2">Recent</div>
+          <div className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest px-2 mb-2 font-code">Recent_Logs</div>
           {sessions.map(s => (
             <button
               key={s.id}
               onClick={() => router.push(`/chat?id=${s.id}`)}
-              className={`w-full text-left p-3 rounded-lg text-sm mb-1 transition-colors ${
+              className={`w-full text-left p-3 rounded-sm text-sm mb-1 transition-colors border ${
                 currentSessionId === s.id
-                  ? "bg-[#f97316]/10 text-[#f97316]"
-                  : "text-[#a1a1aa] hover:bg-white/5 hover:text-white"
+                  ? "bg-zinc-800 border-zinc-600 text-white"
+                  : "text-zinc-400 border-transparent hover:bg-white/5 hover:text-white"
               }`}
             >
-              <div className="font-medium truncate">{s.title || "Untitled"}</div>
-              <div className="text-xs text-[#555] mt-0.5">{new Date(s.created_at).toLocaleDateString()}</div>
+              <div className="font-bold truncate text-[11px] font-code">{s.title || "Untitled_Session"}</div>
+              <div className="text-[9px] text-zinc-600 mt-0.5 font-code tracking-tight">{new Date(s.created_at).toLocaleDateString()}</div>
             </button>
           ))}
           {sessions.length === 0 && (
-            <div className="text-sm text-[#555] text-center py-8">No chats yet</div>
+            <div className="text-[10px] text-zinc-600 text-center py-8 font-code uppercase tracking-widest">No_Active_Sessions</div>
           )}
         </div>
       </aside>
 
       {/* Main Chat */}
-      <main className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 bg-ide-bg">
         {/* Header */}
-        <header className="h-14 border-b border-[#1a1a1a] flex items-center justify-between px-4 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-[#71717a] hover:text-white transition-colors">
+        <header className="h-14 border-b border-ide-border bg-ide-surface/80 flex items-center justify-between px-6 flex-shrink-0">
+          <div className="flex items-center gap-4">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="text-zinc-500 hover:text-white transition-colors">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
               </svg>
             </button>
-            <span className="text-sm font-medium text-white">
-              {currentSessionId ? (sessions.find(s => s.id === currentSessionId)?.title || "Chat") : "New Chat"}
+            <span className="text-xs font-bold text-white uppercase tracking-widest font-code">
+              {currentSessionId ? (sessions.find(s => s.id === currentSessionId)?.title || "Chat") : "New_Session"}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="status-dot online" />
-            <span className="text-xs text-[#71717a]">Online</span>
+            <div className="w-1.5 h-1.5 rounded-none bg-syntax-string" />
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-code">LNK_ACTIVE</span>
           </div>
         </header>
 
         {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
           {messages.length === 0 && !loading && (
             <div className="h-full flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#f97316]/10 flex items-center justify-center text-3xl mb-4">💬</div>
-              <h2 className="text-xl font-bold text-white mb-2">Start a conversation</h2>
-              <p className="text-sm text-[#71717a] max-w-sm">Ask me anything — I can help with coding, writing, analysis, and more.</p>
+              <div className="w-12 h-12 rounded-sm bg-ide-surface-2 border border-ide-border flex items-center justify-center text-2xl mb-4 shadow-sm">💬</div>
+              <h2 className="text-sm font-bold text-white mb-2 uppercase tracking-widest font-code">Awaiting_Directives</h2>
+              <p className="text-[10px] text-zinc-500 max-w-sm uppercase tracking-widest font-code">Input parameters for logic execution.</p>
             </div>
           )}
 
@@ -185,24 +185,19 @@ export default function ChatPage() {
             const isUser = m.sender_id === "user";
             return (
               <div key={i} className={`flex ${isUser ? "justify-end" : "justify-start"} animate-fade-in`}>
-                <div className={`max-w-2xl ${isUser ? "order-2" : ""}`}>
+                <div className={`max-w-2xl w-full ${isUser ? "order-2" : ""}`}>
                   <div className={`flex items-center gap-2 mb-2 ${isUser ? "justify-end" : ""}`}>
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                      isUser ? "bg-blue-500/20 text-blue-400" : "bg-[#f97316]/20 text-[#f97316]"
-                    }`}>
-                      {isUser ? "U" : "A"}
-                    </div>
-                    <span className={`text-xs font-medium ${isUser ? "text-blue-400" : "text-[#f97316]"}`}>
-                      {isUser ? "You" : "Assistant"}
+                    <span className={`text-[9px] font-bold uppercase tracking-widest font-code ${isUser ? "text-syntax-function" : "text-syntax-keyword"}`}>
+                      {isUser ? "LOCAL_TERMINAL" : (m.sender_id === "system" ? "SYSTEM_NODE" : "ASSISTANT_NODE")}
                     </span>
-                    <span className="text-xs text-[#555]">
-                      {m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
+                    <span className="text-[8px] text-zinc-600 font-code tracking-tighter">
+                      [{m.created_at ? new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "NOW"}]
                     </span>
                   </div>
-                  <div className={`p-4 rounded-xl ${
+                  <div className={`p-4 rounded-sm border ${
                     isUser
-                      ? "bg-[#f97316] text-black"
-                      : "bg-[#111] text-[#e5e5e5] border border-[#1a1a1a]"
+                      ? "bg-zinc-800/40 border-zinc-700 text-white"
+                      : "bg-ide-surface border-ide-border text-zinc-200"
                   }`}>
                     <div className="text-sm leading-relaxed whitespace-pre-wrap">{m.content}</div>
                   </div>
@@ -213,16 +208,14 @@ export default function ChatPage() {
 
           {loading && (
             <div className="flex justify-start animate-fade-in">
-              <div className="max-w-2xl">
+              <div className="max-w-2xl w-full">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-[#f97316]/20 flex items-center justify-center text-xs font-bold text-[#f97316]">A</div>
-                  <span className="text-xs font-medium text-[#f97316]">Assistant</span>
+                  <span className="text-[9px] font-bold text-syntax-keyword uppercase tracking-widest font-code">ASSISTANT_NODE</span>
                 </div>
-                <div className="p-4 rounded-xl bg-[#111] border border-[#1a1a1a]">
+                <div className="p-4 rounded-sm bg-ide-surface border border-ide-border">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#f97316] animate-pulse-dot" />
-                    <div className="w-2 h-2 rounded-full bg-[#f97316] animate-pulse-dot" style={{ animationDelay: "0.2s" }} />
-                    <div className="w-2 h-2 rounded-full bg-[#f97316] animate-pulse-dot" style={{ animationDelay: "0.4s" }} />
+                    <div className="w-1.5 h-1.5 rounded-none bg-syntax-keyword animate-pulse" />
+                    <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest font-code">Processing_Neural_Intent...</span>
                   </div>
                 </div>
               </div>
@@ -231,19 +224,18 @@ export default function ChatPage() {
         </div>
 
         {/* Input */}
-        <footer className="p-4 border-t border-[#1a1a1a] flex-shrink-0">
-          <form onSubmit={handleSend} className="max-w-3xl mx-auto flex gap-3">
+        <footer className="p-4 sm:px-8 sm:py-6 border-t border-ide-border bg-ide-surface/30 flex-shrink-0">
+          <form onSubmit={handleSend} className="max-w-4xl mx-auto flex gap-3 relative">
+            <div className="absolute -top-6 left-2 px-1 text-[8px] font-bold text-zinc-600 uppercase tracking-widest font-code bg-ide-surface border border-ide-border rounded-sm">COMMAND_IN</div>
             <input
-              className="input flex-1"
-              placeholder="Type your message..."
+              className="input flex-1 font-code text-sm py-3"
+              placeholder="Execute command..."
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={loading}
             />
-            <button type="submit" disabled={loading || !input.trim()} className="btn btn-primary px-5">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-              </svg>
+            <button type="submit" disabled={loading || !input.trim()} className="btn btn-primary px-8 text-[10px] font-black uppercase tracking-[0.2em]">
+              Send
             </button>
           </form>
         </footer>

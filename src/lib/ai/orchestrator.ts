@@ -34,20 +34,20 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
   const supabase = getSupabaseServerClient();
   let userId: string | null = null;
 
-  // 1. Authenticate and Check Credits
+  // 1. Authenticate and Check Coins
   if (sessionId) {
     const { data: session } = await supabase.from("chat_sessions").select("user_id").eq("id", sessionId).single();
     userId = session?.user_id;
   }
 
   if (userId) {
-    const { data: profile } = await supabase.from("profiles").select("neural_credits").eq("id", userId).single();
-    const credits = profile?.neural_credits || 0;
+    const { data: profile } = await supabase.from("profiles").select("litbit_coins").eq("id", userId).single();
+    const coins = profile?.litbit_coins || 0;
 
-    if (credits <= 0) {
+    if (coins <= 0) {
       return { 
-        reply: "⚠️ INSUFFICIENT NEURAL CREDITS. Access restricted. Please top up your compute balance in the Bot Forge to continue orchestration.", 
-        plan: "CREDIT_BLOCK", 
+        reply: "⚠️ INSUFFICIENT LiTBit COINS. Access restricted. Please top up your compute balance in the Bot Forge to continue orchestration.", 
+        plan: "COIN_BLOCK", 
         agent: "system" 
       };
     }
@@ -73,9 +73,9 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
     console.warn("Failed to parse Director JSON, using raw text.", e);
   }
 
-  // 3. Deduct Credit upon successful planning
+  // 3. Deduct Coin upon successful planning
   if (userId) {
-    await supabase.rpc('decrement_credits', { user_id: userId, amount: 1 });
+    await supabase.rpc('decrement_coins', { user_id: userId, amount: 1 });
   }
 
   await logTelemetry(sessionId, null, "info", `Strategy formulated for agent: ${agentId} | Background: ${isBackground}`);

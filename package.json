@@ -27,10 +27,12 @@
     "react-dom": "18.3.1",
     "server-only": "^0.0.1",
     "stripe": "^22.2.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "@clerk/nextjs": "^6.12.3",
+    "lucide-react": "^0.477.0",
+    "@supabase/supabase-js": "^2.49.1"
   },
   "devDependencies": {
-    "@supabase/supabase-js": "^2.106.2",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^25.9.1",
     "@types/react": "^19",

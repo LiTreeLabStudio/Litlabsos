@@ -27,10 +27,33 @@ create table public.profiles (
   name text default 'User',
   role text default 'user',
   is_pro boolean default false,
-  neural_credits integer default 10, -- Base startup credits
+  litbit_coins integer default 500, -- Base startup credits
   stripe_customer_id text unique, -- Ensure uniqueness for webhook mapping
   created_at timestamptz default now(),
   updated_at timestamptz default now()
+);
+
+-- ============================================
+-- 1.1 GENERATIONS
+-- ============================================
+create table public.generations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete cascade,
+  type text not null, -- 'video', 'image', 'audio'
+  model text not null,
+  prompt text not null,
+  output_url text,
+  cost integer not null,
+  status text default 'pending', -- 'pending', 'completed', 'failed'
+  created_at timestamptz default now()
+);
+
+-- ============================================
+-- 1.2 DAILY BONUS CLAIMS
+-- ============================================
+create table public.daily_bonus_claims (
+  user_id uuid primary key references public.profiles(id) on delete cascade,
+  last_claimed_at timestamptz default now()
 );
 
 -- ============================================
@@ -283,23 +306,46 @@ insert into public.social_posts (author_name, author_avatar, content, likes_coun
 -- 11. NEURAL BANKING (RPC FUNCTIONS)
 -- ============================================
 
--- Increment user credits (safe atomic update)
-create or replace function increment_credits(user_id uuid, amount integer)
+-- Increment user coins (safe atomic update)
+create or replace function increment_coins(user_id uuid, amount integer)
 returns void as $$
 begin
   update public.profiles
-  set neural_credits = neural_credits + amount
+  set litbit_coins = litbit_coins + amount
   where id = user_id;
 end;
 $$ language plpgsql security definer;
 
--- Decrement user credits (safe atomic update)
-create or replace function decrement_credits(user_id uuid, amount integer)
+-- Decrement user coins (safe atomic update)
+create or replace function decrement_coins(user_id uuid, amount integer)
 returns void as $$
 begin
   update public.profiles
-  set neural_credits = neural_credits - amount
+  set litbit_coins = litbit_coins - amount
   where id = user_id;
+end;
+$$ language plpgsql security definer;
+
+-- Claim daily bonus with cooldown
+create or replace function claim_daily_bonus(user_id uuid)
+returns json as $$
+declare
+  last_claim timestamptz;
+  bonus_amount integer := 50;
+begin
+  select last_claimed_at into last_claim from public.daily_bonus_claims where public.daily_bonus_claims.user_id = claim_daily_bonus.user_id;
+  
+  if last_claim is not null and last_claim > now() - interval '24 hours' then
+    return json_build_object('success', false, 'message', 'Bonus already claimed today.');
+  end if;
+
+  insert into public.daily_bonus_claims (user_id, last_claimed_at)
+  values (user_id, now())
+  on conflict (user_id) do update set last_claimed_at = now();
+
+  perform public.increment_coins(user_id, bonus_amount);
+
+  return json_build_object('success', true, 'amount', bonus_amount);
 end;
 $$ language plpgsql security definer;
 

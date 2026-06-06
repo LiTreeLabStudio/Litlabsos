@@ -29,9 +29,11 @@ const CATEGORIES = ["All", "Development", "Marketing", "Analytics", "Creative", 
 
 export default function MarketplacePage() {
   const router = useRouter();
+  const { profile, fetchProfile } = useProfile();
   const [active, setActive] = useState("All");
   const [search, setSearch] = useState("");
   const [acquiring, setAcquiring] = useState<string | null>(null);
+  const [allocating, setAllocating] = useState<number | null>(null);
 
   const handleAcquire = async (agentId: string) => {
     setAcquiring(agentId);
@@ -42,6 +44,25 @@ export default function MarketplacePage() {
       console.error("Error:", err);
     } finally {
       setAcquiring(null);
+    }
+  };
+
+  const handleAllocate = async (pkg: { amount: number; coins: number }) => {
+    setAllocating(pkg.amount);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: pkg.amount, coins: pkg.coins })
+      });
+      const data = await res.json();
+      if (data.url) router.push(data.url);
+      else alert("Checkout error: " + data.error);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    } finally {
+      setAllocating(null);
     }
   };
 
@@ -144,20 +165,21 @@ export default function MarketplacePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { amount: 10, credits: 100, label: "Starter" },
-              { amount: 25, credits: 300, label: "Popular", popular: true },
-              { amount: 50, credits: 750, label: "Pro" },
+              { amount: 10, coins: 100, label: "Starter" },
+              { amount: 25, coins: 300, label: "Popular", popular: true },
+              { amount: 50, coins: 750, label: "Pro" },
             ].map(pkg => (
               <div key={pkg.amount} className={`bg-ide-surface/40 border p-6 text-center rounded-sm transition-colors ${pkg.popular ? "border-zinc-500 bg-ide-surface/80" : "border-ide-border hover:border-zinc-700"}`}>
                 {pkg.popular && <div className="text-[9px] font-black text-syntax-keyword uppercase tracking-[0.2em] mb-3">REC_ALLOCATION</div>}
-                <div className="text-3xl font-bold text-white mb-1 font-code tracking-tighter">{pkg.credits}</div>
+                <div className="text-3xl font-bold text-white mb-1 font-code tracking-tighter">{pkg.coins}</div>
                 <div className="text-[10px] font-code text-zinc-500 uppercase tracking-widest mb-4">CRD_PACK</div>
                 <div className="text-lg font-bold text-white mb-6 font-code">${pkg.amount}</div>
                 <button
-                  onClick={() => {}}
+                  onClick={() => handleAllocate(pkg)}
+                  disabled={allocating === pkg.amount}
                   className={`btn w-full text-[10px] font-black uppercase tracking-widest ${pkg.popular ? "btn-primary" : "btn-secondary"}`}
                 >
-                  Allocate
+                  {allocating === pkg.amount ? "ALLOCATING..." : "Allocate"}
                 </button>
               </div>
             ))}

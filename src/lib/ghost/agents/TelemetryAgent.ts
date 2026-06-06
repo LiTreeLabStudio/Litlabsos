@@ -1,5 +1,4 @@
 import { BaseAgent } from './BaseAgent';
-import { execSync } from 'child_process';
 import os from 'os';
 
 export class TelemetryAgent extends BaseAgent {

@@ -27,6 +27,15 @@ async function main() {
       console.log(`✅ ${saveResult.message}`);
       break;
 
+    case 'sync-pc':
+      const syncPcResult = await engine.syncPc();
+      if (!syncPcResult.success) {
+        console.error(`❌ ${syncPcResult.message}`);
+        process.exit(1);
+      }
+      console.log(`✅ ${syncPcResult.message}`);
+      break;
+
     case 'scan':
       const scanner = new OpportunityScanner();
       await scanner.run();

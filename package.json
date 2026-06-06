@@ -6,6 +6,7 @@
     "dev": "next dev --webpack",
     "dev:loop": "./bin/dev.sh",
     "sync": "tsx src/lib/ghost/index.ts sync",
+    "sync:pc": "tsx src/lib/ghost/index.ts sync-pc",
     "save": "tsx src/lib/ghost/index.ts save",
     "auto-fix": "./bin/auto-fix.sh",
     "build": "next build --webpack",

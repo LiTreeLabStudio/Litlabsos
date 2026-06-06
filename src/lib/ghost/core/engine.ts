@@ -91,4 +91,28 @@ export class GhostCore {
       return { success: false, message };
     }
   }
+
+  /**
+   * Syncs the current project to the Windows Monolith via SSH + tar.
+   */
+  async syncPc(): Promise<{ success: boolean; message: string }> {
+    try {
+      console.log('🛸 [Ghost] Starting PC Bridge Sync to Monolith...');
+      
+      const host = this.config.PC_HOST || 'monolith';
+      const dest = '/mnt/c/Users/litbi/CascadeProjects/litlabs-website/';
+      
+      const excludes = this.config.SYNC_EXCLUDES?.map(e => `--exclude=${e}`).join(' ') || '';
+      
+      // Execute the tar pipe to SSH
+      const command = `tar ${excludes} -czf - -C . . | ssh -o LogLevel=QUIET -o StrictHostKeyChecking=no -o ConnectTimeout=10 ${host} "sudo tar --no-same-permissions --no-same-owner --overwrite -xzf - -C \\"${dest}\\""`;
+      
+      execSync(command, { stdio: 'inherit' });
+      
+      return { success: true, message: 'PC Sync Complete!' };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { success: false, message: `PC Sync failed: ${message}` };
+    }
+  }
 }

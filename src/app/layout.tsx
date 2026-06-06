@@ -1,9 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { ProfileProvider } from "@/context/ProfileContext";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import CookieConsent from "@/components/CookieConsent";
+import UserSync from "@/components/UserSync";
+import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,39 +33,73 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: {
-    default: "LitLabs — AI Agent Platform",
-    template: "%s | LitLabs",
-  },
-  description: "Build, deploy, and manage custom AI agents. Create automations, connect tools, and scale your workflow from one clean platform.",
-  metadataBase: new URL("https://litlabs.net"),
-  authors: [{ name: "Larry Bol", url: "https://litlabs.net" }],
-  keywords: ["AI agents", "automation", "AI platform", "LitLabs", "AI builder"],
+  title: "LiTTree Lab Studios — AI Agent Platform",
+  description: "LiTPage — Your AI Universe. Deploy specialized AI agents, build workflows, and dominate your niche.",
+  keywords: ["AI agents", "automation", "workflow", "artificial intelligence", "NoCode", "LiTTree", "LiTPage"],
+  authors: [{ name: "LiTTree Lab Studios" }],
+  creator: "LiTTree Lab Studios",
+  publisher: "LiTTree Lab Studios",
+  robots: { index: true, follow: true },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://litlabs.net",
-    title: "LitLabs — AI Agent Platform",
-    description: "Build and deploy custom AI agents from one clean platform.",
-    siteName: "LitLabs",
+    siteName: "LiTTree Lab Studios",
+    title: "LiTTree Lab Studios — AI Agent Platform",
+    description: "LiTPage — Your AI Universe. Deploy agents. Automate workflows. Dominate your niche.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LitLabs — AI Agent Platform",
-    description: "Build and deploy custom AI agents.",
+    title: "LiTTree Lab Studios — AI Agent Platform",
+    description: "LiTPage — Your AI Universe. Deploy agents. Automate workflows. Dominate your niche.",
+    creator: "@litlabs",
   },
-  robots: { index: true, follow: true },
+  verification: {
+    google: "verify-later",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+const clerkReady =
+  (clerkKey.startsWith("pk_test_") || clerkKey.startsWith("pk_live_")) &&
+  clerkKey.length > 40;
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const inner = (
+    <ThemeProvider>
+      <ProfileProvider>
+        <AnimatedBackgroundWrapper />
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <UserSync />
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <CookieConsent />
+        </div>
+      </ProfileProvider>
+    </ThemeProvider>
+  );
+
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[#050505] text-[#fafafa] antialiased">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-        <Analytics />
-        <SpeedInsights />
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+      <body className="antialiased min-h-screen">
+        {clerkReady ? (
+          <ClerkProvider>
+            {inner}
+            <Analytics />
+            <SpeedInsights />
+          </ClerkProvider>
+        ) : (
+          <>
+            {inner}
+            <Analytics />
+            <SpeedInsights />
+          </>
+        )}
       </body>
     </html>
   );

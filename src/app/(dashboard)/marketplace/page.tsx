@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
+import { useProfile } from "@/context/ProfileContext";
 
 interface Bot {
   id: string;

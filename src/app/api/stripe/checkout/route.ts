@@ -3,7 +3,6 @@ import { getAuth } from "@clerk/nextjs/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  // @ts-expect-error - Using a specialized or future API version for the Hive Mind
   apiVersion: "2026-05-27.dahlia",
 });
 

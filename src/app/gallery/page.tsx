@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
@@ -65,26 +65,30 @@ export default function Gallery() {
   const [uploadForm, setUploadForm] = useState({ title: "", imageUrl: "", artist: "", category: "abstract" });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  // Merge demo + real API + user items (must be before hooks that reference it)
+  const items = [...apiItems, ...DEMO_ITEMS, ...userItems].map(item => ({
+    ...item,
+    likes: likeCounts[item.id] !== undefined ? likeCounts[item.id] : item.likes,
+  }));
+
+  // Use ref so callback doesn't need items in deps (avoids stale closure + ordering issues)
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+
   // Hooks must be declared before any conditional returns (rules-of-hooks)
   const toggleLike = useCallback((id: string) => {
     setLikedItems(prev => {
       const next = new Set(prev);
       const wasLiked = next.has(id);
       if (wasLiked) { next.delete(id); } else { next.add(id); }
-      // Update like count
+      const currentItem = itemsRef.current.find(i => i.id === id);
       setLikeCounts(counts => {
-        const current = counts[id] ?? items.find(i => i.id === id)?.likes ?? 0;
+        const current = counts[id] ?? currentItem?.likes ?? 0;
         return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
       });
       return next;
     });
-  }, [items]);
-
-  // Merge demo + real API + user items
-  const items = [...apiItems, ...DEMO_ITEMS, ...userItems].map(item => ({
-    ...item,
-    likes: likeCounts[item.id] !== undefined ? likeCounts[item.id] : item.likes,
-  }));
+  }, []);
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });

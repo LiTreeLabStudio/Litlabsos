@@ -12,7 +12,7 @@ export function ClerkUserWidget({ compact }: Props) {
   if (!isLoaded) return null;
 
   if (compact) {
-    return user ? <UserButton afterSignOutUrl="/" /> : null;
+    return user ? <UserButton /> : null;
   }
 
   const displayName = user?.firstName || user?.username || "User";

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No webhook secret" }, { status: 500 });
   }
 
-  const stripe = new Stripe(key, { apiVersion: "2025-08-27.basil" });
+  const stripe = new Stripe(key, { apiVersion: "2026-05-27.dahlia" });
 
   // Verify webhook signature
   let event: Stripe.Event;

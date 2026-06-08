@@ -12,7 +12,7 @@ export function NavAuth({ linkColor = "#ff0080" }: NavAuthProps) {
   if (!isLoaded) return null;
 
   if (isSignedIn) {
-    return <UserButton afterSignOutUrl="/" />;
+    return <UserButton />;
   }
 
   return (

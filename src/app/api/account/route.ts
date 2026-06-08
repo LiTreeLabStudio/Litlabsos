@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     const supabase = getSupabaseServerClient();
     
     // 1. Try to fetch the profile
-    const { data: profile, error } = await supabase
+    let { data: profile, error } = await supabase
       .from("profiles")
       .select("*")
       .eq("id", userId)

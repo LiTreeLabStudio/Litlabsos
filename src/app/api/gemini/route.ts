@@ -8,49 +8,38 @@ export const maxDuration = 60;
 // Returns { response: string }
 async function handler(req: NextRequest) {
   try {
-    const { message, systemPrompt } = await req.json();
+    const { message, systemPrompt, agentId } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: "Missing message" }, { status: 400 });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
-    }
+    const jarvisUrl = process.env.JARVIS_URL || "http://localhost:8080";
 
     const body = {
-      system_instruction: systemPrompt
-        ? { parts: [{ text: systemPrompt }] }
-        : undefined,
-      contents: [{ role: "user", parts: [{ text: message }] }],
-      generationConfig: {
-        temperature: 0.9,
-        topP: 0.95,
-        maxOutputTokens: 1024,
-      },
+      message,
+      system_prompt: systemPrompt,
+      agent_id: agentId || "champion",
+      requirements: { tags: ["ui"] } // Default tag for generic chat requests
     };
 
-    const model = "gemini-2.0-flash";
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    const geminiRes = await fetch(endpoint, {
+    const jarvisRes = await fetch(`${jarvisUrl}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.text();
-      console.error("Gemini API error:", err);
-      return NextResponse.json({ error: "Gemini API error" }, { status: 502 });
+    if (!jarvisRes.ok) {
+      const err = await jarvisRes.text();
+      console.error("Jarvis API error:", err);
+      // Fallback to error message
+      return NextResponse.json({ response: "I'm currently unable to connect to the Hive Mind. Please try again later." });
     }
 
-    const data = await geminiRes.json();
-    const response = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm thinking...";
-    return NextResponse.json({ response });
+    const data = await jarvisRes.json();
+    return NextResponse.json({ response: data.reply || "I'm thinking..." });
   } catch (err) {
-    console.error("Gemini route error:", err);
+    console.error("Jarvis proxy route error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

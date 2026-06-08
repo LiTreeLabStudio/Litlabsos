@@ -8,93 +8,38 @@ async function handler(req: NextRequest) {
   try {
     const { messages, systemPrompt, stream = true } = await req.json();
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "GEMINI_API_KEY not configured" }, { status: 500 });
-    }
+    const nemoclawUrl = process.env.NEMOCLAW_URL || "http://localhost:8081";
 
-    // Build Gemini contents array
-    const contents = messages.map((m: { role: string; content: string }) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
-    }));
+    // Flatten messages for NemoClaw's simplified interface
+    const flattenedMessage = messages
+      .map((m: { role: string; content: string }) => `${m.role.toUpperCase()}: ${m.content}`)
+      .join("\n\n");
 
     const body = {
-      system_instruction: systemPrompt
-        ? { parts: [{ text: systemPrompt }] }
-        : undefined,
-      contents,
-      generationConfig: {
-        temperature: 0.9,
-        topP: 0.95,
-        maxOutputTokens: 2048,
-      },
+      system_prompt: systemPrompt,
+      message: flattenedMessage,
+      stream,
     };
 
-    const model = "gemini-2.0-flash";
-    const endpoint = stream
-      ? `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`
-      : `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-    const geminiRes = await fetch(endpoint, {
+    const nemoclawRes = await fetch(`${nemoclawUrl}/api/think`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
-    if (!geminiRes.ok) {
-      const err = await geminiRes.text();
-      console.error("Gemini API error:", err);
-      return NextResponse.json({ error: "Gemini API error", detail: err }, { status: 502 });
+    if (!nemoclawRes.ok) {
+      const err = await nemoclawRes.text();
+      console.error("NemoClaw API error:", err);
+      return NextResponse.json({ error: "Brain connection error", detail: err }, { status: 502 });
     }
 
     if (!stream) {
-      const data = await geminiRes.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      return NextResponse.json({ text });
+      const data = await nemoclawRes.json();
+      return NextResponse.json({ text: data.reply || "No response." });
     }
 
-    // Stream response back to client
-    const encoder = new TextEncoder();
-    const readable = new ReadableStream({
-      async start(controller) {
-        const reader = geminiRes.body!.getReader();
-        const decoder = new TextDecoder();
-
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-
-            const chunk = decoder.decode(value, { stream: true });
-            const lines = chunk.split("\n");
-
-            for (const line of lines) {
-              if (!line.startsWith("data: ")) continue;
-              const data = line.slice(6).trim();
-              if (data === "[DONE]" || !data) continue;
-
-              try {
-                const parsed = JSON.parse(data);
-                const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-                if (text) {
-                  controller.enqueue(
-                    encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
-                  );
-                }
-              } catch {
-                // skip malformed chunks
-              }
-            }
-          }
-        } finally {
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(readable, {
+    // Stream response back to client directly from NemoClaw's SSE stream
+    return new Response(nemoclawRes.body, {
       headers: {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
@@ -102,7 +47,7 @@ async function handler(req: NextRequest) {
       },
     });
   } catch (err) {
-    console.error("Gemini chat error:", err);
+    console.error("NemoClaw chat proxy error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

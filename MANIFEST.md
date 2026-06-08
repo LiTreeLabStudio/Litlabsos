@@ -14,7 +14,7 @@ This file maps the canonical architecture for the LitLabs Hive Mind. It ensures 
 ```
 
 ## 2. Network Infrastructure
-- **Production:** [https://litlabs.net](https://litlabs.net) (Vercel)
+- **Production:** [https://litlabs.net](https://litlabs.net)
 - **API (WSL/Termux Tunnel):** [https://api.litlabs.net](https://api.litlabs.net)
 - **Dev Live Reload:** [https://dev.litlabs.net](https://dev.litlabs.net)
 - **Code Editor:** [https://code.litlabs.net](https://code.litlabs.net)

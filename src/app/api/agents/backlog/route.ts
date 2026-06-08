@@ -1,16 +1,23 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getSupabaseServerClient } from "@/lib/supabaseServer";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const dirPath = path.join(process.cwd(), "tasks/backlog");
   try {
-    if (fs.existsSync(dirPath)) {
-      const files = fs.readdirSync(dirPath);
-      return NextResponse.json(files.length);
+    const supabase = getSupabaseServerClient();
+
+    const { count, error } = await supabase
+      .from("task_backlog")
+      .select("id", { count: "exact", head: true });
+
+    if (error) {
+      console.error("Backlog count error:", error);
+      return NextResponse.json(0);
     }
-  } catch (e) {
-    console.error("Error reading backlog:", e);
+
+    return NextResponse.json(count || 0);
+  } catch {
+    return NextResponse.json(0);
   }
-  return NextResponse.json(0);
 }

@@ -90,14 +90,10 @@ export default function RootLayout({
         {clerkReady ? (
           <ClerkProvider>
             {inner}
-            <Analytics />
-            <SpeedInsights />
           </ClerkProvider>
         ) : (
           <>
             {inner}
-            <Analytics />
-            <SpeedInsights />
           </>
         )}
       </body>

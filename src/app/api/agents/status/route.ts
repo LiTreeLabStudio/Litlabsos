@@ -1,51 +1,56 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getSupabaseServerClient } from "@/lib/supabaseServer";
 
-async function getAgentStatus(id: string, name: string) {
-  const logDir = path.join(process.cwd(), "agents/logs");
-  const logFiles = [
-    path.join(logDir, `${id}.log`),
-    path.join(logDir, `${id}.sh.log`),
-    // Some agents might have dated logs, but for simplicity let's check basic ones
-  ];
+export const dynamic = "force-dynamic";
 
-  let lastActive = new Date(0);
-  let status = "idle";
-
-  for (const logFile of logFiles) {
-    try {
-      if (fs.existsSync(logFile)) {
-        const stats = fs.statSync(logFile);
-        if (stats.mtime > lastActive) {
-          lastActive = stats.mtime;
-        }
-      }
-    } catch {}
-  }
-
-  // If active in the last 5 minutes, mark as running
-  const now = new Date();
-  if (lastActive.getTime() > now.getTime() - 5 * 60 * 1000) {
-    status = "running";
-  }
-
-  return {
-    id,
-    name,
-    status,
-    lastActive: lastActive.getTime() > 0 ? lastActive.toISOString() : new Date().toISOString()
-  };
+interface AgentStatus {
+  id: string;
+  name: string;
+  status: string;
+  lastActive: string;
 }
 
 export async function GET() {
-  const agents = await Promise.all([
-    getAgentStatus("brain", "System Brain"),
-    getAgentStatus("monitor", "Monitor Agent"),
-    getAgentStatus("deploy", "Deploy Agent"),
-    getAgentStatus("build", "Build Agent"),
-    getAgentStatus("bridge", "Bridge Agent"),
-  ]);
-  
-  return NextResponse.json(agents);
+  try {
+    const supabase = getSupabaseServerClient();
+
+    // Fetch agents from Supabase
+    const { data: agents, error } = await supabase
+      .from("agents")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Error fetching agents:", error);
+      return NextResponse.json(getDefaultAgents());
+    }
+
+    if (!agents || agents.length === 0) {
+      return NextResponse.json(getDefaultAgents());
+    }
+
+    // Map to status format
+    const statusList: AgentStatus[] = agents.map((agent) => ({
+      id: agent.id,
+      name: agent.name,
+      status: agent.status || "idle",
+      lastActive: agent.updated_at || agent.created_at || new Date().toISOString(),
+    }));
+
+    return NextResponse.json(statusList);
+  } catch (e) {
+    console.error("Agent status error:", e);
+    return NextResponse.json(getDefaultAgents());
+  }
+}
+
+function getDefaultAgents(): AgentStatus[] {
+  const now = new Date().toISOString();
+  return [
+    { id: "jarvis", name: "Jarvis Master", status: "online", lastActive: now },
+    { id: "nemoclaw", name: "NemoClaw Brain", status: "online", lastActive: now },
+    { id: "gig-hunter", name: "Gig Hunter", status: "idle", lastActive: now },
+    { id: "money-finder", name: "Money Finder", status: "idle", lastActive: now },
+    { id: "health-monitor", name: "Health Monitor", status: "online", lastActive: now },
+  ];
 }

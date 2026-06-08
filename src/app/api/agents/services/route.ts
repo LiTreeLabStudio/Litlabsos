@@ -1,42 +1,76 @@
 import { NextResponse } from "next/server";
-import { execSync } from "child_process";
 
-async function checkPort(port: number, host: string = "localhost"): Promise<boolean> {
-  try {
-    // Use curl to check if something is listening
-    execSync(`curl -s -o /dev/null -w "%{http_code}" --max-time 1 http://${host}:${port}`, { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
-}
+export const dynamic = "force-dynamic";
 
-async function checkService(name: string): Promise<string> {
-  try {
-    const status = execSync(`systemctl is-active ${name}`, { encoding: 'utf8' }).trim();
-    return status === "active" ? "active" : "inactive";
-  } catch {
-    return "unknown";
-  }
-}
-
+/**
+ * Service health check — works on Vercel.
+ * Checks external services via HTTP, not local ports.
+ */
 export async function GET() {
-  const [ollama, n8n, tunnel, bridge] = await Promise.all([
-    checkPort(11434),
-    checkPort(5678), // Default n8n port
-    checkPort(8080), // Assuming tunnel or similar
-    checkPort(9876), // agent-bridge port from previous logs
-  ]);
-
-  // Try to get real service status if systemctl is available
-  const services = {
-    frontend: "active", // The app is responding to this request
+  const services: Record<string, string> = {
+    frontend: "active",
     api: "active",
-    ollama: ollama ? "active" : await checkService("ollama"),
-    n8n: n8n ? "active" : await checkService("n8n"),
-    tunnel: tunnel ? "active" : await checkService("litlabs-api-tunnel"),
-    bridge: bridge ? "active" : await checkService("agent-bridge"),
   };
+
+  // Check Supabase connectivity
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (supabaseUrl && supabaseKey) {
+      const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+        headers: { apikey: supabaseKey },
+        signal: AbortSignal.timeout(3000),
+      });
+      services["supabase"] = res.ok ? "active" : "degraded";
+    } else {
+      services["supabase"] = "inactive";
+    }
+  } catch {
+    services["supabase"] = "offline";
+  }
+
+  // Check Gemini API
+  try {
+    const geminiKey = process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`,
+        { signal: AbortSignal.timeout(3000) }
+      );
+      services["gemini"] = res.ok ? "active" : "degraded";
+    } else {
+      services["gemini"] = "inactive";
+    }
+  } catch {
+    services["gemini"] = "offline";
+  }
+
+  // Check Jarvis (only when running locally, not on Vercel)
+  const isVercel = process.env.VERCEL === "1";
+  if (!isVercel) {
+    try {
+      const jarvisUrl = process.env.JARVIS_URL || "http://localhost:8080";
+      const res = await fetch(`${jarvisUrl}/health`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      services["jarvis"] = res.ok ? "active" : "offline";
+    } catch {
+      services["jarvis"] = "offline";
+    }
+
+    try {
+      const nemoclawUrl = process.env.NEMOCLAW_URL || "http://localhost:8081";
+      const res = await fetch(`${nemoclawUrl}/health`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      services["nemoclaw"] = res.ok ? "active" : "offline";
+    } catch {
+      services["nemoclaw"] = "offline";
+    }
+  } else {
+    services["jarvis"] = "proxy";
+    services["nemoclaw"] = "proxy";
+  }
 
   return NextResponse.json(services);
 }

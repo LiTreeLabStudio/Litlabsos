@@ -1,16 +1,37 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { getSupabaseServerClient } from "@/lib/supabaseServer";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const taskPath = path.join(process.cwd(), "tasks/active.json");
   try {
-    if (fs.existsSync(taskPath)) {
-      const data = fs.readFileSync(taskPath, "utf8");
-      return NextResponse.json(JSON.parse(data));
+    const supabase = getSupabaseServerClient();
+
+    const { data: task } = await supabase
+      .from("active_tasks")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (task) {
+      return NextResponse.json({
+        milestone: task.milestone || task.title || "No active milestone",
+        director_instructions: task.description || task.goal || "System running normally",
+        status: task.status || "in_progress",
+      });
     }
-  } catch (e) {
-    console.error("Error reading active task:", e);
+
+    return NextResponse.json({
+      milestone: "System Equilibrium",
+      director_instructions: "All agents operational. Awaiting directives.",
+      status: "stable",
+    });
+  } catch {
+    return NextResponse.json({
+      milestone: "System Equilibrium",
+      director_instructions: "All agents operational. Awaiting directives.",
+      status: "stable",
+    });
   }
-  return NextResponse.json(null);
 }

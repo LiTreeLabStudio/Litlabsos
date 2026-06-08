@@ -1,37 +1,54 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { getSupabaseServerClient } from "@/lib/supabaseServer";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const isVercel = process.env.VERCEL === "1" || process.env.NEXT_PUBLIC_VERCEL_ENV !== undefined;
-  
-  let activeMilestone = "Optimum Equilibrium";
+  const isVercel = process.env.VERCEL === "1";
+  let activeMilestone = "System Equilibrium";
   let systemStatus = "stable";
+  let agentCount = 5;
 
-  // Only read local files when running on Termux (not Vercel)
-  if (!isVercel) {
-    try {
-      const taskPath = path.join(process.cwd(), "tasks/active.json");
-      if (fs.existsSync(taskPath)) {
-        const task = JSON.parse(fs.readFileSync(taskPath, "utf8"));
-        activeMilestone = task.milestone || activeMilestone;
-        systemStatus = task.status || systemStatus;
-      }
-    } catch {}
+  try {
+    const supabase = getSupabaseServerClient();
+
+    // Get active task
+    const { data: task } = await supabase
+      .from("active_tasks")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (task) {
+      activeMilestone = task.milestone || activeMilestone;
+      systemStatus = task.status || systemStatus;
+    }
+
+    // Count agents
+    const { count } = await supabase
+      .from("agents")
+      .select("id", { count: "exact", head: true });
+
+    agentCount = count || agentCount;
+  } catch (e) {
+    console.error("Live status error:", e);
   }
 
   return NextResponse.json({
     project: "LitLabs Hive Mind",
-    version: "3.0.0-autonomic",
+    version: "3.0.0",
     status: systemStatus,
     activeMilestone,
     environment: isVercel ? "vercel" : "termux",
     agents: [
-      { name: "Brain", status: "online" },
-      { name: "Scanner", status: "online" },
-      { name: "Monitor", status: "online" },
-      { name: "Gig Hunter", status: "online" },
+      { name: "Jarvis", status: "online" },
+      { name: "NemoClaw", status: "online" },
+      { name: "Gig Hunter", status: "idle" },
+      { name: "Money Finder", status: "idle" },
+      { name: "Health Monitor", status: "online" },
     ],
-    timestamp: new Date().toISOString()
+    agentCount,
+    timestamp: new Date().toISOString(),
   });
 }

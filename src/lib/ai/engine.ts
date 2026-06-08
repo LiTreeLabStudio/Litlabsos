@@ -1,10 +1,34 @@
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const JARVIS_URL = process.env.JARVIS_URL || "http://localhost:8080";
 
 export interface AIResponse {
   text: string;
   model: string;
-  provider: "gemini" | "openai";
+  provider: "gemini" | "openai" | "jarvis";
+}
+
+/**
+ * Call the unified Jarvis Master Agent
+ */
+export async function callJarvis(systemPrompt: string, userPrompt: string): Promise<AIResponse> {
+  const res = await fetch(`${JARVIS_URL}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: userPrompt,
+      system_prompt: systemPrompt
+    })
+  });
+
+  if (!res.ok) throw new Error(`Jarvis Error: ${res.status}`);
+  const data = await res.json();
+  
+  return {
+    text: data.reply || "",
+    model: data.model || "jarvis-hybrid",
+    provider: "jarvis"
+  };
 }
 
 export async function callGemini(systemPrompt: string, userPrompt: string, model = "gemini-1.5-flash"): Promise<AIResponse> {
@@ -59,13 +83,20 @@ export async function callOpenAI(systemPrompt: string, userPrompt: string, model
  * Universal Dual-Core Engine with Auto-Fallback
  */
 export async function callAI(systemPrompt: string, userPrompt: string): Promise<AIResponse> {
+  // 1. Primary Node: Jarvis (Hive Mind Orchestrator)
   try {
-    // Primary: Gemini
+    return await callJarvis(systemPrompt, userPrompt);
+  } catch (err) {
+    console.warn("Jarvis Node Offline, falling back to direct cloud cores:", err);
+  }
+
+  try {
+    // Secondary: Gemini Direct
     return await callGemini(systemPrompt, userPrompt, "gemini-2.5-flash");
   } catch (err) {
     console.warn("Gemini Primary Failed, falling back to OpenAI:", err);
     try {
-      // Secondary: OpenAI
+      // Tertiary: OpenAI Direct
       return await callOpenAI(systemPrompt, userPrompt, "gpt-4o");
     } catch (err2) {
       console.error("All AI Cores Offline:", err2);

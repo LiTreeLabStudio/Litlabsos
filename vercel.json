@@ -1,5 +1,5 @@
 {
-  "buildCommand": "next build",
+  "buildCommand": "NEXT_TELEMETRY_DISABLED=1 next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "npm install --legacy-peer-deps",

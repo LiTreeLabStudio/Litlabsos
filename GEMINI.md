@@ -1,12 +1,12 @@
 # GEMINI.md - Environment Context
 
-This directory (`/home/litbit/`) serves as the root of a personalized, agentic workspace. It is designed to be managed and supported by an autonomous AI agent (Gemini/Hermes).
+This directory (`/data/data/com.termux/files/home/`) serves as the root of a personalized, agentic workspace. It is designed to be managed and supported by an autonomous AI agent (Gemini/Hermes).
 
 ## Workspace Overview
 
 This environment includes:
 - **System Configuration:** Shell environment dotfiles (`.zshrc`, `.bashrc`) and tooling scripts.
-- **Projects:** Located primarily in `/home/litbit/projects/` and other sub-directories.
+- **Projects:** Located primarily in `/data/data/com.termux/files/home/projects/` and other sub-directories.
 - **Agent Documentation & Identity:** The behavior and persona of the agent are defined by the following core files:
   - `AGENTS.md`: Operational guidelines, heartbeat behavior, and session management.
   - `SOUL.md`: Personality, tone, and core values.
@@ -33,9 +33,9 @@ When operating in this workspace, follow these rules:
 
 ## Key Directories
 
-- `/home/litbit/projects/`: Active project development.
-- `/home/litbit/memory/`: (If it exists) Daily session logs and state.
-- `/home/litbit/.hermes/`: Internal agent configuration and state.
+- `/data/data/com.termux/files/home/projects/`: Active project development.
+- `/data/data/com.termux/files/home/memory/`: (If it exists) Daily session logs and state.
+- `/data/data/com.termux/files/home/.hermes/`: Internal agent configuration and state.
 
 ## Operational Procedures
 

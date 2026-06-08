@@ -37,7 +37,7 @@ export default function AnimatedBackground({ mode = "constellation" }: { mode?: 
     const PARTICLE_COUNT = 40;
     const CONNECTION_DIST = 120;
     const MOUSE_DIST = 250;
-    let mouse = { x: -1000, y: -1000 };
+    const mouse = { x: -1000, y: -1000 };
 
     function resize() {
       w = canvas!.width = window.innerWidth;

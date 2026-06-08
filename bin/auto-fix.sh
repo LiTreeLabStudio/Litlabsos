@@ -1,6 +1,7 @@
 #!/bin/bash
 ERROR_LOG=$1
-TASK_FILE="/home/litbit/LiTTreeLabstudios/tasks/active.json"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TASK_FILE="$SCRIPT_DIR/../tasks/active.json"
 
 if [ -z "$ERROR_LOG" ]; then
   echo "❌ Error: No log provided."

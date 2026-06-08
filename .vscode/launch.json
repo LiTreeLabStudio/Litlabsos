@@ -6,7 +6,7 @@
       "type": "node-terminal",
       "request": "launch",
       "command": "npm run dev",
-      "cwd": "/home/litbit/LiTTreeLabstudios",
+      "cwd": "/data/data/com.termux/files/home/LiTTreeLabstudios",
       "serverReadyAction": {
         "pattern": "- Local:.+(https?://.+)",
         "uriFormat": "%s",
@@ -18,7 +18,7 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:3000",
-      "webRoot": "/home/litbit/LiTTreeLabstudios/src"
+      "webRoot": "/data/data/com.termux/files/home/LiTTreeLabstudios/src"
     }
   ]
 }

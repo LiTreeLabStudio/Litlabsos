@@ -22,7 +22,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: "#ff0080" }}>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using LiTreeLabStudios ("Platform"), you agree to be bound by these Terms of Service. If you do not agree to all terms, you may not access the Platform. These terms apply to all visitors, users, and others who access or use the service.
+              By accessing or using LiTreeLabStudios (&quot;Platform&quot;), you agree to be bound by these Terms of Service. If you do not agree to all terms, you may not access the Platform. These terms apply to all visitors, users, and others who access or use the service.
             </p>
           </section>
 

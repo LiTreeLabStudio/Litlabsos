@@ -65,6 +65,21 @@ export default function Gallery() {
   const [uploadForm, setUploadForm] = useState({ title: "", imageUrl: "", artist: "", category: "abstract" });
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+  // Hooks must be declared before any conditional returns (rules-of-hooks)
+  const toggleLike = useCallback((id: string) => {
+    setLikedItems(prev => {
+      const next = new Set(prev);
+      const wasLiked = next.has(id);
+      if (wasLiked) { next.delete(id); } else { next.add(id); }
+      // Update like count
+      setLikeCounts(counts => {
+        const current = counts[id] ?? items.find(i => i.id === id)?.likes ?? 0;
+        return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
+      });
+      return next;
+    });
+  }, [items]);
+
   // Merge demo + real API + user items
   const items = [...apiItems, ...DEMO_ITEMS, ...userItems].map(item => ({
     ...item,
@@ -123,19 +138,7 @@ export default function Gallery() {
       return 0;
     });
 
-  const toggleLike = useCallback((id: string) => {
-    setLikedItems(prev => {
-      const next = new Set(prev);
-      const wasLiked = next.has(id);
-      if (wasLiked) { next.delete(id); } else { next.add(id); }
-      // Update like count
-      setLikeCounts(counts => {
-        const current = counts[id] ?? items.find(i => i.id === id)?.likes ?? 0;
-        return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
-      });
-      return next;
-    });
-  }, [items]);
+  // toggleLike moved above to satisfy rules-of-hooks (before conditional returns)
 
   const handleUpload = () => {
     if (!uploadForm.title.trim() || !uploadForm.imageUrl.trim()) {

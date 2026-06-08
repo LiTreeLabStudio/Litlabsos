@@ -3,7 +3,7 @@
 ## 🏗️ CURRENT INFRASTRUCTURE STATUS
 
 ### ✅ WORKING (Local Dev)
-- **Frontend**: Next.js 16 app at `/home/litbit/LiTTreeLabstudios/src/app/`
+- **Frontend**: Next.js 16 app at `/data/data/com.termux/files/home/LiTTreeLabstudios/src/app/`
 - **Auth**: JWT-based with hardcoded admin credentials
 - **AI Chat**: `/api/chat` with OpenRouter/Gemini integration
 - **Stripe**: Checkout endpoint configured, webhook secret set

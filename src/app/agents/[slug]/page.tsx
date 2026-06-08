@@ -247,7 +247,7 @@ export default function AgentDetail() {
                       <strong>{agent.name}:</strong>
                     </div>
                     <p style={{ color: theme.textColor, fontSize: "11px" }}>
-                      Hey! I'm {agent.name}. {agent.description} Ask me anything!
+                      Hey! I&apos;m {agent.name}. {agent.description} Ask me anything!
                     </p>
                   </div>
                 )}

@@ -13,5 +13,5 @@
     "typescriptreact": "html"
   },
   "terminal.integrated.defaultProfile.linux": "zsh",
-  "terminal.integrated.cwd": "/home/litbit/LiTTreeLabstudios"
+  "terminal.integrated.cwd": "/data/data/com.termux/files/home/LiTTreeLabstudios"
 }

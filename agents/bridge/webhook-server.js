@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 9876;
-const LOG_FILE = '/home/litbit/LiTTreeLabstudios/agents/logs/bridge.log';
+const LOG_FILE = '/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/bridge.log';
 
 function log(msg) {
   const line = `[${new Date().toISOString()}] ${msg}`;
@@ -30,28 +30,28 @@ const server = http.createServer((req, res) => {
       // Handle different agent commands
       switch (data.command) {
         case 'health-check':
-          exec('bash /home/litbit/LiTTreeLabstudios/agents/system-brain/brain.sh', (err, stdout) => {
+          exec('bash /data/data/com.termux/files/home/LiTTreeLabstudios/agents/system-brain/brain.sh', (err, stdout) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ result: stdout, error: err?.message || null }));
           });
           break;
 
         case 'deploy':
-          exec('bash /home/litbit/LiTTreeLabstudios/agents/deploy-agent/deploy.sh', (err, stdout) => {
+          exec('bash /data/data/com.termux/files/home/LiTTreeLabstudios/agents/deploy-agent/deploy.sh', (err, stdout) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ result: stdout, error: err?.message || null }));
           });
           break;
 
         case 'build':
-          exec('bash /home/litbit/LiTTreeLabstudios/agents/build-agent/build.sh', (err, stdout) => {
+          exec('bash /data/data/com.termux/files/home/LiTTreeLabstudios/agents/build-agent/build.sh', (err, stdout) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ result: stdout, error: err?.message || null }));
           });
           break;
 
         case 'sync':
-          exec('rsync -a --delete --exclude=node_modules --exclude=.next --exclude=.git --exclude=.env.local /home/litbit/LiTTreeLabstudios/ /mnt/c/Users/litbi/CascadeProjects/litlabs-website/', (err, stdout) => {
+          exec('rsync -a --delete --exclude=node_modules --exclude=.next --exclude=.git --exclude=.env.local /data/data/com.termux/files/home/LiTTreeLabstudios/ /mnt/c/Users/litbi/CascadeProjects/litlabs-website/', (err, stdout) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ result: 'synced', error: err?.message || null }));
           });

@@ -1,8 +1,8 @@
 #!/bin/bash
 # Deploy Agent -- Auto-deploys to Vercel when changes are detected
 
-LOG_FILE="/home/litbit/LiTTreeLabstudios/agents/logs/deploy-$(date +%Y%m%d).log"
-PROJECT_DIR="/home/litbit/LiTTreeLabstudios"
+LOG_FILE="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/deploy-$(date +%Y%m%d).log"
+PROJECT_DIR="/data/data/com.termux/files/home/LiTTreeLabstudios"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"

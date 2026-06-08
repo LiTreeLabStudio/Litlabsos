@@ -3,7 +3,7 @@
 # This runs on the WSL side and n8n hits it from Windows
 
 GATEWAY_PORT=9877
-LOG="/home/litbit/LiTTreeLabstudios/agents/logs/n8n-gateway.log"
+LOG="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/n8n-gateway.log"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG"
@@ -16,7 +16,7 @@ echo "Starting n8n Gateway on port $GATEWAY_PORT..." | tee -a "$LOG"
 
 # Use node if available (via nvm), otherwise python
 if command -v node &> /dev/null; then
-  cd /home/litbit/LiTTreeLabstudios/agents/bridge
+  cd /data/data/com.termux/files/home/LiTTreeLabstudios/agents/bridge
   node webhook-server.js &
   echo "Gateway running (node)"
 else
@@ -35,14 +35,14 @@ class Handler(http.server.BaseHTTPRequestHandler):
         log.close()
         
         if cmd == 'health':
-            result = subprocess.run(['bash', '/home/litbit/LiTTreeLabstudios/agents/system-brain/brain.sh'], capture_output=True, text=True)
+            result = subprocess.run(['bash', '/data/data/com.termux/files/home/LiTTreeLabstudios/agents/system-brain/brain.sh'], capture_output=True, text=True)
         elif cmd == 'sync':
-            result = subprocess.run(['bash', '/home/litbit/LiTTreeLabstudios/bin/sync.sh'], capture_output=True, text=True)
+            result = subprocess.run(['bash', '/data/data/com.termux/files/home/LiTTreeLabstudios/bin/sync.sh'], capture_output=True, text=True)
         elif cmd == 'save':
             msg = body.get('message', 'autonomic save')
-            result = subprocess.run(['bash', '/home/litbit/LiTTreeLabstudios/bin/save.sh', msg], capture_output=True, text=True)
+            result = subprocess.run(['bash', '/data/data/com.termux/files/home/LiTTreeLabstudios/bin/save.sh', msg], capture_output=True, text=True)
         elif cmd == 'build':
-            result = subprocess.run(['bash', '/home/litbit/LiTTreeLabstudios/agents/build-agent/build.sh'], capture_output=True, text=True)
+            result = subprocess.run(['bash', '/data/data/com.termux/files/home/LiTTreeLabstudios/agents/build-agent/build.sh'], capture_output=True, text=True)
         else:
             result = subprocess.run(cmd.split(), capture_output=True, text=True)
         

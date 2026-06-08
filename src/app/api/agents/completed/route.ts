@@ -3,7 +3,7 @@ import fs from "fs";
 
 export async function GET() {
   try {
-    const dir = "/home/litbit/LiTTreeLabstudios/tasks/completed";
+    const dir = "/data/data/com.termux/files/home/LiTTreeLabstudios/tasks/completed";
     if (!fs.existsSync(dir)) return NextResponse.json([]);
     const files = fs.readdirSync(dir).filter(f => f.endsWith(".json"));
     const tasks = files.map(f => {

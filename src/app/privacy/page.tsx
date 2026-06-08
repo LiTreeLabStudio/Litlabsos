@@ -94,7 +94,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-sm font-bold uppercase tracking-wider mb-2" style={{ color: "#ff0080" }}>8. Changes to This Policy</h2>
             <p>
-              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+              We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last Updated&quot; date.
             </p>
           </section>
 

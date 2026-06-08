@@ -192,7 +192,7 @@ Be technically precise. Think like a senior full-stack developer.`;
                     <div className="text-6xl mb-4">🧠</div>
                     <h2 className="text-xl font-bold mb-2">Hive Mind AI Builder</h2>
                     <p className="text-sm text-zinc-500 max-w-md mx-auto">
-                      Describe what you want to build and I'll generate the code.
+                      Describe what you want to build and I&apos;ll generate the code.
                       Try a quick prompt from the sidebar or type your own.
                     </p>
                   </div>

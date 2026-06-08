@@ -383,7 +383,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Zap size={22} className="text-cyan-400" />
-              <span className="font-display text-lg font-black tracking-tight">LiTree Lab's</span>
+              <span className="font-display text-lg font-black tracking-tight">LiTree Lab&apos;s</span>
             </div>
             <div className="flex items-center gap-4">
               <Link href="/social" className="text-sm hover:text-cyan-400 transition-colors">Community</Link>
@@ -540,7 +540,7 @@ export default function LandingPage() {
                       <div className="text-xs text-white/50">2h ago</div>
                     </div>
                   </div>
-                  <p className="text-sm text-white/80">"Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60%."</p>
+                  <p className="text-sm text-white/80">&quot;Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60%.&quot;</p>
                   <div className="flex items-center gap-4 text-xs text-white/50">
                     <span className="hover:text-cyan-400 transition-colors cursor-pointer">❤ 24 likes</span>
                     <span className="hover:text-cyan-400 transition-colors cursor-pointer">💬 3 comments</span>
@@ -553,7 +553,7 @@ export default function LandingPage() {
                       <div className="text-xs text-white/50">4h ago</div>
                     </div>
                   </div>
-                  <p className="text-sm text-white/80">"Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly."</p>
+                  <p className="text-sm text-white/80">&quot;Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly.&quot;</p>
                   <div className="flex items-center gap-4 text-xs text-white/50">
                     <span className="hover:text-cyan-400 transition-colors cursor-pointer">❤ 56 likes</span>
                     <span className="hover:text-cyan-400 transition-colors cursor-pointer">💬 12 comments</span>

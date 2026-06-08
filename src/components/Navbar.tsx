@@ -59,7 +59,7 @@ export default function Navbar() {
               className="font-black text-base hidden sm:inline tracking-tight"
               style={{ color: resolvedColors.headerColor }}
             >
-              LiTree Lab's
+              LiTree Lab&apos;s
             </span>
           </Link>
 

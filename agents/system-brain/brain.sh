@@ -2,9 +2,9 @@
 # System Brain -- Main Orchestrator Agent
 # Monitors all services, coordinates other agents, reports status
 
-LOG_DIR="/home/litbit/LiTTreeLabstudios/agents/logs"
+LOG_DIR="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs"
 LOG_FILE="$LOG_DIR/brain-$(date +%Y%m%d).log"
-STATE_FILE="/home/litbit/LiTTreeLabstudios/agents/state.json"
+STATE_FILE="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/state.json"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
@@ -70,7 +70,7 @@ check_memory() {
 
 # Git status check
 check_git() {
-  cd /home/litbit/LiTTreeLabstudios
+  cd /data/data/com.termux/files/home/LiTTreeLabstudios
   local changes=$(git status --porcelain 2>/dev/null | wc -l)
   if [ "$changes" -gt 0 ]; then
     log "Git: $changes uncommitted changes detected"

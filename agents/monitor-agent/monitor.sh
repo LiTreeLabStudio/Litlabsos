@@ -1,8 +1,8 @@
 #!/bin/bash
 # Monitor Agent -- Continuous monitoring with alerts
 
-LOG_FILE="/home/litbit/LiTTreeLabstudios/agents/logs/monitor-$(date +%Y%m%d).log"
-ALERT_FILE="/home/litbit/LiTTreeLabstudios/agents/logs/alerts.log"
+LOG_FILE="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/monitor-$(date +%Y%m%d).log"
+ALERT_FILE="/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/alerts.log"
 
 log() {
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"

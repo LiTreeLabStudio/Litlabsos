@@ -17,7 +17,7 @@
     },
     {
       "parameters": {
-        "command": "cd /home/litbit/LiTTreeLabstudios && bash bin/sync.sh"
+        "command": "cd /data/data/com.termux/files/home/LiTTreeLabstudios && bash bin/sync.sh"
       },
       "id": "sync-1",
       "name": "Sync Code",
@@ -42,7 +42,7 @@
     },
     {
       "parameters": {
-        "command": "cd /home/litbit/LiTTreeLabstudios && cat tasks/active.json"
+        "command": "cd /data/data/com.termux/files/home/LiTTreeLabstudios && cat tasks/active.json"
       },
       "id": "read-task-1",
       "name": "Read Active Task",
@@ -67,7 +67,7 @@
     },
     {
       "parameters": {
-        "command": "cd /home/litbit/LiTTreeLabstudios && bash bin/save.sh \"autonomic: $(date +%H:%M)\""
+        "command": "cd /data/data/com.termux/files/home/LiTTreeLabstudios && bash bin/save.sh \"autonomic: $(date +%H:%M)\""
       },
       "id": "save-1",
       "name": "Save & Push",
@@ -98,7 +98,7 @@
     },
     {
       "parameters": {
-        "command": "cd /home/litbit/LiTTreeLabstudios && bash bin/auto-fix.sh \"Build failed - check logs\""
+        "command": "cd /data/data/com.termux/files/home/LiTTreeLabstudios && bash bin/auto-fix.sh \"Build failed - check logs\""
       },
       "id": "auto-fix-1",
       "name": "Auto-Fix Loop",

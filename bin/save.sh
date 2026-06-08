@@ -6,8 +6,10 @@ if [ -z "$MESSAGE" ]; then
   exit 1
 fi
 
-cd /home/litbit/LiTTreeLabstudios
-echo "💾 Starting Autonomic Save: \"$MESSAGE\""
+# Use the directory where the script is located as the root
+REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+cd "$REPO_ROOT"
+echo "💾 Starting Autonomic Save in $REPO_ROOT: \"$MESSAGE\""
 
 echo "🔍 Running ESLint..."
 npm run lint

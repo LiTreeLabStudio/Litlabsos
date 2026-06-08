@@ -1,6 +1,8 @@
 #!/bin/bash
 echo "🔄 Starting Autonomic Sync..."
-cd /home/litbit/LiTTreeLabstudios
+# Get the directory where the script is located, then go up one level to the project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
 
 WIP_STASHED=false
 if ! git diff --quiet || ! git diff --cached --quiet; then

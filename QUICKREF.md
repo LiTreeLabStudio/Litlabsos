@@ -1,7 +1,7 @@
 # LitLabs Frontend - Quick Reference
 
 ## Project Location
-/home/litbit/LiTTreeLabstudios
+/data/data/com.termux/files/home/LiTTreeLabstudios
 
 ## Dev Server (systemd)
 Start:   systemctl --user start litlabs-frontend
@@ -10,7 +10,7 @@ Status:  systemctl --user status litlabs-frontend
 Logs:    journalctl --user -u litlabs-frontend -f
 
 ## Commands
-cd /home/litbit/LiTTreeLabstudios
+cd /data/data/com.termux/files/home/LiTTreeLabstudios
 npm run dev      # Start dev server (port 3000)
 npm run build    # Production build
 npm run lint     # ESLint

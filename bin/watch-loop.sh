@@ -2,7 +2,8 @@
 # Watch Loop -- Real-time terminal monitor for the Hive Mind
 # Run this in any terminal: ./bin/watch-loop.sh
 
-PROJECT_DIR="/home/litbit/LiTTreeLabstudios"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$SCRIPT_DIR/.."
 
 echo "╔══════════════════════════════════════════════════╗"
 echo "║     ⚡ LITLABS HIVE MIND -- LIVE MONITOR ⚡      ║"

@@ -389,7 +389,7 @@ export default function ShowcasePage() {
             {/* CTA */}
             <div className="p-6 rounded-lg text-center" style={{ background: `linear-gradient(135deg, rgba(255,45,138,0.08), rgba(0,229,255,0.08))`, border: `1px solid rgba(255,255,255,0.06)` }}>
               <h4 className="font-display text-base font-black mb-2">Want This For Your Workflow?</h4>
-              <p className="text-sm mb-4" style={{ color: T.textMuted }}>Book a discovery call and let's map your automation opportunity in 20 minutes.</p>
+              <p className="text-sm mb-4" style={{ color: T.textMuted }}>Book a discovery call and let&apos;s map your automation opportunity in 20 minutes.</p>
               <Link href="/agent-chat" className="btn btn-primary">
                 🚀 Build My Pipeline
               </Link>

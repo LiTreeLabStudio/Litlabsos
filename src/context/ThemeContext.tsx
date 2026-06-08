@@ -436,6 +436,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, mounted]);
 
+  const resolvedColors = getResolvedColors(theme);
+
   const setMode = (mode: ThemeMode) => {
     setTheme((prev) => ({ ...prev, mode }));
   };

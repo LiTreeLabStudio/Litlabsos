@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         const message = parameters?.message || "Execute autonomous background sweep.";
         
         // We simulate a session ID for logging purposes, or use a dedicated system ID
-        const taskResult = await orchestrator("ifttt-system-trigger", message);
+        const taskResult = await orchestrator.sendMessage("director", "champion", message, "task", { requirements });
         return NextResponse.json({ success: true, result: taskResult });
       }
       

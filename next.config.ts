@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
 
   // Turbopack workspace root (fixes lockfile detection warning)
   turbopack: {
-    root: __dirname,
+    root: process.cwd(),
   },
 
   experimental: {

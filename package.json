@@ -42,5 +42,11 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
+  },
+  "allowScripts": {
+    "esbuild@0.28.0": true,
+    "sharp@0.34.5": true,
+    "unrs-resolver@1.12.2": true,
+    "@clerk/shared@3.47.7": true
   }
 }

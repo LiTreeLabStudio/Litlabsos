@@ -20,7 +20,11 @@ Response Format (STRICT JSON):
 {
   "agent": "code-champion | social-dominator | writing-coach | executor",
   "plan": "Detailed technical blueprint and reasoning here.",
-  "isBackground": boolean // Set to true for autonomous background execution
+  "isBackground": boolean, // Set to true for autonomous background execution
+  "requirements": {
+    "tags": ["gpu", "build", "llm"], // Tags to trigger PC capability routing
+    "ram_gb": number
+  }
 }`;
 
 const AGENT_PROMPTS: Record<string, string> = {
@@ -55,11 +59,12 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
 
   // 2. Director Planning
   await logTelemetry(sessionId, null, "info", `Director analyzing intent: "${userMessage.substring(0, 40)}..."`);
-  const planningResponse = await callAI(DIRECTOR_PROMPT, userMessage);
+  const planningResponse = await callAI(DIRECTOR_PROMPT, userMessage, { tags: ["llm"] }); // Director planning is always heavy
   
   let agentId = "executor";
   let plan = planningResponse.text;
   let isBackground = false;
+  let requirements = {};
 
   try {
     const jsonMatch = planningResponse.text.match(/\{[\s\S]*\}/);
@@ -68,6 +73,7 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
       if (parsed.agent) agentId = parsed.agent;
       if (parsed.plan) plan = parsed.plan;
       if (parsed.isBackground) isBackground = true;
+      if (parsed.requirements) requirements = parsed.requirements;
     }
   } catch (e) {
     console.warn("Failed to parse Director JSON, using raw text.", e);
@@ -109,7 +115,7 @@ export async function orchestrate(sessionId: string | null, userMessage: string)
   const systemPrompt = AGENT_PROMPTS[agentId] || AGENT_PROMPTS["executor"];
   const executionPrompt = `Director Plan: ${plan}\n\nOriginal Request: ${userMessage}`;
   
-  const finalResult = await callAI(systemPrompt, executionPrompt);
+  const finalResult = await callAI(systemPrompt, executionPrompt, requirements);
 
   // 3. Persistence
   if (sessionId) {

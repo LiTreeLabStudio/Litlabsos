@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
@@ -136,20 +136,23 @@ export default function LandingPage() {
 
   const directorEndRef = useRef<HTMLDivElement>(null);
   const telemetryEndRef = useRef<HTMLDivElement>(null);
-
-  // Load persistence
-  useEffect(() => {
+// Load persistence
+useEffect(() => {
+  setTimeout(() => {
     const storedCount = localStorage.getItem("litlabs_visitor_count");
     if (storedCount) {
       const newCount = parseInt(storedCount) + 1;
       setVisitorCount(newCount);
       localStorage.setItem("litlabs_visitor_count", newCount.toString());
     } else {
+      setVisitorCount(133742);
       localStorage.setItem("litlabs_visitor_count", "133742");
     }
-  }, []);
+  }, 0);
+}, []);
 
-  // Poll telemetry
+// Poll telemetry
+
   useEffect(() => {
     const logPool = [
       { agent: "Code Champion", text: "Analyzed memory safety checks in Agent builder schema.", icon: "" },
@@ -335,7 +338,13 @@ export default function LandingPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const mounted = useMounted();
   // Pre-generate random scales once to prevent background avatar jitter on re-render
-  const randomScales = useRef(UI_AGENTS.map(() => 0.8 + Math.random() * 0.5));
+  const [randomScales, setRandomScales] = useState<number[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setRandomScales(UI_AGENTS.map(() => 0.8 + Math.random() * 0.5));
+    }, 0);
+  }, []);
 
   // Scroll reveal for landing page sections — MUST be before any conditional returns
   useScrollReveal(".reveal");
@@ -370,7 +379,7 @@ export default function LandingPage() {
               left: `${15 + (i * 10)}%`,
               top: `${20 + (i % 3) * 25}%`,
               animationDelay: `${i * 0.5}s`,
-              transform: `scale(${randomScales.current[i]})`,
+              transform: `scale(${randomScales[i] || 1})`,
             }}>
               <img src={agent.avatar} alt="" className="w-24 h-24 filter blur-[3px] opacity-20 rounded-lg object-cover" />
             </div>

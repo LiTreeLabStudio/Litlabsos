@@ -32,7 +32,8 @@ export default function VideoWorkspace() {
   const [duration, setDuration] = useState(6);
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const [history, setHistory] = useState<unknown[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [history, setHistory] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchHistory = async () => {

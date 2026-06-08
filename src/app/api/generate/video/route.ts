@@ -137,8 +137,8 @@ export async function POST(req: NextRequest) {
       warning: !savedGeneration ? "Video generated but history could not be saved (Schema update required)." : undefined
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[VIDEO_GEN_ERROR]", error);
-    return NextResponse.json({ error: error.message || "Failed to generate video" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to generate video" }, { status: 500 });
   }
 }

@@ -72,9 +72,11 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ user: profile });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ACCOUNT_GET_ERROR]", error);
-    return NextResponse.json({ error: error.message || "Failed to fetch account" }, { status: 500 });
+    return NextResponse.json({ 
+      error: error instanceof Error ? error.message : "Failed to fetch account" 
+    }, { status: 500 });
   }
 }
 
@@ -100,8 +102,8 @@ export async function DELETE(req: NextRequest) {
     if (error) throw error;
 
     return NextResponse.json({ message: "Account deleted successfully" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ACCOUNT_DELETE_ERROR]", error);
-    return NextResponse.json({ error: error.message || "Failed to delete account" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to delete account" }, { status: 500 });
   }
 }

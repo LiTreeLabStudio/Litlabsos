@@ -41,8 +41,8 @@ export async function GET(req: NextRequest) {
 
     console.log(`[VIDEO_HISTORY] Found ${history?.length || 0} records`);
     return NextResponse.json({ history: history || [] });
-  } catch (error: any) {
-    console.error("[VIDEO_HISTORY_ERROR]", error);
-    return NextResponse.json({ error: error.message || "Failed to fetch history" }, { status: 500 });
+  } catch (error: unknown) {
+    console.error("[VIDEO_HISTORY_GET_ERROR]", error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to fetch video history" }, { status: 500 });
   }
 }

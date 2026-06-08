@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { orchestrate } from "@/lib/agents";
+import { orchestrator } from "@/lib/agents";
 
 // This secret must be configured in Vercel and sent in the 'Authorization' header by IFTTT
 const IFTTT_SECRET = process.env.IFTTT_WEBHOOK_SECRET;
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
         const message = parameters?.message || "Execute autonomous background sweep.";
         
         // We simulate a session ID for logging purposes, or use a dedicated system ID
-        const taskResult = await orchestrate("ifttt-system-trigger", message);
+        const taskResult = await orchestrator("ifttt-system-trigger", message);
         return NextResponse.json({ success: true, result: taskResult });
       }
       

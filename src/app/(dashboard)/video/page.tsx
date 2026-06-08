@@ -49,7 +49,7 @@ export default function VideoWorkspace() {
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
-    if ((profile as Record<string, unknown>).litbit_coins < selectedModel.cost) {
+    if ((profile as { litbit_coins: number }).litbit_coins < selectedModel.cost) {
       alert("Insufficient LiTBit Coins!");
       return;
     }
@@ -108,7 +108,7 @@ export default function VideoWorkspace() {
           <div className="bg-ide-surface-2 border border-ide-border px-4 py-2 rounded-lg flex items-center gap-3">
             <div className="text-right">
               <div className="text-[10px] text-text-muted uppercase font-bold tracking-wider">Balance</div>
-              <div className="text-sm font-mono font-bold text-syntax-keyword">{Number((profile as Record<string, unknown>).litbit_coins) || 0} LiTBit</div>
+              <div className="text-sm font-mono font-bold text-syntax-keyword">{Number((profile as { litbit_coins: number }).litbit_coins) || 0} LiTBit</div>
             </div>
             <div className="w-8 h-8 rounded-full bg-syntax-keyword/10 flex items-center justify-center text-syntax-keyword">
               🪙

@@ -387,6 +387,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(defaultTheme);
   const [mounted, setMounted] = useState(false);
 
+  // Resolve colors for a given theme (defined before use to avoid hoisting issues)
+  const getResolvedColors = (t: Theme) => {
+    const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
+    const skinColors = baseSkins[t.skin];
+    const custom = t.customColors || {};
+    const accent = custom.accentColor ? null : accentOverrides[t.accent];
+    return {
+      bgColor: custom.bgColor || skinColors.bgColor,
+      textColor: custom.textColor || skinColors.textColor,
+      textMuted: "#8a8aa3",
+      linkColor: accent?.linkColor || custom.linkColor || skinColors.linkColor,
+      headerColor: accent?.headerColor || custom.headerColor || skinColors.headerColor,
+      borderColor: custom.borderColor || skinColors.borderColor,
+      accentColor: accent?.accentColor || custom.accentColor || skinColors.accentColor,
+      boxBg: custom.boxBg || skinColors.boxBg,
+      success: "#25e08a",
+      warning: "#ffb020",
+    };
+  };
+
   // Load from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem("litlabs-theme");
@@ -404,7 +424,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (mounted) {
       localStorage.setItem("litlabs-theme", JSON.stringify(theme));
-      // Apply CSS variables
       const root = document.documentElement;
       const colors = getResolvedColors(theme);
       root.style.setProperty("--bg-color", colors.bgColor);
@@ -416,33 +435,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       root.style.setProperty("--box-bg", colors.boxBg);
     }
   }, [theme, mounted]);
-
-  const getResolvedColors = (t: Theme) => {
-    // Get base skin based on mode
-    const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
-    const skinColors = baseSkins[t.skin];
-
-    // Apply custom colors if set
-    const custom = t.customColors || {};
-
-    // Apply accent override if not custom
-    const accent = custom.accentColor ? null : accentOverrides[t.accent];
-
-    return {
-      bgColor: custom.bgColor || skinColors.bgColor,
-      textColor: custom.textColor || skinColors.textColor,
-      textMuted: "#8a8aa3",
-      linkColor: accent?.linkColor || custom.linkColor || skinColors.linkColor,
-      headerColor: accent?.headerColor || custom.headerColor || skinColors.headerColor,
-      borderColor: custom.borderColor || skinColors.borderColor,
-      accentColor: accent?.accentColor || custom.accentColor || skinColors.accentColor,
-      boxBg: custom.boxBg || skinColors.boxBg,
-      success: "#25e08a",
-      warning: "#ffb020",
-    };
-  };
-
-  const resolvedColors = getResolvedColors(theme);
 
   const setMode = (mode: ThemeMode) => {
     setTheme((prev) => ({ ...prev, mode }));

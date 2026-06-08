@@ -21,8 +21,14 @@ export default function AnimatedBackground({ mode = "constellation" }: { mode?: 
   const { resolvedColors } = useTheme();
   const colorsRef = useRef(resolvedColors);
   const modeRef = useRef(mode);
-  colorsRef.current = resolvedColors;
-  modeRef.current = mode;
+
+  useEffect(() => {
+    colorsRef.current = resolvedColors;
+  }, [resolvedColors]);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -37,7 +43,7 @@ export default function AnimatedBackground({ mode = "constellation" }: { mode?: 
     const PARTICLE_COUNT = 40;
     const CONNECTION_DIST = 120;
     const MOUSE_DIST = 250;
-    let mouse = { x: -1000, y: -1000 };
+    const mouse = { x: -1000, y: -1000 };
 
     function resize() {
       w = canvas!.width = window.innerWidth;

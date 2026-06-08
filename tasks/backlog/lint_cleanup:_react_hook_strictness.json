@@ -1,0 +1,10 @@
+{
+  "milestone": "Lint Cleanup: React Hook Strictness",
+  "goal": "Fix React hook cascading renders and impure function calls during render in src/app/(dashboard)/page.tsx",
+  "priority": "high",
+  "status": "backlog",
+  "target_files": [
+    "src/app/(dashboard)/page.tsx"
+  ],
+  "created_at": "2026-06-08T14:00:17.312701+00:00"
+}

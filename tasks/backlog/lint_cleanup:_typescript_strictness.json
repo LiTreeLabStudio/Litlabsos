@@ -1,0 +1,11 @@
+{
+  "milestone": "Lint Cleanup: TypeScript Strictness",
+  "goal": "Resolve all @typescript-eslint/no-unused-vars and any forbidden require() style imports across the codebase.",
+  "priority": "medium",
+  "status": "backlog",
+  "target_files": [
+    "src/app/(dashboard)/marketplace/page.tsx",
+    "src/lib/user-db.ts"
+  ],
+  "created_at": "2026-06-08T14:00:17.353657+00:00"
+}

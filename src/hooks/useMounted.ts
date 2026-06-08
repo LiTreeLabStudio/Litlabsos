@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 
 export function useMounted() {
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
   return mounted;
 }

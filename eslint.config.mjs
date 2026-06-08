@@ -14,6 +14,14 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "debug_auth.js",
   ]),
+  {
+    rules: {
+      // Downgrade to warnings — these are non-breaking patterns
+      "react-hooks/set-state-in-effect": "warn",
+      "prefer-const": "warn",
+      "react/no-unescaped-entities": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

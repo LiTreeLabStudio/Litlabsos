@@ -11,7 +11,12 @@ export interface AIResponse {
 /**
  * Call the unified Jarvis Master Agent
  */
-export async function callJarvis(systemPrompt: string, userPrompt: string, requirements: any = {}): Promise<AIResponse> {
+export interface TaskRequirements {
+  tags?: string[];
+  ram_gb?: number;
+}
+
+export async function callJarvis(systemPrompt: string, userPrompt: string, requirements: TaskRequirements = {}): Promise<AIResponse> {
   const res = await fetch(`${JARVIS_URL}/api/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -83,7 +88,7 @@ export async function callOpenAI(systemPrompt: string, userPrompt: string, model
 /**
  * Universal Dual-Core Engine with Auto-Fallback
  */
-export async function callAI(systemPrompt: string, userPrompt: string, requirements: any = {}): Promise<AIResponse> {
+export async function callAI(systemPrompt: string, userPrompt: string, requirements: TaskRequirements = {}): Promise<AIResponse> {
   // 1. Primary Node: Jarvis (Hive Mind Orchestrator)
   try {
     return await callJarvis(systemPrompt, userPrompt, requirements);

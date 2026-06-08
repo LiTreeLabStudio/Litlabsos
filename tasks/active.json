@@ -1,7 +1,10 @@
 {
-  "milestone": "Lint Cleanup: React Hook Strictness",
+  "milestone": "Lint Cleanup: TypeScript Any Types",
   "status": "completed",
-  "director_instructions": "Fixed React hook issues in page.tsx.",
-  "target_files": ["src/app/(dashboard)/page.tsx"],
+  "director_instructions": "Fixed @typescript-eslint/no-explicit-any errors in video/page.tsx and claim-bonus/route.ts.",
+  "target_files": [
+    "src/app/(dashboard)/video/page.tsx",
+    "src/app/api/account/claim-bonus/route.ts"
+  ],
   "error_logs": ""
 }

@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
       message: `Successfully claimed ${data.amount} LiTBit Coins!`
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CLAIM_BONUS_ERROR]", error);
-    return NextResponse.json({ error: error.message || "Failed to claim bonus" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to claim bonus" }, { status: 500 });
   }
 }

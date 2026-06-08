@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const token = authHeader?.split(" ")[1];
   
   if (!token || token !== IFTTT_SECRET) {
-    console.warn(`[AUTOMATION] Unauthorized access attempt. IP: ${req.headers.get("x-forwarded-for") || req.ip}`);
+    console.warn(`[AUTOMATION] Unauthorized access attempt. IP: ${req.headers.get("x-forwarded-for") || "unknown"}`);
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

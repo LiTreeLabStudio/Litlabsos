@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
         // Trigger the orchestrator (which routes to Jarvis/NemoClaw via Capability-Based Routing)
         // If 'parameters.message' exists, use it, otherwise use a generic trigger
         const message = parameters?.message || "Execute autonomous background sweep.";
+        const taskRequirements = parameters?.requirements || {};
         
-        // We simulate a session ID for logging purposes, or use a dedicated system ID
-        const taskResult = await orchestrator.sendMessage("director", "champion", message, "task", { metadata: requirements });
+        const taskResult = await orchestrator.sendMessage("director", "champion", message, "task", { metadata: taskRequirements });
         return NextResponse.json({ success: true, result: taskResult });
       }
       

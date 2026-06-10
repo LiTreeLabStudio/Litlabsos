@@ -8,7 +8,7 @@ import { withRateLimit } from "@/lib/rate-limiter";
  * GET /api/account
  * Ensures the user exists in our database. Called on every page load via UserSync.
  */
-async function getHandler(req: NextRequest) {
+async function getHandler(_req: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -33,7 +33,7 @@ async function getHandler(req: NextRequest) {
  * Deletes the current user's account and all associated data from Supabase.
  * Requires Clerk authentication.
  */
-async function deleteHandler(req: NextRequest) {
+async function deleteHandler(_req: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {

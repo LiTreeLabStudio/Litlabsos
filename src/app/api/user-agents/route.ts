@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { withRateLimit } from "@/lib/rate-limiter";
 
 // GET: List user's installed agents
-async function getHandler(req: NextRequest) {
+async function getHandler(_req: NextRequest) {
   try {
     const { userId } = await auth();
     

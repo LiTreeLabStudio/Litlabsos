@@ -56,9 +56,14 @@ export default function AgentsDashboard() {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 0);
     const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [fetchData]);
 
   const statusDot = (s: string) => s === "running" ? "bg-green-400 animate-pulse" : s === "fixing" ? "bg-yellow-400 animate-pulse" : s === "error" ? "bg-red-400" : "bg-zinc-600";

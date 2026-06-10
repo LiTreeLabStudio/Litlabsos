@@ -7,7 +7,7 @@ import { withRateLimit } from "@/lib/rate-limiter";
  * GET /api/settings/preferences
  * Returns the user's preferences from the database.
  */
-async function getHandler(req: NextRequest) {
+async function getHandler(_req: NextRequest) {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {

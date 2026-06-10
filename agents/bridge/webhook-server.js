@@ -1,7 +1,6 @@
-const http = require('http');
-const { exec } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import http from 'http';
+import { exec } from 'child_process';
+import fs from 'fs';
 
 const PORT = 9876;
 const LOG_FILE = '/data/data/com.termux/files/home/LiTTreeLabstudios/agents/logs/bridge.log';
@@ -51,7 +50,7 @@ const server = http.createServer((req, res) => {
           break;
 
         case 'sync':
-          exec('rsync -a --delete --exclude=node_modules --exclude=.next --exclude=.git --exclude=.env.local /data/data/com.termux/files/home/LiTTreeLabstudios/ /mnt/c/Users/litbi/CascadeProjects/litlabs-website/', (err, stdout) => {
+          exec('rsync -a --delete --exclude=node_modules --exclude=.next --exclude=.git --exclude=.env.local /data/data/com.termux/files/home/LiTTreeLabstudios/ /mnt/c/Users/litbi/CascadeProjects/litlabs-website/', (err) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ result: 'synced', error: err?.message || null }));
           });
@@ -59,7 +58,7 @@ const server = http.createServer((req, res) => {
 
         case 'restart-service':
           const service = data.service || 'litlabs-frontend';
-          exec(`systemctl restart ${service}`, (err, stdout) => {
+          exec(`systemctl restart ${service}`, (err) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ service, error: err?.message || null }));
           });

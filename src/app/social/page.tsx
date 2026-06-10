@@ -1,7 +1,11 @@
 "use client";
+import Image from "next/image";
 
-import { useState, useEffect, useRef } from "react";
+
+import { useState, useEffect } from "react";
+
 import Link from "next/link";
+
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
@@ -26,6 +30,26 @@ interface Post {
   liked: boolean;
   isAI?: boolean;
   media_urls?: string[];
+}
+
+interface ApiComment {
+  author?: string;
+  users?: { name?: string; avatar_url?: string };
+  text?: string;
+  content?: string;
+  created_at?: string;
+  time?: string;
+  avatar?: string;
+}
+
+interface ApiPost {
+  id: string | number;
+  author?: { name?: string; username?: string; avatar_url?: string } | string;
+  created_at: string;
+  content: string;
+  likes_count?: number;
+  comments?: ApiComment[];
+  is_ai_post?: boolean;
 }
 
 // Time formatter for API timestamps
@@ -60,16 +84,16 @@ export default function SocialPage() {
   useEffect(() => {
     fetch("/api/posts")
       .then(r => r.json())
-      .then((data: { posts?: any[] }) => {
-        const apiPosts = (data.posts || []).map((p, i) => ({
+      .then((data: { posts?: ApiPost[] }) => {
+        const apiPosts = (data.posts || []).map((p: ApiPost, i: number) => ({
           id: typeof p.id === "string" ? i + 1000 : p.id,
-          author: p.author?.name || p.author || "Unknown",
-          handle: "@" + (p.author?.username || "user"),
-          avatar: p.author?.avatar_url || "👤",
+          author: (typeof p.author === 'object' ? p.author?.name : p.author) || "Unknown",
+          handle: "@" + (typeof p.author === 'object' ? p.author?.username : "user"),
+          avatar: (typeof p.author === 'object' ? p.author?.avatar_url : null) || "👤",
           time: formatTime(p.created_at),
           content: p.content,
           likes: p.likes_count || 0,
-          comments: (p.comments || []).map((c: any) => ({
+          comments: (p.comments || []).map((c: ApiComment) => ({
             author: c.author || c.users?.name || "User",
             avatar: c.avatar || c.users?.avatar_url || "👤",
             text: c.text || c.content,
@@ -150,11 +174,11 @@ export default function SocialPage() {
     const stored = localStorage.getItem("social_visitors");
     if (stored) {
       const parsed = parseInt(stored, 10);
-      setSocialVisitors(parsed + 1);
+      setTimeout(() => setSocialVisitors(parsed + 1), 0);
       localStorage.setItem("social_visitors", String(parsed + 1));
     } else {
       const val = 4892 + Math.floor(Math.random() * 100);
-      setSocialVisitors(val);
+      setTimeout(() => setSocialVisitors(val), 0);
       localStorage.setItem("social_visitors", String(val));
     }
   }, []);
@@ -505,7 +529,7 @@ export default function SocialPage() {
                   />
                   {newPostImage && (
                     <div className="mt-2 relative">
-                      <img src={newPostImage} alt="Preview" className="max-h-[150px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
+                      <Image src={newPostImage} alt="Preview" width={200} height={150} className="max-h-[150px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
                       <button onClick={() => setNewPostImage("")} className="absolute top-1 right-1 bg-black text-white text-[10px] px-1 rounded">✕</button>
                     </div>
                   )}
@@ -560,7 +584,7 @@ export default function SocialPage() {
                   </div>
                   {post.media_urls && post.media_urls.length > 0 && (
                     <div className="pb-3">
-                      <img src={post.media_urls[0]} alt="Post media" className="max-h-[200px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
+                      <Image src={post.media_urls[0]} alt="Post media" width={400} height={200} className="max-h-[200px] rounded border" style={{ borderColor: resolvedColors.borderColor }} />
                     </div>
                   )}
 

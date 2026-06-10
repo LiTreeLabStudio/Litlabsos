@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTheme } from '@/context/ThemeContext';
 import { useAuth, RedirectToSignIn } from '@clerk/nextjs';
 import { useSearchParams } from 'next/navigation';
@@ -38,7 +39,7 @@ type Agent = {
   rating?: number; installs?: number;
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
+const _CATEGORY_LABELS: Record<string, string> = {
   developer: 'Developer', marketing: 'Marketing', analytics: 'Analytics',
   content: 'Content', general: 'General', orchestrator: 'Orchestrator',
   music: 'Music', design: 'Design', research: 'Research', legal: 'Legal',
@@ -90,6 +91,11 @@ export default function Marketplace() {
 
   const [crtEnabled, setCrtEnabled] = useState(true);
 
+  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   // Fetch wallet from API (source of truth)
   const fetchWallet = async () => {
     try {
@@ -104,20 +110,23 @@ export default function Marketplace() {
   };
 
   useEffect(() => {
-    fetchWallet();
+    const timer = setTimeout(() => {
+      fetchWallet();
+      const val = localStorage.getItem("crt_global_scanlines");
+      if (val !== null) setCrtEnabled(val === "true");
 
-    const val = localStorage.getItem("crt_global_scanlines");
-    if (val !== null) setCrtEnabled(val === "true");
+      // Stripe return detection
+      const success = searchParams.get('success');
+      const canceled = searchParams.get('canceled');
+      if (success === 'true') {
+        showToast('Payment successful! Your LiTBit Coins will be credited shortly.', 'success');
+      } else if (canceled === 'true') {
+        showToast('Payment canceled. No coins were charged.', 'info');
+      }
+    }, 0);
 
-    // Stripe return detection
-    const success = searchParams.get('success');
-    const canceled = searchParams.get('canceled');
-    if (success === 'true') {
-      showToast('Payment successful! Your LiTBit Coins will be credited shortly.', 'success');
-    } else if (canceled === 'true') {
-      showToast('Payment canceled. No coins were charged.', 'info');
-    }
-  }, [isSignedIn]);
+    return () => clearTimeout(timer);
+  }, [isSignedIn, searchParams]);
 
   const buyPack = async (pack: typeof CREDIT_PACKS[0]) => {
     if (!pack.priceId || !pack.priceId.startsWith('price_')) {
@@ -149,10 +158,6 @@ export default function Marketplace() {
     }
   };
 
-  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 3000);
-  };
 
   const [claimLoading, setClaimLoading] = useState(false);
 
@@ -246,7 +251,7 @@ export default function Marketplace() {
     showToast(`🏪 Agent listed! You earned ${earned} 🪙 listing bonus.`, 'info');
     setSellModalAgent(null);
     setSellPrice('');
-  }, [litBitCoins]);
+  }, []);
 
   // Require authentication (after all hooks to respect Rules of Hooks)
   if (!isLoaded) {
@@ -479,7 +484,7 @@ export default function Marketplace() {
           <div onClick={e => e.stopPropagation()} style={{ maxWidth: '600px', width: '100%', backgroundColor: T.boxBg, border: '2px solid ' + T.borderColor, maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ padding: '24px', borderBottom: '1px solid ' + T.borderColor, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <img src={previewAgent.avatar_url} alt={previewAgent.name} style={{ width: '64px', height: '64px', borderRadius: '12px', objectFit: 'cover', border: '2px solid ' + T.borderColor }} />
+                <Image src={previewAgent.avatar_url} alt={previewAgent.name} width={64} height={64} style={{ borderRadius: '12px', objectFit: 'cover', border: '2px solid ' + T.borderColor }} unoptimized />
                 <div>
                   <div style={{ color: T.headerColor, fontSize: '20px', fontWeight: 'bold' }}>{previewAgent.name}</div>
                   <div style={{ color: T.textColor, fontSize: '11px', opacity: 0.7, textTransform: 'capitalize' }}>{previewAgent.category} · {previewAgent.personality}</div>
@@ -571,7 +576,7 @@ function AgentCard({ agent, isInstalled, onInstall, onPreview, theme }: { agent:
     <div onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ border: '1px solid ' + (hovered ? T.accentColor : T.borderColor), backgroundColor: 'rgba(0,0,0,0.3)', transition: 'all 0.2s', transform: hovered ? 'translateY(-4px)' : 'translateY(0)', boxShadow: hovered ? '0 8px 24px rgba(0,255,255,0.08)' : 'none' }}>
       <div style={{ padding: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-          <img src={agent.avatar_url} alt={agent.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: '1px solid ' + T.borderColor }} />
+          <Image src={agent.avatar_url} alt={agent.name} width={40} height={40} style={{ borderRadius: '8px', objectFit: 'cover', border: '1px solid ' + T.borderColor }} unoptimized />
           <div style={{ padding: '4px 8px', fontSize: '10px', fontWeight: 'bold', backgroundColor: agent.price_cents === 0 ? T.accentColor : T.headerColor, color: 'black' }}>{formatPrice(agent.price_cents)}</div>
         </div>
         <div style={{ color: T.headerColor, fontSize: '14px', fontWeight: 'bold', marginBottom: '4px' }}>{agent.name}</div>

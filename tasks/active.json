@@ -1,7 +1,7 @@
 {
-  "milestone": "System Initialization & Dashboard v1",
-  "status": "completed",
-  "director_instructions": "Verify the Autonomic Loop setup. Build out the core dashboard components with volcanic cyber theme. Ensure all pages are functional and connected.",
-  "target_files": ["src/app/dashboard/layout.tsx", "src/app/dashboard/page.tsx", "src/components/Sidebar.tsx"],
-  "error_logs": "Lint cleanup in progress. Volcanic Cyber theme initialized in globals.css."
+  "milestone": "Loop Stabilization & Lint Cleanup",
+  "status": "in-progress",
+  "director_instructions": "Clear the lint and type-checking backlog in Litlabsos to unblock the save protocol. Optimize the Next.js configuration for Termux to prevent OOM/Signal 9 and filesystem permission errors.",
+  "target_files": ["package.json", "next.config.ts", "src/**/*"],
+  "error_logs": "477 lines of lint output. Next.js Signal 9 crash."
 }

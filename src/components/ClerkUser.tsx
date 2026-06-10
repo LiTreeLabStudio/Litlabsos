@@ -1,6 +1,7 @@
 "use client";
 
 import { useUser, UserButton } from "@clerk/nextjs";
+import Image from "next/image";
 
 type Props = {
   compact?: boolean;
@@ -21,9 +22,9 @@ export function ClerkUserWidget({ compact }: Props) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       {user?.imageUrl ? (
-        <img
+        <Image
           src={user.imageUrl}
-          alt="Profile"
+          alt="Profile" width={44} height={44}
           style={{
             width: "44px",
             height: "44px",

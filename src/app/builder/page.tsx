@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useTheme } from "@/context/ThemeContext";
@@ -181,13 +181,16 @@ export default function Builder() {
 
   const [crtEnabled, setCrtEnabled] = useState(true);
 
-  const messages = chatMap[selectedAgent.id] || [];
+  const messages = useMemo(() => chatMap[selectedAgent.id] || [], [chatMap, selectedAgent.id]);
 
   useEffect(() => {
     // Load global CRT config
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) {
-      setCrtEnabled(val === "true");
+      const timer = setTimeout(() => {
+        setCrtEnabled(val === "true");
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 

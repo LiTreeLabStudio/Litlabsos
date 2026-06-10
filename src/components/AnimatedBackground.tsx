@@ -21,8 +21,11 @@ export default function AnimatedBackground({ mode = "constellation" }: { mode?: 
   const { resolvedColors } = useTheme();
   const colorsRef = useRef(resolvedColors);
   const modeRef = useRef(mode);
-  colorsRef.current = resolvedColors;
-  modeRef.current = mode;
+
+  useEffect(() => {
+    colorsRef.current = resolvedColors;
+    modeRef.current = mode;
+  }, [resolvedColors, mode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;

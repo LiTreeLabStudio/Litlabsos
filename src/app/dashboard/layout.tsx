@@ -13,7 +13,10 @@ export default function DashboardLayout({
   const [nodeId, setNodeId] = useState("");
 
   useEffect(() => {
-    setNodeId(Math.random().toString(36).substring(7).toUpperCase());
+    const timer = setTimeout(() => {
+      setNodeId(Math.random().toString(36).substring(7).toUpperCase());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!isMounted) return null;

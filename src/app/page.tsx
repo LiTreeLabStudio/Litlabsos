@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
@@ -143,16 +144,16 @@ export default function LandingPage() {
     const storedCount = localStorage.getItem("litlabs_visitor_count");
     if (storedCount) {
       const newCount = parseInt(storedCount) + 1;
-      setVisitorCount(newCount);
+      setTimeout(() => setVisitorCount(newCount), 0);
       localStorage.setItem("litlabs_visitor_count", newCount.toString());
     } else {
       localStorage.setItem("litlabs_visitor_count", "133742");
     }
     const storedCoins = localStorage.getItem("litbitcoins");
-    if (storedCoins) setLitBitCoins(parseInt(storedCoins));
+    if (storedCoins) setTimeout(() => setLitBitCoins(parseInt(storedCoins)), 0);
     else localStorage.setItem("litbitcoins", "500");
     const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
-    if (lastClaim === new Date().toISOString().split("T")[0]) setClaimedToday(true);
+    if (lastClaim === new Date().toISOString().split("T")[0]) setTimeout(() => setClaimedToday(true), 0);
   }, []);
 
   // Poll telemetry
@@ -193,7 +194,7 @@ export default function LandingPage() {
     setLitBitCoins(newBal);
     localStorage.setItem("litbitcoins", newBal.toString());
     localStorage.setItem("litbitcoins_last_claimed", new Date().toISOString().split("T")[0]);
-    setClaimedToday(true);
+    setTimeout(() => setClaimedToday(true), 0);
     const timeStr = new Date().toTimeString().split(" ")[0];
     setTelemetry(prev => [
       ...prev,
@@ -333,7 +334,8 @@ export default function LandingPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const mounted = useMounted();
   // Pre-generate random scales once to prevent background avatar jitter on re-render
-  const randomScales = useRef(UI_AGENTS.map(() => 0.8 + Math.random() * 0.5));
+  const randomScales = useRef<number[]>([]);
+  useEffect(() => { if (randomScales.current.length === 0) randomScales.current = UI_AGENTS.map(() => 0.8 + Math.random() * 0.5); }, []);
 
   // Scroll reveal for landing page sections — MUST be before any conditional returns
   useScrollReveal(".reveal");
@@ -368,9 +370,9 @@ export default function LandingPage() {
               left: `${15 + (i * 10)}%`,
               top: `${20 + (i % 3) * 25}%`,
               animationDelay: `${i * 0.5}s`,
-              transform: `scale(${randomScales.current[i]})`,
+              transform: `scale(${randomScales.current[i] || 1})`,
             }}>
-              <img src={agent.avatar} alt="" className="w-24 h-24 filter blur-[3px] opacity-20 rounded-lg object-cover" />
+              <Image src={agent.avatar} alt="" width={96} height={96} className="w-24 h-24 filter blur-[3px] opacity-20 rounded-lg object-cover" />
             </div>
           ))}
         </div>
@@ -451,7 +453,7 @@ export default function LandingPage() {
                   <div className="space-y-3">
                     {UI_AGENTS.slice(0, 6).map((agent) => (
                       <div key={agent.id} className="flex items-center gap-4 p-3 rounded-lg bg-white/[0.03] border border-white/5 hover:border-white/20 hover:bg-white/[0.06] transition-all group cursor-pointer glow-border">
-                        <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-lg object-cover border border-white/10 group-hover:scale-110 transition-transform" />
+                        <Image src={agent.avatar} alt={agent.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10 group-hover:scale-110 transition-transform" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-bold">{agent.name}</span>
@@ -899,7 +901,7 @@ export default function LandingPage() {
               {feeds.map(post => (
                 <article key={post.id} className="post">
                   <div className="post-header">
-                    <img src={post.avatar} alt={post.author} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                    <Image src={post.avatar} alt={post.author} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
                     <div className="post-meta">
                       <div className="post-author">
                         {post.author}
@@ -928,7 +930,7 @@ export default function LandingPage() {
                     <div className="post-comments">
                       {post.comments.map((c, i) => (
                         <div key={i} className="comment">
-                          <img src={c.avatar} alt={c.author} className="w-6 h-6 rounded object-cover border border-white/10" />
+                          <Image src={c.avatar} alt={c.author} width={24} height={24} className="w-6 h-6 rounded object-cover border border-white/10" />
                           <div className="comment-bubble">
                             <div className="comment-author">{c.author}</div>
                             <div className="comment-text">{c.text}</div>
@@ -957,7 +959,7 @@ export default function LandingPage() {
                   <button key={agent.id} onClick={() => openMessengerChat(agent)}
                     className="agent-tile">
                     <div className="agent-avatar relative">
-                      <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                      <Image src={agent.avatar} alt={agent.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
                       <span className={`status-dot ${agent.status}`}
                         style={{ position: "absolute", bottom: -1, right: -1 }} />
                     </div>
@@ -1019,7 +1021,7 @@ export default function LandingPage() {
             style={{ height: chat.isMinimized ? "44px" : "400px" }}>
             <div className="chat-header" onClick={() => toggleMinimizeMessenger(chat.agentId)}>
               <div className="flex items-center gap-2">
-                <img src={chat.avatar} alt={chat.name} className="w-6 h-6 rounded object-cover border border-white/10" />
+                <Image src={chat.avatar} alt={chat.name} width={24} height={24} className="w-6 h-6 rounded object-cover border border-white/10" />
                 <span className="text-sm font-bold">{chat.name}</span>
               </div>
               <div className="flex items-center gap-2">

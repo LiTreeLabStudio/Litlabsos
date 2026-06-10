@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useTheme, darkSkins, lightSkins, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
-import { useProfile, type UserProfile } from "@/context/ProfileContext";
+import { useTheme } from "@/context/ThemeContext";
+import { useProfile } from "@/context/ProfileContext";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { isLoaded, isSignedIn } = useAuth();
@@ -30,7 +31,8 @@ export default function ProfilePage() {
     // Check local storage for persistent CRT configuration
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) {
-      setCrtEnabled(val === "true");
+      const isEnabled = val === "true";
+      setTimeout(() => setCrtEnabled(isEnabled), 0);
     }
   }, []);
 
@@ -127,7 +129,7 @@ export default function ProfilePage() {
       {/* Cover Image Backdrop */}
       <div className="relative h-48 md:h-64 overflow-hidden cursor-pointer group border-b-2" style={{ borderColor: T.borderColor }} onClick={() => coverInputRef.current?.click()}>
         {profile.coverUrl ? (
-          <img src={profile.coverUrl} alt="Cover" className="w-full h-full object-cover" />
+          <Image src={profile.coverUrl} alt="Cover" fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-r from-purple-950 via-black to-blue-950">
             <span className="text-2xl font-bold tracking-widest text-white/50 animate-pulse">📷 CHANGE HERO BACKDROP PACKET</span>
@@ -159,7 +161,7 @@ export default function ProfilePage() {
               onClick={() => avatarInputRef.current?.click()}
             >
               {profile.avatarUrl ? (
-                <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                <Image src={profile.avatarUrl} alt="Avatar" fill className="object-cover" />
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center">
                   <span className="text-4xl">👤</span>

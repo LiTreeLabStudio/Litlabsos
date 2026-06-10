@@ -73,7 +73,10 @@ export default function Gallery() {
 
   // Use ref so callback doesn't need items in deps (avoids stale closure + ordering issues)
   const itemsRef = useRef(items);
-  itemsRef.current = items;
+  
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
 
   // Hooks must be declared before any conditional returns (rules-of-hooks)
   const toggleLike = useCallback((id: string) => {
@@ -88,7 +91,7 @@ export default function Gallery() {
       });
       return next;
     });
-  }, []);
+  }, [itemsRef]);
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -108,13 +111,18 @@ export default function Gallery() {
       });
 
     const val = localStorage.getItem("crt_global_scanlines");
-    if (val !== null) {
-      setCrtEnabled(val === "true");
-    }
     const storedUserItems = localStorage.getItem("litlabs-gallery-user");
-    if (storedUserItems) {
-      try { setUserItems(JSON.parse(storedUserItems)); } catch { /* ignore */ }
-    }
+
+    const timer = setTimeout(() => {
+      if (val !== null) {
+        setCrtEnabled(val === "true");
+      }
+      if (storedUserItems) {
+        try { setUserItems(JSON.parse(storedUserItems)); } catch { /* ignore */ }
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (!isLoaded) {

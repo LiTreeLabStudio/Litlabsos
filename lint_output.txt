@@ -1,0 +1,335 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+/data/data/com.termux/files/home/Litlabsos/src/app/layout.tsx
+  71:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+/data/data/com.termux/files/home/Litlabsos/src/app/marketplace/page.tsx
+   41:7   warning  'CATEGORY_LABELS' is assigned a value but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  107:5   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/marketplace/page.tsx:107:5
+  105 |
+  106 |   useEffect(() => {
+> 107 |     fetchWallet();
+      |     ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  108 |
+  109 |     const val = localStorage.getItem("crt_global_scanlines");
+  110 |     if (val !== null) setCrtEnabled(val === "true");                                                                                                                                                                                                                      react-hooks/set-state-in-effect
+  116:7   warning  Error: Cannot access variable before it is declared
+
+`showToast` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/data/data/com.termux/files/home/Litlabsos/src/app/marketplace/page.tsx:116:7
+  114 |     const canceled = searchParams.get('canceled');
+  115 |     if (success === 'true') {
+> 116 |       showToast('Payment successful! Your LiTBit Coins will be credited shortly.', 'success');
+      |       ^^^^^^^^^ `showToast` accessed before it is declared
+  117 |     } else if (canceled === 'true') {
+  118 |       showToast('Payment canceled. No coins were charged.', 'info');
+  119 |     }
+
+/data/data/com.termux/files/home/Litlabsos/src/app/marketplace/page.tsx:152:3
+  150 |   };
+  151 |
+> 152 |   const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 153 |     setToast({ msg, type });
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 154 |     setTimeout(() => setToast(null), 3000);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 155 |   };
+      | ^^^^^ `showToast` is declared here
+  156 |
+  157 |   const [claimLoading, setClaimLoading] = useState(false);
+  158 |  react-hooks/immutability
+  120:6   warning  React Hook useEffect has a missing dependency: 'searchParams'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  143:9   warning  Error: This value cannot be modified
+
+Modifying a variable defined outside a component or hook is not allowed. Consider using an effect.
+
+/data/data/com.termux/files/home/Litlabsos/src/app/marketplace/page.tsx:143:9
+  141 |       const data = await res.json();
+  142 |       if (data.url) {
+> 143 |         window.location.href = data.url;
+      |         ^^^^^^^^^^^^^^^ value cannot be modified
+  144 |       } else {
+  145 |         showToast(data.error || 'Checkout failed. Try again.', 'error');
+  146 |       }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/immutability
+  249:6   warning  React Hook useCallback has an unnecessary dependency: 'litBitCoins'. Either exclude it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+  482:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-img-element
+  574:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @next/next/no-img-element
+
+/data/data/com.termux/files/home/Litlabsos/src/app/page.tsx
+     3:39  warning  'useCallback' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   146:7   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/page.tsx:146:7
+  144 |     if (storedCount) {
+  145 |       const newCount = parseInt(storedCount) + 1;
+> 146 |       setVisitorCount(newCount);
+      |       ^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  147 |       localStorage.setItem("litlabs_visitor_count", newCount.toString());
+  148 |     } else {
+  149 |       localStorage.setItem("litlabs_visitor_count", "133742");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                react-hooks/set-state-in-effect
+   336:57  warning  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/page.tsx:336:57
+  334 |   const mounted = useMounted();
+  335 |   // Pre-generate random scales once to prevent background avatar jitter on re-render
+> 336 |   const randomScales = useRef(UI_AGENTS.map(() => 0.8 + Math.random() * 0.5));
+      |                                                         ^^^^^^^^^^^^^ Cannot call impure function
+  337 |
+  338 |   // Scroll reveal for landing page sections — MUST be before any conditional returns
+  339 |   useScrollReveal(".reveal");                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              react-hooks/purity
+   366:26  warning  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/page.tsx:366:26
+  364 |         {/* Floating agent avatars in background */}
+  365 |         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+> 366 |           {UI_AGENTS.map((agent, i) => (
+      |                          ^^^^^^^^^^^^^^^
+> 367 |             <div key={agent.id} className="absolute opacity-[0.06] animate-pulse" style={{
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 368 |               left: `${15 + (i * 10)}%`,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 369 |               top: `${20 + (i % 3) * 25}%`,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 370 |               animationDelay: `${i * 0.5}s`,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 371 |               transform: `scale(${randomScales.current[i]})`,
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 372 |             }}>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 373 |               <img src={agent.avatar} alt="" className="w-24 h-24 filter blur-[3px] opacity-20 rounded-lg object-cover" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 374 |             </div>
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 375 |           ))}
+      | ^^^^^^^^^^^^ Cannot access ref value during render
+  376 |         </div>
+  377 |
+  378 |         {/* CRT Overlay */}  react-hooks/refs
+   373:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+   454:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+   902:21  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+   931:27  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+   960:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+  1022:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @next/next/no-img-element
+
+/data/data/com.termux/files/home/Litlabsos/src/app/profile/page.tsx
+    7:8   warning  'Image' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+   34:7   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/profile/page.tsx:34:7
+  32 |     const val = localStorage.getItem("crt_global_scanlines");
+  33 |     if (val !== null) {
+> 34 |       setCrtEnabled(val === "true");
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  35 |     }
+  36 |   }, []);
+  37 |  react-hooks/set-state-in-effect
+  131:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @next/next/no-img-element
+  163:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @next/next/no-img-element
+
+/data/data/com.termux/files/home/Litlabsos/src/app/settings/page.tsx
+   4:20  warning  'darkSkins' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   4:31  warning  'lightSkins' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   6:27  warning  'UserProfile' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  38:7   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/settings/page.tsx:38:7
+  36 |     const val = localStorage.getItem("crt_global_scanlines");
+  37 |     if (val !== null) {
+> 38 |       setCrtEnabled(val === "true");
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  39 |     }
+  40 |     // Load interface settings
+  41 |     setAnimSpeed(localStorage.getItem("litlabs-anim-speed") || "normal");  react-hooks/set-state-in-effect
+
+/data/data/com.termux/files/home/Litlabsos/src/app/sign-in/[[...sign-in]]/page.tsx
+  89:11  warning  Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+/data/data/com.termux/files/home/Litlabsos/src/app/sign-up/[[...sign-up]]/page.tsx
+  89:11  warning  Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+/data/data/com.termux/files/home/Litlabsos/src/app/social/page.tsx
+    3:31  warning  'useRef' is defined but never used. Allowed unused vars must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+   63:30  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+   72:48  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-explicit-any
+  153:7   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/app/social/page.tsx:153:7
+  151 |     if (stored) {
+  152 |       const parsed = parseInt(stored, 10);
+> 153 |       setSocialVisitors(parsed + 1);
+      |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  154 |       localStorage.setItem("social_visitors", String(parsed + 1));
+  155 |     } else {
+  156 |       const val = 4892 + Math.floor(Math.random() * 100);  react-hooks/set-state-in-effect
+  508:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @next/next/no-img-element
+  563:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     @next/next/no-img-element
+
+/data/data/com.termux/files/home/Litlabsos/src/components/AnimatedBackground.tsx
+  24:3  warning  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/data/data/com.termux/files/home/Litlabsos/src/components/AnimatedBackground.tsx:24:3
+  22 |   const colorsRef = useRef(resolvedColors);
+  23 |   const modeRef = useRef(mode);
+> 24 |   colorsRef.current = resolvedColors;
+     |   ^^^^^^^^^^^^^^^^^ Cannot update ref during render
+  25 |   modeRef.current = mode;
+  26 |
+  27 |   useEffect(() => {  react-hooks/refs
+  25:3  warning  Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+/data/data/com.termux/files/home/Litlabsos/src/components/AnimatedBackground.tsx:25:3
+  23 |   const modeRef = useRef(mode);
+  24 |   colorsRef.current = resolvedColors;
+> 25 |   modeRef.current = mode;
+     |   ^^^^^^^^^^^^^^^ Cannot update ref during render
+  26 |
+  27 |   useEffect(() => {
+  28 |     const canvas = canvasRef.current;          react-hooks/refs
+
+/data/data/com.termux/files/home/Litlabsos/src/components/ClerkUser.tsx
+  24:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/data/data/com.termux/files/home/Litlabsos/src/components/CookieConsent.tsx
+  12:7  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/components/CookieConsent.tsx:12:7
+  10 |     const consent = localStorage.getItem("cookie-consent");
+  11 |     if (!consent) {
+> 12 |       setVisible(true);
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  13 |       // stagger animation
+  14 |       setTimeout(() => setAnimateIn(true), 100);
+  15 |     }  react-hooks/set-state-in-effect
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ProfileContext.tsx
+  70:9  warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ProfileContext.tsx:70:9
+  68 |     if (stored) {
+  69 |       try {
+> 70 |         setProfile(JSON.parse(stored));
+     |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  71 |       } catch (e) {
+  72 |         console.error("Failed to parse profile", e);
+  73 |       }  react-hooks/set-state-in-effect
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ThemeContext.tsx
+  395:9   warning  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ThemeContext.tsx:395:9
+  393 |     if (stored) {
+  394 |       try {
+> 395 |         setTheme(JSON.parse(stored));
+      |         ^^^^^^^^ Avoid calling setState() directly within an effect
+  396 |       } catch (e) {
+  397 |         console.error("Failed to parse theme", e);
+  398 |       }                                                                                                                                                                                                                                                                                                                                react-hooks/set-state-in-effect
+  409:22  warning  Error: Cannot access variable before it is declared
+
+`getResolvedColors` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ThemeContext.tsx:409:22
+  407 |       // Apply CSS variables
+  408 |       const root = document.documentElement;
+> 409 |       const colors = getResolvedColors(theme);
+      |                      ^^^^^^^^^^^^^^^^^ `getResolvedColors` accessed before it is declared
+  410 |       root.style.setProperty("--bg-color", colors.bgColor);
+  411 |       root.style.setProperty("--text-color", colors.textColor);
+  412 |       root.style.setProperty("--link-color", colors.linkColor);
+
+/data/data/com.termux/files/home/Litlabsos/src/context/ThemeContext.tsx:420:3
+  418 |   }, [theme, mounted]);
+  419 |
+> 420 |   const getResolvedColors = (t: Theme) => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 421 |     // Get base skin based on mode
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 422 |     const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 442 |     };
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 443 |   };
+      | ^^^^^ `getResolvedColors` is declared here
+  444 |
+  445 |   const resolvedColors = getResolvedColors(theme);
+  446 |  react-hooks/immutability
+
+/data/data/com.termux/files/home/Litlabsos/src/lib/agents.ts
+   27:29   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  165:121  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/data/data/com.termux/files/home/Litlabsos/src/lib/storage.ts
+  19:43  warning  'contentType' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/data/data/com.termux/files/home/Litlabsos/src/lib/user-db.ts
+  13:36  warning  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  20:31  warning  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  29:29  warning  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+✖ 48 problems (0 errors, 48 warnings)
+

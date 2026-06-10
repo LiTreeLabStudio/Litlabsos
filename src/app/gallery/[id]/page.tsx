@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, use } from "react";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import { AGENT_AVATARS } from "@/lib/avatars";
 
@@ -102,7 +103,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
         {/* Agent Info Header */}
         <div className="flex items-center justify-between gap-4 p-4 sm:p-6 glass-panel rounded-2xl border-white/5 mb-6">
           <div className="flex items-center gap-4 min-w-0">
-            <img src={agent.avatar} alt={agent.name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-cover border border-neon-cyan/30 shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]" />
+            <Image src={agent.avatar} alt={agent.name} width={64} height={64} className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl object-cover border border-neon-cyan/30 shrink-0 shadow-[0_0_20px_rgba(0,242,254,0.1)]" />
             <div className="min-w-0">
               <div className="text-[10px] sm:text-xs font-bold text-neon-cyan tracking-[0.3em] uppercase mb-1">
                 Active_Deployment

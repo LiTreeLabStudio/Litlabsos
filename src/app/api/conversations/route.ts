@@ -78,7 +78,7 @@ async function postHandler(req: NextRequest) {
     }
 
     // Verify user owns this agent
-    const { data: userAgent } = await supabase
+    const { data: _userAgent } = await supabase
       .from("user_agents")
       .select("*")
       .eq("user_id", userId)

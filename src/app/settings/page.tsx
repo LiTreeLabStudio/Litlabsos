@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTheme, darkSkins, lightSkins, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
+import { useTheme, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
 import type { BackgroundMode } from "@/components/AnimatedBackground";
-import { useProfile, type UserProfile } from "@/context/ProfileContext";
+import { useProfile } from "@/context/ProfileContext";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function SettingsPage() {
@@ -35,14 +35,16 @@ export default function SettingsPage() {
     // Check local storage for persistent CRT configuration
     const val = localStorage.getItem("crt_global_scanlines");
     if (val !== null) {
-      setCrtEnabled(val === "true");
+      setTimeout(() => setCrtEnabled(val === "true"), 0);
     }
     // Load interface settings
-    setAnimSpeed(localStorage.getItem("litlabs-anim-speed") || "normal");
-    setCompactMode(localStorage.getItem("litlabs-compact") === "true");
-    setReducedMotion(localStorage.getItem("litlabs-reduced-motion") === "true");
-    setSoundEffects(localStorage.getItem("litlabs-sound") === "true");
-    setCustomCSS(localStorage.getItem("litlabs-custom-css") || "");
+    setTimeout(() => {
+      setAnimSpeed(localStorage.getItem("litlabs-anim-speed") || "normal");
+      setCompactMode(localStorage.getItem("litlabs-compact") === "true");
+      setReducedMotion(localStorage.getItem("litlabs-reduced-motion") === "true");
+      setSoundEffects(localStorage.getItem("litlabs-sound") === "true");
+      setCustomCSS(localStorage.getItem("litlabs-custom-css") || "");
+    }, 0);
   }, []);
 
   // Require authentication (after all hooks to respect Rules of Hooks)

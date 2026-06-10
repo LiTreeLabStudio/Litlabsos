@@ -387,36 +387,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(defaultTheme);
   const [mounted, setMounted] = useState(false);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem("litlabs-theme");
-    if (stored) {
-      try {
-        setTheme(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse theme", e);
-      }
-    }
-    setMounted(true);
-  }, []);
-
-  // Save to localStorage on change
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem("litlabs-theme", JSON.stringify(theme));
-      // Apply CSS variables
-      const root = document.documentElement;
-      const colors = getResolvedColors(theme);
-      root.style.setProperty("--bg-color", colors.bgColor);
-      root.style.setProperty("--text-color", colors.textColor);
-      root.style.setProperty("--link-color", colors.linkColor);
-      root.style.setProperty("--header-color", colors.headerColor);
-      root.style.setProperty("--border-color", colors.borderColor);
-      root.style.setProperty("--accent-color", colors.accentColor);
-      root.style.setProperty("--box-bg", colors.boxBg);
-    }
-  }, [theme, mounted]);
-
   const getResolvedColors = (t: Theme) => {
     // Get base skin based on mode
     const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
@@ -441,6 +411,37 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       warning: "#ffb020",
     };
   };
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("litlabs-theme");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setTimeout(() => setTheme(parsed), 0);
+      } catch (e) {
+        console.error("Failed to parse theme", e);
+      }
+    }
+    setTimeout(() => setMounted(true), 0);
+  }, []);
+
+  // Save to localStorage on change
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("litlabs-theme", JSON.stringify(theme));
+      // Apply CSS variables
+      const root = document.documentElement;
+      const colors = getResolvedColors(theme);
+      root.style.setProperty("--bg-color", colors.bgColor);
+      root.style.setProperty("--text-color", colors.textColor);
+      root.style.setProperty("--link-color", colors.linkColor);
+      root.style.setProperty("--header-color", colors.headerColor);
+      root.style.setProperty("--border-color", colors.borderColor);
+      root.style.setProperty("--accent-color", colors.accentColor);
+      root.style.setProperty("--box-bg", colors.boxBg);
+    }
+  }, [theme, mounted]);
 
   const resolvedColors = getResolvedColors(theme);
 

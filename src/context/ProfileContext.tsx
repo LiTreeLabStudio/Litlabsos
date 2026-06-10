@@ -67,12 +67,13 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     const stored = localStorage.getItem("litlabs-profile");
     if (stored) {
       try {
-        setProfile(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setTimeout(() => setProfile(parsed), 0);
       } catch (e) {
         console.error("Failed to parse profile", e);
       }
     }
-    setMounted(true);
+    setTimeout(() => setMounted(true), 0);
   }, []);
 
   // Save to localStorage on change

@@ -24,7 +24,7 @@ export interface AgentMessage {
   content: string;
   timestamp: Date;
   type: "chat" | "command" | "insight" | "task";
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AgentConversation {
@@ -162,7 +162,7 @@ export class AgentOrchestrator {
   }
 
   // Send message between agents
-  sendMessage(from: string, to: string, content: string, type: AgentMessage["type"] = "chat", metadata?: Record<string, any>): AgentMessage {
+  sendMessage(from: string, to: string, content: string, type: AgentMessage["type"] = "chat", metadata?: Record<string, unknown>): AgentMessage {
     const message: AgentMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       from,

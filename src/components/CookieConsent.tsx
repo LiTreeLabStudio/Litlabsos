@@ -9,7 +9,7 @@ export default function CookieConsent() {
   useEffect(() => {
     const consent = localStorage.getItem("cookie-consent");
     if (!consent) {
-      setVisible(true);
+      setTimeout(() => setVisible(true), 0);
       // stagger animation
       setTimeout(() => setAnimateIn(true), 100);
     }

@@ -11,8 +11,9 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
-    optimizePackageImports: ["@supabase/supabase-js"],
+    // optimizePackageImports: ["@supabase/supabase-js"],
   },
+  swcMinify: false,
 
   // Externalize jose from middleware bundling (fixes NFT build error)
   serverExternalPackages: ["jose"],

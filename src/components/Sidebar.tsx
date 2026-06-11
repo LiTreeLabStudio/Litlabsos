@@ -20,6 +20,7 @@ const NAV_LINKS = [
   { label: "AI Builder", icon: Wrench, href: "/builder" },
   { label: "Marketplace", icon: ShoppingBag, href: "/marketplace" },
   { label: "Gallery", icon: ImageIcon, href: "/gallery" },
+  { label: "Event Ledger", icon: Activity, href: "/dashboard/events" },
   { label: "Showcase", icon: Sparkles, href: "/showcase" },
   { label: "Social", icon: Users, href: "/social" },
 ];

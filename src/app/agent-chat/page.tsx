@@ -40,6 +40,7 @@ export default function AgentChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [worlds, setWorlds] = useState<GeneratedWorld[]>([]);
   const [activeTab, setActiveTab] = useState<"chat" | "gallery">("chat");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [crtEnabled, setCrtEnabled] = useState(true);
@@ -53,7 +54,12 @@ export default function AgentChat() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [messages]);
 
   const generateWorld = useCallback(async (prompt: string) => {
@@ -250,7 +256,7 @@ export default function AgentChat() {
             </div>
 
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div ref={messagesContainerRef} style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
               {messages.length === 0 && (
                 <div style={{ textAlign: "center", paddingTop: "40px" }}>
                   <div style={{ fontSize: "48px", marginBottom: "12px" }}>{selectedAgent.icon}</div>

@@ -38,11 +38,6 @@ export const metadata: Metadata = {
   },
 };
 
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
-const clerkReady =
-  (clerkKey.startsWith("pk_test_") || clerkKey.startsWith("pk_live_")) &&
-  clerkKey.length > 40;
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,20 +66,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@400;500;600;700;800;900&family=Press+Start+2P&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
-        {clerkReady ? (
-          <ClerkProvider>
-            {inner}
-            <Analytics />
-            <SpeedInsights />
-          </ClerkProvider>
-        ) : (
-          <>
-            {inner}
-            <Analytics />
-            <SpeedInsights />
-          </>
-        )}
+        <ClerkProvider publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+          {inner}
+          <Analytics />
+          <SpeedInsights />
+        </ClerkProvider>
       </body>
     </html>
   );
-}
+  }

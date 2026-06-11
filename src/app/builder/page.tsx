@@ -137,6 +137,7 @@ export default function Builder() {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Custom agents from Supabase
@@ -195,7 +196,12 @@ export default function Builder() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [messages, streaming]);
 
   const switchAgent = useCallback((agent: Agent) => {
@@ -507,7 +513,7 @@ export default function Builder() {
           </div>
 
           {/* Messages */}
-          <div style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div ref={chatContainerRef} style={{ flex: 1, overflowY: "auto", padding: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
             {messages.length === 0 && !streaming && (
               <div style={{ textAlign: "center", paddingTop: "40px" }}>
                 <div style={{ fontSize: "48px", marginBottom: "12px" }}>{selectedAgent.icon}</div>

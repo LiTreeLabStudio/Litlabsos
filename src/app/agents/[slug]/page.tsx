@@ -30,6 +30,7 @@ export default function AgentDetail() {
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<{role: string; text: string}[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   const checkIfInstalled = useCallback(async (agentId: string) => {
@@ -78,7 +79,12 @@ export default function AgentDetail() {
   }, [slug, fetchAgent]);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [chatMessages]);
 
   async function sendChat() {
@@ -225,7 +231,7 @@ export default function AgentDetail() {
           <div className="lit-box" style={{ borderColor: theme.borderColor, backgroundColor: theme.boxBg }}>
             <div className="lit-header" style={{ color: "white" }}>💬 CHAT WITH {agent.name.toUpperCase()}</div>
             <div className="p-4">
-              <div className="mb-4 overflow-y-auto" style={{ maxHeight: "280px", minHeight: "100px" }}>
+              <div ref={chatContainerRef} className="mb-4 overflow-y-auto" style={{ maxHeight: "280px", minHeight: "100px" }}>
                 {chatMessages.length === 0 && (
                   <div className="p-3" style={{ backgroundColor: "rgba(255,0,128,0.08)", borderLeft: `3px solid ${theme.linkColor}` }}>
                     <div style={{ color: theme.linkColor, fontSize: "11px", marginBottom: "4px" }}>

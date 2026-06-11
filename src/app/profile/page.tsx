@@ -572,29 +572,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-        </div>
-      </div>
-
-      {/* Footer statistics and metadata */}
-      <div className="border-t-2 mt-8 p-6 text-center text-[10px] font-mono" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
-        <div className="mb-3">
-          <span className="font-bold text-base px-2 py-0.5 bg-black border text-green-400" style={{ borderColor: T.borderColor }}>
-            {visitorCount.toLocaleString()}
-          </span> 
-          <span className="ml-2 uppercase tracking-widest opacity-60 font-bold">Captured Telemetry Nodes</span>
-          <button 
-            onClick={() => setVisitorCount(v => v + 1)}
-            className="ml-3 px-2 py-0.5 text-[10px] font-bold border-2 active:scale-90 transition-transform"
-            style={{ borderColor: T.borderColor, backgroundColor: "black" }}
-          >
-            PING +1
-          </button>
-        </div>
-        <div style={{ color: T.textColor }} className="opacity-50">
-          © {new Date().getFullYear()} LiTreeLabStudios NETWORK HUB | SYSTEM CORE v5.24 | POWERED BY ⚡GOD-CORE SPECIALISTS
-        </div>
-      </div>
-
-    </div>
-  );
-}
+          </div>
+          </div>
+          </div>
+          );
+          }

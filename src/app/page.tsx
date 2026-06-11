@@ -9,7 +9,12 @@ import { useAuth } from "@clerk/nextjs";
 import { AGENT_AVATARS } from "@/lib/avatars";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useMounted } from "@/hooks/useMounted";
-import { Zap } from "lucide-react";
+import { Zap, Book, Handshake, Activity, Users, Calendar, Sparkles, ShoppingBag, Shield } from "lucide-react";
+import { PricingPlans } from "@/components/PricingPlans";
+import { MarketplacePreview } from "@/components/MarketplacePreview";
+import { TrustBadges } from "@/components/TrustBadges";
+import { SocialProofTeaser } from "@/components/SocialProofTeaser";
+import Footer from "@/components/Footer";
 
 interface UIAgent {
   id: string;
@@ -137,6 +142,7 @@ export default function LandingPage() {
   ]);
 
   const directorEndRef = useRef<HTMLDivElement>(null);
+  const telemetryContainerRef = useRef<HTMLDivElement>(null);
   const telemetryEndRef = useRef<HTMLDivElement>(null);
 
   // Load persistence
@@ -184,8 +190,13 @@ export default function LandingPage() {
       isInitialMount.current = false;
       return;
     }
-    // Only scroll within the telemetry card, not the whole page
-    telemetryEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // Only scroll within the telemetry card container, NOT the whole page viewport
+    if (telemetryContainerRef.current) {
+      telemetryContainerRef.current.scrollTo({
+        top: telemetryContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [telemetry]);
 
   const claimDailyBonus = () => {
@@ -502,6 +513,12 @@ export default function LandingPage() {
             </div>
           </div>
 
+          <MarketplacePreview agents={UI_AGENTS} colors={resolvedColors} />
+
+          <PricingPlans colors={resolvedColors} />
+
+          <SocialProofTeaser colors={resolvedColors} />
+
           {/* SOCIAL PROOF / COMMUNITY SECTION */}
           <div className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -564,6 +581,35 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+
+          {/* HIVE EXPLORER GRID */}
+          <div className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
+             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Documentation", href: "/docs", icon: <Book size={18} />, desc: "Developer API & Guides" },
+                  { label: "Image Gen", href: "/image-generator", icon: <ImageIcon size={18} />, desc: "AI Visual Studio" },
+                  { label: "Partner Program", href: "/partners", icon: <Handshake size={18} />, desc: "Earn with the Hive" },
+                  { label: "System Status", href: "/status", icon: <Activity size={18} />, desc: "Live service health" },
+                  { label: "Team & Careers", href: "/team", icon: <Users size={18} />, desc: "The architects" },
+                  { label: "Hive Changelog", href: "/blog", icon: <Calendar size={18} />, desc: "Neural dispatches" },
+                  { label: "Success Stories", href: "/showcase", icon: <Sparkles size={18} />, desc: "Verified case studies" },
+                  { label: "Marketplace", href: "/marketplace", icon: <ShoppingBag size={18} />, desc: "Browse agent nodes" },
+                  { label: "Legal Center", href: "/privacy", icon: <Shield size={18} />, desc: "Trust & Compliance" },
+                ].map((item, i) => (
+                  <Link key={i} href={item.href} className="p-6 glass-card rounded-2xl border border-white/5 hover:border-cyan-500/20 transition-all group">
+                     <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <div className="text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity">
+                           {item.icon}
+                        </div>
+                     </div>
+                     <h4 className="font-bold text-sm mb-1 group-hover:text-cyan-400 transition-colors">{item.label}</h4>
+                     <p className="text-[10px] text-white/40 uppercase tracking-widest">{item.desc}</p>
+                  </Link>
+                ))}
+             </div>
+          </div>
+
+          <TrustBadges colors={resolvedColors} />
 
           {/* CTA SECTION */}
           <div className="max-w-7xl mx-auto px-6 py-20 reveal">
@@ -999,7 +1045,7 @@ export default function LandingPage() {
                   Live Telemetry
                 </div>
               </div>
-              <div className="overflow-y-auto max-h-[200px]">
+              <div ref={telemetryContainerRef} className="overflow-y-auto max-h-[200px]">
                 {telemetry.map((log, i) => (
                   <div key={i} className="telemetry-row">
                     <span className="telemetry-time">{log.time}</span>
@@ -1053,41 +1099,6 @@ export default function LandingPage() {
           </div>
         ))}
       </div>
-
-      {/* ── FOOTER ── */}
-      <footer className="relative z-10 border-t mt-12 py-8 px-6" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(7,7,11,0.9)" }}>
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-6 text-sm">
-            <div>
-              <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>LiTTree Lab</h4>
-              <p className="text-muted text-xs">Enterprise AI agent orchestration platform.</p>
-            </div>
-            <div>
-              <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>Products</h4>
-              <div className="space-y-1.5 text-xs">
-                <Link href="/marketplace" className="block text-muted hover:text-link">Marketplace</Link>
-                <Link href="/builder" className="block text-muted hover:text-link">Agent Builder</Link>
-                <Link href="/profile" className="block text-muted hover:text-link">Profile</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>Legal</h4>
-              <div className="space-y-1.5 text-xs">
-                <Link href="/terms" className="block text-muted hover:text-link">Terms</Link>
-                <Link href="/privacy" className="block text-muted hover:text-link">Privacy</Link>
-                <Link href="/cookies" className="block text-muted hover:text-link">Cookies</Link>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-display text-xs uppercase tracking-widest mb-3" style={{ color: resolvedColors.headerColor }}>Security</h4>
-              <p className="text-xs" style={{ color: resolvedColors.textMuted }}>All transactions validated via encrypted ledger. Gemini models: gemini-2.0-flash & gemini-2.5-flash.</p>
-            </div>
-          </div>
-          <div className="text-center pt-4 border-t text-xs font-mono" style={{ borderColor: "rgba(255,255,255,0.06)", color: resolvedColors.textMuted }}>
-            © {new Date().getFullYear()} LiTTree Lab Studios · Deployed on the Edge
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

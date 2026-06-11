@@ -18,12 +18,18 @@ export default function AIBuilder() {
   const [input, setInput] = useState("");
   const [isBuilding, setIsBuilding] = useState(false);
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFile[]>([]);
-  const [activeTab, setActiveTab] = useState<"chat" | "files" | "preview">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "files" | "preview" | "settings">("chat");
   const [streamingMessage, setStreamingMessage] = useState("");
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [messages, streamingMessage]);
 
   const systemPrompt = `You are the LitLabs Hive Mind -- an AI architect and code generator. You help build and improve the LitLabs platform.
@@ -186,7 +192,7 @@ Be technically precise. Think like a senior full-stack developer.`;
           {activeTab === "chat" && (
             <>
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && (
                   <div className="text-center py-16">
                     <div className="text-6xl mb-4">🧠</div>

@@ -6,7 +6,7 @@ import { useTheme } from "@/context/ThemeContext";
 import dynamic from "next/dynamic";
 import {
   Home, Wrench, ShoppingBag, Image, Sparkles, MessageSquare,
-  User, Settings, Sun, Moon, Zap
+  User, Settings, Sun, Moon, Zap, Book, Users, Play
 } from "lucide-react";
 
 const NavAuth = dynamic(
@@ -17,12 +17,12 @@ const NavAuth = dynamic(
 const links = [
   { href: "/", label: "Home", icon: Home },
   { href: "/builder", label: "Builder", icon: Wrench },
+  { href: "/image-generator", label: "Imaging", icon: ImageIcon },
   { href: "/marketplace", label: "Market", icon: ShoppingBag },
-  { href: "/gallery", label: "Gallery", icon: Image },
-  { href: "/showcase", label: "Showcase", icon: Sparkles },
+  { href: "/docs", label: "Docs", icon: Book },
+  { href: "/team", label: "Team", icon: Users },
+  { href: "/demo", label: "Demo", icon: Play },
   { href: "/social", label: "Social", icon: MessageSquare },
-  { href: "/profile", label: "Profile", icon: User },
-  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Navbar() {

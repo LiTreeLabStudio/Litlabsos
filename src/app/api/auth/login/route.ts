@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPassword } from "@/lib/db";
 import { signToken } from "@/lib/jwt";
+import { withRateLimit } from "@/lib/rate-limiter";
 
-export async function POST(req: NextRequest) {
+async function handler(req: NextRequest) {
   let email = "";
   let password = "";
   let isJson = false;
@@ -67,3 +68,5 @@ export async function POST(req: NextRequest) {
 
   return res;
 }
+
+export const POST = withRateLimit(handler, 10, 60);

@@ -10,13 +10,23 @@ async function handler(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { from, to, message, type = "chat", metadata } = body;
+    const { from, to, message, type = "chat", metadata, isDemo = false } = body;
 
-    if (!from || !to || !message) {
+    if ((!from || !to) && !isDemo) {
       return NextResponse.json(
         { error: "Missing required fields: from, to, message" },
         { status: 400 }
       );
+    }
+
+    // Handle demo mode specifically
+    if (isDemo) {
+      const demoResponse = await orchestrator.simulateAgentResponse("champion", message || "Hello");
+      return NextResponse.json({
+        reply: demoResponse,
+        agent: "champion",
+        mode: "sandbox_demo"
+      });
     }
 
     // Validate agents exist

@@ -58,10 +58,16 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: "smooth"
+      });
+    }
   }, [messages, loading]);
 
   const sendMessage = async () => {
@@ -126,7 +132,7 @@ export default function AgentDeploymentPage({ params }: { params: Promise<{ id: 
         {/* Chat Interface */}
         <div className="flex-1 flex flex-col min-h-0 glass-panel rounded-3xl border-white/5 overflow-hidden">
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-hide">
+          <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 scrollbar-hide">
             {messages.map((m, i) => (
               <div
                 key={i}

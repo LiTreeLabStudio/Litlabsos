@@ -12,7 +12,6 @@ export default function ProfilePage() {
   const { profile, updateProfile } = useProfile();
   
   const [editingSection, setEditingSection] = useState<string | null>(null);
-  const [visitorCount, setVisitorCount] = useState(133742);
   const [newInterest, setNewInterest] = useState("");
   const [crtEnabled, setCrtEnabled] = useState(true);
   
@@ -572,8 +571,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          </div>
-          </div>
-          </div>
-          );
-          }
+        </div>
+      </div>
+    </div>
+  );
+}

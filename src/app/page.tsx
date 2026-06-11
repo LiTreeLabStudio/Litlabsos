@@ -155,12 +155,32 @@ export default function LandingPage() {
     } else {
       localStorage.setItem("litlabs_visitor_count", "133742");
     }
-    const storedCoins = localStorage.getItem("litbitcoins");
-    if (storedCoins) setTimeout(() => setLitBitCoins(parseInt(storedCoins)), 0);
-    else localStorage.setItem("litbitcoins", "500");
-    const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
-    if (lastClaim === new Date().toISOString().split("T")[0]) setTimeout(() => setClaimedToday(true), 0);
-  }, []);
+    
+    // Fetch real coins from API
+    if (isSignedIn) {
+      fetch("/api/wallet")
+        .then(res => res.json())
+        .then(data => {
+          if (data.balance !== undefined) {
+            setLitBitCoins(data.balance);
+            localStorage.setItem("litbitcoins", data.balance.toString());
+            
+            const today = new Date().toISOString().split("T")[0];
+            if (data.last_claim_date === today) {
+              setClaimedToday(true);
+              localStorage.setItem("litbitcoins_last_claimed", today);
+            }
+          }
+        })
+        .catch(err => console.error("Wallet sync error:", err));
+    } else {
+      const storedCoins = localStorage.getItem("litbitcoins");
+      if (storedCoins) setLitBitCoins(parseInt(storedCoins));
+      
+      const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
+      if (lastClaim === new Date().toISOString().split("T")[0]) setClaimedToday(true);
+    }
+  }, [isSignedIn]);
 
   // Poll telemetry
   useEffect(() => {
@@ -199,18 +219,51 @@ export default function LandingPage() {
     }
   }, [telemetry]);
 
-  const claimDailyBonus = () => {
+  const claimDailyBonus = async () => {
     if (claimedToday) return;
-    const newBal = litBitCoins + 50;
-    setLitBitCoins(newBal);
-    localStorage.setItem("litbitcoins", newBal.toString());
-    localStorage.setItem("litbitcoins_last_claimed", new Date().toISOString().split("T")[0]);
-    setTimeout(() => setClaimedToday(true), 0);
+
+    if (!isSignedIn) {
+      window.location.href = "/login";
+      return;
+    }
+
+    setClaimedToday(true); // Optimistic lock
     const timeStr = new Date().toTimeString().split(" ")[0];
-    setTelemetry(prev => [
-      ...prev,
-      { time: timeStr, agent: "System", text: `Claimed daily LiTBit Coins bonus: +50 coins!`, icon: "🪙" }
-    ]);
+
+    try {
+      const res = await fetch("/api/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "daily" })
+      });
+      
+      const data = await res.json();
+
+      if (res.ok) {
+        setLitBitCoins(data.balance);
+        localStorage.setItem("litbitcoins", data.balance.toString());
+        localStorage.setItem("litbitcoins_last_claimed", new Date().toISOString().split("T")[0]);
+        
+        setTelemetry(prev => [
+          ...prev.slice(-8),
+          { time: timeStr, agent: "System", text: `Claimed daily bonus! Balance: ${data.balance} LBC`, icon: "🪙" }
+        ]);
+      } else {
+        setClaimedToday(false);
+        const errMsg = data.error || "Server rejected claim";
+        setTelemetry(prev => [
+          ...prev.slice(-8),
+          { time: timeStr, agent: "System", text: `Daily claim failed: ${errMsg}`, icon: "⚠️" }
+        ]);
+      }
+    } catch (err: any) {
+      setClaimedToday(false);
+      console.error("Daily claim error:", err);
+      setTelemetry(prev => [
+        ...prev.slice(-8),
+        { time: timeStr, agent: "System", text: `Network error: ${err.message || "Link interrupted"}`, icon: "⚠️" }
+      ]);
+    }
   };
 
   const openMessengerChat = (agent: UIAgent) => {

@@ -6,8 +6,9 @@ import { useTheme } from "@/context/ThemeContext";
 import dynamic from "next/dynamic";
 import {
   Home, Wrench, ShoppingBag, Image, Sparkles, MessageSquare,
-  User, Settings, Sun, Moon, Zap, Book, Users, Play
+  User, Settings, Sun, Moon, Zap, Book, Users, Play, Menu, X
 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const NavAuth = dynamic(
   () => import("@/components/ClerkAuth").then((m) => ({ default: m.NavAuth })),

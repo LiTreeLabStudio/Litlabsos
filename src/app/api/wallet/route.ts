@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
-import { getUserWallet, updateWalletBalance, claimDailyBonus } from "@/lib/user-db";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { getUserWallet, updateWalletBalance, claimDailyBonus, getOrCreateUser } from "@/lib/user-db";
 import { withRateLimit } from "@/lib/rate-limiter";
 
 /**
@@ -14,14 +14,23 @@ async function getHandler(_req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const wallet = await getUserWallet(clerkId);
+    let wallet = await getUserWallet(clerkId);
     
     if (!wallet) {
-      return NextResponse.json({
-        balance: 500,
-        last_claim_date: null,
-        message: "New wallet created with 500 LiTBit Coins",
-      });
+      const user = await currentUser();
+      const email = user?.emailAddresses[0]?.emailAddress || "";
+      const name = user?.firstName ? `${user.firstName} ${user.lastName || ""}` : "";
+      
+      const result = await getOrCreateUser(clerkId, email, name);
+      wallet = await getUserWallet(clerkId);
+
+      if (!wallet) {
+        return NextResponse.json({
+          balance: 500,
+          last_claim_date: null,
+          message: "New wallet created with 500 LiTBit Coins",
+        });
+      }
     }
 
     return NextResponse.json({
@@ -59,17 +68,26 @@ async function postHandler(req: NextRequest) {
       );
     }
 
-    const wallet = await claimDailyBonus(clerkId, 50);
+    // Ensure user exists before claiming
+    let wallet = await getUserWallet(clerkId);
+    if (!wallet) {
+      const user = await currentUser();
+      const email = user?.emailAddresses[0]?.emailAddress || "";
+      const name = user?.firstName ? `${user.firstName} ${user.lastName || ""}` : "";
+      await getOrCreateUser(clerkId, email, name);
+    }
+
+    wallet = await claimDailyBonus(clerkId, 50);
 
     return NextResponse.json({
       message: "Daily bonus claimed! +50 LiTBit Coins",
       balance: wallet.balance,
       last_claim_date: wallet.last_claim_date,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("Error claiming bonus:", error);
     
-    if (error instanceof Error && error.message === "Daily bonus already claimed") {
+    if (error.message === "Daily bonus already claimed") {
       return NextResponse.json(
         { error: "Daily bonus already claimed today" },
         { status: 400 }
@@ -77,7 +95,7 @@ async function postHandler(req: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: "Failed to claim bonus" },
+      { error: `Failed to claim bonus: ${error.message || "Unknown error"}` },
       { status: 500 }
     );
   }

@@ -1,17 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useTheme, type SkinPreset, type AccentColor } from "@/context/ThemeContext";
 import type { BackgroundMode } from "@/components/AnimatedBackground";
 import { useProfile } from "@/context/ProfileContext";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, useUser, RedirectToSignIn } from "@clerk/nextjs";
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { user } = useUser();
   const { theme, resolvedColors, setMode, setSkin, setAccent, setBackgroundMode, resetTheme } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
-  const [activeTab, setActiveTab] = useState<"theme" | "profile" | "agents" | "advanced" | "interface">("theme");
+  const [activeTab, setActiveTab] = useState<"profile" | "account" | "billing" | "appearance" | "agents" | "interface" | "advanced">("profile");
   const [saved, setSaved] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(false);
 
@@ -129,7 +131,7 @@ export default function SettingsPage() {
 
         {/* Tabs */}
         <div className="flex gap-1.5 mb-6 flex-wrap">
-          {(["theme", "profile", "agents", "interface", "advanced"] as const).map((tab) => (
+          {(["profile", "account", "billing", "appearance", "agents", "interface", "advanced"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -145,9 +147,9 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        {/* Theme Tab */}
-        {activeTab === "theme" && (
-          <div className="space-y-6 animate-fadeIn">
+        {/* Appearance Tab */}
+        {activeTab === "appearance" && (
+          <div className="space-y-6 animate-fadeInUp">
             
             {/* Global Monitor Setting */}
             <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
@@ -253,7 +255,7 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         {activeTab === "profile" && (
-          <div className="space-y-4 animate-fadeIn">
+          <div className="space-y-4 animate-fadeInUp">
             <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
               <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Display Name</div>
               <input
@@ -302,9 +304,94 @@ export default function SettingsPage() {
           </div>
         )}
 
+        {/* Account Tab */}
+        {activeTab === "account" && (
+          <div className="space-y-4 animate-fadeInUp">
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Identity & Credentials</div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="opacity-60">Full Name</span>
+                  <span className="font-bold">{user?.fullName || "Not set"}</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="opacity-60">Primary Email</span>
+                  <span className="font-bold">{user?.primaryEmailAddress?.emailAddress}</span>
+                </div>
+                <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                  <span className="opacity-60">Clerk ID</span>
+                  <span className="font-mono text-[10px]">{user?.id}</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => window.open('https://accounts.litlabs.net/user', '_blank')}
+                className="mt-4 px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                style={{ borderColor: T.accentColor, color: T.accentColor }}
+              >
+                Manage Security & Account
+              </button>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>System Access</div>
+              <p className="text-[11px] mb-3 opacity-80 leading-normal">
+                Your account is currently active on the LiTTree Labs Hive Mind. Multi-factor authentication is recommended for all edge nodes.
+              </p>
+              <div className="flex gap-2">
+                <span className="px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/40 text-[9px] font-black uppercase">Active</span>
+                <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 text-[9px] font-black uppercase">Verified Node</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Billing Tab */}
+        {activeTab === "billing" && (
+          <div className="space-y-4 animate-fadeInUp">
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>LiTBit Wallet</div>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-full border-2 flex items-center justify-center text-xl" style={{ borderColor: T.accentColor, color: T.accentColor }}>
+                  🪙
+                </div>
+                <div>
+                  <div className="text-2xl font-black" style={{ color: T.accentColor }}>500 LBT</div>
+                  <div className="text-[10px] opacity-60 uppercase tracking-widest">Available Balance</div>
+                </div>
+              </div>
+              <Link 
+                href="/marketplace" 
+                className="inline-block px-4 py-2 border-2 font-bold text-xs hover:scale-105 transition-transform"
+                style={{ borderColor: T.borderColor, color: T.textColor }}
+              >
+                Top up Balance
+              </Link>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Active Subscription</div>
+              <div className="p-4 border-2 border-dashed flex flex-col items-center justify-center text-center" style={{ borderColor: T.borderColor + "40" }}>
+                <div className="font-bold text-sm mb-1 uppercase tracking-tighter">Free Tier / Edge Node</div>
+                <p className="text-[10px] opacity-60 mb-4">Access to basic agents and limited compute credits.</p>
+                <button 
+                  className="px-6 py-2 bg-volcanic-accent text-black font-black text-xs uppercase tracking-widest hover:scale-110 transition-transform shadow-lg"
+                  style={{ backgroundColor: T.accentColor }}
+                >
+                  Upgrade to Pro
+                </button>
+              </div>
+            </div>
+
+            <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
+              <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Invoices & History</div>
+              <p className="text-[11px] opacity-60 italic">No recent transactions found on the ledger.</p>
+            </div>
+          </div>
+        )}
+
         {/* Agents Tab */}
         {activeTab === "agents" && (
-          <div className="space-y-4 animate-fadeIn">
+          <div className="space-y-4 animate-fadeInUp">
             <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
               <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>ActivePieces Webhook</div>
               <p className="text-[11px] mb-2 opacity-80 leading-normal">Your multi-agent flow is fully linked. The Director plans, and specialists execute.</p>
@@ -338,7 +425,7 @@ export default function SettingsPage() {
 
         {/* Interface Tab */}
         {activeTab === "interface" && (
-          <div className="space-y-4 animate-fadeIn">
+          <div className="space-y-4 animate-fadeInUp">
             <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
               <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Animation Speed</div>
               <p className="text-[11px] mb-3 opacity-80">Control the pacing of page transitions and micro-interactions.</p>
@@ -434,7 +521,7 @@ export default function SettingsPage() {
 
         {/* Advanced Tab */}
         {activeTab === "advanced" && (
-          <div className="space-y-4 animate-fadeIn">
+          <div className="space-y-4 animate-fadeInUp">
             <div className="lit-box p-4" style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}>
               <div className="lit-header -mx-4 -mt-4 mb-3" style={{ color: "white" }}>Environment Registers</div>
               <p className="text-[11px] mb-3 opacity-80">Static credentials loaded in deployment environments.</p>

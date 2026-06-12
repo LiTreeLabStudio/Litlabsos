@@ -12,6 +12,15 @@ const WORLD_AGENTS = [
   { id: "champion", name: "Champion", icon: "🏆", color: "#ff0080", desc: "General creative partner for any visual concept" },
 ];
 
+const CORE_AGENTS = [
+  { id: "director", name: "Director", icon: "🎯", color: "#00ffff", desc: "System Orchestrator" },
+  { id: "champion", name: "Champion", icon: "🏆", color: "#00ff41", desc: "General Assistant" },
+  { id: "code-champion", name: "Code Champion", icon: "💻", color: "#ff0080", desc: "Software Architect" },
+  { id: "social-dominator", name: "Social Dominator", icon: "📱", color: "#ff6b35", desc: "Growth Marketer" },
+  { id: "data-slayer", name: "Data Slayer", icon: "📊", color: "#a855f7", desc: "Analytics Engineer" },
+  { id: "writing-coach", name: "Writing Coach", icon: "✍️", color: "#f472b6", desc: "Content Publisher" },
+];
+
 type Message = {
   id: string;
   role: "user" | "assistant";
@@ -34,12 +43,12 @@ type GeneratedWorld = {
 
 export default function AgentChat() {
   const { resolvedColors: T } = useTheme();
-  const [selectedAgent, setSelectedAgent] = useState(WORLD_AGENTS[0]);
+  const [selectedAgent, setSelectedAgent] = useState(CORE_AGENTS[1]); // Default to Champion
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [worlds, setWorlds] = useState<GeneratedWorld[]>([]);
-  const [activeTab, setActiveTab] = useState<"chat" | "gallery">("chat");
+  const [activeTab, setActiveTab] = useState<"chat" | "forge" | "gallery">("chat");
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -99,8 +108,9 @@ export default function AgentChat() {
     };
     setMessages(prev => [...prev, userMsg]);
 
-    // Check if user wants to generate a world
-    const wantsWorld = /\b(generate|create|make|build|skybox|world|scene|environment|360)\b/i.test(content);
+    // Check if in Forge mode or using world generation keywords in Chat mode
+    const isForgeMode = activeTab === "forge";
+    const wantsWorld = isForgeMode || /\b(generate|create|make|build|skybox|world|scene|environment|360)\b/i.test(content);
 
     if (wantsWorld) {
       const assistantMsg: Message = {
@@ -115,6 +125,7 @@ export default function AgentChat() {
 
       try {
         const world = await generateWorld(content);
+        // ... rest of generation logic ...
         const newWorld: GeneratedWorld = { id: world.id, prompt: content, status: world.status, createdAt: new Date().toISOString(), fileUrl: world.fileUrl, thumbUrl: world.thumbUrl };
         setWorlds(prev => [newWorld, ...prev]);
 
@@ -145,37 +156,52 @@ export default function AgentChat() {
         setMessages(prev => [...prev, {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: `❌ Generation failed: ${err instanceof Error ? err.message : "Unknown error"}. Make sure SKYBOX_API_KEY is configured.`,
+          content: `❌ Generation failed: ${err instanceof Error ? err.message : "Unknown error"}.`,
           agentId: selectedAgent.id,
           ts: new Date().toLocaleTimeString(),
         }]);
       }
     } else {
-      // Regular chat response via Gemini
+      // Regular Neural Chat response via Gemini Streaming
       try {
+        const assistantMsgId = crypto.randomUUID();
+        const assistantMsg: Message = {
+          id: assistantMsgId,
+          role: "assistant",
+          content: "",
+          agentId: selectedAgent.id,
+          ts: new Date().toLocaleTimeString(),
+        };
+        setMessages(prev => [...prev, assistantMsg]);
+
         const res = await fetch("/api/gemini/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            messages: [{ role: "user", content }],
-            systemPrompt: `You are ${selectedAgent.name}, ${selectedAgent.desc}. You help users create stunning AI-generated worlds, images, and visual concepts. Be creative, visual, and suggest specific prompts for 360 world generation.`,
-            stream: false,
+            messages: [...messages, userMsg].slice(-10).map(m => ({ role: m.role, content: m.content })),
+            systemPrompt: `You are ${selectedAgent.name}, ${selectedAgent.desc}. Be concise, helpful, and stay in character.`,
+            stream: true,
           }),
         });
-        const data = await res.json();
-        const reply = data.text || data.response || "I am ready to generate worlds for you. Describe a scene and I'll create it!";
+
+        if (!res.body) throw new Error("No response body");
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let accumulated = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          accumulated += chunk;
+          setMessages(prev => prev.map(m => m.id === assistantMsgId ? { ...m, content: accumulated } : m));
+        }
+      } catch (err) {
+        console.error("Chat error:", err);
         setMessages(prev => [...prev, {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: reply,
-          agentId: selectedAgent.id,
-          ts: new Date().toLocaleTimeString(),
-        }]);
-      } catch {
-        setMessages(prev => [...prev, {
-          id: crypto.randomUUID(),
-          role: "assistant",
-          content: "⚠️ Chat service unavailable. Try generating a world with a descriptive prompt!",
+          content: "⚠️ Connection to neural core lost. Attempting to reconnect...",
           agentId: selectedAgent.id,
           ts: new Date().toLocaleTimeString(),
         }]);
@@ -183,7 +209,7 @@ export default function AgentChat() {
     }
 
     setIsLoading(false);
-  }, [input, isLoading, selectedAgent, generateWorld, pollWorld]);
+  }, [input, isLoading, selectedAgent, messages, activeTab, generateWorld, pollWorld]);
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -206,20 +232,20 @@ export default function AgentChat() {
         <Link href="/" style={{ textDecoration: "none", color: T.headerColor, fontWeight: "bold", fontSize: "14px", letterSpacing: "2px" }}>⚡ LITLABS</Link>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ color: T.accentColor, fontSize: "10px" }}>● ONLINE</span>
-          <button onClick={() => setActiveTab("chat")} style={{ backgroundColor: "transparent", border: "none", color: activeTab === "chat" ? T.accentColor : T.textColor, cursor: "pointer", fontSize: "11px", fontFamily: "monospace" }}>💬 Chat</button>
-          <button onClick={() => setActiveTab("gallery")} style={{ backgroundColor: "transparent", border: "none", color: activeTab === "gallery" ? T.accentColor : T.textColor, cursor: "pointer", fontSize: "11px", fontFamily: "monospace" }}>🖼️ Worlds ({worlds.length})</button>
-          <Link href="/builder" style={{ color: T.linkColor, fontSize: "11px", textDecoration: "none" }}>Builder</Link>
+          <button onClick={() => { setActiveTab("chat"); setSelectedAgent(CORE_AGENTS[0]); }} style={{ backgroundColor: "transparent", border: "none", color: activeTab === "chat" ? T.accentColor : T.textColor, cursor: "pointer", fontSize: "11px", fontFamily: "monospace" }}>💬 Neural Chat</button>
+          <button onClick={() => { setActiveTab("forge"); setSelectedAgent(WORLD_AGENTS[0]); }} style={{ backgroundColor: "transparent", border: "none", color: activeTab === "forge" ? T.accentColor : T.textColor, cursor: "pointer", fontSize: "11px", fontFamily: "monospace" }}>🌍 World Forge</button>
+          <button onClick={() => setActiveTab("gallery")} style={{ backgroundColor: "transparent", border: "none", color: activeTab === "gallery" ? T.accentColor : T.textColor, cursor: "pointer", fontSize: "11px", fontFamily: "monospace" }}>🖼️ Gallery ({worlds.length})</button>
         </div>
       </nav>
 
-      {activeTab === "chat" ? (
+      {activeTab !== "gallery" ? (
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           {/* Left Sidebar - Agents */}
-          <div style={{ width: "200px", flexShrink: 0, backgroundColor: T.boxBg, borderRight: `2px solid ${T.borderColor}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+          <div style={{ width: "220px", flexShrink: 0, backgroundColor: T.boxBg, borderRight: `2px solid ${T.borderColor}`, display: "flex", flexDirection: "column", overflowY: "auto" }}>
             <div style={{ padding: "12px", borderBottom: `1px solid ${T.borderColor}` }}>
-              <div style={{ color: T.accentColor, fontSize: "9px", letterSpacing: "1px", marginBottom: "6px" }}>WORLD BUILDERS</div>
-              {WORLD_AGENTS.map(a => (
-                <button key={a.id} onClick={() => setSelectedAgent(a)} style={{ width: "100%", textAlign: "left", padding: "8px", marginBottom: "3px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", border: "none", backgroundColor: selectedAgent.id === a.id ? "rgba(255,0,128,0.15)" : "transparent", borderLeft: selectedAgent.id === a.id ? `3px solid ${a.color}` : "3px solid transparent", transition: "all 0.15s" }}>
+              <div style={{ color: T.accentColor, fontSize: "9px", letterSpacing: "1px", marginBottom: "6px" }}>{activeTab === "chat" ? "CORE AGENTS" : "WORLD BUILDERS"}</div>
+              {(activeTab === "chat" ? CORE_AGENTS : WORLD_AGENTS).map(a => (
+                <button key={a.id} onClick={() => setSelectedAgent(a)} style={{ width: "100%", textAlign: "left", padding: "8px", marginBottom: "3px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", border: "none", backgroundColor: selectedAgent.id === a.id ? `${a.color}20` : "transparent", borderLeft: selectedAgent.id === a.id ? `3px solid ${a.color}` : "3px solid transparent", transition: "all 0.15s" }}>
                   <span style={{ fontSize: "18px" }}>{a.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ color: selectedAgent.id === a.id ? a.color : T.headerColor, fontSize: "11px", fontWeight: "bold" }}>{a.name}</div>
@@ -262,34 +288,40 @@ export default function AgentChat() {
                   <div style={{ fontSize: "48px", marginBottom: "12px" }}>{selectedAgent.icon}</div>
                   <div style={{ color: selectedAgent.color, fontSize: "18px", fontWeight: "bold", marginBottom: "8px" }}>{selectedAgent.name}</div>
                   <div style={{ color: T.textColor, fontSize: "12px", maxWidth: "400px", margin: "0 auto 24px", lineHeight: 1.6 }}>
-                    Describe a world and I will generate it as a 360° panoramic image.<br/><br/>
-                    Try: <em style={{ color: T.linkColor }}>&quot;A futuristic cyberpunk city at night with neon lights and flying cars&quot;</em>
+                    {activeTab === "forge" 
+                      ? "Describe a world and I will generate it as a 360° panoramic image." 
+                      : `I am ${selectedAgent.name}. How can I assist you in the Hive Mind today?`}
+                    <br/><br/>
+                    {activeTab === "forge" && <em style={{ color: T.linkColor }}>&quot;A futuristic cyberpunk city at night with neon lights and flying cars&quot;</em>}
                   </div>
                 </div>
               )}
 
-              {messages.map(msg => (
-                <div key={msg.id} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
-                  <div style={{ maxWidth: "80%", padding: "10px 14px", backgroundColor: msg.role === "user" ? "rgba(0,255,65,0.08)" : "rgba(255,0,128,0.08)", border: `1px solid ${msg.role === "user" ? T.textColor : T.linkColor}` }}>
-                    <div style={{ fontSize: "9px", color: msg.role === "user" ? T.textColor : T.linkColor, fontWeight: "bold", marginBottom: "5px" }}>
-                      {msg.role === "user" ? `▶ You` : `${WORLD_AGENTS.find(a => a.id === msg.agentId)?.icon || "🤖"} ${WORLD_AGENTS.find(a => a.id === msg.agentId)?.name || "Agent"}`} · {msg.ts}
-                    </div>
-                    <div style={{ color: "#e0e0e0", fontSize: "13px", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{msg.content}</div>
-                    {msg.worldUrl && (
-                      <div style={{ marginTop: "10px" }}>
-                        <Image src={msg.thumbUrl || msg.worldUrl} alt="Generated world" width={400} height={200} style={{ border: `1px solid ${T.borderColor}`, maxWidth: "100%", height: "auto" }} unoptimized />
-                        <div style={{ marginTop: "6px", display: "flex", gap: "8px" }}>
-                          <a href={msg.worldUrl} target="_blank" rel="noopener noreferrer" style={{ color: T.linkColor, fontSize: "11px" }}>🔗 Open Full Image</a>
-                          <Link href="/gallery" style={{ color: T.accentColor, fontSize: "11px" }}>🖼️ View in Gallery</Link>
-                        </div>
+              {messages.map(msg => {
+                const author = [...CORE_AGENTS, ...WORLD_AGENTS].find(a => a.id === msg.agentId);
+                return (
+                  <div key={msg.id} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}>
+                    <div style={{ maxWidth: "80%", padding: "10px 14px", backgroundColor: msg.role === "user" ? "rgba(0,255,65,0.08)" : "rgba(255,0,128,0.08)", border: `1px solid ${msg.role === "user" ? T.textColor : T.linkColor}` }}>
+                      <div style={{ fontSize: "9px", color: msg.role === "user" ? T.textColor : T.linkColor, fontWeight: "bold", marginBottom: "5px" }}>
+                        {msg.role === "user" ? `▶ You` : `${author?.icon || "🤖"} ${author?.name || "Agent"}`} · {msg.ts}
                       </div>
-                    )}
-                    {msg.status === "generating" && (
-                      <div style={{ marginTop: "8px", color: T.accentColor, fontSize: "11px" }}>⏳ Generating 360° world...</div>
-                    )}
+                      <div style={{ color: "#e0e0e0", fontSize: "13px", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+                      {msg.worldUrl && (
+                        <div style={{ marginTop: "10px" }}>
+                          <Image src={msg.thumbUrl || msg.worldUrl} alt="Generated world" width={400} height={200} style={{ border: `1px solid ${T.borderColor}`, maxWidth: "100%", height: "auto" }} unoptimized />
+                          <div style={{ marginTop: "6px", display: "flex", gap: "8px" }}>
+                            <a href={msg.worldUrl} target="_blank" rel="noopener noreferrer" style={{ color: T.linkColor, fontSize: "11px" }}>🔗 Open Full Image</a>
+                            <Link href="/gallery" style={{ color: T.accentColor, fontSize: "11px" }}>🖼️ View in Gallery</Link>
+                          </div>
+                        </div>
+                      )}
+                      {msg.status === "generating" && (
+                        <div style={{ marginTop: "8px", color: T.accentColor, fontSize: "11px" }}>⏳ Generating 360° world...</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
 
               {isLoading && messages[messages.length - 1]?.status !== "generating" && (
                 <div style={{ display: "flex", justifyContent: "flex-start" }}>
@@ -304,10 +336,10 @@ export default function AgentChat() {
             {/* Input */}
             <div style={{ padding: "12px 16px", borderTop: `2px solid ${T.borderColor}`, backgroundColor: T.boxBg, flexShrink: 0 }}>
               <div style={{ display: "flex", gap: "8px" }}>
-                <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={`Describe a world for ${selectedAgent.name} to generate...`} rows={1} disabled={isLoading} style={{ flex: 1, padding: "10px 12px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: "#e0e0e0", fontSize: "13px", resize: "none", minHeight: "42px", maxHeight: "120px", fontFamily: "monospace", outline: "none" }} />
+                <textarea value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={activeTab === "forge" ? `Describe a world for ${selectedAgent.name} to generate...` : `Message ${selectedAgent.name}...`} rows={1} disabled={isLoading} style={{ flex: 1, padding: "10px 12px", backgroundColor: T.bgColor, border: `1px solid ${T.borderColor}`, color: "#e0e0e0", fontSize: "13px", resize: "none", minHeight: "42px", maxHeight: "120px", fontFamily: "monospace", outline: "none" }} />
                 <button onClick={sendMessage} disabled={!input.trim() || isLoading} style={{ padding: "0 20px", backgroundColor: input.trim() && !isLoading ? T.linkColor : "#2a1a2e", color: "white", border: "none", cursor: input.trim() && !isLoading ? "pointer" : "not-allowed", fontWeight: "bold", fontSize: "16px", flexShrink: 0 }}>➤</button>
               </div>
-              <div style={{ color: T.textColor, fontSize: "9px", marginTop: "5px", opacity: 0.5 }}>Powered by Gemini · Skybox 360° · Shift+Enter for new line</div>
+              <div style={{ color: T.textColor, fontSize: "9px", marginTop: "5px", opacity: 0.5 }}>Powered by Gemini · {activeTab === "forge" ? "Skybox 360°" : "Hive Mind Neural Core"} · Shift+Enter for new line</div>
             </div>
           </div>
         </div>

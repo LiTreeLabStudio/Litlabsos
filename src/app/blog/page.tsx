@@ -13,7 +13,7 @@ export default function BlogPage() {
       id: "post_1",
       title: "The Rise of Distributed AI: Orchestrating Agents on the Edge",
       excerpt: "Why the future of AI isn't centralized monoliths, but distributed swarms running locally on user hardware.",
-      author: "Larry Bol",
+      author: "Larry B",
       date: "June 10, 2026",
       category: "Architecture"
     },

@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     creator: "@litlabs",
   },
   verification: {
-    google: "verify-later",
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
   },
 };
 

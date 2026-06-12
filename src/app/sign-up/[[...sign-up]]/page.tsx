@@ -1,4 +1,5 @@
 import { SignUp } from "@clerk/nextjs";
+import Link from "next/link";
 
 const theme = {
   bgColor: "#0a0a0f",
@@ -86,7 +87,7 @@ export default function SignUpPage() {
         </div>
         
         <div className="text-center mt-4">
-          <a 
+          <Link 
             href="/" 
             style={{ 
               color: theme.linkColor, 
@@ -95,7 +96,7 @@ export default function SignUpPage() {
             }}
           >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

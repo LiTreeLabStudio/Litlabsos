@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShieldCheck, Lock, CreditCard } from 'lucide-react';
 
-export const TrustBadges = ({ colors }: { colors: any }) => {
+export const TrustBadges = () => {
   return (
     <div className="flex flex-wrap items-center justify-center gap-6 mt-12 opacity-60 hover:opacity-100 transition-opacity">
       <div className="flex items-center gap-2">

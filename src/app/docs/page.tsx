@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { Book, Code, Terminal, Zap, Shield, Share2, Layers } from "lucide-react";
+import { Code, Terminal, Zap, Shield, Layers } from "lucide-react";
 
 export default function DocsPage() {
   const { resolvedColors: T } = useTheme();

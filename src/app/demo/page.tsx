@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { Send, Sparkles, ChevronRight, Terminal } from "lucide-react";
+import { Send, Sparkles, ChevronRight } from "lucide-react";
 
 export default function DemoPage() {
   const { resolvedColors: T } = useTheme();

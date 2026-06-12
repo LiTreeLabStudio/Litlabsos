@@ -2,12 +2,6 @@
 
 import React, { useState } from "react";
 import { 
-  Activity, 
-  Terminal, 
-  Zap, 
-  ShieldCheck, 
-  Database,
-  ArrowUpRight,
   Filter,
   Download,
   Search

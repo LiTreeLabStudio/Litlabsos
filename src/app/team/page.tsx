@@ -4,18 +4,18 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
-import { Globe, User, Mail, ExternalLink, Cpu } from "lucide-react";
+import { Globe, User, Mail, ExternalLink, Music } from "lucide-react";
 
 export default function TeamPage() {
   const { resolvedColors: T } = useTheme();
 
   const team = [
     {
-      name: "Larry Bol",
+      name: "Larry B",
       role: "Lead Architect & CEO",
       bio: "Visionary behind the Hive Mind. Specialized in autonomic AI loops and high-performance system orchestration.",
       avatar: "https://github.com/Litree-Ceo.png",
-      links: { github: "#", twitter: "#", linkedin: "#" }
+      links: { github: "https://github.com/Litree-Ceo", twitter: "#", linkedin: "#", spotify: "https://open.spotify.com/user/31qrpfn62mbpjdz32mbnbpwiwad4?si=jp4WImbgQZGKjlMpigyfCw" }
     },
     {
       name: "Jarvis",
@@ -57,9 +57,24 @@ export default function TeamPage() {
               <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-4">{m.role}</p>
               <p className="text-sm text-white/50 leading-relaxed mb-6 flex-1">{m.bio}</p>
               <div className="flex gap-4">
-                {m.links.github && <Globe size={18} className="text-white/30 hover:text-white cursor-pointer" />}
-                {m.links.twitter && <Mail size={18} className="text-white/30 hover:text-white cursor-pointer" />}
-                {m.links.linkedin && <User size={18} className="text-white/30 hover:text-white cursor-pointer" />}
+                {m.links.github && (
+                  <a href={m.links.github} target="_blank" rel="noopener noreferrer">
+                    <Globe size={18} className="text-white/30 hover:text-white transition-colors" />
+                  </a>
+                )}
+                {m.links.twitter && (
+                  <a href={m.links.twitter !== "#" ? m.links.twitter : undefined}>
+                    <Mail size={18} className="text-white/30 hover:text-white transition-colors" />
+                  </a>
+                )}
+                {m.links.spotify && (
+                  <a href={m.links.spotify} target="_blank" rel="noopener noreferrer" title="Architect Spotify">
+                    <Music size={18} className="text-white/30 hover:text-white transition-colors" />
+                  </a>
+                )}
+                {m.links.linkedin && (
+                   <User size={18} className="text-white/30 hover:text-white cursor-pointer" />
+                )}
               </div>
             </div>
           ))}

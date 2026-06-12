@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
 import { Image as ImageIcon, Sparkles, Wand2, Download, Share2 } from "lucide-react";
 
@@ -84,7 +84,7 @@ export default function ImageGeneratorPage() {
               <div className="relative aspect-video rounded-3xl overflow-hidden glass-card border border-white/10 flex items-center justify-center bg-black/40 group">
                  {resultImage ? (
                     <>
-                       <img src={resultImage} alt="Generated result" className="w-full h-full object-cover" />
+                       <Image src={resultImage} alt="Generated result" className="w-full h-full object-cover" width={800} height={450} unoptimized />
                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
                           <button className="w-12 h-12 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all">
                              <Download size={20} />

@@ -11,7 +11,8 @@ import {
   Image as ImageIcon, 
   Sparkles, 
   Settings,
-  Users
+  Users,
+  Activity
 } from "lucide-react";
 
 const NAV_LINKS = [

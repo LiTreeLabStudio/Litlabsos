@@ -1,7 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
 
-export const PricingPlans = ({ colors }: { colors: any }) => {
+interface Colors {
+  bgColor: string;
+  textColor: string;
+  accentColor: string;
+  linkColor: string;
+  headerColor: string;
+  borderColor: string;
+  boxBg: string;
+}
+
+export const PricingPlans = ({ colors }: { colors: Colors }) => {
   const plans = [
     { name: "Alpha", price: "0", tokens: "500", desc: "Basic agent testing", features: ["1 Active Agent", "Basic Support", "Public Gallery"] },
     { name: "Galaxy", price: "49", tokens: "25k", desc: "For professional builders", features: ["10 Active Agents", "Priority Processing", "Private Models", "Custom Workflows"] },

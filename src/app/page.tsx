@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
@@ -9,12 +9,11 @@ import { useAuth } from "@clerk/nextjs";
 import { AGENT_AVATARS } from "@/lib/avatars";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useMounted } from "@/hooks/useMounted";
-import { Zap, Book, Handshake, Activity, Users, Calendar, Sparkles, ShoppingBag, Shield } from "lucide-react";
+import { Zap, Book, Handshake, Activity, Users, Calendar, Sparkles, ShoppingBag, Shield, Image as ImageIcon, Music } from "lucide-react";
 import { PricingPlans } from "@/components/PricingPlans";
 import { MarketplacePreview } from "@/components/MarketplacePreview";
 import { TrustBadges } from "@/components/TrustBadges";
 import { SocialProofTeaser } from "@/components/SocialProofTeaser";
-import Footer from "@/components/Footer";
 
 interface UIAgent {
   id: string;
@@ -71,13 +70,14 @@ interface TelemetryLog {
 }
 
 export default function LandingPage() {
+  const { isLoaded, isSignedIn } = useAuth();
   const { theme, resolvedColors, setMode, setSkin } = useTheme();
   const { profile } = useProfile();
 
   const [showThemeEditor, setShowThemeEditor] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(false);
   const [visitorCount, setVisitorCount] = useState(133742);
-  const [musicUrl, setMusicUrl] = useState("https://open.spotify.com/embed/playlist/37i9dQZF1DX0r3x8OtiYiJ");
+  const [musicUrl, setMusicUrl] = useState("https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7SvAsmU");
   const [litBitCoins, setLitBitCoins] = useState(500);
   const [claimedToday, setClaimedToday] = useState(false);
   const [postComposerText, setPostComposerText] = useState("");
@@ -175,10 +175,15 @@ export default function LandingPage() {
         .catch(err => console.error("Wallet sync error:", err));
     } else {
       const storedCoins = localStorage.getItem("litbitcoins");
-      if (storedCoins) setLitBitCoins(parseInt(storedCoins));
+      if (storedCoins) {
+        const parsed = parseInt(storedCoins);
+        setTimeout(() => setLitBitCoins(parsed), 0);
+      }
       
       const lastClaim = localStorage.getItem("litbitcoins_last_claimed");
-      if (lastClaim === new Date().toISOString().split("T")[0]) setClaimedToday(true);
+      if (lastClaim === new Date().toISOString().split("T")[0]) {
+        setTimeout(() => setClaimedToday(true), 0);
+      }
     }
   }, [isSignedIn]);
 
@@ -256,12 +261,13 @@ export default function LandingPage() {
           { time: timeStr, agent: "System", text: `Daily claim failed: ${errMsg}`, icon: "⚠️" }
         ]);
       }
-    } catch (err: any) {
+    } catch (err) {
       setClaimedToday(false);
       console.error("Daily claim error:", err);
+      const message = err instanceof Error ? err.message : "Link interrupted";
       setTelemetry(prev => [
         ...prev.slice(-8),
-        { time: timeStr, agent: "System", text: `Network error: ${err.message || "Link interrupted"}`, icon: "⚠️" }
+        { time: timeStr, agent: "System", text: `Network error: ${message}`, icon: "⚠️" }
       ]);
     }
   };
@@ -395,11 +401,12 @@ export default function LandingPage() {
 
   const skinPresets = ["cyberpunk", "retro", "ocean", "sunset", "matrix", "pink", "synthwave", "volcanic", "gold", "arctic", "emerald", "midnight", "neon", "blood", "cosmic", "miami"] as const;
 
-  const { isLoaded, isSignedIn } = useAuth();
   const mounted = useMounted();
-  // Pre-generate random scales once to prevent background avatar jitter on re-render
-  const randomScales = useRef<number[]>([]);
-  useEffect(() => { if (randomScales.current.length === 0) randomScales.current = UI_AGENTS.map(() => 0.8 + Math.random() * 0.5); }, []);
+  
+  const backgroundScales = useMemo(() => {
+    // Deterministic pseudo-random scales based on index to avoid ref access during render
+    return UI_AGENTS.map((_, i) => 0.8 + ((i * 1337) % 500) / 1000);
+  }, []);
 
   // Scroll reveal for landing page sections — MUST be before any conditional returns
   useScrollReveal(".reveal");
@@ -434,7 +441,7 @@ export default function LandingPage() {
               left: `${15 + (i * 10)}%`,
               top: `${20 + (i % 3) * 25}%`,
               animationDelay: `${i * 0.5}s`,
-              transform: `scale(${randomScales.current[i] || 1})`,
+              transform: `scale(${backgroundScales[i] || 1})`,
             }}>
               <Image src={agent.avatar} alt="" width={96} height={96} className="w-24 h-24 filter blur-[3px] opacity-20 rounded-lg object-cover" />
             </div>
@@ -566,11 +573,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <MarketplacePreview agents={UI_AGENTS} colors={resolvedColors} />
+          <MarketplacePreview agents={UI_AGENTS} />
 
           <PricingPlans colors={resolvedColors} />
 
-          <SocialProofTeaser colors={resolvedColors} />
+          <SocialProofTeaser />
 
           {/* SOCIAL PROOF / COMMUNITY SECTION */}
           <div className="max-w-7xl mx-auto px-6 py-20 border-t border-white/5">
@@ -662,7 +669,7 @@ export default function LandingPage() {
              </div>
           </div>
 
-          <TrustBadges colors={resolvedColors} />
+          <TrustBadges />
 
           {/* CTA SECTION */}
           <div className="max-w-7xl mx-auto px-6 py-20 reveal">
@@ -733,12 +740,12 @@ export default function LandingPage() {
           </div>
 
           {/* Playlist selector */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-wrap">
             <span className="font-mono text-[11px] text-muted mr-2">Audio</span>
             {[
-              { name: "Cyberpunk", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX0r3x8OtiYiJ" },
-              { name: "Coding", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX5trt9i14XVe" },
-              { name: "Synthwave", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX9Z3vMB2b8im" }
+              { name: "Cyberpunk", url: "https://open.spotify.com/embed/playlist/2idvX5A0zSgtUuH0C0TofM" },
+              { name: "Coding", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9W7Y7ID" },
+              { name: "Synthwave", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7SvAsmU" }
             ].map(p => (
               <button key={p.name} onClick={() => setMusicUrl(p.url)}
                 className="btn btn-ghost text-[11px] hover-lift"
@@ -746,6 +753,12 @@ export default function LandingPage() {
                 {p.name}
               </button>
             ))}
+            <a href="https://open.spotify.com/user/31qrpfn62mbpjdz32mbnbpwiwad4" target="_blank" rel="noopener noreferrer"
+              className="btn btn-ghost text-[11px] hover-lift flex items-center gap-1.5"
+              style={{ color: resolvedColors.textMuted }}>
+              <Music size={10} className="text-cyan-400" />
+              Architect&apos;s Deck
+            </a>
           </div>
         </div>
       </header>
@@ -879,7 +892,13 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-center justify-between text-[10px] font-mono mb-2 px-1" style={{ color: resolvedColors.textMuted }}>
                   <span>● LIVE</span>
-                  <span>Synthwave Mix</span>
+                  <span className="truncate max-w-[120px]">{
+                    [
+                      { name: "Cyberpunk", url: "https://open.spotify.com/embed/playlist/2idvX5A0zSgtUuH0C0TofM" },
+                      { name: "Coding", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9W7Y7ID" },
+                      { name: "Synthwave", url: "https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7SvAsmU" }
+                    ].find(p => p.url === musicUrl)?.name || "Audio"
+                  } Mix</span>
                   <span>--:--</span>
                 </div>
                 <iframe

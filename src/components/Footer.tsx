@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { Shield, Activity, Share2, MessageSquare, Zap, Globe } from "lucide-react";
+import { Shield, Share2, MessageSquare, Zap, Globe, Music } from "lucide-react";
 
 export default function Footer() {
   const { resolvedColors: T } = useTheme();
@@ -24,19 +24,22 @@ export default function Footer() {
             <div className="flex items-center gap-2 mb-6 group cursor-pointer">
               <Zap size={24} style={{ color: T.accentColor }} className="group-hover:animate-pulse" />
               <span className="font-display font-black text-xl uppercase tracking-tighter" style={{ color: T.headerColor }}>
-                LiTree Lab's
+                LiTree Lab&apos;s
               </span>
             </div>
             <p className="text-xs text-white/40 leading-relaxed max-w-xs mb-6 uppercase tracking-wide">
               The Hive Mind Orchestration Platform. Building autonomous agent swarms across the global edge since 2024.
             </p>
             <div className="flex gap-4">
-               <div className="p-2 rounded bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-colors">
+               <a href="https://litlabs.net" target="_blank" rel="noopener noreferrer" className="p-2 rounded bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-colors">
                   <Globe size={16} className="text-cyan-400" />
-               </div>
+               </a>
                <div className="p-2 rounded bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-colors">
                   <MessageSquare size={16} className="text-cyan-400" />
                </div>
+               <a href="https://open.spotify.com/user/31qrpfn62mbpjdz32mbnbpwiwad4?si=jp4WImbgQZGKjlMpigyfCw" target="_blank" rel="noopener noreferrer" className="p-2 rounded bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-colors" title="The Architect's Spotify">
+                  <Music size={16} className="text-cyan-400" />
+               </a>
                <div className="p-2 rounded bg-white/5 border border-white/10 hover:border-cyan-500/40 transition-colors">
                   <Share2 size={16} className="text-cyan-400" />
                </div>

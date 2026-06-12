@@ -2,7 +2,14 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-export const MarketplacePreview = ({ agents, colors }: { agents: any[], colors: any }) => {
+interface Agent {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+}
+
+export const MarketplacePreview = ({ agents }: { agents: Agent[] }) => {
   return (
     <div className="py-20 border-t border-white/5">
       <div className="flex justify-between items-end mb-12 px-6 max-w-7xl mx-auto">

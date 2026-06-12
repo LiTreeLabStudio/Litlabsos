@@ -5,10 +5,9 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import dynamic from "next/dynamic";
 import {
-  Home, Wrench, ShoppingBag, Image as ImageIcon, Sparkles, MessageSquare,
-  User, Settings, Sun, Moon, Zap, Book, Users, Play, Menu, X
+  Home, Wrench, ShoppingBag, Image as ImageIcon, MessageSquare,
+  Sun, Moon, Zap, Book, Users, Play
 } from "lucide-react";
-import { useState, useEffect } from "react";
 
 const NavAuth = dynamic(
   () => import("@/components/ClerkAuth").then((m) => ({ default: m.NavAuth })),
@@ -29,22 +28,16 @@ const links = [
 export default function Navbar() {
   const { theme, resolvedColors, setMode } = useTheme();
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
-
   return (
     <nav
-      className="sticky top-0 z-50 border-b backdrop-blur-xl"
+      className="sticky top-0 z-[100] border-b backdrop-blur-xl"
       style={{
         borderColor: resolvedColors.borderColor + "40",
-        backgroundColor: resolvedColors.boxBg + "cc",
+        backgroundColor: resolvedColors.boxBg + "ee", // Increased opacity
       }}
     >
       <div className="max-w-7xl mx-auto px-4">
@@ -111,65 +104,9 @@ export default function Navbar() {
             <div className="hidden sm:block">
               <NavAuth linkColor={resolvedColors.linkColor} />
             </div>
-
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-1.5 rounded-lg border transition-all"
-              style={{
-                borderColor: resolvedColors.borderColor + "40",
-                color: resolvedColors.textColor,
-              }}
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div 
-          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-md animate-in fade-in duration-300"
-          onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <div 
-            className="absolute top-14 left-0 right-0 border-b p-6 space-y-3 animate-in slide-in-from-top duration-300"
-            style={{ 
-              backgroundColor: resolvedColors.boxBg,
-              borderColor: resolvedColors.borderColor + "40"
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="grid grid-cols-2 gap-3">
-              {links.map((link) => {
-                const active = isActive(link.href);
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl border transition-all active:scale-95"
-                    style={{
-                      color: active ? resolvedColors.bgColor : resolvedColors.textColor,
-                      backgroundColor: active ? resolvedColors.linkColor : "transparent",
-                      borderColor: active ? resolvedColors.linkColor : resolvedColors.borderColor + "30",
-                    }}
-                  >
-                    <Icon size={20} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{link.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-            
-            <div className="pt-4 mt-2 border-t flex flex-col items-center gap-4" style={{ borderColor: resolvedColors.borderColor + "20" }}>
-              <NavAuth linkColor={resolvedColors.linkColor} />
-              <p className="text-[9px] text-white/20 uppercase tracking-[0.3em]">LiTree Lab Studios // Edge Node</p>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   );
 }

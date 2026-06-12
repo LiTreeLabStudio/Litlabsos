@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { Users, Handshake, Globe, TrendingUp, DollarSign, Rocket } from "lucide-react";
+import { Handshake, Globe, TrendingUp, DollarSign, Rocket } from "lucide-react";
 
 export default function PartnersPage() {
   const { resolvedColors: T } = useTheme();

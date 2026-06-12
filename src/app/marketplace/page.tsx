@@ -91,13 +91,13 @@ export default function Marketplace() {
 
   const [crtEnabled, setCrtEnabled] = useState(true);
 
-  const showToast = (msg: string, type: 'success' | 'error' | 'info' = 'success') => {
+  const showToast = useCallback((msg: string, type: 'success' | 'error' | 'info' = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
-  };
+  }, []);
 
   // Fetch wallet from API (source of truth)
-  const fetchWallet = async () => {
+  const fetchWallet = useCallback(async () => {
     try {
       const res = await fetch('/api/wallet');
       const data = await res.json();
@@ -107,7 +107,7 @@ export default function Marketplace() {
     } catch {
       // silent fail
     }
-  };
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -126,7 +126,15 @@ export default function Marketplace() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [isSignedIn, searchParams]);
+  }, [isSignedIn, searchParams, fetchWallet, showToast]);
+
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (checkoutUrl) {
+      window.location.href = checkoutUrl;
+    }
+  }, [checkoutUrl]);
 
   const buyPack = async (pack: typeof CREDIT_PACKS[0]) => {
     if (!pack.priceId || !pack.priceId.startsWith('price_')) {
@@ -149,7 +157,7 @@ export default function Marketplace() {
       });
       const data = await res.json();
       if (data.url) {
-        window.location.href = data.url;
+        setCheckoutUrl(data.url);
       } else {
         showToast(data.error || 'Checkout failed. Try again.', 'error');
       }
@@ -201,7 +209,7 @@ export default function Marketplace() {
   const featuredAgents = filteredAgents.filter(a => a.is_featured);
   const regularAgents = filteredAgents.filter(a => !a.is_featured);
 
-  const syncWallet = async (amount: number) => {
+  const syncWallet = useCallback(async (amount: number) => {
     try {
       const res = await fetch('/api/wallet', {
         method: 'PUT',
@@ -217,7 +225,7 @@ export default function Marketplace() {
       // silent fail
     }
     return null;
-  };
+  }, []);
 
   const installAgent = useCallback(async (agentId: string) => {
     const agent = agents.find(a => a.id === agentId);
@@ -238,7 +246,7 @@ export default function Marketplace() {
       showToast(`✅ ${agent.name} installed for free!`, 'success');
     }
     setInstalledAgents(prev => new Set([...prev, agentId]));
-  }, [agents, litBitCoins]);
+  }, [agents, litBitCoins, showToast, syncWallet]);
 
   const listForSale = useCallback(async (agentId: string, price: number) => {
     const earned = Math.floor(price * 0.1);
@@ -251,7 +259,7 @@ export default function Marketplace() {
     showToast(`🏪 Agent listed! You earned ${earned} 🪙 listing bonus.`, 'info');
     setSellModalAgent(null);
     setSellPrice('');
-  }, []);
+  }, [showToast, syncWallet]);
 
   // Require authentication (after all hooks to respect Rules of Hooks)
   if (!isLoaded) {

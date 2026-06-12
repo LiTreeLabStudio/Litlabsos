@@ -1,7 +1,7 @@
 import React from 'react';
 import { Play } from 'lucide-react';
 
-export const SocialProofTeaser = ({ colors }: { colors: any }) => {
+export const SocialProofTeaser = () => {
   return (
     <div className="py-20 border-t border-white/5">
       <div className="grid md:grid-cols-2 gap-12 max-w-7xl mx-auto px-6 items-center">

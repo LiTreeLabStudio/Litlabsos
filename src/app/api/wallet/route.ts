@@ -21,7 +21,7 @@ async function getHandler(_req: NextRequest) {
       const email = user?.emailAddresses[0]?.emailAddress || "";
       const name = user?.firstName ? `${user.firstName} ${user.lastName || ""}` : "";
       
-      const result = await getOrCreateUser(clerkId, email, name);
+      await getOrCreateUser(clerkId, email, name);
       wallet = await getUserWallet(clerkId);
 
       if (!wallet) {
@@ -84,18 +84,19 @@ async function postHandler(req: NextRequest) {
       balance: wallet.balance,
       last_claim_date: wallet.last_claim_date,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Error claiming bonus:", error);
     
-    if (error.message === "Daily bonus already claimed") {
+    if (error instanceof Error && error.message === "Daily bonus already claimed") {
       return NextResponse.json(
         { error: "Daily bonus already claimed today" },
         { status: 400 }
       );
     }
     
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json(
-      { error: `Failed to claim bonus: ${error.message || "Unknown error"}` },
+      { error: `Failed to claim bonus: ${message}` },
       { status: 500 }
     );
   }

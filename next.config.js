@@ -5,6 +5,7 @@ const nextConfig = {
     remotePatterns: [{ protocol: 'https', hostname: '**' }],
   },
   // Use empty object for Turbopack (no config needed)
+  turbopack: {},
   // No webpack overrides needed for our simple setup
   webpack: (config) => {
     config.resolve.fallback = {

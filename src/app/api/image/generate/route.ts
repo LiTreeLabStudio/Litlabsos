@@ -5,8 +5,7 @@ const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { prompt, aspectRatio = "1:1" } = body;
-    void aspectRatio; // reserved for future use
+    const { prompt } = body;
 
     if (!OPENROUTER_API_KEY) {
       return NextResponse.json(
@@ -16,13 +15,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (!prompt || prompt.trim().length < 3) {
-      return NextResponse.json(
-        { error: "Prompt too short" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Prompt too short" }, { status: 400 });
     }
 
-    // Use Gemini 2.5 Flash Image via OpenRouter
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
       {
@@ -55,41 +50,70 @@ export async function POST(req: NextRequest) {
 
     const data = await response.json();
     const choice = data?.choices?.[0];
-    
-    // Handle both text+image and image-only responses
-    const content = choice?.message?.content;
-    const images = choice?.message?.images;
+    const message = choice?.message;
 
+    if (!message) {
+      return NextResponse.json(
+        { error: "No response from model" },
+        { status: 500 }
+      );
+    }
+
+    // Handle content as array (multimodal response)
+    const content = message.content;
+    if (Array.isArray(content)) {
+      for (const item of content) {
+        if (item.type === "image_url" && item.image_url?.url) {
+          return NextResponse.json({
+            success: true,
+            fileUrl: item.image_url.url,
+            model: "gemini-2.5-flash-image",
+          });
+        }
+        if (item.type === "text" && item.text?.startsWith("data:image")) {
+          return NextResponse.json({
+            success: true,
+            fileUrl: item.text,
+            model: "gemini-2.5-flash-image",
+          });
+        }
+      }
+    }
+
+    // Handle content as string
+    if (typeof content === "string") {
+      if (content.startsWith("data:image") || content.startsWith("http")) {
+        return NextResponse.json({
+          success: true,
+          fileUrl: content,
+          model: "gemini-2.5-flash-image",
+        });
+      }
+      // Text response — model didn't generate an image
+      return NextResponse.json({
+        success: false,
+        error: "Model returned text instead of image. Try a more specific image prompt.",
+        detail: content.slice(0, 200),
+      });
+    }
+
+    // Handle images array (some models use this format)
+    const images = message.images;
     if (images && images.length > 0) {
-      // Direct image URL from model
-      return NextResponse.json({
-        success: true,
-        fileUrl: images[0].url || images[0],
-        model: "gemini-2.5-flash-image",
-      });
+      const url = typeof images[0] === "string" ? images[0] : images[0]?.url;
+      if (url) {
+        return NextResponse.json({
+          success: true,
+          fileUrl: url,
+          model: "gemini-2.5-flash-image",
+        });
+      }
     }
 
-    if (typeof content === "string" && content.startsWith("data:image")) {
-      return NextResponse.json({
-        success: true,
-        fileUrl: content,
-        model: "gemini-2.5-flash-image",
-      });
-    }
-
-    if (typeof content === "string" && content.startsWith("http")) {
-      return NextResponse.json({
-        success: true,
-        fileUrl: content,
-        model: "gemini-2.5-flash-image",
-      });
-    }
-
-    // If the response is text describing an image, return it
     return NextResponse.json({
       success: false,
-      error: "Model returned text instead of image. Try a more specific image prompt.",
-      detail: typeof content === "string" ? content.slice(0, 200) : "No image in response",
+      error: "No image in response",
+      detail: JSON.stringify(message).slice(0, 300),
     });
   } catch (error) {
     console.error("Image generation error:", error);

@@ -4,7 +4,7 @@ const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 // Model configurations
 export const GEMINI_MODELS = {
-  flash: "gemini-2.0-flash",
+  flash: "gemini-2.5-flash",
   flashLite: "gemini-2.0-flash-lite",
   pro: "gemini-2.5-pro",
 } as const;

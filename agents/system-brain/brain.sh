@@ -14,24 +14,17 @@ log "=== System Brain Starting ==="
 
 # Check all services
 check_services() {
-  local frontend=$(systemctl is-active litlabs-frontend 2>/dev/null)
-  local api_tunnel=$(systemctl is-active litlabs-api-tunnel 2>/dev/null)
-  local n8n_tunnel=$(systemctl is-active n8n-tunnel 2>/dev/null)
-  
-  log "Services: frontend=$frontend api_tunnel=$api_tunnel n8n_tunnel=$n8n_tunnel"
-  
-  # Restart any down services
-  if [ "$frontend" != "active" ]; then
-    log "WARNING: frontend down, restarting..."
-    systemctl restart litlabs-frontend
-  fi
-  if [ "$api_tunnel" != "active" ]; then
-    log "WARNING: api-tunnel down, restarting..."
-    systemctl restart litlabs-api-tunnel
-  fi
-  if [ "$n8n_tunnel" != "active" ]; then
-    log "WARNING: n8n-tunnel down, restarting..."
-    systemctl restart n8n-tunnel
+  # Use the host health check wrapper
+  if [ -f "$HOME/scripts/host-health-check.sh" ]; then
+    log "Running host-health-check.sh..."
+    local health_out=$("$HOME/scripts/host-health-check.sh")
+    log "$health_out"
+  else
+    # Fallback (fails in Termux but safe)
+    local frontend=$(systemctl is-active litlabs-frontend 2>/dev/null || echo "unknown")
+    local api_tunnel=$(systemctl is-active litlabs-api-tunnel 2>/dev/null || echo "unknown")
+    local n8n_tunnel=$(systemctl is-active n8n-tunnel 2>/dev/null || echo "unknown")
+    log "Services (local): frontend=$frontend api_tunnel=$api_tunnel n8n_tunnel=$n8n_tunnel"
   fi
 }
 

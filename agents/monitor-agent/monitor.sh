@@ -28,17 +28,26 @@ check_n8n() {
 check_all() {
   log "--- Monitor Check ---"
   
-  # Local services
-  for svc in litlabs-frontend litlabs-api-tunnel n8n-tunnel; do
-    local status=$(systemctl is-active "$svc" 2>/dev/null)
-    if [ "$status" != "active" ]; then
-      alert "Service $svc is $status"
-      systemctl restart "$svc" 2>/dev/null
-      log "Attempted restart of $svc"
-    else
-      log "Service $svc: OK"
+  # Use the host health check wrapper
+  if [ -f "$HOME/scripts/host-health-check.sh" ]; then
+    log "Running host-health-check.sh..."
+    local health_out=$("$HOME/scripts/host-health-check.sh")
+    log "$health_out"
+    
+    if echo "$health_out" | grep -q "DOWN"; then
+        alert "Some host services are DOWN"
     fi
-  done
+  else
+    # Fallback to local check if wrapper missing (still fails in Termux but safe)
+    for svc in litlabs-frontend litlabs-api-tunnel n8n-tunnel; do
+      local status=$(systemctl is-active "$svc" 2>/dev/null || echo "unknown")
+      if [ "$status" != "active" ]; then
+        alert "Service $svc is $status"
+      else
+        log "Service $svc: OK"
+      fi
+    done
+  fi
   
   # n8n on Windows
   check_n8n

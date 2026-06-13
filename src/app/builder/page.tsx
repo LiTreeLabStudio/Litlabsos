@@ -292,7 +292,10 @@ export default function Builder() {
         }),
       });
 
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.detail || `Server error: ${res.status}`);
+      }
 
       const reader = res.body?.getReader();
       const decoder = new TextDecoder();
@@ -331,7 +334,7 @@ export default function Builder() {
         }));
         setStreaming("");
       }
-    } catch {
+    } catch (err) {
       setChatMap(prev => ({
         ...prev,
         [selectedAgent.id]: [
@@ -339,7 +342,7 @@ export default function Builder() {
           {
             id: crypto.randomUUID(),
             role: "assistant",
-            content: "⚠️ Connection error. Check your API key configuration.",
+            content: `⚠️ Error: ${err instanceof Error ? err.message : "Connection failed"}. Check your API key configuration or system status.`,
             ts: new Date().toLocaleTimeString(),
           },
         ],

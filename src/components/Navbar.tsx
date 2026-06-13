@@ -41,7 +41,7 @@ export default function Navbar() {
 
   return (
     <nav
-      className="sticky top-0 z-[100] border-b backdrop-blur-xl transition-all duration-300"
+      className="sticky top-0 z-[100] border-b backdrop-blur-xl transition-all duration-300 relative"
       style={{
         borderColor: resolvedColors.borderColor + "40",
         backgroundColor: resolvedColors.boxBg + "ee",
@@ -129,15 +129,15 @@ export default function Navbar() {
 
       {/* Mobile Dropdown Menu */}
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? "max-h-[500px] border-t" : "max-h-0"
+        className={`lg:hidden absolute left-0 right-0 top-full z-[99] overflow-hidden transition-all duration-300 ease-in-out shadow-xl ${
+          isMenuOpen ? "max-h-[70vh] border-t" : "max-h-0"
         }`}
         style={{
           borderColor: resolvedColors.borderColor + "20",
           backgroundColor: resolvedColors.boxBg + "f9",
         }}
       >
-        <div className="flex flex-col p-4 gap-2">
+        <div className="flex flex-col p-3 gap-1 overflow-y-auto max-h-[70vh]">
           {links.map((link) => {
             const active = isActive(link.href);
             const Icon = link.icon;
@@ -145,20 +145,20 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 p-3 rounded-lg text-sm font-bold transition-all"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all"
                 style={{
                   color: active ? resolvedColors.bgColor : resolvedColors.linkColor,
                   backgroundColor: active ? resolvedColors.linkColor : "transparent",
                   border: active ? "none" : `1px solid ${resolvedColors.borderColor}10`,
                 }}
               >
-                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                <Icon size={16} strokeWidth={active ? 2.5 : 2} />
                 <span>{link.label}</span>
               </Link>
             );
           })}
           
-          <div className="sm:hidden pt-2 border-t mt-2" style={{ borderColor: resolvedColors.borderColor + "20" }}>
+          <div className="sm:hidden pt-2 border-t mt-1" style={{ borderColor: resolvedColors.borderColor + "20" }}>
             <NavAuth linkColor={resolvedColors.linkColor} />
           </div>
         </div>

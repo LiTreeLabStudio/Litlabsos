@@ -47,10 +47,10 @@ export default function RootLayout({
     <ThemeProvider>
       <ProfileProvider>
         <AnimatedBackgroundWrapper />
-        <div className="relative z-10 flex flex-col min-h-screen">
+        <div className="relative z-10 flex flex-col min-h-screen lg:ml-[240px]">
           <UserSync />
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pt-14 lg:pt-0">{children}</main>
           <Footer />
           <CookieConsent />
         </div>

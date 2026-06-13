@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { prompt } = body;
+    const { prompt, aspectRatio = "1:1" } = body;
 
-    if (!OPENROUTER_API_KEY) {
+    if (!GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "OPENROUTER_API_KEY not configured" },
+        { error: "GEMINI_API_KEY not configured" },
         { status: 500 }
       );
     }
@@ -18,30 +18,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Prompt too short" }, { status: 400 });
     }
 
+    // Use Gemini Imagen 4 directly
     const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-          "HTTP-Referer": "https://litlabs.net",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash-image",
-          messages: [
-            {
-              role: "user",
-              content: prompt.trim(),
-            },
-          ],
+          instances: [{ prompt: prompt.trim() }],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio,
+          },
         }),
       }
     );
 
     if (!response.ok) {
       const err = await response.text();
-      console.error("OpenRouter image error:", err);
+      console.error("Imagen API error:", err);
       return NextResponse.json(
         { error: "Image generation failed", detail: err.slice(0, 500) },
         { status: 500 }
@@ -49,71 +44,27 @@ export async function POST(req: NextRequest) {
     }
 
     const data = await response.json();
-    const choice = data?.choices?.[0];
-    const message = choice?.message;
+    const predictions = data?.predictions;
 
-    if (!message) {
+    if (!predictions || predictions.length === 0) {
       return NextResponse.json(
-        { error: "No response from model" },
+        { error: "No image generated" },
         { status: 500 }
       );
     }
 
-    // Handle content as array (multimodal response)
-    const content = message.content;
-    if (Array.isArray(content)) {
-      for (const item of content) {
-        if (item.type === "image_url" && item.image_url?.url) {
-          return NextResponse.json({
-            success: true,
-            fileUrl: item.image_url.url,
-            model: "gemini-2.5-flash-image",
-          });
-        }
-        if (item.type === "text" && item.text?.startsWith("data:image")) {
-          return NextResponse.json({
-            success: true,
-            fileUrl: item.text,
-            model: "gemini-2.5-flash-image",
-          });
-        }
-      }
-    }
-
-    // Handle content as string
-    if (typeof content === "string") {
-      if (content.startsWith("data:image") || content.startsWith("http")) {
-        return NextResponse.json({
-          success: true,
-          fileUrl: content,
-          model: "gemini-2.5-flash-image",
-        });
-      }
-      // Text response — model didn't generate an image
-      return NextResponse.json({
-        success: false,
-        error: "Model returned text instead of image. Try a more specific image prompt.",
-        detail: content.slice(0, 200),
-      });
-    }
-
-    // Handle images array (some models use this format)
-    const images = message.images;
-    if (images && images.length > 0) {
-      const url = typeof images[0] === "string" ? images[0] : images[0]?.url;
-      if (url) {
-        return NextResponse.json({
-          success: true,
-          fileUrl: url,
-          model: "gemini-2.5-flash-image",
-        });
-      }
+    const imgBytes = predictions[0]?.bytesBase64Encoded;
+    if (!imgBytes) {
+      return NextResponse.json(
+        { error: "No image data in response" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
-      success: false,
-      error: "No image in response",
-      detail: JSON.stringify(message).slice(0, 300),
+      success: true,
+      fileUrl: `data:image/png;base64,${imgBytes}`,
+      model: "imagen-4.0-generate",
     });
   } catch (error) {
     console.error("Image generation error:", error);

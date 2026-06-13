@@ -109,7 +109,7 @@ async function generateWithFAL(prompt: string, image?: string, strength?: number
 
 // ── Main Component ─────────────────────────────────────
 export default function ImageGeneratorPage() {
-  const { resolvedColors: T } = useTheme();
+  const { theme, resolvedColors: T } = useTheme();
   const { profile } = useProfile();
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -200,6 +200,41 @@ export default function ImageGeneratorPage() {
 
   const [aspectRatio, setAspectRatio] = useState("1:1");
 
+  const applyWatermark = async (imageUrl: string): Promise<string> => {
+    if (!theme.dashboard?.enableWatermark || !theme.dashboard?.watermarkText) return imageUrl;
+
+    return new Promise((resolve) => {
+      const img = new (window as any).Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(imageUrl);
+
+        // Draw original image
+        ctx.drawImage(img, 0, 0);
+
+        // Configure watermark text
+        const fontSize = Math.max(20, img.width / 40);
+        ctx.font = `bold ${fontSize}px monospace`;
+        ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+        ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
+        ctx.shadowBlur = 4;
+        ctx.textAlign = "right";
+        ctx.textBaseline = "bottom";
+
+        // Draw text at bottom right
+        ctx.fillText(theme.dashboard?.watermarkText || "LiTTree Labs", img.width - 20, img.height - 20);
+
+        resolve(canvas.toDataURL("image/png"));
+      };
+      img.onerror = () => resolve(imageUrl);
+      img.src = imageUrl;
+    });
+  };
+
   const handleDownload = async (url: string) => {
     try {
       const response = await fetch(url);
@@ -267,14 +302,15 @@ export default function ImageGeneratorPage() {
     }
 
     if (result.success && result.fileUrl) {
-      setResultImage(result.fileUrl);
+      const finalUrl = await applyWatermark(result.fileUrl);
+      setResultImage(finalUrl);
       if (provider.cost > 0) {
         await deductCoins(provider.cost);
       }
       saveHistory({
         id: `img_${Date.now()}`,
         prompt: prompt.trim(),
-        url: result.fileUrl,
+        url: finalUrl,
         provider: selectedProvider,
         timestamp: Date.now(),
       });

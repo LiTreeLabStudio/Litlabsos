@@ -55,6 +55,8 @@ export interface Theme {
     showAudio?: boolean;
     glassmorphism?: number;
     backgroundOpacity?: number;
+    enableWatermark?: boolean;
+    watermarkText?: string;
   };
   customColors?: {
     bgColor?: string;

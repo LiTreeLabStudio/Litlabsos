@@ -892,6 +892,26 @@ export default function LandingPage() {
                         className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" />
                     </div>
                   </div>
+                  {/* Watermark Tuning */}
+                  <div className="pt-2 space-y-3 border-t border-white/5">
+                    <label className="flex items-center gap-2 cursor-pointer group">
+                      <input type="checkbox" 
+                        checked={!!dashboard.enableWatermark} 
+                        onChange={e => setDashboard({ enableWatermark: e.target.checked })}
+                        className="hidden" />
+                      <div className={`w-3 h-3 rounded-sm border transition-all ${ dashboard.enableWatermark ? 'bg-orange-500 border-orange-500' : 'border-white/20'}`} />
+                      <span className="text-[11px] font-mono text-muted group-hover:text-white transition-colors">Enable Branding Watermark</span>
+                    </label>
+                    {dashboard.enableWatermark && (
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-mono text-muted uppercase">Watermark Text</label>
+                        <input type="text" 
+                          value={dashboard.watermarkText || ""} 
+                          onChange={e => setDashboard({ watermarkText: e.target.value })}
+                          className="input text-[10px]" placeholder="e.g. LiTTree Labs" />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 

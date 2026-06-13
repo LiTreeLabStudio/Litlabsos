@@ -53,10 +53,12 @@ export interface Theme {
     showFeed?: boolean;
     showAgents?: boolean;
     showAudio?: boolean;
+    cinematicMode?: boolean;
     glassmorphism?: number;
     backgroundOpacity?: number;
     enableWatermark?: boolean;
     watermarkText?: string;
+    connections?: string[];
   };
   customColors?: {
     bgColor?: string;

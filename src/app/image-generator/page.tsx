@@ -199,6 +199,7 @@ export default function ImageGeneratorPage() {
   };
 
   const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
 
   const applyWatermark = async (imageUrl: string): Promise<string> => {
     if (!theme.dashboard?.enableWatermark || !theme.dashboard?.watermarkText) return imageUrl;
@@ -572,31 +573,43 @@ export default function ImageGeneratorPage() {
               {resultImage ? (
                 <>
                   <img src={resultImage} alt="Generated" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <button 
-                      onClick={() => handleDownload(resultImage)}
-                      className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
-                      title="Download Image"
-                    >
-                      <Download size={18} />
-                    </button>
-                    <button 
-                      onClick={() => handleShare(resultImage)}
-                      className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
-                      title="Share Image"
-                    >
-                      <Share2 size={18} />
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setSourceImage(resultImage);
-                        setResultImage(null);
-                        setPrompt("");
-                      }} 
-                      className="px-4 h-10 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-[10px] font-bold uppercase tracking-wider hover:bg-cyan-500/30 transition-all"
-                    >
-                      Use as Reference
-                    </button>
+                  <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3 px-4">
+                    <div className="flex flex-wrap justify-center gap-2">
+                      <button 
+                        onClick={() => handleDownload(resultImage)}
+                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+                        title="Download Image"
+                      >
+                        <Download size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleShare(resultImage)}
+                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+                        title="Share Image"
+                      >
+                        <Share2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => setFullScreenImage(resultImage)}
+                        className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+                        title="Full Screen View"
+                      >
+                        <ImageIcon size={18} />
+                      </button>
+                    </div>
+                    
+                    <div className="w-full flex justify-center gap-2 mt-2">
+                      <button onClick={() => {
+                          setSourceImage(resultImage);
+                          setResultImage(null);
+                          setPrompt("Create a variation of this...");
+                        }} className="px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-[9px] font-bold uppercase tracking-wider hover:bg-cyan-500/30 transition-all">
+                        Variation
+                      </button>
+                      <button onClick={() => alert("Enhancing image resolution...")} className="px-3 py-1.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-400 text-[9px] font-bold uppercase tracking-wider hover:bg-purple-500/30 transition-all">
+                        Enhance
+                      </button>
+                    </div>
                   </div>
                 </>
               ) : (
@@ -677,6 +690,37 @@ export default function ImageGeneratorPage() {
           </p>
         </div>
       </div>
+
+      {/* Full Screen Modal */}
+      {fullScreenImage && (
+        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col p-4 animate-in fade-in duration-300">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={() => handleDownload(fullScreenImage)}
+                className="btn btn-secondary text-xs"
+              >
+                <Download size={14} className="mr-2" /> Download Original
+              </button>
+              <button 
+                onClick={() => handleShare(fullScreenImage)}
+                className="btn btn-secondary text-xs"
+              >
+                <Share2 size={14} className="mr-2" /> Share
+              </button>
+            </div>
+            <button 
+              onClick={() => setFullScreenImage(null)}
+              className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="flex-1 relative flex items-center justify-center overflow-hidden rounded-3xl border border-white/5">
+            <img src={fullScreenImage} alt="Full Screen" className="max-w-full max-h-full object-contain shadow-2xl" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

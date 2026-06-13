@@ -71,10 +71,19 @@ interface TelemetryLog {
 
 export default function LandingPage() {
   const { isLoaded, isSignedIn } = useAuth();
-  const { theme, resolvedColors, setMode, setSkin } = useTheme();
+  const { theme, resolvedColors, setMode, setSkin, setDashboard, resetTheme } = useTheme();
   const { profile } = useProfile();
+  
+  const dashboard = theme.dashboard || {
+    showTelemetry: true,
+    showBoardroom: true,
+    showFeed: true,
+    showAgents: true,
+    showAudio: true,
+  };
 
   const [showThemeEditor, setShowThemeEditor] = useState(false);
+  const [showTuning, setShowTuning] = useState(false);
   const [crtEnabled, setCrtEnabled] = useState(false);
   const [visitorCount, setVisitorCount] = useState(133742);
   const [musicUrl, setMusicUrl] = useState("https://open.spotify.com/embed/playlist/37i9dQZF1DXdLEN7SvAsmU");
@@ -717,24 +726,45 @@ export default function LandingPage() {
 
   // ── DASHBOARD FOR LOGGED-IN USERS ──
   return (
-    <div className="relative grid-bg" style={{ backgroundColor: resolvedColors.bgColor, color: resolvedColors.textColor }}>
+    <div className="relative min-h-screen transition-all duration-700" style={{ 
+      backgroundColor: resolvedColors.bgColor, 
+      color: resolvedColors.textColor,
+      backgroundImage: dashboard.customBackground ? `url(${dashboard.customBackground})` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      {/* Background Overlay for opacity control */}
+      {dashboard.customBackground && (
+        <div className="fixed inset-0 pointer-events-none z-0" style={{ 
+          backgroundColor: resolvedColors.bgColor, 
+          opacity: 1 - (dashboard.backgroundOpacity ?? 1) 
+        }} />
+      )}
+
       {/* Ambient glow orbs */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="glow-orb w-[600px] h-[600px]" style={{ background: resolvedColors.linkColor, top: '-15%', left: '-5%', animationDelay: '0s', opacity: 0.1 }} />
-        <div className="glow-orb w-[400px] h-[400px]" style={{ background: resolvedColors.accentColor, bottom: '-10%', right: '-10%', animationDelay: '3s', opacity: 0.08 }} />
-      </div>
+      {!dashboard.customBackground && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="glow-orb w-[600px] h-[600px]" style={{ background: resolvedColors.linkColor, top: '-15%', left: '-5%', animationDelay: '0s', opacity: 0.1 }} />
+          <div className="glow-orb w-[400px] h-[400px]" style={{ background: resolvedColors.accentColor, bottom: '-10%', right: '-10%', animationDelay: '3s', opacity: 0.08 }} />
+        </div>
+      )}
 
       {/* CRT Overlay */}
       {crtEnabled && <div className="crt-overlay" />}
 
       {/* ── TOP CONTROLS ── */}
-      <header className="relative z-10 border-b glass-card" style={{ borderColor: "rgba(255,255,255,0.06)", borderRadius: 0, borderWidth: '0 0 1px 0' }}>
+      <header className="relative z-[60] border-b backdrop-blur-xl" style={{ borderColor: "rgba(255,255,255,0.06)", background: resolvedColors.boxBg + "aa" }}>
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <button onClick={() => setShowThemeEditor(!showThemeEditor)} className="btn btn-ghost text-xs hover-lift" style={{ color: resolvedColors.textMuted }}>
-              {showThemeEditor ? "Hide" : "Theme"} Editor
+            <button onClick={() => { setShowThemeEditor(!showThemeEditor); setShowTuning(false); }} className="btn btn-ghost text-xs hover-lift" style={{ color: resolvedColors.textMuted }}>
+              {showThemeEditor ? "Hide" : "Skin"} Editor
             </button>
-            <button onClick={() => setCrtEnabled(!crtEnabled)} className="btn btn-ghost text-xs hover-lift" style={{ color: resolvedColors.textMuted }}>
+            <button onClick={() => { setShowTuning(!showTuning); setShowThemeEditor(false); }} className="btn btn-ghost text-xs hover-lift flex items-center gap-1.5" style={{ color: resolvedColors.accentColor }}>
+              <Zap size={10} />
+              Tuning Studio
+            </button>
+            <button onClick={() => setCrtEnabled(!crtEnabled)} className="btn btn-ghost text-xs hover-lift hidden sm:block" style={{ color: resolvedColors.textMuted }}>
               CRT: {crtEnabled ? "ON" : "OFF"}
             </button>
           </div>
@@ -805,6 +835,98 @@ export default function LandingPage() {
         </div>
       )}
 
+      {/* ── TUNING STUDIO DRAWER ── */}
+      {showTuning && (
+        <div className="relative z-50 border-b backdrop-blur-2xl" style={{ borderColor: "rgba(255,255,255,0.06)", background: resolvedColors.boxBg + "ee" }}>
+          <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="grid md:grid-cols-3 gap-8">
+              {/* Profile Tuning */}
+              <div className="space-y-4">
+                <p className="section-eyebrow flex items-center gap-2">
+                  <Users size={12} /> Profile Tuning
+                </p>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono text-muted uppercase">Display Name</label>
+                    <input type="text" 
+                      value={dashboard.displayName || ""} 
+                      onChange={e => setDashboard({ displayName: e.target.value })}
+                      className="input text-xs" placeholder="e.g. Architect" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono text-muted uppercase">Avatar URL</label>
+                    <input type="text" 
+                      value={dashboard.customAvatar || ""} 
+                      onChange={e => setDashboard({ customAvatar: e.target.value })}
+                      className="input text-xs" placeholder="https://..." />
+                  </div>
+                </div>
+              </div>
+
+              {/* Visual Tuning */}
+              <div className="space-y-4">
+                <p className="section-eyebrow flex items-center gap-2">
+                  <ImageIcon size={12} /> Visual Tuning
+                </p>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-mono text-muted uppercase">Background Image URL</label>
+                    <input type="text" 
+                      value={dashboard.customBackground || ""} 
+                      onChange={e => setDashboard({ customBackground: e.target.value })}
+                      className="input text-xs" placeholder="https://..." />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-mono text-muted uppercase">BG Opacity</label>
+                      <input type="range" min="0" max="1" step="0.1" 
+                        value={dashboard.backgroundOpacity ?? 1} 
+                        onChange={e => setDashboard({ backgroundOpacity: parseFloat(e.target.value) })}
+                        className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-mono text-muted uppercase">Glass Effect</label>
+                      <input type="range" min="0" max="1" step="0.1" 
+                        value={dashboard.glassmorphism ?? 0.5} 
+                        onChange={e => setDashboard({ glassmorphism: parseFloat(e.target.value) })}
+                        className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Layout Tuning */}
+              <div className="space-y-4">
+                <p className="section-eyebrow flex items-center gap-2">
+                  <Activity size={12} /> Layout Tuning
+                </p>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                  {[
+                    { key: 'showFeed', label: 'Social Feed' },
+                    { key: 'showBoardroom', label: 'AI Boardroom' },
+                    { key: 'showTelemetry', label: 'Telemetry' },
+                    { key: 'showAgents', label: 'Top Agents' },
+                    { key: 'showAudio', label: 'Audio Deck' },
+                  ].map(item => (
+                    <label key={item.key} className="flex items-center gap-2 cursor-pointer group">
+                      <input type="checkbox" 
+                        checked={!!(dashboard as any)[item.key]} 
+                        onChange={e => setDashboard({ [item.key]: e.target.checked })}
+                        className="hidden" />
+                      <div className={`w-3 h-3 rounded-sm border transition-all ${ (dashboard as any)[item.key] ? 'bg-cyan-400 border-cyan-400' : 'border-white/20'}`} />
+                      <span className="text-[11px] font-mono text-muted group-hover:text-white transition-colors">{item.label}</span>
+                    </label>
+                  ))}
+                </div>
+                <button onClick={resetTheme} className="btn btn-ghost text-[10px] w-full mt-2 border border-white/5 hover:border-red-500/50 hover:text-red-400 transition-all uppercase tracking-widest">
+                  Reset System
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── MAIN CONTENT ── */}
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-8">
         <div className="grid md:grid-cols-12 gap-6 items-start">
@@ -813,18 +935,27 @@ export default function LandingPage() {
           <aside className="md:col-span-3 space-y-5">
 
             {/* Profile card */}
-            <div className="card glass-card glow-box">
+            <div className="card glow-box" style={{ 
+              backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+              background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+            }}>
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black"
-                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
-                  {profile.displayName ? profile.displayName.charAt(0).toUpperCase() : "L"}
-                </div>
+                {dashboard.customAvatar ? (
+                  <div className="w-16 h-16 rounded-full overflow-hidden border-2" style={{ borderColor: resolvedColors.accentColor }}>
+                    <img src={dashboard.customAvatar} alt="Profile" className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center text-lg font-black"
+                    style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
+                    {dashboard.displayName ? dashboard.displayName.charAt(0).toUpperCase() : (profile.displayName ? profile.displayName.charAt(0).toUpperCase() : "L")}
+                  </div>
+                )}
                 <div>
                   <h2 className="font-display text-base font-bold" style={{ color: resolvedColors.textColor }}>
-                    {profile.displayName || "LiTreeCeo"}
+                    {dashboard.displayName || profile.displayName || "LiTreeCeo"}
                   </h2>
                   <p className="font-mono text-[11px] mt-0.5" style={{ color: resolvedColors.textMuted }}>
-                    @{profile.username || "litree_ceo"}
+                    @{dashboard.username || profile.username || "litree_ceo"}
                   </p>
                 </div>
                 <div className="w-full">
@@ -833,7 +964,7 @@ export default function LandingPage() {
                     <span style={{ color: resolvedColors.accentColor }}>{postComposerMood}</span>
                   </div>
                   <select value={postComposerMood} onChange={e => setPostComposerMood(e.target.value)}
-                    className="select text-[11px] py-1.5">
+                    className="select text-[11px] py-1.5" style={{ background: "rgba(0,0,0,0.2)" }}>
                     <option value="Focused">Focused</option>
                     <option value="Creative">Creative</option>
                     <option value="Building">Building</option>
@@ -852,7 +983,10 @@ export default function LandingPage() {
             </div>
 
             {/* LiTBit Coins Wallet */}
-            <div className="card glass-card glow-box">
+            <div className="card glow-box" style={{ 
+              backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+              background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+            }}>
               <div className="card-header">
                 <div className="card-title"><span className="dot" style={{ background: resolvedColors.accentColor, boxShadow: `0 0 8px ${resolvedColors.accentColor}` }} />LiTBit Coins</div>
               </div>
@@ -869,8 +1003,11 @@ export default function LandingPage() {
             </div>
 
             {/* Audio Deck */}
-            {musicUrl && (
-              <div className="card glass-card glow-box">
+            {dashboard.showAudio && musicUrl && (
+              <div className="card glow-box" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
                 <div className="card-header">
                   <div className="card-title"><span className="dot" />Audio Deck</div>
                   <span className="status-dot online" />
@@ -913,193 +1050,228 @@ export default function LandingPage() {
             )}
 
             {/* AI Boardroom */}
-            <div className="card glass-card glow-box">
-              <div className="card-header">
-                <div className="card-title"><span className="dot" />Assemble Boardroom</div>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Agent A</label>
-                  <select value={orchestratorAgent1} onChange={e => setOrchestratorAgent1(e.target.value)} className="select text-xs">
-                    {UI_AGENTS.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
+            {dashboard.showBoardroom && (
+              <div className="card glow-box" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
+                <div className="card-header">
+                  <div className="card-title"><span className="dot" />Assemble Boardroom</div>
                 </div>
-                <div>
-                  <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Agent B</label>
-                  <select value={orchestratorAgent2} onChange={e => setOrchestratorAgent2(e.target.value)} className="select text-xs">
-                    {UI_AGENTS.filter(a => a.id !== orchestratorAgent1).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Topic</label>
-                  <input type="text" value={orchestratorTopic} onChange={e => setOrchestratorTopic(e.target.value)} className="input text-xs" placeholder="Business topic..." />
-                </div>
-                <button onClick={handleStartOrchestrator} className="btn btn-primary w-full text-xs"
-                  style={{ background: orchestratorStatus === "running" ? resolvedColors.warning : resolvedColors.linkColor, color: "#0a0a0f" }}>
-                  {orchestratorStatus === "running" ? "Pause" : "Launch Boardroom"}
-                </button>
-              </div>
-              {orchestratorLogs.length > 0 && (
-                <div className="mt-3 p-2.5 rounded-lg overflow-y-auto max-h-[140px]" style={{ background: "rgba(0,0,0,0.35)" }}>
-                  <p className="font-mono text-[9px] uppercase tracking-wider mb-2" style={{ color: resolvedColors.accentColor }}>Boardroom Logs</p>
-                  <div className="space-y-1.5">
-                    {orchestratorLogs.map((log, i) => (
-                      <div key={i} className="telemetry-row text-[10px]">
-                        <span className="text-muted font-mono">{log.timestamp}</span>
-                        <span className="font-mono" style={{ color: log.from === "System" ? resolvedColors.accentColor : resolvedColors.linkColor }}>
-                          {log.from}:
-                        </span>
-                        <span style={{ color: resolvedColors.textColor }}>{log.text}</span>
-                      </div>
-                    ))}
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Agent A</label>
+                    <select value={orchestratorAgent1} onChange={e => setOrchestratorAgent1(e.target.value)} className="select text-xs">
+                      {UI_AGENTS.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
                   </div>
-                </div>
-              )}
-            </div>
-          </aside>
-
-          {/* ── CENTER FEED ── */}
-          <div className="md:col-span-6 space-y-5">
-
-            {/* Hero */}
-            <div className="card glass-card glow-box">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <p className="section-eyebrow mb-2">Operations Center</p>
-                  <h1 className="font-display text-2xl font-black">
-                    <span className="gradient-text">LiTreeLabStudios</span>
-                  </h1>
-                  <p className="text-sm mt-2" style={{ color: resolvedColors.textMuted }}>
-                    Enterprise AI workspace for the developer ecosystem. Deploy agents, run boardrooms, earn LiTBit Coins.
-                  </p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center opacity-30">
-                  <div className="w-3 h-3 rounded-full bg-white/40" />
-                </div>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <Link href="/builder" className="btn btn-secondary text-xs justify-center">
-                  Builder
-                </Link>
-                <Link href="/marketplace" className="btn btn-secondary text-xs justify-center">
-                  Market
-                </Link>
-                <Link href="/gallery" className="btn btn-secondary text-xs justify-center">
-                  Gallery
-                </Link>
-              </div>
-            </div>
-
-            {/* Composer */}
-            <div className="card glass-card glow-box">
-              <div className="flex gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                  style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
-                  {profile.displayName ? profile.displayName.charAt(0).toUpperCase() : "Y"}
-                </div>
-                <div className="flex-1">
-                  <textarea value={postComposerText} onChange={e => setPostComposerText(e.target.value)}
-                    placeholder={`What are you building today, ${profile.displayName || "CEO"}?`}
-                    className="textarea text-sm mb-3" rows={3} />
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="badge text-[10px]">{postComposerMood}</span>
-                    </div>
-                    <button onClick={submitStatusPost} disabled={!postComposerText.trim()}
-                      className="btn btn-primary text-xs">
-                      Publish
-                    </button>
+                  <div>
+                    <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Agent B</label>
+                    <select value={orchestratorAgent2} onChange={e => setOrchestratorAgent2(e.target.value)} className="select text-xs">
+                      {UI_AGENTS.filter(a => a.id !== orchestratorAgent1).map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
+                    </select>
                   </div>
+                  <div>
+                    <label className="text-[10px] font-mono uppercase tracking-wider block mb-1" style={{ color: resolvedColors.textMuted }}>Topic</label>
+                    <input type="text" value={orchestratorTopic} onChange={e => setOrchestratorTopic(e.target.value)} className="input text-xs" placeholder="Business topic..." />
+                  </div>
+                  <button onClick={handleStartOrchestrator} className="btn btn-primary w-full text-xs"
+                    style={{ background: orchestratorStatus === "running" ? resolvedColors.warning : resolvedColors.linkColor, color: "#0a0a0f" }}>
+                    {orchestratorStatus === "running" ? "Pause" : "Launch Boardroom"}
+                  </button>
                 </div>
-              </div>
-            </div>
-
-            {/* Feed */}
-            <div className="space-y-4">
-              {feeds.map(post => (
-                <article key={post.id} className="post">
-                  <div className="post-header">
-                    <Image src={post.avatar} alt={post.author} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
-                    <div className="post-meta">
-                      <div className="post-author">
-                        {post.author}
-                        <span className="badge-success badge text-[8px] px-1.5 py-0.5">Verified</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="post-handle">{post.handle}</span>
-                        <span className="text-muted">·</span>
-                        <span className="post-time">{post.time}</span>
-                      </div>
-                      <span className="font-mono text-[10px]" style={{ color: resolvedColors.accentColor }}>{post.mood}</span>
-                    </div>
-                  </div>
-                  <div className="post-body">{post.content}</div>
-                  <div className="post-stats">
-                    <span>{post.likes} reactions</span>
-                    <span>{post.comments.length} reviews</span>
-                  </div>
-                  <div className="post-actions">
-                    <button className={`post-action ${post.liked ? "liked" : ""}`} onClick={() => handleLikePost(post.id)}>
-                      {post.liked ? "Reacted" : "React"}
-                    </button>
-                    <button className="post-action">Review</button>
-                  </div>
-                  {post.comments.length > 0 && (
-                    <div className="post-comments">
-                      {post.comments.map((c, i) => (
-                        <div key={i} className="comment">
-                          <Image src={c.avatar} alt={c.author} width={24} height={24} className="w-6 h-6 rounded object-cover border border-white/10" />
-                          <div className="comment-bubble">
-                            <div className="comment-author">{c.author}</div>
-                            <div className="comment-text">{c.text}</div>
-                            <div className="comment-time">{c.time}</div>
-                          </div>
+                {orchestratorLogs.length > 0 && (
+                  <div className="mt-3 p-2.5 rounded-lg overflow-y-auto max-h-[140px]" style={{ background: "rgba(0,0,0,0.35)" }}>
+                    <p className="font-mono text-[9px] uppercase tracking-wider mb-2" style={{ color: resolvedColors.accentColor }}>Boardroom Logs</p>
+                    <div className="space-y-1.5">
+                      {orchestratorLogs.map((log, i) => (
+                        <div key={i} className="telemetry-row text-[10px]">
+                          <span className="text-muted font-mono">{log.timestamp}</span>
+                          <span className="font-mono" style={{ color: log.from === "System" ? resolvedColors.accentColor : resolvedColors.linkColor }}>
+                            {log.from}:
+                          </span>
+                          <span style={{ color: resolvedColors.textColor }}>{log.text}</span>
                         </div>
                       ))}
                     </div>
-                  )}
-                </article>
-              ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </aside>
+
+          {/* ── CENTER FEED ── */}
+          {dashboard.showFeed && (
+            <div className="md:col-span-6 space-y-5">
+
+              {/* Hero / Cover Photo */}
+              <div className="card glow-box overflow-hidden p-0 border-0" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
+                <div className="h-24 w-full bg-gradient-to-r relative overflow-hidden" style={{ backgroundImage: dashboard.customBanner ? `url(${dashboard.customBanner})` : `linear-gradient(to right, ${resolvedColors.linkColor}44, ${resolvedColors.accentColor}44)` }}>
+                  {!dashboard.customBanner && <div className="absolute inset-0 grid-bg opacity-30" />}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                </div>
+                <div className="px-6 py-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <p className="section-eyebrow mb-1">Operations Center</p>
+                      <h1 className="font-display text-2xl font-black">
+                        <span className="gradient-text">{dashboard.displayName || "LiTreeLabStudios"}</span>
+                      </h1>
+                      <p className="text-[11px] mt-1" style={{ color: resolvedColors.textMuted }}>
+                        Your optimized neural workspace. Build, deploy, and orchestrate.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <Link href="/builder" className="btn btn-secondary text-[10px] justify-center py-2">
+                      Builder
+                    </Link>
+                    <Link href="/marketplace" className="btn btn-secondary text-[10px] justify-center py-2">
+                      Market
+                    </Link>
+                    <Link href="/gallery" className="btn btn-secondary text-[10px] justify-center py-2">
+                      Gallery
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Composer */}
+              <div className="card glow-box" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
+                <div className="flex gap-3">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 overflow-hidden"
+                    style={{ background: `linear-gradient(135deg, ${resolvedColors.linkColor}, ${resolvedColors.headerColor})`, color: "#0a0a0f" }}>
+                    {dashboard.customAvatar ? (
+                      <img src={dashboard.customAvatar} alt="Me" className="w-full h-full object-cover" />
+                    ) : (
+                      dashboard.displayName ? dashboard.displayName.charAt(0).toUpperCase() : "Y"
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <textarea value={postComposerText} onChange={e => setPostComposerText(e.target.value)}
+                      placeholder={`What are you building today, ${dashboard.displayName || profile.displayName || "CEO"}?`}
+                      className="textarea text-sm mb-3" rows={3} style={{ background: "rgba(0,0,0,0.2)" }} />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="badge text-[10px]">{postComposerMood}</span>
+                      </div>
+                      <button onClick={submitStatusPost} disabled={!postComposerText.trim()}
+                        className="btn btn-primary text-xs px-6">
+                        Publish
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Feed */}
+              <div className="space-y-4">
+                {feeds.map(post => (
+                  <article key={post.id} className="post glow-box" style={{ 
+                    backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                    background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+                  }}>
+                    <div className="post-header">
+                      <div className="w-10 h-10 rounded-lg overflow-hidden border border-white/10 flex-shrink-0">
+                        <img src={post.avatar} alt={post.author} className="w-full h-full object-cover" />
+                      </div>
+                      <div className="post-meta">
+                        <div className="post-author text-sm">
+                          {post.author}
+                          <span className="badge-success badge text-[8px] px-1.5 py-0.5 ml-2">Verified</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="post-handle">{post.handle}</span>
+                          <span className="text-muted">·</span>
+                          <span className="post-time">{post.time}</span>
+                        </div>
+                        <span className="font-mono text-[10px]" style={{ color: resolvedColors.accentColor }}>{post.mood}</span>
+                      </div>
+                    </div>
+                    <div className="post-body text-sm leading-relaxed" style={{ color: resolvedColors.textColor + "ee" }}>{post.content}</div>
+                    <div className="post-stats pt-4 border-t border-white/5 mt-4">
+                      <span className="text-[10px] font-mono">{post.likes} reactions</span>
+                      <span className="text-[10px] font-mono">{post.comments.length} reviews</span>
+                    </div>
+                    <div className="post-actions">
+                      <button className={`post-action text-[11px] ${post.liked ? "liked" : ""}`} onClick={() => handleLikePost(post.id)}>
+                        {post.liked ? "Reacted" : "React"}
+                      </button>
+                      <button className="post-action text-[11px]">Review</button>
+                    </div>
+                    {post.comments.length > 0 && (
+                      <div className="post-comments mt-4 space-y-3">
+                        {post.comments.map((c, i) => (
+                          <div key={i} className="comment">
+                            <div className="w-6 h-6 rounded flex-shrink-0 overflow-hidden border border-white/10">
+                              <img src={c.avatar} alt={c.author} className="w-full h-full object-cover" />
+                            </div>
+                            <div className="comment-bubble" style={{ background: "rgba(255,255,255,0.03)" }}>
+                              <div className="comment-author text-[11px] font-bold">{c.author}</div>
+                              <div className="comment-text text-[11px] opacity-80">{c.text}</div>
+                              <div className="comment-time text-[9px] opacity-40">{c.time}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </article>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* ── RIGHT SIDEBAR ── */}
           <aside className="md:col-span-3 space-y-5">
 
             {/* Top Agents */}
-            <div className="card glass-card glow-box">
-              <div className="card-header">
-                <div className="card-title"><span className="dot" />My Top 6 Agents</div>
-                <Link href="/marketplace" className="text-[10px] font-mono" style={{ color: resolvedColors.success }}>Ledger →</Link>
+            {dashboard.showAgents && (
+              <div className="card glow-box" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
+                <div className="card-header">
+                  <div className="card-title"><span className="dot" />My Top 6 Agents</div>
+                  <Link href="/marketplace" className="text-[10px] font-mono" style={{ color: resolvedColors.success }}>Ledger →</Link>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {UI_AGENTS.map(agent => (
+                    <button key={agent.id} onClick={() => openMessengerChat(agent)}
+                      className="agent-tile">
+                      <div className="agent-avatar relative">
+                        <img src={agent.avatar} alt={agent.name} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
+                        <span className={`status-dot ${agent.status}`}
+                          style={{ position: "absolute", bottom: -1, right: -1 }} />
+                      </div>
+                      <span className="agent-name">{agent.name}</span>
+                      <span className="agent-role">{agent.status}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[10px] text-center mt-3" style={{ color: resolvedColors.textMuted }}>Click to open real-time chat</p>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {UI_AGENTS.map(agent => (
-                  <button key={agent.id} onClick={() => openMessengerChat(agent)}
-                    className="agent-tile">
-                    <div className="agent-avatar relative">
-                      <Image src={agent.avatar} alt={agent.name} width={40} height={40} className="w-10 h-10 rounded-lg object-cover border border-white/10" />
-                      <span className={`status-dot ${agent.status}`}
-                        style={{ position: "absolute", bottom: -1, right: -1 }} />
-                    </div>
-                    <span className="agent-name">{agent.name}</span>
-                    <span className="agent-role">{agent.status}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="text-[10px] text-center mt-3" style={{ color: resolvedColors.textMuted }}>Click to open real-time chat</p>
-            </div>
+            )}
 
             {/* Studio Metrics */}
-            <div className="card glass-card glow-box">
+            <div className="card glow-box" style={{ 
+              backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+              background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+            }}>
               <div className="card-header">
                 <div className="card-title"><span className="dot" />Studio Metrics</div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { val: "133,742", label: "Ledger Actions" },
+                  { val: visitorCount.toLocaleString(), label: "Ledger Actions" },
                   { val: "99.98%", label: "Uptime" },
                   { val: "12ms", label: "Query Latency" },
-                  { val: "2.4M", label: "Task Tokens" }
+                  { val: (litBitCoins * 4).toLocaleString(), label: "Task Tokens" }
                 ].map((stat, i) => (
                   <div key={i} className="metric">
                     <div className="metric-value">{stat.val}</div>
@@ -1110,24 +1282,29 @@ export default function LandingPage() {
             </div>
 
             {/* Live Telemetry */}
-            <div className="card glass-card glow-box">
-              <div className="card-header">
-                <div className="card-title">
-                  <span className="status-dot online" />
-                  Live Telemetry
+            {dashboard.showTelemetry && (
+              <div className="card glow-box" style={{ 
+                backdropFilter: `blur(${ (dashboard.glassmorphism ?? 0.5) * 32}px)`,
+                background: resolvedColors.boxBg + Math.round((dashboard.glassmorphism ?? 0.5) * 255).toString(16).padStart(2, '0')
+              }}>
+                <div className="card-header">
+                  <div className="card-title">
+                    <span className="status-dot online" />
+                    Live Telemetry
+                  </div>
+                </div>
+                <div ref={telemetryContainerRef} className="overflow-y-auto max-h-[200px]">
+                  {telemetry.map((log, i) => (
+                    <div key={i} className="telemetry-row">
+                      <span className="telemetry-time">{log.time}</span>
+                      <span className="telemetry-agent">{log.icon ? log.icon + ' ' : ''}{log.agent}:</span>
+                      <span>{log.text}</span>
+                    </div>
+                  ))}
+                  <div ref={telemetryEndRef} />
                 </div>
               </div>
-              <div ref={telemetryContainerRef} className="overflow-y-auto max-h-[200px]">
-                {telemetry.map((log, i) => (
-                  <div key={i} className="telemetry-row">
-                    <span className="telemetry-time">{log.time}</span>
-                    <span className="telemetry-agent">{log.icon ? log.icon + ' ' : ''}{log.agent}:</span>
-                    <span>{log.text}</span>
-                  </div>
-                ))}
-                <div ref={telemetryEndRef} />
-              </div>
-            </div>
+            )}
           </aside>
         </div>
       </main>

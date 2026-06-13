@@ -42,6 +42,20 @@ export interface Theme {
   skin: SkinPreset;
   accent: AccentColor;
   backgroundMode: BackgroundMode;
+  dashboard?: {
+    customAvatar?: string;
+    customBanner?: string;
+    customBackground?: string;
+    displayName?: string;
+    username?: string;
+    showTelemetry?: boolean;
+    showBoardroom?: boolean;
+    showFeed?: boolean;
+    showAgents?: boolean;
+    showAudio?: boolean;
+    glassmorphism?: number;
+    backgroundOpacity?: number;
+  };
   customColors?: {
     bgColor?: string;
     textColor?: string;
@@ -160,7 +174,7 @@ const darkSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkCo
     linkColor: "#818cf8",
     headerColor: "#a5b4fc",
     borderColor: "#4f46e5",
-    accentColor: "#e0e7ff",
+    accentColor: "#e07ff",
     boxBg: "#10142a",
   },
   neon: {
@@ -367,6 +381,15 @@ const defaultTheme: Theme = {
   skin: "cyberpunk",
   accent: "electric-blue",
   backgroundMode: "constellation",
+  dashboard: {
+    showTelemetry: true,
+    showBoardroom: true,
+    showFeed: true,
+    showAgents: true,
+    showAudio: true,
+    glassmorphism: 0.5,
+    backgroundOpacity: 1,
+  }
 };
 
 // Context
@@ -378,6 +401,7 @@ interface ThemeContextType {
   setAccent: (accent: AccentColor) => void;
   setBackgroundMode: (mode: BackgroundMode) => void;
   setCustomColors: (colors: { bgColor?: string; textColor?: string; linkColor?: string; headerColor?: string; borderColor?: string; accentColor?: string; boxBg?: string }) => void;
+  setDashboard: (settings: Partial<NonNullable<Theme["dashboard"]>>) => void;
   resetTheme: () => void;
 }
 
@@ -418,12 +442,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        setTimeout(() => setTheme(parsed), 0);
+        // Merge with default to handle schema updates
+        const merged = { 
+          ...defaultTheme, 
+          ...parsed, 
+          dashboard: { ...defaultTheme.dashboard, ...parsed.dashboard } 
+        };
+        setTheme(merged);
       } catch (e) {
         console.error("Failed to parse theme", e);
       }
     }
-    setTimeout(() => setMounted(true), 0);
+    setMounted(true);
   }, []);
 
   // Save to localStorage on change
@@ -465,6 +495,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => ({ ...prev, customColors: { ...prev.customColors, ...colors } }));
   };
 
+  const setDashboard = (settings: Partial<NonNullable<Theme["dashboard"]>>) => {
+    setTheme((prev) => ({
+      ...prev,
+      dashboard: { ...(prev.dashboard || defaultTheme.dashboard!), ...settings }
+    }));
+  };
+
   const resetTheme = () => {
     setTheme(defaultTheme);
   };
@@ -479,6 +516,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setAccent,
         setBackgroundMode,
         setCustomColors,
+        setDashboard,
         resetTheme,
       }}
     >

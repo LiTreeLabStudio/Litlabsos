@@ -1,12 +1,13 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import dynamic from "next/dynamic";
 import {
   Home, Wrench, ShoppingBag, Image as ImageIcon, MessageSquare,
-  Sun, Moon, Zap, Book, Users, Play
+  Sun, Moon, Zap, Book, Users, Play, Menu, X
 } from "lucide-react";
 
 const NavAuth = dynamic(
@@ -28,16 +29,22 @@ const links = [
 export default function Navbar() {
   const { theme, resolvedColors, setMode } = useTheme();
   const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Close menu on route change
+  useEffect(() => {
+    if (isMenuOpen) setIsMenuOpen(false);
+  }, [pathname]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <nav
-      className="sticky top-0 z-[100] border-b backdrop-blur-xl"
+      className="sticky top-0 z-[100] border-b backdrop-blur-xl transition-all duration-300"
       style={{
         borderColor: resolvedColors.borderColor + "40",
-        backgroundColor: resolvedColors.boxBg + "ee", // Increased opacity
+        backgroundColor: resolvedColors.boxBg + "ee",
       }}
     >
       <div className="max-w-7xl mx-auto px-4">
@@ -104,6 +111,55 @@ export default function Navbar() {
             <div className="hidden sm:block">
               <NavAuth linkColor={resolvedColors.linkColor} />
             </div>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="lg:hidden p-1.5 rounded-lg transition-all duration-200"
+              style={{
+                color: resolvedColors.linkColor,
+                border: `1px solid ${resolvedColors.borderColor}30`,
+              }}
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      <div
+        className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+          isMenuOpen ? "max-h-[500px] border-t" : "max-h-0"
+        }`}
+        style={{
+          borderColor: resolvedColors.borderColor + "20",
+          backgroundColor: resolvedColors.boxBg + "f9",
+        }}
+      >
+        <div className="flex flex-col p-4 gap-2">
+          {links.map((link) => {
+            const active = isActive(link.href);
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="flex items-center gap-3 p-3 rounded-lg text-sm font-bold transition-all"
+                style={{
+                  color: active ? resolvedColors.bgColor : resolvedColors.linkColor,
+                  backgroundColor: active ? resolvedColors.linkColor : "transparent",
+                  border: active ? "none" : `1px solid ${resolvedColors.borderColor}10`,
+                }}
+              >
+                <Icon size={18} strokeWidth={active ? 2.5 : 2} />
+                <span>{link.label}</span>
+              </Link>
+            );
+          })}
+          
+          <div className="sm:hidden pt-2 border-t mt-2" style={{ borderColor: resolvedColors.borderColor + "20" }}>
+            <NavAuth linkColor={resolvedColors.linkColor} />
           </div>
         </div>
       </div>

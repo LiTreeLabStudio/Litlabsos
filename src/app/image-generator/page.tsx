@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
-import { Image as ImageIcon, Sparkles, Wand2, Download, Share2, RefreshCw, Coins, Zap, ChevronDown, ChevronUp, Clock, Trash2 } from "lucide-react";
+import { Image as ImageIcon, Sparkles, Wand2, Download, Share2, RefreshCw, Coins, Zap, ChevronDown, ChevronUp, Clock, Trash2, Upload, X, Sliders } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────
 interface GenerationResult {
@@ -41,7 +41,7 @@ const PROVIDERS = [
   {
     id: "fal",
     name: "FAL.ai (FLUX)",
-    desc: "FLUX Pro",
+    desc: "FLUX Pro / Img2Img",
     cost: 3,
     icon: "⚡",
   },
@@ -59,12 +59,12 @@ const QUICK_STARTERS = [
 ];
 
 // ── Provider Generation Functions ──────────────────────
-async function generateWithGemini(prompt: string): Promise<GenerationResult> {
+async function generateWithGemini(prompt: string, aspectRatio: string = "1:1"): Promise<GenerationResult> {
   try {
     const res = await fetch("/api/image/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, aspectRatio }),
     });
     const data = await res.json();
     if (data.success) {
@@ -80,7 +80,6 @@ async function generateWithPollinations(prompt: string): Promise<GenerationResul
   try {
     const encoded = encodeURIComponent(prompt);
     const url = `https://image.pollinations.ai/prompt/${encoded}?width=1024&height=1024&nologo=true&seed=${Math.floor(Math.random() * 999999)}`;
-    // Test if the URL is valid by doing a HEAD request
     const test = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(5000) });
     if (test.ok) {
       return { success: true, fileUrl: url, model: "pollinations" };
@@ -91,16 +90,16 @@ async function generateWithPollinations(prompt: string): Promise<GenerationResul
   }
 }
 
-async function generateWithFAL(prompt: string): Promise<GenerationResult> {
+async function generateWithFAL(prompt: string, image?: string, strength?: number): Promise<GenerationResult> {
   try {
     const res = await fetch("/api/image/fal", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, image_url: image, strength }),
     });
     const data = await res.json();
     if (data.success) {
-      return { success: true, fileUrl: data.fileUrl, model: "fal-flux" };
+      return { success: true, fileUrl: data.fileUrl, model: data.model || "fal-flux" };
     }
     return { success: false, error: data.error || "FAL.ai generation failed" };
   } catch (e) {
@@ -115,6 +114,8 @@ export default function ImageGeneratorPage() {
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
+  const [sourceImage, setSourceImage] = useState<string | null>(null);
+  const [imageStrength, setImageStrength] = useState(0.5);
   const [error, setError] = useState<string | null>(null);
   const [selectedProvider, setSelectedProvider] = useState<string>("gemini");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -123,11 +124,19 @@ export default function ImageGeneratorPage() {
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [isLoadingWallet, setIsLoadingWallet] = useState(true);
 
-  // Load wallet on mount
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     loadWallet();
     loadHistory();
   }, []);
+
+  // When source image is added, switch to FAL if not already there
+  useEffect(() => {
+    if (sourceImage && selectedProvider !== "fal") {
+      setSelectedProvider("fal");
+    }
+  }, [sourceImage]);
 
   const loadWallet = async () => {
     try {
@@ -136,7 +145,6 @@ export default function ImageGeneratorPage() {
         const data = await res.json();
         setWalletBalance(data.balance ?? 500);
       } else if (res.status === 401) {
-        // Not signed in — use local balance
         const local = localStorage.getItem("litbitcoins");
         setWalletBalance(local ? parseInt(local) : 500);
       }
@@ -170,14 +178,62 @@ export default function ImageGeneratorPage() {
     const newBalance = walletBalance - amount;
     setWalletBalance(newBalance);
     localStorage.setItem("litbitcoins", newBalance.toString());
-    // Try to sync with server
     try {
       await fetch("/api/wallet/spend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, type: "image_generation" }),
       });
-    } catch { /* offline spend is fine */ }
+    } catch { /* ignore */ }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSourceImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const [aspectRatio, setAspectRatio] = useState("1:1");
+
+  const handleDownload = async (url: string) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `litlabs-gen-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      console.error("Download failed:", e);
+      window.open(url, "_blank");
+    }
+  };
+
+  const handleShare = async (url: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'LiTTree Lab Studios Image',
+          text: 'Check out this AI generated image from LitLabs!',
+          url: url,
+        });
+      } catch (e) {
+        console.error("Share failed:", e);
+        navigator.clipboard.writeText(url);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      alert("Link copied to clipboard!");
+    }
   };
 
   const handleGenerate = useCallback(async () => {
@@ -186,27 +242,25 @@ export default function ImageGeneratorPage() {
     const provider = PROVIDERS.find((p) => p.id === selectedProvider);
     if (!provider) return;
 
-    // Check wallet
     if (walletBalance !== null && provider.cost > 0 && walletBalance < provider.cost) {
-      setError(`Not enough LiTBit Coins. Need ${provider.cost}, have ${walletBalance}. Claim your daily bonus!`);
+      setError(`Not enough LiTBit Coins. Need ${provider.cost}, have ${walletBalance}.`);
       return;
     }
 
     setIsGenerating(true);
     setError(null);
-    setResultImage(null);
 
     let result: GenerationResult;
 
     switch (selectedProvider) {
       case "gemini":
-        result = await generateWithGemini(prompt);
+        result = await generateWithGemini(prompt, aspectRatio);
         break;
       case "pollinations":
         result = await generateWithPollinations(prompt);
         break;
       case "fal":
-        result = await generateWithFAL(prompt);
+        result = await generateWithFAL(prompt, sourceImage || undefined, imageStrength);
         break;
       default:
         result = { success: false, error: "Unknown provider" };
@@ -229,20 +283,11 @@ export default function ImageGeneratorPage() {
     }
 
     setIsGenerating(false);
-  }, [prompt, isGenerating, selectedProvider, walletBalance]);
-
-  const handleQuickStart = (text: string) => {
-    setPrompt(text);
-  };
-
-  const handleRetry = () => {
-    handleGenerate();
-  };
+  }, [prompt, isGenerating, selectedProvider, walletBalance, sourceImage, imageStrength]);
 
   return (
     <div style={{ backgroundColor: T.bgColor, minHeight: "100vh", color: T.textColor, fontFamily: "monospace" }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-2 text-cyan-400 text-[10px] font-bold uppercase tracking-[0.3em] mb-3">
             <Wand2 size={14} className="animate-pulse" />
@@ -267,7 +312,7 @@ export default function ImageGeneratorPage() {
             <button
               key={p.id}
               onClick={() => setSelectedProvider(p.id)}
-              className="p-3 rounded-xl border text-left transition-all hover:scale-[1.02]"
+              className="p-3 rounded-xl border text-left transition-all hover:scale-[1.02] relative"
               style={{
                 borderColor: selectedProvider === p.id ? T.linkColor : T.borderColor + "30",
                 backgroundColor: selectedProvider === p.id ? T.linkColor + "15" : T.boxBg,
@@ -284,14 +329,75 @@ export default function ImageGeneratorPage() {
               <div className="text-[9px] font-bold mt-1" style={{ color: p.cost === 0 ? "#25e08a" : T.accentColor }}>
                 {p.cost === 0 ? "FREE" : `${p.cost} 🪙`}
               </div>
+              {sourceImage && p.id !== "fal" && (
+                <div className="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center backdrop-blur-[1px]">
+                  <span className="text-[8px] font-bold uppercase text-white/40">Img2Img Not Supported</span>
+                </div>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Main Grid */}
         <div className="grid lg:grid-cols-12 gap-6">
           {/* Left Panel */}
           <div className="lg:col-span-4 space-y-4">
+            {/* Image-to-Image Upload */}
+            <div className="rounded-2xl border p-4" style={{ borderColor: T.borderColor + "20", background: T.boxBg }}>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-[10px] font-bold uppercase tracking-widest" style={{ color: T.textMuted }}>
+                  Image-to-Image
+                </label>
+                {sourceImage && (
+                  <button onClick={() => setSourceImage(null)} className="text-red-400 hover:text-red-300">
+                    <X size={14} />
+                  </button>
+                )}
+              </div>
+
+              {!sourceImage ? (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all hover:bg-white/5"
+                  style={{ borderColor: T.borderColor + "30", color: T.textMuted }}
+                >
+                  <Upload size={24} />
+                  <span className="text-[10px] font-bold uppercase">Upload Source</span>
+                  <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+                </button>
+              ) : (
+                <div className="space-y-4">
+                  <div className="relative aspect-video rounded-xl overflow-hidden border" style={{ borderColor: T.accentColor + "40" }}>
+                    <img src={sourceImage} alt="Source" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                    <div className="absolute bottom-2 left-2 flex items-center gap-1.5 text-[8px] font-bold uppercase text-cyan-400">
+                      <Zap size={10} /> Active Reference
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[9px] font-bold uppercase tracking-wider" style={{ color: T.textMuted }}>
+                        Strength: {Math.round(imageStrength * 100)}%
+                      </label>
+                      <Sliders size={12} style={{ color: T.textMuted }} />
+                    </div>
+                    <input
+                      type="range"
+                      min="0.1"
+                      max="1.0"
+                      step="0.05"
+                      value={imageStrength}
+                      onChange={(e) => setImageStrength(parseFloat(e.target.value))}
+                      className="w-full accent-cyan-500 h-1 bg-black/40 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <p className="text-[8px] opacity-40 leading-tight">
+                      Higher = more original image preservation. Lower = more freedom to the AI.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Prompt Input */}
             <div className="rounded-2xl border p-4" style={{ borderColor: T.borderColor + "20", background: T.boxBg }}>
               <label className="block text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: T.textMuted }}>
@@ -300,7 +406,7 @@ export default function ImageGeneratorPage() {
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Describe your vision..."
+                placeholder={sourceImage ? "Describe how to transform this image..." : "Describe your vision..."}
                 className="w-full h-28 rounded-xl p-3 text-xs outline-none resize-none"
                 style={{
                   background: "rgba(0,0,0,0.3)",
@@ -308,12 +414,6 @@ export default function ImageGeneratorPage() {
                   color: T.textColor,
                 }}
               />
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-[9px] opacity-40">{prompt.length} chars</span>
-                {prompt.length >= 3 && (
-                  <span className="text-[9px] text-green-400 font-bold">✓ Ready</span>
-                )}
-              </div>
             </div>
 
             {/* Generate Button */}
@@ -334,25 +434,10 @@ export default function ImageGeneratorPage() {
               ) : (
                 <>
                   <Sparkles size={14} />
-                  Generate ({PROVIDERS.find((p) => p.id === selectedProvider)?.cost === 0 ? "FREE" : `${PROVIDERS.find((p) => p.id === selectedProvider)?.cost} 🪙`})
+                  {sourceImage ? "Transform Image" : "Generate Image"} ({PROVIDERS.find((p) => p.id === selectedProvider)?.cost === 0 ? "FREE" : `${PROVIDERS.find((p) => p.id === selectedProvider)?.cost} 🪙`})
                 </>
               )}
             </button>
-
-            {/* Error Display */}
-            {error && (
-              <div className="rounded-xl p-3 border" style={{ borderColor: "#ff444440", background: "#ff444410" }}>
-                <div className="flex items-start gap-2">
-                  <span className="text-red-400 text-xs">⚠️</span>
-                  <div>
-                    <p className="text-[10px] text-red-400 font-bold">{error}</p>
-                    <button onClick={handleRetry} className="text-[9px] text-cyan-400 mt-1 flex items-center gap-1 hover:underline">
-                      <RefreshCw size={10} /> Retry
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Quick Starters */}
             <div className="rounded-2xl border p-4" style={{ borderColor: T.borderColor + "20", background: T.boxBg }}>
@@ -363,7 +448,7 @@ export default function ImageGeneratorPage() {
                 {QUICK_STARTERS.map((text, i) => (
                   <button
                     key={i}
-                    onClick={() => handleQuickStart(text)}
+                    onClick={() => setPrompt(text)}
                     className="w-full text-left p-2 rounded-lg text-[10px] leading-relaxed transition-all hover:scale-[1.01]"
                     style={{
                       background: prompt === text ? T.linkColor + "15" : "rgba(0,0,0,0.2)",
@@ -388,13 +473,56 @@ export default function ImageGeneratorPage() {
             </button>
 
             {showAdvanced && (
-              <div className="rounded-2xl border p-4 space-y-3" style={{ borderColor: T.borderColor + "20", background: T.boxBg }}>
-                {["High Fidelity", "Cinema 4D Render", "Octane Lights", "8K Resolution"].map((param) => (
-                  <div key={param} className="flex items-center justify-between text-[10px]">
-                    <span style={{ color: T.textColor + "80" }}>{param}</span>
-                    <span className="font-bold uppercase" style={{ color: T.accentColor }}>Active</span>
+              <div className="rounded-2xl border p-4 space-y-4" style={{ borderColor: T.borderColor + "20", background: T.boxBg }}>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-widest block" style={{ color: T.textMuted }}>
+                    Aspect Ratio
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { id: "1:1", label: "Square" },
+                      { id: "16:9", label: "Wide" },
+                      { id: "2:3", label: "Tall" },
+                    ].map((ar) => (
+                      <button
+                        key={ar.id}
+                        onClick={() => setAspectRatio(ar.id)}
+                        className="py-2 text-[10px] font-bold rounded-lg border transition-all"
+                        style={{
+                          borderColor: aspectRatio === ar.id ? T.linkColor : T.borderColor + "10",
+                          backgroundColor: aspectRatio === ar.id ? T.linkColor + "20" : "rgba(0,0,0,0.2)",
+                          color: aspectRatio === ar.id ? T.linkColor : T.textColor + "60",
+                        }}
+                      >
+                        {ar.label}
+                      </button>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                <div className="space-y-3">
+                  {["High Fidelity", "Cinema 4D Render", "Octane Lights", "8K Resolution"].map((param) => (
+                    <div key={param} className="flex items-center justify-between text-[10px]">
+                      <span style={{ color: T.textColor + "80" }}>{param}</span>
+                      <span className="font-bold uppercase" style={{ color: T.accentColor }}>Active</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Error Display */}
+            {error && (
+              <div className="rounded-xl p-3 border" style={{ borderColor: "#ff444440", background: "#ff444410" }}>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-400 text-xs">⚠️</span>
+                  <div>
+                    <p className="text-[10px] text-red-400 font-bold">{error}</p>
+                    <button onClick={handleGenerate} className="text-[9px] text-cyan-400 mt-1 flex items-center gap-1 hover:underline">
+                      <RefreshCw size={10} /> Retry
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -409,11 +537,29 @@ export default function ImageGeneratorPage() {
                 <>
                   <img src={resultImage} alt="Generated" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                    <a href={resultImage} download="generated-image.png" className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all">
+                    <button 
+                      onClick={() => handleDownload(resultImage)}
+                      className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+                      title="Download Image"
+                    >
                       <Download size={18} />
-                    </a>
-                    <button onClick={() => navigator.clipboard.writeText(resultImage)} className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all">
+                    </button>
+                    <button 
+                      onClick={() => handleShare(resultImage)}
+                      className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all"
+                      title="Share Image"
+                    >
                       <Share2 size={18} />
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setSourceImage(resultImage);
+                        setResultImage(null);
+                        setPrompt("");
+                      }} 
+                      className="px-4 h-10 rounded-full bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-[10px] font-bold uppercase tracking-wider hover:bg-cyan-500/30 transition-all"
+                    >
+                      Use as Reference
                     </button>
                   </div>
                 </>

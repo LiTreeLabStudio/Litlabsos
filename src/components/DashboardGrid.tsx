@@ -98,10 +98,10 @@ export default function DashboardGrid() {
             <Link
               key={action.id}
               href={action.href}
-              className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:bg-white/[0.06] hover:border-white/20 transition-all group"
+              className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/3 p-4 hover:bg-white/6 hover:border-white/20 transition-all group"
             >
               <div
-                className={`w-11 h-11 rounded-lg bg-gradient-to-br ${action.color} flex items-center justify-center text-white flex-shrink-0 group-hover:scale-105 transition-transform`}
+                className={`w-11 h-11 rounded-lg bg-linear-to-br ${action.color} flex items-center justify-center text-white shrink-0 group-hover:scale-105 transition-transform`}
               >
                 <Icon size={18} />
               </div>

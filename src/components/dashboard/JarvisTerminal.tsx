@@ -437,7 +437,7 @@ export default function JarvisTerminal() {
             }}
           >
             {logs.map((log) => (
-              <div key={log.id} className="break-words leading-relaxed">
+              <div key={log.id} className="wrap-break-word leading-relaxed">
                 <span className="opacity-30 mr-1.5">[{log.timestamp}]</span>
                 {log.type === "user" && (
                   <span className="font-bold" style={{ color: T.textColor }}>

@@ -166,7 +166,7 @@ export default function AgentDeploymentPage({
                       <div className="h-px flex-1 bg-neon-cyan/20" />
                     </div>
                   )}
-                  <div className="whitespace-pre-wrap break-words">
+                  <div className="whitespace-pre-wrap wrap-break-word">
                     {m.content}
                   </div>
                 </div>

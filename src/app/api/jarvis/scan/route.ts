@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { promises as fs } from "fs";
+import { execSync } from "child_process";
 import path from "path";
 
 interface FileSummary {
@@ -96,7 +97,7 @@ async function scanDirectory(
   return results;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -189,7 +190,6 @@ export async function GET(req: NextRequest) {
   // Recent git changes
   let recentChanges: string[] = [];
   try {
-    const { execSync } = require("child_process");
     const log = execSync("git log --oneline -5", { cwd, encoding: "utf-8" });
     recentChanges = log.trim().split("\n");
   } catch {

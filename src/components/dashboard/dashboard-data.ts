@@ -11,6 +11,7 @@ import {
   Image as ImageIcon,
   Mic,
   FileText,
+  Terminal,
 } from "lucide-react";
 
 export type IconComponent = React.ComponentType<{
@@ -22,6 +23,13 @@ export type IconComponent = React.ComponentType<{
 
 export const APPS = [
   { id: "home", label: "Home", icon: Home, color: "#00f0ff", href: "/" },
+  {
+    id: "jarvis",
+    label: "Jarvis",
+    icon: Terminal,
+    color: "#ff00a0",
+    href: "#",
+  },
   {
     id: "studio",
     label: "Studio",

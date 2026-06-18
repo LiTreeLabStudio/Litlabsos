@@ -91,7 +91,13 @@ export default function DashboardView() {
       </aside>
 
       {/* Center */}
-      <main className="flex-1 min-w-0 p-4 lg:p-6 overflow-y-auto">
+      <main
+        className={`flex-1 min-w-0 p-4 lg:p-6 ${
+          activeApp === "jarvis"
+            ? "flex flex-col overflow-hidden"
+            : "overflow-y-auto"
+        }`}
+      >
         {/* Mobile app bar */}
         <div className="md:hidden flex gap-2 overflow-x-auto pb-4 mb-4 scrollbar-hide">
           {APPS.map((app) => {

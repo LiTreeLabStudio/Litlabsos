@@ -3,8 +3,15 @@
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { Music, Gamepad2, Radio, Clapperboard } from "lucide-react";
-import { RADIO, GAMES, WATCH, TOOLS, type IconComponent } from "./dashboard-data";
+import {
+  RADIO,
+  GAMES,
+  WATCH,
+  TOOLS,
+  type IconComponent,
+} from "./dashboard-data";
 import SocialFeed from "@/components/SocialFeed";
+import JarvisTerminal from "./JarvisTerminal";
 
 export function HeroCard({
   title,
@@ -47,7 +54,12 @@ export function HeroCard({
 export function QuickActionGrid({
   actions,
 }: {
-  actions: { label: string; icon: IconComponent; color: string; href: string }[];
+  actions: {
+    label: string;
+    icon: IconComponent;
+    color: string;
+    href: string;
+  }[];
 }) {
   const { resolvedColors: T } = useTheme();
   return (
@@ -163,13 +175,37 @@ export function CenterStage({
     case "studio":
       return (
         <div className="space-y-6">
-          <HeroCard title="Studio" subtitle="Create images, audio, video & code." color="#00f0ff" />
+          <HeroCard
+            title="Studio"
+            subtitle="Create images, audio, video & code."
+            color="#00f0ff"
+          />
           <QuickActionGrid
             actions={[
-              { label: "Image Gen", icon: ImageIcon, color: "#ff00a0", href: "/studio?tab=image" },
-              { label: "Video Gen", icon: Video, color: "#00f0ff", href: "/studio?tab=video" },
-              { label: "Audio Gen", icon: Mic, color: "#8b5cf6", href: "/studio?tab=audio" },
-              { label: "Code Agent", icon: Zap, color: "#ff9ff3", href: "/studio?tab=code" },
+              {
+                label: "Image Gen",
+                icon: ImageIcon,
+                color: "#ff00a0",
+                href: "/studio?tab=image",
+              },
+              {
+                label: "Video Gen",
+                icon: Video,
+                color: "#00f0ff",
+                href: "/studio?tab=video",
+              },
+              {
+                label: "Audio Gen",
+                icon: Mic,
+                color: "#8b5cf6",
+                href: "/studio?tab=audio",
+              },
+              {
+                label: "Code Agent",
+                icon: Zap,
+                color: "#ff9ff3",
+                href: "/studio?tab=code",
+              },
             ]}
           />
         </div>
@@ -177,12 +213,31 @@ export function CenterStage({
     case "gallery":
       return (
         <div className="space-y-6">
-          <HeroCard title="Gallery" subtitle="Explore community creations." color="#ff00a0" />
+          <HeroCard
+            title="Gallery"
+            subtitle="Explore community creations."
+            color="#ff00a0"
+          />
           <QuickActionGrid
             actions={[
-              { label: "Top Picks", icon: Sparkles, color: "#ff00a0", href: "/gallery?filter=top" },
-              { label: "Recent", icon: Zap, color: "#00f0ff", href: "/gallery?filter=recent" },
-              { label: "Your Drops", icon: ImageIcon, color: "#ff9ff3", href: "/gallery?filter=me" },
+              {
+                label: "Top Picks",
+                icon: Sparkles,
+                color: "#ff00a0",
+                href: "/gallery?filter=top",
+              },
+              {
+                label: "Recent",
+                icon: Zap,
+                color: "#00f0ff",
+                href: "/gallery?filter=recent",
+              },
+              {
+                label: "Your Drops",
+                icon: ImageIcon,
+                color: "#ff9ff3",
+                href: "/gallery?filter=me",
+              },
             ]}
           />
         </div>
@@ -190,12 +245,31 @@ export function CenterStage({
     case "market":
       return (
         <div className="space-y-6">
-          <HeroCard title="Market" subtitle="Templates, agents & creator tools." color="#ff9ff3" />
+          <HeroCard
+            title="Market"
+            subtitle="Templates, agents & creator tools."
+            color="#ff9ff3"
+          />
           <QuickActionGrid
             actions={[
-              { label: "Agent Packs", icon: Zap, color: "#00f0ff", href: "/marketplace?tab=agents" },
-              { label: "Templates", icon: FileText, color: "#ff00a0", href: "/marketplace?tab=templates" },
-              { label: "Subscriptions", icon: ShoppingBag, color: "#ff9ff3", href: "/marketplace?tab=plans" },
+              {
+                label: "Agent Packs",
+                icon: Zap,
+                color: "#00f0ff",
+                href: "/marketplace?tab=agents",
+              },
+              {
+                label: "Templates",
+                icon: FileText,
+                color: "#ff00a0",
+                href: "/marketplace?tab=templates",
+              },
+              {
+                label: "Subscriptions",
+                icon: ShoppingBag,
+                color: "#ff9ff3",
+                href: "/marketplace?tab=plans",
+              },
             ]}
           />
         </div>
@@ -203,10 +277,20 @@ export function CenterStage({
     case "music":
       return (
         <div className="space-y-6">
-          <HeroCard title="Music" subtitle="Playlists, radios & your library." color="#ff2d78" />
+          <HeroCard
+            title="Music"
+            subtitle="Playlists, radios & your library."
+            color="#ff2d78"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {RADIO.map((s) => (
-              <GlossyCard key={s.title} title={s.title} subtitle={`${s.genre} · ${s.listeners} live`} color={s.color} icon={Music} />
+              <GlossyCard
+                key={s.title}
+                title={s.title}
+                subtitle={`${s.genre} · ${s.listeners} live`}
+                color={s.color}
+                icon={Music}
+              />
             ))}
           </div>
         </div>
@@ -214,10 +298,20 @@ export function CenterStage({
     case "games":
       return (
         <div className="space-y-6">
-          <HeroCard title="Games Hub" subtitle="Arcade, quests & leaderboards." color="#8b5cf6" />
+          <HeroCard
+            title="Games Hub"
+            subtitle="Arcade, quests & leaderboards."
+            color="#8b5cf6"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {GAMES.map((g) => (
-              <GlossyCard key={g.title} title={g.title} subtitle={`${g.genre} · ${g.players} playing`} color={g.color} icon={Gamepad2} />
+              <GlossyCard
+                key={g.title}
+                title={g.title}
+                subtitle={`${g.genre} · ${g.players} playing`}
+                color={g.color}
+                icon={Gamepad2}
+              />
             ))}
           </div>
         </div>
@@ -225,10 +319,20 @@ export function CenterStage({
     case "watch":
       return (
         <div className="space-y-6">
-          <HeroCard title="Watch Room" subtitle="Tutorials, streams & creator content." color="#3b82f6" />
+          <HeroCard
+            title="Watch Room"
+            subtitle="Tutorials, streams & creator content."
+            color="#3b82f6"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {WATCH.map((v) => (
-              <GlossyCard key={v.title} title={v.title} subtitle={`${v.channel} · ${v.views} views`} color={v.color} icon={Clapperboard} />
+              <GlossyCard
+                key={v.title}
+                title={v.title}
+                subtitle={`${v.channel} · ${v.views} views`}
+                color={v.color}
+                icon={Clapperboard}
+              />
             ))}
           </div>
         </div>
@@ -236,21 +340,47 @@ export function CenterStage({
     case "radio":
       return (
         <div className="space-y-6">
-          <HeroCard title="Radio" subtitle="Live stations curated for focus & flow." color="#10b981" />
+          <HeroCard
+            title="Radio"
+            subtitle="Live stations curated for focus & flow."
+            color="#10b981"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {RADIO.map((s) => (
-              <GlossyCard key={s.title} title={s.title} subtitle={`${s.genre} · ${s.listeners} listening`} color={s.color} icon={Radio} />
+              <GlossyCard
+                key={s.title}
+                title={s.title}
+                subtitle={`${s.genre} · ${s.listeners} listening`}
+                color={s.color}
+                icon={Radio}
+              />
             ))}
           </div>
+        </div>
+      );
+    case "jarvis":
+      return (
+        <div className="h-full min-h-[500px]">
+          <JarvisTerminal />
         </div>
       );
     case "tools":
       return (
         <div className="space-y-6">
-          <HeroCard title="Tools" subtitle="Quick access to your creator stack." color="#f59e0b" />
+          <HeroCard
+            title="Tools"
+            subtitle="Quick access to your creator stack."
+            color="#f59e0b"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {TOOLS.map((t) => (
-              <GlossyCard key={t.title} title={t.title} subtitle={t.desc} color={t.color} icon={t.icon} />
+              <GlossyCard
+                key={t.title}
+                title={t.title}
+                subtitle={t.desc}
+                color={t.color}
+                icon={t.icon}
+              />
             ))}
           </div>
         </div>
@@ -258,13 +388,32 @@ export function CenterStage({
     default:
       return (
         <div className="space-y-6">
-          <HeroCard title={`Welcome back, ${displayName}`} subtitle="Your creator OS is live. Ship something today." color={T.accentColor} />
+          <HeroCard
+            title={`Welcome back, ${displayName}`}
+            subtitle="Your creator OS is live. Ship something today."
+            color={T.accentColor}
+          />
           <QuickActionGrid
             actions={[
               { label: "New Post", icon: Send, color: "#00f0ff", href: "#" },
-              { label: "Image Gen", icon: ImageIcon, color: "#ff00a0", href: "/studio?tab=image" },
-              { label: "Agent Chat", icon: Zap, color: "#8b5cf6", href: "/agent-chat" },
-              { label: "Market", icon: ShoppingBag, color: "#ff9ff3", href: "/marketplace" },
+              {
+                label: "Image Gen",
+                icon: ImageIcon,
+                color: "#ff00a0",
+                href: "/studio?tab=image",
+              },
+              {
+                label: "Agent Chat",
+                icon: Zap,
+                color: "#8b5cf6",
+                href: "/agent-chat",
+              },
+              {
+                label: "Market",
+                icon: ShoppingBag,
+                color: "#ff9ff3",
+                href: "/marketplace",
+              },
             ]}
           />
           <SocialFeed embedded />

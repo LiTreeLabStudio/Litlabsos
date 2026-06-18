@@ -44,12 +44,11 @@ class Jarvis {
   init(config: NotificationConfig) {
     this.config = { ...this.config, ...config };
     this.initialized = true;
-    console.log("🤖 Jarvis initialized");
   }
 
   async notify(payload: NotificationPayload): Promise<boolean> {
     if (!this.initialized) {
-      console.warn("Jarvis not initialized, using default config");
+      // Silenced
     }
 
     const channels = payload.channels || ["discord"];
@@ -68,10 +67,10 @@ class Jarvis {
       });
 
       if (error) {
-        console.error("Failed to save notification:", error);
+        // Silenced
       }
     } catch (err) {
-      console.error("Error saving notification:", err);
+      // Silenced
     }
 
     // Send to each channel
@@ -92,7 +91,6 @@ class Jarvis {
             break;
         }
       } catch (err) {
-        console.error(`Failed to send ${channel} notification:`, err);
         results.push(false);
       }
     }
@@ -102,7 +100,6 @@ class Jarvis {
 
   private async sendDiscord(payload: NotificationPayload): Promise<boolean> {
     if (!this.config.discordWebhookUrl) {
-      console.warn("Discord webhook not configured");
       return false;
     }
 
@@ -149,14 +146,12 @@ class Jarvis {
 
       return response.ok;
     } catch (err) {
-      console.error("Discord webhook failed:", err);
       return false;
     }
   }
 
   private async sendWebhook(payload: NotificationPayload): Promise<boolean> {
     if (!this.config.webhookEndpoint) {
-      console.warn("Webhook endpoint not configured");
       return false;
     }
 
@@ -177,20 +172,17 @@ class Jarvis {
 
       return response.ok;
     } catch (err) {
-      console.error("Webhook failed:", err);
       return false;
     }
   }
 
   private async sendPush(payload: NotificationPayload): Promise<boolean> {
     // OneSignal or WebPush implementation would go here
-    console.log("Push notification (not implemented):", payload.title);
     return true;
   }
 
   private async sendEmail(payload: NotificationPayload): Promise<boolean> {
     // Resend or SendGrid implementation would go here
-    console.log("Email notification (not implemented):", payload.title);
     return true;
   }
 

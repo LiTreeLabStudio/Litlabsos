@@ -26,7 +26,6 @@ async function handler(req: NextRequest) {
 
       return NextResponse.json({ text: response.text || "No transcription detected." });
     } catch (err: any) {
-      console.error("Transcription error:", err);
       return NextResponse.json({ error: err.message || "Transcription failed" }, { status: 500 });
     }
 }

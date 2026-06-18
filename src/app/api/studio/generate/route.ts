@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           }
         }
       } catch (e) {
-        console.log("Gemini failed, falling back to pollinations");
+        // Silenced
       }
     }
 
@@ -115,7 +115,6 @@ export async function POST(request: NextRequest) {
     });
     
   } catch (error) {
-    console.error("Image generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate image" }, 
       { status: 500 }

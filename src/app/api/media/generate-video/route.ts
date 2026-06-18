@@ -49,7 +49,6 @@ async function handler(req: NextRequest) {
         balance: newBalance,
       });
     } catch (err: any) {
-      console.error("Video generation error:", err);
       return NextResponse.json({ error: err.message || "Video generation failed" }, { status: 500 });
     }
 }

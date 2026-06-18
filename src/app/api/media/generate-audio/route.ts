@@ -47,7 +47,6 @@ async function handler(req: NextRequest) {
         balance: newBalance,
       });
     } catch (err: any) {
-      console.error("TTS error:", err);
       return NextResponse.json({ error: err.message || "TTS failed" }, { status: 500 });
     }
 }

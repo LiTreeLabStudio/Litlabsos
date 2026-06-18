@@ -46,7 +46,6 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error("Failed to create user:", error);
       return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
     }
 
@@ -65,7 +64,6 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err) {
-    console.error("Ensure user error:", err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

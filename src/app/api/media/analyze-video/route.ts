@@ -26,7 +26,6 @@ async function handler(req: NextRequest) {
 
       return NextResponse.json({ text: response.text || "No analysis detected." });
     } catch (err: any) {
-      console.error("Video analysis error:", err);
       return NextResponse.json({ error: err.message || "Video analysis failed" }, { status: 500 });
     }
 }

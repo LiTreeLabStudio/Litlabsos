@@ -63,7 +63,6 @@ export async function sendDiscordMessage(
 ): Promise<boolean> {
   const url = WEBHOOK_URLS[channel];
   if (!url) {
-    console.warn(`Discord webhook not configured for channel: ${channel}`);
     return false;
   }
 
@@ -80,7 +79,6 @@ export async function sendDiscordMessage(
 
     return response.ok;
   } catch (error) {
-    console.error('Failed to send Discord message:', error);
     return false;
   }
 }

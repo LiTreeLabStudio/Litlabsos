@@ -45,7 +45,6 @@ async function handler(req: NextRequest) {
         balance: newBalance,
       });
     } catch (err: any) {
-      console.error("Music generation error:", err);
       return NextResponse.json({ error: err.message || "Music generation failed" }, { status: 500 });
     }
 }

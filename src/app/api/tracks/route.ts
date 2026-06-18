@@ -27,7 +27,6 @@ export async function GET(req: NextRequest) {
     const { data: tracks, error } = await query;
 
     if (error) {
-      console.error('Error fetching tracks:', error);
       return NextResponse.json({ error: 'Failed to fetch tracks' }, { status: 500 });
     }
 
@@ -60,7 +59,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ tracks: tracksWithUrls });
 
   } catch (err) {
-    console.error('Tracks API error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
@@ -94,14 +92,12 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating track:', error);
       return NextResponse.json({ error: 'Failed to create track' }, { status: 500 });
     }
 
     return NextResponse.json({ track }, { status: 201 });
 
   } catch (err) {
-    console.error('Create track error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

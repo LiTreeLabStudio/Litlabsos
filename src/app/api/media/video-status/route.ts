@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ done: updated.done, videoUri });
   } catch (err: any) {
-    console.error("Video status error:", err);
     return NextResponse.json({ error: err.message || "Polling failed" }, { status: 500 });
   }
 }

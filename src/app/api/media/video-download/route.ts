@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error("Video download error:", err);
     return NextResponse.json({ error: err.message || "Download failed" }, { status: 500 });
   }
 }

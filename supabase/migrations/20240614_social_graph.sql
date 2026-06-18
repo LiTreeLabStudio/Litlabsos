@@ -55,8 +55,9 @@ ALTER TABLE public.follows
 -- 5) GRANTs (critical for PostgREST / API access)
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.follows TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.notifications TO authenticated;
-GRANT USAGE, SELECT ON SEQUENCE public.follows_id_seq TO authenticated;
-GRANT USAGE, SELECT ON SEQUENCE public.notifications_id_seq TO authenticated;
+-- Sequences don't exist for UUID default tables
+-- GRANT USAGE, SELECT ON SEQUENCE public.follows_id_seq TO authenticated;
+-- GRANT USAGE, SELECT ON SEQUENCE public.notifications_id_seq TO authenticated;
 
 -- 6) RLS policies for follows
 ALTER TABLE public.follows ENABLE ROW LEVEL SECURITY;

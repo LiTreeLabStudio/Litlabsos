@@ -125,6 +125,136 @@ export default function JarvisTerminal() {
     addLog({ type: "user", text: msg });
     setIsProcessing(true);
 
+    // ── Slash command router ────────────────────────────────────
+    if (msg.startsWith("/")) {
+      const [cmd, ...rest] = msg.slice(1).split(" ");
+      const arg = rest.join(" ");
+
+      switch (cmd.toLowerCase()) {
+        case "help":
+          addLog({
+            type: "success",
+            text: `Available commands:
+  /scan              — Analyze your codebase
+  /status            — Check system health
+  /image <prompt>    — Open image generator
+  /code <prompt>     — Open code agent
+  /agent <name>      — Switch active agent
+  /clear             — Clear terminal`,
+          });
+          setIsProcessing(false);
+          return;
+
+        case "clear":
+          setLogs([]);
+          setIsProcessing(false);
+          return;
+
+        case "agent":
+          if (arg && REAL_AGENTS[arg]) {
+            setSelectedAgent(arg);
+            addLog({
+              type: "success",
+              text: `Switched to ${REAL_AGENTS[arg].name} (${REAL_AGENTS[arg].role})`,
+            });
+          } else {
+            const list = Object.entries(REAL_AGENTS)
+              .map(([id, a]) => `  ${id} — ${a.name}`)
+              .join("\n");
+            addLog({
+              type: "error",
+              text: `Unknown agent. Available:\n${list}`,
+            });
+          }
+          setIsProcessing(false);
+          return;
+
+        case "image":
+          addLog({ type: "system", text: "Opening Image Forge..." });
+          window.open(
+            `/studio?tool=image${arg ? "&prompt=" + encodeURIComponent(arg) : ""}`,
+            "_blank",
+          );
+          addLog({ type: "success", text: "Image Forge opened in new tab." });
+          setIsProcessing(false);
+          return;
+
+        case "code":
+          addLog({ type: "system", text: "Opening Code Agent..." });
+          window.open(
+            `/studio?tool=agents${arg ? "&prompt=" + encodeURIComponent(arg) : ""}`,
+            "_blank",
+          );
+          addLog({ type: "success", text: "Code Agent opened in new tab." });
+          setIsProcessing(false);
+          return;
+
+        case "status":
+          try {
+            const [health, wallet] = await Promise.all([
+              fetch("/api/llm/health").then((r) => (r.ok ? r.json() : null)),
+              fetch("/api/wallet").then((r) => (r.ok ? r.json() : null)),
+            ]);
+            const lines = [
+              `LLM Health: ${health?.gemini?.available ? "ONLINE" : health?.openrouter?.available ? "FALLBACK" : "OFFLINE"}`,
+              `Wallet: ${wallet?.balance ?? "—"} LBC`,
+              `Agents online: ${Object.values(REAL_AGENTS).filter((a) => a.status === "online").length}/${Object.values(REAL_AGENTS).length}`,
+            ];
+            addLog({ type: "success", text: lines.join("\n") });
+          } catch {
+            addLog({ type: "error", text: "Could not fetch status." });
+          }
+          setIsProcessing(false);
+          return;
+
+        case "scan":
+          try {
+            addLog({
+              type: "system",
+              text: "Scanning codebase... this may take a moment.",
+            });
+            const res = await fetch("/api/jarvis/scan");
+            if (!res.ok) throw new Error("Scan failed");
+            const data = await res.json();
+            const report = [
+              `Project: ${data.projectName}`,
+              `Files: ${data.totalFiles} | Lines: ${data.totalLines.toLocaleString()}`,
+              `Tech: ${data.techStack.join(", ")}`,
+              `Features: ${data.keyFeatures.join(" | ")}`,
+              `Agents: ${data.agents.slice(0, 5).join(", ")}${data.agents.length > 5 ? "..." : ""}`,
+              `Routes: ${data.routes.slice(0, 5).join(", ")}${data.routes.length > 5 ? "..." : ""}`,
+              `APIs: ${data.apiEndpoints.length} endpoints`,
+              `Build: ${data.health.buildStatus}`,
+              data.health.envVarsMissing.length > 0
+                ? `⚠ Missing: ${data.health.envVarsMissing.join(", ")}`
+                : "✓ All env vars configured",
+              data.recentChanges.length > 0
+                ? `Recent commits:\n  ${data.recentChanges.slice(0, 3).join("\n  ")}`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("\n");
+            addLog({ type: "agent", text: report, agentName: "JARVIS" });
+          } catch (err) {
+            addLog({
+              type: "error",
+              text: err instanceof Error ? err.message : "Scan failed.",
+            });
+          }
+          setIsProcessing(false);
+          return;
+
+        default:
+          addLog({
+            type: "error",
+            text: `Unknown command: /${cmd}. Type /help for available commands.`,
+          });
+          setIsProcessing(false);
+          return;
+      }
+    }
+
+    // ── Regular AI chat ──────────────────────────────────────────
     const agent = REAL_AGENTS[selectedAgent];
     addLog({
       type: "system",
@@ -160,7 +290,7 @@ export default function JarvisTerminal() {
     } finally {
       setIsProcessing(false);
     }
-  }, [input, isProcessing, selectedAgent, addLog]);
+  }, [input, isProcessing, selectedAgent, addLog, logs]);
 
   /* Voice recognition */
   useEffect(() => {
@@ -419,7 +549,7 @@ export default function JarvisTerminal() {
                     sendMessage();
                   }
                 }}
-                placeholder="Type command or speak..."
+                placeholder="Type /scan, /status, /image, /code or just chat..."
                 className="flex-1 bg-transparent border-none outline-none text-sm font-mono placeholder:opacity-30 min-w-0"
                 style={{ color: T.textColor }}
                 disabled={isProcessing}
@@ -436,6 +566,31 @@ export default function JarvisTerminal() {
                 <Send size={12} />
                 EXECUTE
               </button>
+            </div>
+            {/* Command hints */}
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {[
+                { cmd: "/scan", desc: "Analyze codebase" },
+                { cmd: "/status", desc: "System health" },
+                { cmd: "/image", desc: "Generate image" },
+                { cmd: "/code", desc: "Code agent" },
+                { cmd: "/agent", desc: "Switch agent" },
+                { cmd: "/help", desc: "Commands" },
+              ].map(({ cmd, desc }) => (
+                <button
+                  key={cmd}
+                  onClick={() => setInput(cmd + " ")}
+                  className="text-[9px] px-1.5 py-0.5 rounded border transition-all hover:opacity-80"
+                  style={{
+                    borderColor: `${T.borderColor}40`,
+                    color: T.textMuted,
+                    backgroundColor: `${T.boxBg}60`,
+                  }}
+                  title={desc}
+                >
+                  <span style={{ color: T.accentColor }}>{cmd}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>

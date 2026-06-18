@@ -82,25 +82,30 @@ export default function VideoTool() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState<VideoGen | null>(null);
-  const [history, setHistory] = useState<VideoGen[]>([]);
-  const [coinBalance, setCoinBalance] = useState<number | null>(null);
+  const [history, setHistory] = useState<VideoGen[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [coinBalance, setCoinBalance] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const coinsRaw = localStorage.getItem("litcoins");
+      const val = coinsRaw ? Number(coinsRaw) : null;
+      return val !== null && !isNaN(val) ? val : null;
+    } catch {
+      return null;
+    }
+  });
 
   const cost = VIDEO_MODELS.find((m) => m.id === model)?.cost || 5;
   const canAfford = coinBalance === null || coinBalance >= cost;
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-    // Read litcoins from localStorage first (consistent with Navbar)
-    try {
-      const coinsRaw = localStorage.getItem("litcoins");
-      if (coinsRaw) {
-        const val = Number(coinsRaw);
-        if (!isNaN(val)) setCoinBalance(val);
-      }
-    } catch {}
     // Then sync from API
     fetch("/api/wallet")
       .then((r) => r.json())

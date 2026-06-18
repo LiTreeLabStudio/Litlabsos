@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   return NextResponse.json({
     status: "healthy",
     service: "telemetry",
@@ -11,9 +11,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    let body = {};
     try {
-      body = await req.json();
+      await req.json();
     } catch {
       // Ignore empty or invalid JSON payload
     }
@@ -26,11 +25,11 @@ export async function POST(req: NextRequest) {
       message: "Telemetry event received and processed successfully",
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     // Telemetry capture error — reject
     return NextResponse.json(
       { error: "Failed to process telemetry" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

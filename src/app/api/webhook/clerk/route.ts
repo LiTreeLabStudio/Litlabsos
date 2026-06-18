@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     // CLERK_WEBHOOK_SECRET not set — reject
     return NextResponse.json(
       { error: "Webhook secret not configured" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return NextResponse.json(
       { error: "Missing Svix headers" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
     }) as { type: string; data: Record<string, unknown> };
-  } catch (err) {
+  } catch {
     // Signature verification failed — reject
     return NextResponse.json(
       { error: "Invalid webhook signature" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -63,31 +63,32 @@ export async function POST(req: NextRequest) {
     if (eventType === "user.created" || eventType === "user.updated") {
       const data = evt.data;
       const id = data.id as string;
-      const email_addresses = (data.email_addresses as Array<{ email_address: string }>) || [];
+      const email_addresses =
+        (data.email_addresses as Array<{ email_address: string }>) || [];
       const first_name = (data.first_name as string) || "";
       const last_name = (data.last_name as string) || "";
 
       const email = email_addresses[0]?.email_address || "";
-      const name = first_name && last_name
-        ? `${first_name} ${last_name}`
-        : first_name || email.split("@")[0];
+      const name =
+        first_name && last_name
+          ? `${first_name} ${last_name}`
+          : first_name || email.split("@")[0];
 
       await getOrCreateUser(id, email, name);
       // User event processed
     }
 
     if (eventType === "user.deleted") {
-      const id = evt.data.id as string;
       // User deleted — handle cleanup if needed
       // Optional: delete from Supabase here
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch {
     // Webhook processing error — reject
     return NextResponse.json(
       { error: "Webhook processing failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

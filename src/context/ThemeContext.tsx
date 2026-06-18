@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from "react";
 import type { BackgroundMode } from "@/components/AnimatedBackground";
 
 // Skin presets
@@ -26,14 +33,14 @@ export type SkinPreset =
 export type ThemeMode = "dark" | "light" | "system";
 
 // Accent colors
-export type AccentColor = 
-  | "neon-green" 
-  | "hot-pink" 
-  | "electric-blue" 
-  | "cyber-yellow" 
-  | "matrix-green" 
-  | "sunset-orange" 
-  | "ocean-blue" 
+export type AccentColor =
+  | "neon-green"
+  | "hot-pink"
+  | "electric-blue"
+  | "cyber-yellow"
+  | "matrix-green"
+  | "sunset-orange"
+  | "ocean-blue"
   | "purple-haze";
 
 // Theme structure
@@ -54,7 +61,18 @@ export interface Theme {
 }
 
 // Default dark skins
-const darkSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkColor: string; headerColor: string; borderColor: string; accentColor: string; boxBg: string }> = {
+const darkSkins: Record<
+  SkinPreset,
+  {
+    bgColor: string;
+    textColor: string;
+    linkColor: string;
+    headerColor: string;
+    borderColor: string;
+    accentColor: string;
+    boxBg: string;
+  }
+> = {
   cyberpunk: {
     bgColor: "#0c0c14",
     textColor: "#d4d4e8",
@@ -202,7 +220,18 @@ const darkSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkCo
 };
 
 // Light mode variants
-const lightSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkColor: string; headerColor: string; borderColor: string; accentColor: string; boxBg: string }> = {
+const lightSkins: Record<
+  SkinPreset,
+  {
+    bgColor: string;
+    textColor: string;
+    linkColor: string;
+    headerColor: string;
+    borderColor: string;
+    accentColor: string;
+    boxBg: string;
+  }
+> = {
   cyberpunk: {
     bgColor: "#f5f5fa",
     textColor: "#1e1e2e",
@@ -350,15 +379,50 @@ const lightSkins: Record<SkinPreset, { bgColor: string; textColor: string; linkC
 };
 
 // Accent color overrides
-const accentOverrides: Record<AccentColor, { linkColor: string; headerColor: string; accentColor: string }> = {
-  "neon-green": { linkColor: "#22d3ee", headerColor: "#67e8f9", accentColor: "#06b6d4" },
-  "hot-pink": { linkColor: "#f472b6", headerColor: "#fbcfe8", accentColor: "#ec4899" },
-  "electric-blue": { linkColor: "#60a5fa", headerColor: "#93c5fd", accentColor: "#3b82f6" },
-  "cyber-yellow": { linkColor: "#fbbf24", headerColor: "#fcd34d", accentColor: "#f59e0b" },
-  "matrix-green": { linkColor: "#a78bfa", headerColor: "#c4b5fd", accentColor: "#8b5cf6" },
-  "sunset-orange": { linkColor: "#fb923c", headerColor: "#fdba74", accentColor: "#f97316" },
-  "ocean-blue": { linkColor: "#38bdf8", headerColor: "#7dd3fc", accentColor: "#0ea5e9" },
-  "purple-haze": { linkColor: "#c084fc", headerColor: "#ddd6fe", accentColor: "#a855f7" },
+const accentOverrides: Record<
+  AccentColor,
+  { linkColor: string; headerColor: string; accentColor: string }
+> = {
+  "neon-green": {
+    linkColor: "#22d3ee",
+    headerColor: "#67e8f9",
+    accentColor: "#06b6d4",
+  },
+  "hot-pink": {
+    linkColor: "#f472b6",
+    headerColor: "#fbcfe8",
+    accentColor: "#ec4899",
+  },
+  "electric-blue": {
+    linkColor: "#60a5fa",
+    headerColor: "#93c5fd",
+    accentColor: "#3b82f6",
+  },
+  "cyber-yellow": {
+    linkColor: "#fbbf24",
+    headerColor: "#fcd34d",
+    accentColor: "#f59e0b",
+  },
+  "matrix-green": {
+    linkColor: "#a78bfa",
+    headerColor: "#c4b5fd",
+    accentColor: "#8b5cf6",
+  },
+  "sunset-orange": {
+    linkColor: "#fb923c",
+    headerColor: "#fdba74",
+    accentColor: "#f97316",
+  },
+  "ocean-blue": {
+    linkColor: "#38bdf8",
+    headerColor: "#7dd3fc",
+    accentColor: "#0ea5e9",
+  },
+  "purple-haze": {
+    linkColor: "#c084fc",
+    headerColor: "#ddd6fe",
+    accentColor: "#a855f7",
+  },
 };
 
 // Default theme
@@ -372,32 +436,83 @@ const defaultTheme: Theme = {
 // Context
 interface ThemeContextType {
   theme: Theme;
-  resolvedColors: { bgColor: string; textColor: string; textMuted: string; linkColor: string; headerColor: string; borderColor: string; accentColor: string; boxBg: string; success: string; warning: string };
+  resolvedColors: {
+    bgColor: string;
+    textColor: string;
+    textMuted: string;
+    linkColor: string;
+    headerColor: string;
+    borderColor: string;
+    accentColor: string;
+    boxBg: string;
+    success: string;
+    warning: string;
+  };
   setMode: (mode: ThemeMode) => void;
   setSkin: (skin: SkinPreset) => void;
   setAccent: (accent: AccentColor) => void;
   setBackgroundMode: (mode: BackgroundMode) => void;
-  setCustomColors: (colors: { bgColor?: string; textColor?: string; linkColor?: string; headerColor?: string; borderColor?: string; accentColor?: string; boxBg?: string }) => void;
+  setCustomColors: (colors: {
+    bgColor?: string;
+    textColor?: string;
+    linkColor?: string;
+    headerColor?: string;
+    borderColor?: string;
+    accentColor?: string;
+    boxBg?: string;
+  }) => void;
   resetTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
-  const [mounted, setMounted] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return defaultTheme;
     const stored = localStorage.getItem("litlabs-theme");
     if (stored) {
       try {
-        setTheme(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse theme", e);
+        return JSON.parse(stored);
+      } catch {
+        /* ignore */
       }
     }
-    setMounted(true);
+    return defaultTheme;
+  });
+  const getResolvedColors = (t: Theme) => {
+    // Get base skin based on mode
+    const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
+    const skinColors = baseSkins[t.skin];
+
+    // Apply custom colors if set
+    const custom = t.customColors || {};
+
+    // Apply accent override if not custom
+    const accent = custom.accentColor ? null : accentOverrides[t.accent];
+
+    return {
+      bgColor: custom.bgColor || skinColors.bgColor,
+      textColor: custom.textColor || skinColors.textColor,
+      textMuted: "#a8a8c0",
+      linkColor: accent?.linkColor || custom.linkColor || skinColors.linkColor,
+      headerColor:
+        accent?.headerColor || custom.headerColor || skinColors.headerColor,
+      borderColor: custom.borderColor || skinColors.borderColor,
+      accentColor:
+        accent?.accentColor || custom.accentColor || skinColors.accentColor,
+      boxBg: custom.boxBg || skinColors.boxBg,
+      success: "#25e08a",
+      warning: "#ffb020",
+    };
+  };
+
+  const resolvedColors = getResolvedColors(theme);
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // Save to localStorage on change
@@ -417,33 +532,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, mounted]);
 
-  const getResolvedColors = (t: Theme) => {
-    // Get base skin based on mode
-    const baseSkins = t.mode === "light" ? lightSkins : darkSkins;
-    const skinColors = baseSkins[t.skin];
-
-    // Apply custom colors if set
-    const custom = t.customColors || {};
-
-    // Apply accent override if not custom
-    const accent = custom.accentColor ? null : accentOverrides[t.accent];
-
-    return {
-      bgColor: custom.bgColor || skinColors.bgColor,
-      textColor: custom.textColor || skinColors.textColor,
-      textMuted: "#a8a8c0",
-      linkColor: accent?.linkColor || custom.linkColor || skinColors.linkColor,
-      headerColor: accent?.headerColor || custom.headerColor || skinColors.headerColor,
-      borderColor: custom.borderColor || skinColors.borderColor,
-      accentColor: accent?.accentColor || custom.accentColor || skinColors.accentColor,
-      boxBg: custom.boxBg || skinColors.boxBg,
-      success: "#25e08a",
-      warning: "#ffb020",
-    };
-  };
-
-  const resolvedColors = getResolvedColors(theme);
-
   const setMode = (mode: ThemeMode) => {
     setTheme((prev) => ({ ...prev, mode }));
   };
@@ -460,8 +548,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme((prev) => ({ ...prev, backgroundMode }));
   };
 
-  const setCustomColors = (colors: { bgColor?: string; textColor?: string; linkColor?: string; headerColor?: string; borderColor?: string; accentColor?: string; boxBg?: string }) => {
-    setTheme((prev) => ({ ...prev, customColors: { ...prev.customColors, ...colors } }));
+  const setCustomColors = (colors: {
+    bgColor?: string;
+    textColor?: string;
+    linkColor?: string;
+    headerColor?: string;
+    borderColor?: string;
+    accentColor?: string;
+    boxBg?: string;
+  }) => {
+    setTheme((prev) => ({
+      ...prev,
+      customColors: { ...prev.customColors, ...colors },
+    }));
   };
 
   const resetTheme = () => {
@@ -511,20 +610,26 @@ export { darkSkins, lightSkins, accentOverrides };
 /*  Global CRT Toggle — single source of truth for scanline overlay    */
 /* ------------------------------------------------------------------ */
 export function useCrtToggle() {
-  const [crtEnabled, setCrtEnabled] = useState(true);
+  const [crtEnabled, setCrtEnabled] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const val = localStorage.getItem("crt_global_scanlines");
+    return val === null ? true : val === "true";
+  });
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    const val = localStorage.getItem("crt_global_scanlines");
-    setCrtEnabled(val === null ? true : val === "true");
-    setHydrated(true);
+    const id = requestAnimationFrame(() => setHydrated(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
-  const toggleCrt = useCallback((next?: boolean) => {
-    const nextVal = next !== undefined ? next : !crtEnabled;
-    setCrtEnabled(nextVal);
-    localStorage.setItem("crt_global_scanlines", String(nextVal));
-  }, [crtEnabled]);
+  const toggleCrt = useCallback(
+    (next?: boolean) => {
+      const nextVal = next !== undefined ? next : !crtEnabled;
+      setCrtEnabled(nextVal);
+      localStorage.setItem("crt_global_scanlines", String(nextVal));
+    },
+    [crtEnabled],
+  );
 
   return { crtEnabled: hydrated ? crtEnabled : true, toggleCrt };
 }

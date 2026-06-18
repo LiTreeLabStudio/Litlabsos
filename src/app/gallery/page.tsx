@@ -250,8 +250,18 @@ export default function Gallery() {
   const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
   const [likedItems, setLikedItems] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
-  const [viewMode, setViewMode] = useState<"grid" | "masonry">("masonry");
-  const [userItems, setUserItems] = useState<GalleryItem[]>([]);
+  const [userItems, setUserItems] = useState<GalleryItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    const stored = localStorage.getItem("litlabs-gallery-user");
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
   const [showUpload, setShowUpload] = useState(false);
   const [uploadForm, setUploadForm] = useState({
     title: "",
@@ -316,16 +326,35 @@ export default function Gallery() {
       .catch(() => {
         // silent fail — demo items still show
       });
-
-    const storedUserItems = localStorage.getItem("litlabs-gallery-user");
-    if (storedUserItems) {
-      try {
-        setUserItems(JSON.parse(storedUserItems));
-      } catch {
-        /* ignore */
-      }
-    }
   }, []);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/gallery");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  const toggleLike = useCallback(
+    (id: string) => {
+      setLikedItems((prev) => {
+        const next = new Set(prev);
+        const wasLiked = next.has(id);
+        if (wasLiked) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
+        // Update like count
+        setLikeCounts((counts) => {
+          const current =
+            counts[id] ?? items.find((i) => i.id === id)?.likes ?? 0;
+          return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
+        });
+        return next;
+      });
+    },
+    [items],
+  );
 
   if (!isLoaded) {
     return (
@@ -346,12 +375,6 @@ export default function Gallery() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push("/sign-in?redirect_url=/gallery");
-    }
-  }, [isLoaded, isSignedIn, router]);
 
   if (!isLoaded || !isSignedIn) {
     return (
@@ -392,28 +415,6 @@ export default function Gallery() {
       if (sortBy === "name") return a.title.localeCompare(b.title);
       return 0;
     });
-
-  const toggleLike = useCallback(
-    (id: string) => {
-      setLikedItems((prev) => {
-        const next = new Set(prev);
-        const wasLiked = next.has(id);
-        if (wasLiked) {
-          next.delete(id);
-        } else {
-          next.add(id);
-        }
-        // Update like count
-        setLikeCounts((counts) => {
-          const current =
-            counts[id] ?? items.find((i) => i.id === id)?.likes ?? 0;
-          return { ...counts, [id]: wasLiked ? current - 1 : current + 1 };
-        });
-        return next;
-      });
-    },
-    [items],
-  );
 
   const handleUpload = async () => {
     if (!uploadForm.title.trim()) {

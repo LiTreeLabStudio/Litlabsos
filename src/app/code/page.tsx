@@ -1,18 +1,24 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useTheme } from '@/context/ThemeContext';
-import { useClerkAuth } from '@/hooks/useClerkAuth';
-import PageShell from '@/components/PageShell';
+import { useState, useCallback } from "react";
+import { useTheme } from "@/context/ThemeContext";
+import { useClerkAuth } from "@/hooks/useClerkAuth";
+import PageShell from "@/components/PageShell";
 import {
-  Folder, FileCode, Search, GitBranch, AlertCircle,
-  ChevronRight, ChevronDown, X, FileText, Settings,
-  ChevronLeft, ChevronRight as ChevronRightIcon,
-  Command, Cpu, FolderTree, Maximize2
-} from 'lucide-react';
+  Search,
+  GitBranch,
+  AlertCircle,
+  ChevronRight,
+  ChevronDown,
+  X,
+  Settings,
+  ChevronRight as ChevronRightIcon,
+  Command,
+  Cpu,
+  FolderTree,
+} from "lucide-react";
 import {
   DEMO_FILE_TREE,
-  DEMO_SEARCH_RESULTS,
   DEMO_ERRORS,
   getFileIcon,
   getFolderIcon,
@@ -21,12 +27,11 @@ import {
   searchFileTree,
   getFileByPath,
   type FileNode,
-  type CodeError,
-} from '@/lib/code-scanner';
+} from "@/lib/code-scanner";
 
 // Demo file content
 const DEMO_FILE_CONTENT: Record<string, string> = {
-  '/src/app/page.tsx': `'use client';
+  "/src/app/page.tsx": `'use client';
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
@@ -58,7 +63,7 @@ export default function HomePage() {
     </div>
   );
 }`,
-  '/src/lib/agents.ts': `export interface Agent {
+  "/src/lib/agents.ts": `export interface Agent {
   id: string;
   name: string;
   role: string;
@@ -101,7 +106,7 @@ export class AgentOrchestrator {
     };
   }
 }`,
-  '/package.json': `{
+  "/package.json": `{
   "name": "litlabs",
   "version": "2.0.0",
   "private": true,
@@ -143,7 +148,7 @@ function FileExplorer({
   const isSelected = selectedPath === node.path;
   const hasChildren = node.children && node.children.length > 0;
 
-  if (node.type === 'directory') {
+  if (node.type === "directory") {
     return (
       <div>
         <button
@@ -151,21 +156,31 @@ function FileExplorer({
           className="w-full flex items-center gap-1 px-2 py-1 text-left text-xs hover:bg-white/5 transition-colors"
           style={{
             paddingLeft: `${level * 12 + 8}px`,
-            backgroundColor: isSelected ? T.accentColor + '20' : 'transparent',
+            backgroundColor: isSelected ? T.accentColor + "20" : "transparent",
           }}
         >
           <span className="text-[10px] opacity-50">
-            {hasChildren ? (isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />) : ' ' }
+            {hasChildren ? (
+              isExpanded ? (
+                <ChevronDown size={12} />
+              ) : (
+                <ChevronRight size={12} />
+              )
+            ) : (
+              " "
+            )}
           </span>
           <span>{getFolderIcon(isExpanded)}</span>
-          <span style={{ color: isSelected ? T.accentColor : T.textColor }}>{node.name}</span>
+          <span style={{ color: isSelected ? T.accentColor : T.textColor }}>
+            {node.name}
+          </span>
         </button>
         {isExpanded && hasChildren && (
           <div>
             {node.children
               ?.sort((a, b) => {
-                if (a.type === 'directory' && b.type === 'file') return -1;
-                if (a.type === 'file' && b.type === 'directory') return 1;
+                if (a.type === "directory" && b.type === "file") return -1;
+                if (a.type === "file" && b.type === "directory") return 1;
                 return a.name.localeCompare(b.name);
               })
               .map((child) => (
@@ -191,44 +206,81 @@ function FileExplorer({
       className="w-full flex items-center gap-1 px-2 py-1 text-left text-xs hover:bg-white/5 transition-colors"
       style={{
         paddingLeft: `${level * 12 + 28}px`,
-        backgroundColor: isSelected ? T.accentColor + '20' : 'transparent',
+        backgroundColor: isSelected ? T.accentColor + "20" : "transparent",
       }}
     >
       <span>{getFileIcon(node.extension)}</span>
-      <span style={{ color: isSelected ? T.accentColor : T.textColor }}>{node.name}</span>
+      <span style={{ color: isSelected ? T.accentColor : T.textColor }}>
+        {node.name}
+      </span>
     </button>
   );
 }
 
 // Syntax highlighter (simplified)
-function SyntaxHighlighter({ code, extension }: { code: string; extension?: string }) {
+function SyntaxHighlighter({ code }: { code: string }) {
   const { resolvedColors: T } = useTheme();
-  
+
   // Simple syntax highlighting
-  const lines = code.split('\n');
-  
+  const lines = code.split("\n");
+
   return (
     <div className="font-mono text-xs leading-5">
       {lines.map((line, i) => (
         <div key={i} className="flex">
-          <span className="w-12 text-right pr-4 select-none opacity-30" style={{ color: T.textMuted }}>
+          <span
+            className="w-12 text-right pr-4 select-none opacity-30"
+            style={{ color: T.textMuted }}
+          >
             {i + 1}
           </span>
           <span style={{ color: T.textColor }}>
             {line.split(/(\s+)/).map((token, j) => {
               // Simple keyword highlighting
-              const keywords = ['import', 'export', 'const', 'let', 'var', 'function', 'class', 'interface', 'extends', 'return', 'if', 'else', 'for', 'while', 'async', 'await', 'try', 'catch', 'throw', 'new', 'this', 'typeof'];
+              const keywords = [
+                "import",
+                "export",
+                "const",
+                "let",
+                "var",
+                "function",
+                "class",
+                "interface",
+                "extends",
+                "return",
+                "if",
+                "else",
+                "for",
+                "while",
+                "async",
+                "await",
+                "try",
+                "catch",
+                "throw",
+                "new",
+                "this",
+                "typeof",
+              ];
               const isKeyword = keywords.includes(token);
-              const isString = token.startsWith('"') || token.startsWith("'") || token.startsWith('`');
-              const isComment = token.startsWith('//') || token.startsWith('/*') || token.startsWith('*');
+              const isString =
+                token.startsWith('"') ||
+                token.startsWith("'") ||
+                token.startsWith("`");
+              const isComment =
+                token.startsWith("//") ||
+                token.startsWith("/*") ||
+                token.startsWith("*");
               const isNumber = /^\d+$/.test(token);
-              
+
               let color = T.textColor;
-              if (isKeyword) color = '#ff7b72'; // pink
-              else if (isString) color = '#a5d6ff'; // blue
-              else if (isComment) color = '#8b949e'; // gray
-              else if (isNumber) color = '#79c0ff'; // light blue
-              
+              if (isKeyword)
+                color = "#ff7b72"; // pink
+              else if (isString)
+                color = "#a5d6ff"; // blue
+              else if (isComment)
+                color = "#8b949e"; // gray
+              else if (isNumber) color = "#79c0ff"; // light blue
+
               return (
                 <span key={j} style={{ color }}>
                   {token}
@@ -245,21 +297,27 @@ function SyntaxHighlighter({ code, extension }: { code: string; extension?: stri
 // Main Page
 export default function CodeScannerPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
-  const [selectedPath, setSelectedPath] = useState('/src/app/page.tsx');
-  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['/', '/src', '/src/app']));
-  const [sidebarView, setSidebarView] = useState<'explorer' | 'search' | 'git' | 'errors'>('explorer');
-  const [searchQuery, setSearchQuery] = useState('');
+  const { isLoaded } = useClerkAuth();
+  const [selectedPath, setSelectedPath] = useState("/src/app/page.tsx");
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
+    new Set(["/", "/src", "/src/app"]),
+  );
+  const [sidebarView, setSidebarView] = useState<
+    "explorer" | "search" | "git" | "errors"
+  >("explorer");
+  const [searchQuery, setSearchQuery] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(240);
   const [isResizing, setIsResizing] = useState(false);
 
   const selectedFile = getFileByPath(DEMO_FILE_TREE, selectedPath);
-  const fileContent = DEMO_FILE_CONTENT[selectedPath] || '// File content not available in demo mode';
+  const fileContent =
+    DEMO_FILE_CONTENT[selectedPath] ||
+    "// File content not available in demo mode";
   const totalFiles = countFiles(DEMO_FILE_TREE);
   const errorCount = DEMO_ERRORS.length;
 
   const handleToggleExpand = useCallback((path: string) => {
-    setExpandedPaths(prev => {
+    setExpandedPaths((prev) => {
       const next = new Set(prev);
       if (next.has(path)) {
         next.delete(path);
@@ -270,33 +328,48 @@ export default function CodeScannerPage() {
     });
   }, []);
 
-  const handleResize = useCallback((e: React.MouseEvent) => {
-    setIsResizing(true);
-    const startX = e.clientX;
-    const startWidth = sidebarWidth;
-    
-    const onMouseMove = (e: MouseEvent) => {
-      const newWidth = Math.max(180, Math.min(400, startWidth + e.clientX - startX));
-      setSidebarWidth(newWidth);
-    };
-    
-    const onMouseUp = () => {
-      setIsResizing(false);
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  }, [sidebarWidth]);
+  const handleResize = useCallback(
+    (e: React.MouseEvent) => {
+      setIsResizing(true);
+      const startX = e.clientX;
+      const startWidth = sidebarWidth;
 
-  const searchResults = searchQuery ? searchFileTree(DEMO_FILE_TREE, searchQuery) : [];
+      const onMouseMove = (e: MouseEvent) => {
+        const newWidth = Math.max(
+          180,
+          Math.min(400, startWidth + e.clientX - startX),
+        );
+        setSidebarWidth(newWidth);
+      };
+
+      const onMouseUp = () => {
+        setIsResizing(false);
+        document.removeEventListener("mousemove", onMouseMove);
+        document.removeEventListener("mouseup", onMouseUp);
+      };
+
+      document.addEventListener("mousemove", onMouseMove);
+      document.addEventListener("mouseup", onMouseUp);
+    },
+    [sidebarWidth],
+  );
+
+  const searchResults = searchQuery
+    ? searchFileTree(DEMO_FILE_TREE, searchQuery)
+    : [];
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: T?.bgColor }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: T?.bgColor }}
+      >
         <div className="text-center">
-          <Cpu className="animate-spin mx-auto mb-4" size={32} style={{ color: T?.accentColor }} />
+          <Cpu
+            className="animate-spin mx-auto mb-4"
+            size={32}
+            style={{ color: T?.accentColor }}
+          />
           <div>Loading Code Scanner...</div>
         </div>
       </div>
@@ -308,42 +381,57 @@ export default function CodeScannerPage() {
       title="Code Scanner"
       subtitle="VS Code-style codebase analysis"
       icon={<Command size={20} />}
-      fullWidth
     >
-      <div className="fixed inset-x-0 bottom-0 top-[140px] flex" style={{ backgroundColor: T.bgColor }}>
+      <div
+        className="fixed inset-x-0 bottom-0 top-[140px] flex"
+        style={{ backgroundColor: T.bgColor }}
+      >
         {/* Activity Bar */}
         <div
           className="w-12 flex flex-col items-center py-4 gap-4 border-r"
           style={{ backgroundColor: T.boxBg, borderColor: T.borderColor }}
         >
           <button
-            onClick={() => setSidebarView('explorer')}
-            className={`p-2 rounded transition-all ${sidebarView === 'explorer' ? 'opacity-100' : 'opacity-40'}`}
-            style={{ color: sidebarView === 'explorer' ? T.accentColor : T.textMuted }}
+            onClick={() => setSidebarView("explorer")}
+            className={`p-2 rounded transition-all ${sidebarView === "explorer" ? "opacity-100" : "opacity-40"}`}
+            style={{
+              color: sidebarView === "explorer" ? T.accentColor : T.textMuted,
+            }}
             title="Explorer"
           >
             <FolderTree size={24} />
           </button>
           <button
-            onClick={() => setSidebarView('search')}
-            className={`p-2 rounded transition-all ${sidebarView === 'search' ? 'opacity-100' : 'opacity-40'}`}
-            style={{ color: sidebarView === 'search' ? T.accentColor : T.textMuted }}
+            onClick={() => setSidebarView("search")}
+            className={`p-2 rounded transition-all ${sidebarView === "search" ? "opacity-100" : "opacity-40"}`}
+            style={{
+              color: sidebarView === "search" ? T.accentColor : T.textMuted,
+            }}
             title="Search"
           >
             <Search size={24} />
           </button>
           <button
-            onClick={() => setSidebarView('git')}
-            className={`p-2 rounded transition-all ${sidebarView === 'git' ? 'opacity-100' : 'opacity-40'}`}
-            style={{ color: sidebarView === 'git' ? T.accentColor : T.textMuted }}
+            onClick={() => setSidebarView("git")}
+            className={`p-2 rounded transition-all ${sidebarView === "git" ? "opacity-100" : "opacity-40"}`}
+            style={{
+              color: sidebarView === "git" ? T.accentColor : T.textMuted,
+            }}
             title="Source Control"
           >
             <GitBranch size={24} />
           </button>
           <button
-            onClick={() => setSidebarView('errors')}
-            className={`p-2 rounded transition-all relative ${sidebarView === 'errors' ? 'opacity-100' : 'opacity-40'}`}
-            style={{ color: sidebarView === 'errors' ? (errorCount > 0 ? '#f85149' : T.accentColor) : T.textMuted }}
+            onClick={() => setSidebarView("errors")}
+            className={`p-2 rounded transition-all relative ${sidebarView === "errors" ? "opacity-100" : "opacity-40"}`}
+            style={{
+              color:
+                sidebarView === "errors"
+                  ? errorCount > 0
+                    ? "#f85149"
+                    : T.accentColor
+                  : T.textMuted,
+            }}
             title="Problems"
           >
             <AlertCircle size={24} />
@@ -354,7 +442,11 @@ export default function CodeScannerPage() {
             )}
           </button>
           <div className="flex-1" />
-          <button className="p-2 rounded opacity-40 hover:opacity-100 transition-all" style={{ color: T.textMuted }} title="Settings">
+          <button
+            className="p-2 rounded opacity-40 hover:opacity-100 transition-all"
+            style={{ color: T.textMuted }}
+            title="Settings"
+          >
             <Settings size={24} />
           </button>
         </div>
@@ -362,24 +454,31 @@ export default function CodeScannerPage() {
         {/* Sidebar */}
         <div
           className="flex flex-col border-r"
-          style={{ width: sidebarWidth, backgroundColor: T.boxBg, borderColor: T.borderColor }}
+          style={{
+            width: sidebarWidth,
+            backgroundColor: T.boxBg,
+            borderColor: T.borderColor,
+          }}
         >
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider border-b" style={{ borderColor: T.borderColor }}>
+          <div
+            className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider border-b"
+            style={{ borderColor: T.borderColor }}
+          >
             <span style={{ color: T.textMuted }}>
-              {sidebarView === 'explorer' && 'Explorer'}
-              {sidebarView === 'search' && 'Search'}
-              {sidebarView === 'git' && 'Source Control'}
-              {sidebarView === 'errors' && 'Problems'}
+              {sidebarView === "explorer" && "Explorer"}
+              {sidebarView === "search" && "Search"}
+              {sidebarView === "git" && "Source Control"}
+              {sidebarView === "errors" && "Problems"}
             </span>
             <span className="opacity-50" style={{ color: T.textMuted }}>
-              {sidebarView === 'explorer' && `${totalFiles} files`}
+              {sidebarView === "explorer" && `${totalFiles} files`}
             </span>
           </div>
 
           {/* Sidebar Content */}
           <div className="flex-1 overflow-auto">
-            {sidebarView === 'explorer' && (
+            {sidebarView === "explorer" && (
               <div className="py-2">
                 <FileExplorer
                   node={DEMO_FILE_TREE}
@@ -391,10 +490,14 @@ export default function CodeScannerPage() {
               </div>
             )}
 
-            {sidebarView === 'search' && (
+            {sidebarView === "search" && (
               <div className="p-3">
                 <div className="relative mb-4">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2" size={14} style={{ color: T.textMuted }} />
+                  <Search
+                    className="absolute left-2 top-1/2 -translate-y-1/2"
+                    size={14}
+                    style={{ color: T.textMuted }}
+                  />
                   <input
                     type="text"
                     placeholder="Search files..."
@@ -415,24 +518,32 @@ export default function CodeScannerPage() {
                       >
                         <div className="flex items-center gap-1">
                           <span>{getFileIcon(result.extension)}</span>
-                          <span style={{ color: T.textColor }}>{result.name}</span>
+                          <span style={{ color: T.textColor }}>
+                            {result.name}
+                          </span>
                         </div>
                       </button>
                     ))}
                   </div>
                 ) : searchQuery ? (
-                  <div className="text-center py-4 text-xs opacity-50" style={{ color: T.textMuted }}>
+                  <div
+                    className="text-center py-4 text-xs opacity-50"
+                    style={{ color: T.textMuted }}
+                  >
                     No results found
                   </div>
                 ) : (
-                  <div className="text-xs opacity-50" style={{ color: T.textMuted }}>
+                  <div
+                    className="text-xs opacity-50"
+                    style={{ color: T.textMuted }}
+                  >
                     Type to search in files
                   </div>
                 )}
               </div>
             )}
 
-            {sidebarView === 'errors' && (
+            {sidebarView === "errors" && (
               <div className="p-3">
                 {DEMO_ERRORS.map((error, i) => (
                   <button
@@ -441,12 +552,26 @@ export default function CodeScannerPage() {
                     className="w-full text-left p-2 text-xs hover:bg-white/5 rounded mb-1"
                   >
                     <div className="flex items-start gap-2">
-                      <span style={{ color: error.severity === 'error' ? '#f85149' : error.severity === 'warning' ? '#e3b341' : '#8b949e' }}>
+                      <span
+                        style={{
+                          color:
+                            error.severity === "error"
+                              ? "#f85149"
+                              : error.severity === "warning"
+                                ? "#e3b341"
+                                : "#8b949e",
+                        }}
+                      >
                         <AlertCircle size={14} />
                       </span>
                       <div>
-                        <div style={{ color: T.textColor }}>{error.message}</div>
-                        <div className="text-[10px] opacity-50" style={{ color: T.textMuted }}>
+                        <div style={{ color: T.textColor }}>
+                          {error.message}
+                        </div>
+                        <div
+                          className="text-[10px] opacity-50"
+                          style={{ color: T.textMuted }}
+                        >
                           {error.path}:{error.line}:{error.column}
                         </div>
                       </div>
@@ -456,8 +581,11 @@ export default function CodeScannerPage() {
               </div>
             )}
 
-            {sidebarView === 'git' && (
-              <div className="p-3 text-xs opacity-50" style={{ color: T.textMuted }}>
+            {sidebarView === "git" && (
+              <div
+                className="p-3 text-xs opacity-50"
+                style={{ color: T.textMuted }}
+              >
                 <div className="flex items-center gap-2 mb-4">
                   <GitBranch size={14} />
                   <span>main</span>
@@ -472,7 +600,7 @@ export default function CodeScannerPage() {
 
           {/* Resizer */}
           <div
-            className={`absolute top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-500/30 transition-colors ${isResizing ? 'bg-cyan-500/50' : ''}`}
+            className={`absolute top-0 bottom-0 w-1 cursor-col-resize hover:bg-cyan-500/30 transition-colors ${isResizing ? "bg-cyan-500/50" : ""}`}
             style={{ left: `calc(48px + ${sidebarWidth}px - 2px)` }}
             onMouseDown={handleResize}
           />
@@ -481,7 +609,10 @@ export default function CodeScannerPage() {
         {/* Main Editor Area */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Tab Bar */}
-          <div className="flex items-center border-b overflow-x-auto" style={{ backgroundColor: T.boxBg, borderColor: T.borderColor }}>
+          <div
+            className="flex items-center border-b overflow-x-auto"
+            style={{ backgroundColor: T.boxBg, borderColor: T.borderColor }}
+          >
             <button
               className="flex items-center gap-2 px-4 py-2 text-xs border-r min-w-0"
               style={{
@@ -491,9 +622,11 @@ export default function CodeScannerPage() {
               }}
             >
               <span>{getFileIcon(selectedFile?.extension)}</span>
-              <span className="truncate" style={{ color: T.textColor }}>{selectedFile?.name || 'Untitled'}</span>
+              <span className="truncate" style={{ color: T.textColor }}>
+                {selectedFile?.name || "Untitled"}
+              </span>
               <button
-                onClick={() => setSelectedPath('')}
+                onClick={() => setSelectedPath("")}
                 className="ml-2 opacity-50 hover:opacity-100"
               >
                 <X size={12} />
@@ -502,38 +635,70 @@ export default function CodeScannerPage() {
           </div>
 
           {/* Breadcrumbs */}
-          <div className="flex items-center gap-1 px-4 py-1.5 text-[10px] border-b" style={{ backgroundColor: T.bgColor, borderColor: T.borderColor, color: T.textMuted }}>
+          <div
+            className="flex items-center gap-1 px-4 py-1.5 text-[10px] border-b"
+            style={{
+              backgroundColor: T.bgColor,
+              borderColor: T.borderColor,
+              color: T.textMuted,
+            }}
+          >
             <span>litlabs</span>
-            {selectedPath.split('/').filter(Boolean).map((part, i, arr) => (
-              <span key={i} className="flex items-center gap-1">
-                <ChevronRightIcon size={10} />
-                <span style={{ color: i === arr.length - 1 ? T.textColor : T.textMuted }}>{part}</span>
-              </span>
-            ))}
+            {selectedPath
+              .split("/")
+              .filter(Boolean)
+              .map((part, i, arr) => (
+                <span key={i} className="flex items-center gap-1">
+                  <ChevronRightIcon size={10} />
+                  <span
+                    style={{
+                      color: i === arr.length - 1 ? T.textColor : T.textMuted,
+                    }}
+                  >
+                    {part}
+                  </span>
+                </span>
+              ))}
           </div>
 
           {/* Code Editor */}
-          <div className="flex-1 overflow-auto p-4" style={{ backgroundColor: T.bgColor }}>
-            <SyntaxHighlighter code={fileContent} extension={selectedFile?.extension} />
+          <div
+            className="flex-1 overflow-auto p-4"
+            style={{ backgroundColor: T.bgColor }}
+          >
+            <SyntaxHighlighter code={fileContent} />
           </div>
 
           {/* Status Bar */}
-          <div className="flex items-center justify-between px-4 py-1 text-[10px] border-t" style={{ backgroundColor: T.accentColor + '10', borderColor: T.borderColor }}>
+          <div
+            className="flex items-center justify-between px-4 py-1 text-[10px] border-t"
+            style={{
+              backgroundColor: T.accentColor + "10",
+              borderColor: T.borderColor,
+            }}
+          >
             <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1" style={{ color: T.textMuted }}>
+              <span
+                className="flex items-center gap-1"
+                style={{ color: T.textMuted }}
+              >
                 <GitBranch size={12} /> main*
               </span>
               <span style={{ color: T.textMuted }}>
                 {errorCount > 0 ? (
-                  <span style={{ color: '#f85149' }}>⚠ {errorCount} problems</span>
+                  <span style={{ color: "#f85149" }}>
+                    ⚠ {errorCount} problems
+                  </span>
                 ) : (
-                  '✓ No problems'
+                  "✓ No problems"
                 )}
               </span>
             </div>
             <div className="flex items-center gap-4">
               {selectedFile?.size && (
-                <span style={{ color: T.textMuted }}>{formatFileSize(selectedFile.size)}</span>
+                <span style={{ color: T.textMuted }}>
+                  {formatFileSize(selectedFile.size)}
+                </span>
               )}
               <span style={{ color: T.textMuted }}>UTF-8</span>
               <span style={{ color: T.textMuted }}>TypeScript</span>

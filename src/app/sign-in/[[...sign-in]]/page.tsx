@@ -1,12 +1,19 @@
 import { SignIn } from "@clerk/nextjs";
+import Link from "next/link";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: "#0f0f14" }}>
+    <div
+      className="min-h-screen flex items-center justify-center px-4"
+      style={{ backgroundColor: "#0f0f14" }}
+    >
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="text-3xl mb-3">🚀</div>
-          <h1 className="text-xl font-black tracking-tight mb-1" style={{ color: "#e2e8f0" }}>
+          <h1
+            className="text-xl font-black tracking-tight mb-1"
+            style={{ color: "#e2e8f0" }}
+          >
             LiTree Labs
           </h1>
           <p className="text-xs opacity-50" style={{ color: "#94a3b8" }}>
@@ -14,7 +21,10 @@ export default function SignInPage() {
           </p>
         </div>
 
-        <div className="rounded-xl p-1" style={{ backgroundColor: "#1a1a24", border: "1px solid #2a2a3a" }}>
+        <div
+          className="rounded-xl p-1"
+          style={{ backgroundColor: "#1a1a24", border: "1px solid #2a2a3a" }}
+        >
           <SignIn
             fallbackRedirectUrl="/"
             signUpUrl="/sign-up"
@@ -66,9 +76,13 @@ export default function SignInPage() {
         </div>
 
         <div className="text-center mt-5">
-          <a href="/" className="text-[11px] opacity-50 hover:opacity-80 transition-opacity" style={{ color: "#94a3b8", textDecoration: "none" }}>
+          <Link
+            href="/"
+            className="text-[11px] opacity-50 hover:opacity-80 transition-opacity"
+            style={{ color: "#94a3b8", textDecoration: "none" }}
+          >
             ← Back to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

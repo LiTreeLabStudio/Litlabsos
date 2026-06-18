@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getUserWallet, updateWalletBalance, claimDailyBonus } from "@/lib/user-db";
+import {
+  getUserWallet,
+  updateWalletBalance,
+  claimDailyBonus,
+} from "@/lib/user-db";
 import { withRateLimit } from "@/lib/rate-limiter";
 
 /**
  * GET /api/wallet
  * Returns the user's LiTBit Coins wallet balance.
  */
-async function getHandler(req: NextRequest) {
+async function getHandler() {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -21,7 +25,10 @@ async function getHandler(req: NextRequest) {
       updated_at: wallet.updated_at,
     });
   } catch {
-    return NextResponse.json({ error: "Failed to fetch wallet" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch wallet" },
+      { status: 500 },
+    );
   }
 }
 
@@ -40,8 +47,11 @@ async function postHandler(req: NextRequest) {
     const body = await req.json().catch(() => null);
     if (!body || !body.type) {
       return NextResponse.json(
-        { error: "Invalid request. Use { type: 'daily' } or { type: 'spend', amount, reason }" },
-        { status: 400 }
+        {
+          error:
+            "Invalid request. Use { type: 'daily' } or { type: 'spend', amount, reason }",
+        },
+        { status: 400 },
       );
     }
 
@@ -49,17 +59,22 @@ async function postHandler(req: NextRequest) {
     if (body.type === "spend") {
       const amount = typeof body.amount === "number" ? body.amount : 0;
       if (amount <= 0) {
-        return NextResponse.json({ error: "amount must be a positive number" }, { status: 400 });
+        return NextResponse.json(
+          { error: "amount must be a positive number" },
+          { status: 400 },
+        );
       }
       const currentWallet = await getUserWallet(clerkId);
       const newBalance = currentWallet.balance - amount;
       if (newBalance < 0) {
         return NextResponse.json(
           { error: "Insufficient balance", balance: currentWallet.balance },
-          { status: 400 }
+          { status: 400 },
         );
       }
-      const wallet = await updateWalletBalance(clerkId, newBalance, { absolute: true });
+      const wallet = await updateWalletBalance(clerkId, newBalance, {
+        absolute: true,
+      });
       return NextResponse.json({
         message: `${amount} LiTBit Coins spent`,
         balance: wallet.balance,
@@ -71,7 +86,7 @@ async function postHandler(req: NextRequest) {
     if (body.type !== "daily") {
       return NextResponse.json(
         { error: "Invalid type. Use 'daily' or 'spend'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -82,13 +97,19 @@ async function postHandler(req: NextRequest) {
       last_claim_date: claimed.last_claim_date,
     });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Daily bonus already claimed") {
+    if (
+      error instanceof Error &&
+      error.message === "Daily bonus already claimed"
+    ) {
       return NextResponse.json(
         { error: "Daily bonus already claimed today" },
-        { status: 400 }
+        { status: 400 },
       );
     }
-    return NextResponse.json({ error: "Failed to claim bonus" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to claim bonus" },
+      { status: 500 },
+    );
   }
 }
 
@@ -105,39 +126,45 @@ async function putHandler(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => null);
-    
+
     if (!body || typeof body.amount !== "number") {
       return NextResponse.json(
         { error: "Invalid request. amount (number) is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const currentWallet = await getUserWallet(clerkId);
     const newBalance = currentWallet.balance + body.amount;
-    
+
     if (newBalance < 0) {
       return NextResponse.json(
-        { error: "Insufficient balance", currentBalance: currentWallet.balance },
-        { status: 400 }
+        {
+          error: "Insufficient balance",
+          currentBalance: currentWallet.balance,
+        },
+        { status: 400 },
       );
     }
 
-    const wallet = await updateWalletBalance(clerkId, newBalance, { absolute: true });
+    const wallet = await updateWalletBalance(clerkId, newBalance, {
+      absolute: true,
+    });
 
     return NextResponse.json({
-      message: body.amount > 0 
-        ? `+${body.amount} LiTBit Coins added` 
-        : `${Math.abs(body.amount)} LiTBit Coins deducted`,
+      message:
+        body.amount > 0
+          ? `+${body.amount} LiTBit Coins added`
+          : `${Math.abs(body.amount)} LiTBit Coins deducted`,
       balance: wallet.balance,
       previousBalance: currentWallet.balance,
       change: body.amount,
     });
-  } catch (error) {
+  } catch {
     // Error updating wallet:
     return NextResponse.json(
       { error: "Failed to update wallet" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

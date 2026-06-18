@@ -1,5 +1,14 @@
 "use client";
 
+interface Notification {
+  id: string;
+  read_at?: string | null;
+  created_at?: string;
+  users?: { name?: string } | null;
+  content?: string;
+  [key: string]: unknown;
+}
+
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -56,12 +65,15 @@ const userLinks = [
 function WalletBadge({ accentColor }: { accentColor: string }) {
   const [balance, setBalance] = useState<number | null>(null);
   useEffect(() => {
-    fetch("/api/wallet")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.balance !== undefined) setBalance(data.balance);
-      })
-      .catch(() => setBalance(null));
+    const id = requestAnimationFrame(() => {
+      fetch("/api/wallet")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.balance !== undefined) setBalance(data.balance);
+        })
+        .catch(() => setBalance(null));
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
   return (
     <span
@@ -78,17 +90,6 @@ function WalletBadge({ accentColor }: { accentColor: string }) {
   );
 }
 
-function useLocalStorageNumber(key: string, fallback: number) {
-  const [val, setVal] = useState(fallback);
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(key);
-      if (raw) setVal(Number(raw));
-    } catch {}
-  }, [key]);
-  return val;
-}
-
 export default function Navbar() {
   const { theme, resolvedColors, setMode } = useTheme();
   const { profile } = useProfile();
@@ -97,32 +98,15 @@ export default function Navbar() {
   const hamburgerRef = useRef<HTMLButtonElement>(null);
   const [userOpen, setUserOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const userRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-  const litcoins = useLocalStorageNumber("litcoins", 500);
   const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useClerkAuth();
   const { isLoaded: sessionLoaded, isSignedIn: sessionSignedIn } =
     useSessionAuth();
   const authLoaded = clerkLoaded || sessionLoaded;
   const isSignedIn = clerkSignedIn || sessionSignedIn;
-
-  const fetchNotifications = async () => {
-    if (!isSignedIn) return;
-    try {
-      const [listRes, countRes] = await Promise.all([
-        fetch("/api/notifications?limit=20"),
-        fetch("/api/notifications/count"),
-      ]);
-      const listData = await listRes.json();
-      const countData = await countRes.json();
-      setNotifications(listData.notifications || []);
-      setUnreadCount(countData.count || 0);
-    } catch {
-      /* ignore */
-    }
-  };
 
   const markAllRead = async () => {
     try {
@@ -141,11 +125,27 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    if (isSignedIn) {
-      fetchNotifications();
-      const interval = setInterval(fetchNotifications, 15000);
-      return () => clearInterval(interval);
-    }
+    if (!isSignedIn) return;
+    const fetchNotifications = async () => {
+      try {
+        const [listRes, countRes] = await Promise.all([
+          fetch("/api/notifications?limit=20"),
+          fetch("/api/notifications/count"),
+        ]);
+        const listData = await listRes.json();
+        const countData = await countRes.json();
+        setNotifications(listData.notifications || []);
+        setUnreadCount(countData.count || 0);
+      } catch {
+        /* ignore */
+      }
+    };
+    const id = requestAnimationFrame(() => fetchNotifications());
+    const interval = setInterval(fetchNotifications, 15000);
+    return () => {
+      cancelAnimationFrame(id);
+      clearInterval(interval);
+    };
   }, [isSignedIn]);
 
   /* Close dropdowns on outside click + close mobile drawer on desktop resize */
@@ -167,13 +167,16 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClick);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [mobileOpen]);
 
   /* Close mobile menu on route change */
   useEffect(() => {
-    setMobileOpen(false);
-    setUserOpen(false);
-    setNotifOpen(false);
+    const id = requestAnimationFrame(() => {
+      setMobileOpen(false);
+      setUserOpen(false);
+      setNotifOpen(false);
+    });
+    return () => cancelAnimationFrame(id);
   }, [pathname]);
 
   const isActive = (href: string) =>
@@ -284,7 +287,7 @@ export default function Navbar() {
                   setNotifOpen((v) => !v);
                   if (!notifOpen && unreadCount > 0) markAllRead();
                 }}
-                className="p-1.5 rounded-md transition-all duration-200 hover:scale-110 relative"
+                className="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 hover:scale-110 relative"
                 style={{
                   border: `1px solid ${resolvedColors.accentColor}30`,
                   color: resolvedColors.accentColor,
@@ -292,7 +295,7 @@ export default function Navbar() {
                 }}
                 title="Notifications"
               >
-                <Bell size={14} />
+                <Bell size={16} />
                 {unreadCount > 0 && (
                   <span
                     className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] rounded-full flex items-center justify-center text-[8px] font-black px-1"
@@ -391,7 +394,7 @@ export default function Navbar() {
                   ? "Switch to light mode"
                   : "Switch to dark mode"
               }
-              className="p-1.5 rounded-md transition-all duration-200 hover:scale-110"
+              className="w-9 h-9 flex items-center justify-center rounded-lg transition-all duration-200 hover:scale-110"
               style={{
                 border: `1px solid ${resolvedColors.accentColor}30`,
                 color: resolvedColors.accentColor,
@@ -399,7 +402,7 @@ export default function Navbar() {
               }}
               title="Toggle dark/light"
             >
-              {theme.mode === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+              {theme.mode === "dark" ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
             {/* User dropdown (profile/settings links) — desktop, signed-in only */}
@@ -409,7 +412,7 @@ export default function Navbar() {
                   onClick={() => setUserOpen((v) => !v)}
                   aria-label="Navigation menu"
                   aria-expanded={userOpen}
-                  className="flex items-center gap-1.5 px-2 py-1 rounded-lg transition-all hover:opacity-80"
+                  className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg transition-all hover:opacity-80"
                   style={{
                     border: `1px solid ${resolvedColors.borderColor}30`,
                     backgroundColor: resolvedColors.boxBg + "60",
@@ -417,14 +420,17 @@ export default function Navbar() {
                   title="Menu"
                 >
                   {profile?.avatarUrl ? (
-                    <img
-                      src={profile.avatarUrl}
-                      alt="Profile"
-                      className="w-5 h-5 rounded-full object-cover"
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={profile.avatarUrl}
+                        alt="Profile"
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    </>
                   ) : (
                     <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black"
+                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
                       style={{
                         backgroundColor: resolvedColors.accentColor + "30",
                         color: resolvedColors.accentColor,
@@ -434,7 +440,7 @@ export default function Navbar() {
                     </div>
                   )}
                   <ChevronDown
-                    size={10}
+                    size={12}
                     style={{ color: resolvedColors.textMuted }}
                   />
                 </button>
@@ -478,10 +484,10 @@ export default function Navbar() {
               }}
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
-              className="lg:hidden p-1.5 rounded-md"
+              className="lg:hidden w-9 h-9 flex items-center justify-center rounded-lg"
               style={{ color: resolvedColors.linkColor }}
             >
-              {mobileOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -516,7 +522,7 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-3 px-4 py-3.5 text-sm font-bold rounded-xl transition-all active:scale-95"
+                    className="flex items-center gap-3 px-4 py-4 text-sm font-bold rounded-xl transition-all active:scale-95"
                     style={{
                       color: active
                         ? resolvedColors.bgColor
@@ -529,7 +535,7 @@ export default function Navbar() {
                         : "none",
                     }}
                   >
-                    <Icon size={18} />
+                    <Icon size={20} />
                     {link.label}
                   </Link>
                 );
@@ -551,7 +557,7 @@ export default function Navbar() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="flex items-center gap-3 px-4 py-3 text-sm font-bold rounded-xl transition-all active:scale-95"
+                      className="flex items-center gap-3 px-4 py-4 text-sm font-bold rounded-xl transition-all active:scale-95"
                       style={{
                         color: active
                           ? resolvedColors.headerColor
@@ -561,7 +567,7 @@ export default function Navbar() {
                           : resolvedColors.boxBg + "80",
                       }}
                     >
-                      <Icon size={18} />
+                      <Icon size={20} />
                       {link.label}
                     </Link>
                   );

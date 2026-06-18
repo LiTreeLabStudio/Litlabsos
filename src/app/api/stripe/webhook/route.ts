@@ -1,9 +1,16 @@
 // Stripe webhook handler — credits wallet on coin pack purchases
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import {
+  getAdminSupabase,
+  isAdminSupabaseConfigured,
+} from "@/lib/supabase-admin";
 
-async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: string) {
+async function creditCoinPack(
+  clerkId: string,
+  coinAmount: number,
+  sessionId: string,
+) {
   if (!isAdminSupabaseConfigured()) {
     // Supabase not configured — skipping wallet credit
     return;
@@ -11,17 +18,28 @@ async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: st
   try {
     const sb = getAdminSupabase();
     // Find user
-    const { data: user } = await sb.from("users").select("id").eq("clerk_id", clerkId).single();
+    const { data: user } = await sb
+      .from("users")
+      .select("id")
+      .eq("clerk_id", clerkId)
+      .single();
     if (!user) {
       // User not found for clerk_id — skip
       return;
     }
     // Get current wallet
-    const { data: wallet } = await sb.from("wallets").select("balance").eq("user_id", user.id).single();
+    const { data: wallet } = await sb
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", user.id)
+      .single();
     const currentBalance = wallet?.balance || 0;
     const newBalance = currentBalance + coinAmount;
     // Update wallet
-    await sb.from("wallets").update({ balance: newBalance, updated_at: new Date().toISOString() }).eq("user_id", user.id);
+    await sb
+      .from("wallets")
+      .update({ balance: newBalance, updated_at: new Date().toISOString() })
+      .eq("user_id", user.id);
     // Record transaction
     await sb.from("transactions").insert({
       user_id: user.id,
@@ -32,7 +50,7 @@ async function creditCoinPack(clerkId: string, coinAmount: number, sessionId: st
       metadata: { stripe_session_id: sessionId },
     });
     // Credited coins — balance updated
-  } catch (err) {
+  } catch {
     // Failed to credit coin pack — log to error tracking service in production
   }
 }
@@ -62,7 +80,10 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     // Webhook signature verification failed — reject
-    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
+    return NextResponse.json(
+      { error: `Webhook Error: ${message}` },
+      { status: 400 },
+    );
   }
 
   // Process event
@@ -80,27 +101,23 @@ export async function POST(req: NextRequest) {
     }
     case "customer.subscription.created":
     case "customer.subscription.updated": {
-      const sub = event.data.object as Stripe.Subscription;
       // Subscription event
       break;
     }
     case "customer.subscription.deleted": {
-      const sub = event.data.object as Stripe.Subscription;
       // Subscription cancelled
       break;
     }
     case "invoice.payment_succeeded": {
-      const invoice = event.data.object as Stripe.Invoice;
       // Payment succeeded
       break;
     }
     case "invoice.payment_failed": {
-      const invoice = event.data.object as Stripe.Invoice;
       // Payment failed
       break;
     }
     default:
-      // Unhandled event type
+    // Unhandled event type
   }
 
   return NextResponse.json({ received: true });

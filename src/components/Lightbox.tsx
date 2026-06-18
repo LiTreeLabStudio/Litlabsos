@@ -2,7 +2,6 @@
 
 import { useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Download, Share2 } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
 
 interface LightboxProps {
   images: { src: string; alt?: string; caption?: string }[];
@@ -21,8 +20,6 @@ export default function Lightbox({
   onNext,
   onPrev,
 }: LightboxProps) {
-  const { resolvedColors: T } = useTheme();
-
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -30,7 +27,7 @@ export default function Lightbox({
       if (e.key === "ArrowRight") onNext();
       if (e.key === "ArrowLeft") onPrev();
     },
-    [isOpen, onClose, onNext, onPrev]
+    [isOpen, onClose, onNext, onPrev],
   );
 
   useEffect(() => {
@@ -96,6 +93,7 @@ export default function Lightbox({
         className="relative max-w-[90vw] max-h-[80vh] flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={current.src}
           alt={current.alt || "Gallery image"}

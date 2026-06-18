@@ -1,7 +1,7 @@
 // JARVIS Codebase Scanner
 // Reads key project files and returns a structured summary
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { promises as fs } from "fs";
 import { execSync } from "child_process";
@@ -97,7 +97,7 @@ async function scanDirectory(
   return results;
 }
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   const { userId } = await auth();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

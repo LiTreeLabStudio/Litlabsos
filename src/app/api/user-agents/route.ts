@@ -5,23 +5,22 @@ import { supabase } from "@/lib/supabase";
 import { withRateLimit } from "@/lib/rate-limiter";
 
 // GET: List user's installed agents
-async function getHandler(req: NextRequest) {
+async function getHandler() {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
+
     const { data: userAgents, error } = await supabase
       .from("user_agents")
-      .select(`
+      .select(
+        `
         *,
         agent:agent_id (*)
-      `)
+      `,
+      )
       .eq("user_id", userId)
       .eq("is_active", true);
 
@@ -29,7 +28,7 @@ async function getHandler(req: NextRequest) {
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to fetch user agents" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -37,11 +36,11 @@ async function getHandler(req: NextRequest) {
       agents: userAgents || [],
       total: userAgents?.length || 0,
     });
-  } catch (error) {
+  } catch {
     // Error fetching user agents:
     return NextResponse.json(
       { error: "Failed to fetch user agents" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -50,22 +49,16 @@ async function getHandler(req: NextRequest) {
 async function postHandler(req: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { agentId } = body;
-    
+
     if (!agentId) {
-      return NextResponse.json(
-        { error: "Missing agentId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
     }
 
     // Check if agent exists and is public
@@ -79,7 +72,7 @@ async function postHandler(req: NextRequest) {
     if (agentError || !agent) {
       return NextResponse.json(
         { error: "Agent not found or not available" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -94,7 +87,7 @@ async function postHandler(req: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { message: "Agent already in your dock", userAgent: existing },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -113,7 +106,7 @@ async function postHandler(req: NextRequest) {
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to install agent" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -121,11 +114,11 @@ async function postHandler(req: NextRequest) {
       message: `Installed ${agent.name} to your dock`,
       userAgent: userAgent,
     });
-  } catch (error) {
+  } catch {
     // Error installing agent:
     return NextResponse.json(
       { error: "Failed to install agent" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -134,22 +127,16 @@ async function postHandler(req: NextRequest) {
 async function deleteHandler(req: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
     const agentId = searchParams.get("agentId");
-    
+
     if (!agentId) {
-      return NextResponse.json(
-        { error: "Missing agentId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
     }
 
     const { error } = await supabase
@@ -162,18 +149,18 @@ async function deleteHandler(req: NextRequest) {
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to remove agent" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json({
       message: "Agent removed from dock",
     });
-  } catch (error) {
+  } catch {
     // Error removing agent:
     return NextResponse.json(
       { error: "Failed to remove agent" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

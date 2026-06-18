@@ -8,26 +8,25 @@ import { withRateLimit } from "@/lib/rate-limiter";
 async function getHandler(req: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
     const agentId = searchParams.get("agentId");
-    
+
     let query = supabase
       .from("conversations")
-      .select(`
+      .select(
+        `
         *,
         agent:agent_id (*)
-      `)
+      `,
+      )
       .eq("user_id", userId)
       .order("updated_at", { ascending: false });
-    
+
     if (agentId) {
       query = query.eq("agent_id", agentId);
     }
@@ -38,7 +37,7 @@ async function getHandler(req: NextRequest) {
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to fetch conversations" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -46,11 +45,11 @@ async function getHandler(req: NextRequest) {
       conversations: conversations || [],
       total: conversations?.length || 0,
     });
-  } catch (error) {
+  } catch {
     // Error fetching conversations:
     return NextResponse.json(
       { error: "Failed to fetch conversations" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -59,28 +58,22 @@ async function getHandler(req: NextRequest) {
 async function postHandler(req: NextRequest) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
     const { agentId, title } = body;
-    
+
     if (!agentId) {
-      return NextResponse.json(
-        { error: "Missing agentId" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing agentId" }, { status: 400 });
     }
 
     // Verify user owns this agent
-    const { data: userAgent } = await supabase
+    await supabase
       .from("user_agents")
-      .select("*")
+      .select("id")
       .eq("user_id", userId)
       .eq("agent_id", agentId)
       .single();
@@ -92,7 +85,7 @@ async function postHandler(req: NextRequest) {
       .eq("id", agentId)
       .single();
 
-    const conversationTitle = title || `Chat with ${agent?.name || 'Agent'}`;
+    const conversationTitle = title || `Chat with ${agent?.name || "Agent"}`;
 
     const { data: conversation, error } = await supabase
       .from("conversations")
@@ -108,7 +101,7 @@ async function postHandler(req: NextRequest) {
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to create conversation" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -116,11 +109,11 @@ async function postHandler(req: NextRequest) {
       conversation,
       message: "Conversation created",
     });
-  } catch (error) {
+  } catch {
     // Error creating conversation:
     return NextResponse.json(
       { error: "Failed to create conversation" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

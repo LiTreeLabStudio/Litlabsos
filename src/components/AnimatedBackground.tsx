@@ -4,10 +4,13 @@ import { useEffect, useRef } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
 interface Orb {
-  x: number; y: number;
-  baseX: number; baseY: number;
+  x: number;
+  y: number;
+  baseX: number;
+  baseY: number;
   radius: number;
-  vx: number; vy: number;
+  vx: number;
+  vy: number;
   hue: number;
   hueSpeed: number;
   pulse: number;
@@ -26,7 +29,8 @@ interface AuroraRibbon {
 }
 
 interface Sparkle {
-  x: number; y: number;
+  x: number;
+  y: number;
   size: number;
   alpha: number;
   targetAlpha: number;
@@ -34,15 +38,22 @@ interface Sparkle {
   hue: number;
 }
 
-export type BackgroundMode = "constellation" | "nebula" | "waves" | "minimal" | "holo";
+export type BackgroundMode =
+  | "constellation"
+  | "nebula"
+  | "waves"
+  | "minimal"
+  | "holo";
 
-export default function AnimatedBackground({ mode = "holo" }: { mode?: BackgroundMode }) {
+export default function AnimatedBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const scanlineRef = useRef<HTMLDivElement>(null);
-  const noiseRef = useRef<HTMLDivElement>(null);
   const { resolvedColors } = useTheme();
   const colorsRef = useRef(resolvedColors);
-  colorsRef.current = resolvedColors;
+
+  useEffect(() => {
+    colorsRef.current = resolvedColors;
+  }, [resolvedColors]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -54,7 +65,8 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let animId: number;
-    let w = 0, h = 0;
+    let w = 0,
+      h = 0;
     let time = 0;
     let lastFrame = 0;
     const FRAME_INTERVAL = 1000 / 30; // throttle to 30fps
@@ -74,27 +86,44 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
       return { r, g, b };
     }
     function rgbToHsl(r: number, g: number, b: number) {
-      r /= 255; g /= 255; b /= 255;
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h = 0, s = 0, l = (max + min) / 2;
+      r /= 255;
+      g /= 255;
+      b /= 255;
+      const max = Math.max(r, g, b),
+        min = Math.min(r, g, b);
+      let h = 0,
+        s = 0;
+      const l = (max + min) / 2;
       if (max !== min) {
         const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
+          case r:
+            h = (g - b) / d + (g < b ? 6 : 0);
+            break;
+          case g:
+            h = (b - r) / d + 2;
+            break;
+          case b:
+            h = (r - g) / d + 4;
+            break;
         }
         h /= 6;
       }
       return { h: h * 360, s: s * 100, l: l * 100 };
     }
     function hslToRgb(h: number, s: number, l: number) {
-      s /= 100; l /= 100;
+      s /= 100;
+      l /= 100;
       const k = (n: number) => (n + h / 30) % 12;
       const a = s * Math.min(l, 1 - l);
-      const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-      return { r: Math.round(f(0) * 255), g: Math.round(f(8) * 255), b: Math.round(f(4) * 255) };
+      const f = (n: number) =>
+        l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return {
+        r: Math.round(f(0) * 255),
+        g: Math.round(f(8) * 255),
+        b: Math.round(f(4) * 255),
+      };
     }
 
     /* ── Resize ── */
@@ -143,7 +172,11 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         const pts = 12;
         const points = [];
         for (let p = 0; p <= pts; p++) {
-          points.push({ x: (p / pts) * w, y: 0, offset: Math.random() * Math.PI * 2 });
+          points.push({
+            x: (p / pts) * w,
+            y: 0,
+            offset: Math.random() * Math.PI * 2,
+          });
         }
         auroras.push({
           points,
@@ -199,9 +232,22 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
 
       // Mouse spotlight (soft radial glow)
       if (mouse.x > -100) {
-        const spot = ctx!.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 350);
-        spot.addColorStop(0, `rgba(${linkRgb.r},${linkRgb.g},${linkRgb.b},0.06)`);
-        spot.addColorStop(0.5, `rgba(${accentRgb.r},${accentRgb.g},${accentRgb.b},0.02)`);
+        const spot = ctx!.createRadialGradient(
+          mouse.x,
+          mouse.y,
+          0,
+          mouse.x,
+          mouse.y,
+          350,
+        );
+        spot.addColorStop(
+          0,
+          `rgba(${linkRgb.r},${linkRgb.g},${linkRgb.b},0.06)`,
+        );
+        spot.addColorStop(
+          0.5,
+          `rgba(${accentRgb.r},${accentRgb.g},${accentRgb.b},0.02)`,
+        );
         spot.addColorStop(1, "transparent");
         ctx!.fillStyle = spot;
         ctx!.fillRect(0, 0, w, h);
@@ -217,7 +263,8 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         ctx!.beginPath();
         for (let i = 0; i < aurora.points.length; i++) {
           const pt = aurora.points[i];
-          const wave = Math.sin(pt.offset + time * aurora.speed * 0.01) * aurora.amplitude;
+          const wave =
+            Math.sin(pt.offset + time * aurora.speed * 0.01) * aurora.amplitude;
           const y = aurora.yBase + wave + Math.sin(time * 0.003 + i) * 20;
           if (i === 0) ctx!.moveTo(pt.x, y);
           else ctx!.lineTo(pt.x, y);
@@ -230,7 +277,8 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         ctx!.beginPath();
         for (let i = 0; i < aurora.points.length; i++) {
           const pt = aurora.points[i];
-          const wave = Math.sin(pt.offset + time * aurora.speed * 0.01) * aurora.amplitude;
+          const wave =
+            Math.sin(pt.offset + time * aurora.speed * 0.01) * aurora.amplitude;
           const y = aurora.yBase + wave + Math.sin(time * 0.003 + i) * 20;
           if (i === 0) ctx!.moveTo(pt.x, y);
           else ctx!.lineTo(pt.x, y);
@@ -257,7 +305,14 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         const rgb = hslToRgb(orb.hue, 70, 55);
 
         // Outer glow
-        const grad = ctx!.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, r * 3);
+        const grad = ctx!.createRadialGradient(
+          orb.x,
+          orb.y,
+          0,
+          orb.x,
+          orb.y,
+          r * 3,
+        );
         grad.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},0.25)`);
         grad.addColorStop(0.4, `rgba(${rgb.r},${rgb.g},${rgb.b},0.08)`);
         grad.addColorStop(1, "transparent");
@@ -265,7 +320,14 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         ctx!.fillRect(orb.x - r * 3, orb.y - r * 3, r * 6, r * 6);
 
         // Core orb
-        const core = ctx!.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, r);
+        const core = ctx!.createRadialGradient(
+          orb.x,
+          orb.y,
+          0,
+          orb.x,
+          orb.y,
+          r,
+        );
         core.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},0.5)`);
         core.addColorStop(0.5, `rgba(${rgb.r},${rgb.g},${rgb.b},0.15)`);
         core.addColorStop(1, "transparent");
@@ -291,8 +353,18 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
 
       // ── Subtle grid overlay (fades at edges) ──
       ctx!.globalCompositeOperation = "source-over";
-      const gridGrad = ctx!.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h) * 0.7);
-      gridGrad.addColorStop(0, `rgba(${linkRgb.r},${linkRgb.g},${linkRgb.b},0.02)`);
+      const gridGrad = ctx!.createRadialGradient(
+        w / 2,
+        h / 2,
+        0,
+        w / 2,
+        h / 2,
+        Math.max(w, h) * 0.7,
+      );
+      gridGrad.addColorStop(
+        0,
+        `rgba(${linkRgb.r},${linkRgb.g},${linkRgb.b},0.02)`,
+      );
       gridGrad.addColorStop(1, "transparent");
       ctx!.fillStyle = gridGrad;
       ctx!.fillRect(0, 0, w, h);
@@ -354,7 +426,8 @@ export default function AnimatedBackground({ mode = "holo" }: { mode?: Backgroun
         ref={scanlineRef}
         className="fixed inset-0 pointer-events-none z-[1]"
         style={{
-          background: "repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)",
+          background:
+            "repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)",
           backgroundSize: "100% 4px",
           opacity: 0.25,
         }}

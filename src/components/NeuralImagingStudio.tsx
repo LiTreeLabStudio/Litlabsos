@@ -9,12 +9,42 @@ interface GeneratedImage {
 }
 
 const PROVIDERS = [
-  { id: "pollinations", name: "Pollinations (Free)", cost: "FREE", description: "FLUX + SDXL, works without API key · FREE" },
-  { id: "gemini", name: "Gemini (Imagen 3)", cost: "1", description: "Google Imagen 3, needs GEMINI_API_KEY · 1 🪙" },
-  { id: "together", name: "Together.ai (FLUX)", cost: "2", description: "FLUX.1 Schnell, needs TOGETHER_API_KEY · 2 🪙" },
-  { id: "fal", name: "FAL.ai (FLUX Pro)", cost: "3", description: "FLUX.1 Pro, needs FAL_KEY · 3 🪙" },
-  { id: "openai", name: "OpenAI (DALL-E 3)", cost: "5", description: "DALL-E 3 photorealistic, needs OPENAI_API_KEY · 5 🪙" },
-  { id: "recraft", name: "Recraft (Vector)", cost: "3", description: "SVG/vector art, needs RECRAFT_API_KEY · 3 🪙" },
+  {
+    id: "pollinations",
+    name: "Pollinations (Free)",
+    cost: "FREE",
+    description: "FLUX + SDXL, works without API key · FREE",
+  },
+  {
+    id: "gemini",
+    name: "Gemini (Imagen 3)",
+    cost: "1",
+    description: "Google Imagen 3, needs GEMINI_API_KEY · 1 🪙",
+  },
+  {
+    id: "together",
+    name: "Together.ai (FLUX)",
+    cost: "2",
+    description: "FLUX.1 Schnell, needs TOGETHER_API_KEY · 2 🪙",
+  },
+  {
+    id: "fal",
+    name: "FAL.ai (FLUX Pro)",
+    cost: "3",
+    description: "FLUX.1 Pro, needs FAL_KEY · 3 🪙",
+  },
+  {
+    id: "openai",
+    name: "OpenAI (DALL-E 3)",
+    cost: "5",
+    description: "DALL-E 3 photorealistic, needs OPENAI_API_KEY · 5 🪙",
+  },
+  {
+    id: "recraft",
+    name: "Recraft (Vector)",
+    cost: "3",
+    description: "SVG/vector art, needs RECRAFT_API_KEY · 3 🪙",
+  },
 ];
 
 const ASPECT_RATIOS = [
@@ -47,12 +77,15 @@ export default function NeuralImagingStudio() {
   const [error, setError] = useState<string | null>(null);
 
   // Use useCallback for stable handler
-  const handlePromptChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
-    console.log("Prompt changed:", newValue.length, "chars");
-    setPrompt(newValue);
-    setError(null);
-  }, []);
+  const handlePromptChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
+      console.log("Prompt changed:", newValue.length, "chars");
+      setPrompt(newValue);
+      setError(null);
+    },
+    [],
+  );
 
   const charCount = prompt?.length || 0;
   const isValidPrompt = charCount >= 3;
@@ -65,7 +98,7 @@ export default function NeuralImagingStudio() {
 
     setIsGenerating(true);
     setError(null);
-    
+
     try {
       console.log("Generating with prompt:", prompt);
       const response = await fetch("/api/studio/generate", {
@@ -94,13 +127,13 @@ export default function NeuralImagingStudio() {
     } catch (err) {
       console.error("Generation failed:", err);
       setError(err instanceof Error ? err.message : "Generation failed");
-      
+
       // Fallback to pollinations
       const { width, height } = (() => {
         const [w, h] = selectedRatio.split(":").map(Number);
         return { width: w * 100, height: h * 100 };
       })();
-      
+
       const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}`;
       const images = Array.from({ length: batchSize }, (_, i) => ({
         url: fallbackUrl + (batchSize > 1 ? `&index=${i}` : ""),
@@ -123,8 +156,12 @@ export default function NeuralImagingStudio() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Neural Imaging Studio</h1>
-        <p className="text-sm text-zinc-500">Generate images with multiple AI providers</p>
+        <h1 className="text-2xl font-bold text-white mb-1">
+          Neural Imaging Studio
+        </h1>
+        <p className="text-sm text-zinc-500">
+          Generate images with multiple AI providers
+        </p>
       </div>
 
       {error && (
@@ -138,7 +175,9 @@ export default function NeuralImagingStudio() {
         <div className="lg:col-span-1 space-y-5">
           {/* Prompt Input */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-400 mb-2">Your Vision</label>
+            <label className="block text-xs font-semibold text-zinc-400 mb-2">
+              Your Vision
+            </label>
             <textarea
               value={prompt}
               onChange={handlePromptChange}
@@ -147,8 +186,12 @@ export default function NeuralImagingStudio() {
               disabled={isGenerating}
             />
             <div className="flex justify-between items-center mt-2">
-              <div className={`text-xs ${charCount < 3 ? "text-red-400" : "text-green-400"}`}>
-                {charCount < 3 ? "⚠️ Too short — describe the scene in detail" : "✓ Good prompt"}
+              <div
+                className={`text-xs ${charCount < 3 ? "text-red-400" : "text-green-400"}`}
+              >
+                {charCount < 3
+                  ? "⚠️ Too short — describe the scene in detail"
+                  : "✓ Good prompt"}
               </div>
               <span className="text-xs text-zinc-400 font-mono">
                 {charCount} chars {charCount >= 3 ? "✓" : "(min 3)"}
@@ -158,7 +201,9 @@ export default function NeuralImagingStudio() {
 
           {/* Quick Starters */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-400 mb-2">Quick Starters</label>
+            <label className="block text-xs font-semibold text-zinc-400 mb-2">
+              Quick Starters
+            </label>
             <div className="grid grid-cols-1 gap-1.5 max-h-48 overflow-y-auto">
               {QUICK_STARTERS.map((starter, idx) => (
                 <button
@@ -174,7 +219,9 @@ export default function NeuralImagingStudio() {
 
           {/* Provider Selection */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-400 mb-2">Provider</label>
+            <label className="block text-xs font-semibold text-zinc-400 mb-2">
+              Provider
+            </label>
             <div className="space-y-1.5">
               {PROVIDERS.map((provider) => (
                 <button
@@ -187,12 +234,20 @@ export default function NeuralImagingStudio() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium">{provider.name}</span>
-                    <span className={`text-xs font-mono ${provider.cost === "FREE" ? "text-green-400" : "text-orange-400"}`}>
-                      {provider.cost === "FREE" ? "FREE" : `${provider.cost} 🪙`}
+                    <span className="text-white font-medium">
+                      {provider.name}
+                    </span>
+                    <span
+                      className={`text-xs font-mono ${provider.cost === "FREE" ? "text-green-400" : "text-orange-400"}`}
+                    >
+                      {provider.cost === "FREE"
+                        ? "FREE"
+                        : `${provider.cost} 🪙`}
                     </span>
                   </div>
-                  <div className="text-zinc-400 mt-1">{provider.description}</div>
+                  <div className="text-zinc-400 mt-1">
+                    {provider.description}
+                  </div>
                 </button>
               ))}
             </div>
@@ -204,7 +259,9 @@ export default function NeuralImagingStudio() {
           {/* Aspect Ratio & Batch */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-zinc-400 mb-2">Aspect Ratio</label>
+              <label className="block text-xs font-semibold text-zinc-400 mb-2">
+                Aspect Ratio
+              </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {ASPECT_RATIOS.map((ratio) => (
                   <button
@@ -223,7 +280,9 @@ export default function NeuralImagingStudio() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-400 mb-2">Batch Size</label>
+              <label className="block text-xs font-semibold text-zinc-400 mb-2">
+                Batch Size
+              </label>
               <div className="flex items-center gap-2">
                 {[1, 2, 4].map((size) => (
                   <button
@@ -258,7 +317,10 @@ export default function NeuralImagingStudio() {
               </>
             ) : (
               <>
-                <span>🎨</span> Generate {selectedProvider === "pollinations" ? "(FREE)" : `(${PROVIDERS.find(p => p.id === selectedProvider)?.cost} 🪙)`}
+                <span>🎨</span> Generate{" "}
+                {selectedProvider === "pollinations"
+                  ? "(FREE)"
+                  : `(${PROVIDERS.find((p) => p.id === selectedProvider)?.cost} 🪙)`}
               </>
             )}
           </button>
@@ -266,12 +328,21 @@ export default function NeuralImagingStudio() {
           {/* Preview Area */}
           <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden aspect-video min-h-[300px] flex items-center justify-center">
             {previewImage ? (
-              <img src={previewImage} alt="Generated" className="w-full h-full object-contain" />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={previewImage}
+                  alt="Generated"
+                  className="w-full h-full object-contain"
+                />
+              </>
             ) : (
               <div className="text-center text-zinc-500">
                 <div className="text-6xl mb-2">🖼️</div>
                 <p className="text-sm">Your creation will appear here</p>
-                <p className="text-xs text-zinc-600 mt-1">Type a prompt and click Generate</p>
+                <p className="text-xs text-zinc-600 mt-1">
+                  Type a prompt and click Generate
+                </p>
               </div>
             )}
           </div>
@@ -279,7 +350,9 @@ export default function NeuralImagingStudio() {
           {/* Recent Images */}
           {generatedImages.length > 0 && (
             <div>
-              <h3 className="text-xs font-semibold text-zinc-400 mb-2">Recent ({generatedImages.length})</h3>
+              <h3 className="text-xs font-semibold text-zinc-400 mb-2">
+                Recent ({generatedImages.length})
+              </h3>
               <div className="grid grid-cols-6 gap-2">
                 {generatedImages.map((img, idx) => (
                   <button
@@ -287,7 +360,12 @@ export default function NeuralImagingStudio() {
                     onClick={() => setPreviewImage(img.url)}
                     className="aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-orange-500 transition"
                   >
-                    <img src={img.url} alt={`Gen ${idx + 1}`} className="w-full h-full object-cover" />
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={img.url}
+                      alt={`Gen ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>

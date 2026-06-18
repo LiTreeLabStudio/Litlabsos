@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getDeviceMap } from "@/lib/ha-api";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     const devices = await getDeviceMap();
     return NextResponse.json({ devices });

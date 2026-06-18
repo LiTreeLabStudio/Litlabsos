@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabase } from "@/lib/supabase";
 import { getOrCreateUser } from "@/lib/user-db";
@@ -8,7 +8,7 @@ import { withRateLimit } from "@/lib/rate-limiter";
  * GET /api/account
  * Ensures the user exists in our database. Called on every page load via UserSync.
  */
-async function getHandler(req: NextRequest) {
+async function getHandler() {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -22,7 +22,7 @@ async function getHandler(req: NextRequest) {
       synced: true,
       isNew: result.isNew,
     });
-  } catch (error) {
+  } catch {
     // [Account Sync] Error:
     return NextResponse.json({ synced: false }, { status: 500 });
   }
@@ -33,7 +33,7 @@ async function getHandler(req: NextRequest) {
  * Deletes the current user's account and all associated data from Supabase.
  * Requires Clerk authentication.
  */
-async function deleteHandler(req: NextRequest) {
+async function deleteHandler() {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -61,7 +61,7 @@ async function deleteHandler(req: NextRequest) {
       // Error deleting user:
       return NextResponse.json(
         { error: "Failed to delete account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -73,11 +73,11 @@ async function deleteHandler(req: NextRequest) {
       message: "Account data deleted successfully",
       note: "Your Clerk authentication account must be deleted separately via Clerk Dashboard",
     });
-  } catch (error) {
+  } catch {
     // Error deleting account:
     return NextResponse.json(
       { error: "Failed to delete account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

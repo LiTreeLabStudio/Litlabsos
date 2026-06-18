@@ -9,7 +9,6 @@ import {
   Zap,
   Activity,
   Bot,
-  Eye,
   Clock,
   MessageSquare,
   Heart,
@@ -59,6 +58,7 @@ const DEMO_STATS: Stats = {
   postsToday: 12,
 };
 
+const _now = Date.now();
 const DEMO_POSTS: Post[] = [
   {
     id: "demo_1",
@@ -69,7 +69,7 @@ const DEMO_POSTS: Post[] = [
     likes_count: 24,
     comments_count: 3,
     is_ai_post: false,
-    created_at: new Date(Date.now() - 900000).toISOString(),
+    created_at: new Date(_now - 900000).toISOString(),
     author: { name: "Alex Chen", username: "alexchen", avatar_url: "" },
   },
   {
@@ -83,7 +83,7 @@ const DEMO_POSTS: Post[] = [
     likes_count: 56,
     comments_count: 12,
     is_ai_post: false,
-    created_at: new Date(Date.now() - 3600000).toISOString(),
+    created_at: new Date(_now - 3600000).toISOString(),
     author: { name: "Sarah Kim", username: "sarahk", avatar_url: "" },
   },
   {
@@ -95,7 +95,7 @@ const DEMO_POSTS: Post[] = [
     likes_count: 42,
     comments_count: 7,
     is_ai_post: false,
-    created_at: new Date(Date.now() - 14400000).toISOString(),
+    created_at: new Date(_now - 14400000).toISOString(),
     author: { name: "Mike Dev", username: "mikedev", avatar_url: "" },
   },
 ];
@@ -202,8 +202,11 @@ function DashboardInner() {
   };
 
   useEffect(() => {
-    fetchStats();
-    fetchPosts();
+    const id = requestAnimationFrame(() => {
+      fetchStats();
+      fetchPosts();
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   /* Cycle telemetry lines every 3s */
@@ -390,7 +393,7 @@ function DashboardInner() {
             }}
           >
             <div
-              className="text-[9px] font-bold uppercase tracking-widest mb-3 opacity-40"
+              className="text-[10px] font-bold uppercase tracking-widest mb-3 opacity-40"
               style={{ color: T.textMuted }}
             >
               Network Telemetry
@@ -416,7 +419,7 @@ function DashboardInner() {
                   >
                     {loadingStats ? "—" : s.value}
                   </div>
-                  <div className="text-[8px] opacity-40 mt-0.5 uppercase tracking-wider">
+                  <div className="text-[10px] opacity-40 mt-0.5 uppercase tracking-wider">
                     {s.label}
                   </div>
                 </div>
@@ -433,7 +436,7 @@ function DashboardInner() {
             }}
           >
             <div
-              className="text-[9px] font-bold uppercase tracking-widest mb-3 opacity-40"
+              className="text-[10px] font-bold uppercase tracking-widest mb-3 opacity-40"
               style={{ color: T.textMuted }}
             >
               Quick Access
@@ -459,7 +462,7 @@ function DashboardInner() {
                     >
                       {a.label}
                     </div>
-                    <div className="text-[9px] opacity-40 truncate mt-0.5">
+                    <div className="text-[10px] opacity-40 truncate mt-0.5">
                       {a.desc}
                     </div>
                   </div>
@@ -481,7 +484,7 @@ function DashboardInner() {
             }}
           >
             <div
-              className="text-[9px] font-bold uppercase tracking-widest mb-3 opacity-40"
+              className="text-[10px] font-bold uppercase tracking-widest mb-3 opacity-40"
               style={{ color: T.textMuted }}
             >
               Architect Discovery
@@ -497,18 +500,18 @@ function DashboardInner() {
                     >
                       {a.handle}
                     </div>
-                    <div className="text-[9px] opacity-40">{a.role}</div>
+                    <div className="text-[10px] opacity-40">{a.role}</div>
                   </div>
                   <Link
                     href="/agents"
-                    className="flex items-center gap-1 px-2 py-1 rounded text-[9px] font-bold border transition-all hover:scale-105"
+                    className="flex items-center gap-1 px-2.5 py-1.5 rounded text-[10px] font-bold border transition-all hover:scale-105"
                     style={{
                       borderColor: T.accentColor + "40",
                       color: T.accentColor,
                       backgroundColor: T.accentColor + "08",
                     }}
                   >
-                    <UserPlus size={8} /> Connect
+                    <UserPlus size={10} /> Connect
                   </Link>
                 </div>
               ))}
@@ -549,7 +552,7 @@ function DashboardInner() {
                   <button
                     key={b.label}
                     onClick={() => (window.location.href = "/social")}
-                    className="px-2.5 py-1 rounded text-[9px] font-bold border transition-all hover:scale-105"
+                    className="px-2.5 py-1 rounded text-[10px] font-bold border transition-all hover:scale-105"
                     style={{
                       borderColor: b.color + "30",
                       color: b.color,
@@ -592,7 +595,7 @@ function DashboardInner() {
                 </span>
                 {feedError && (
                   <span
-                    className="text-[9px] px-1.5 py-0.5 rounded"
+                    className="text-[10px] px-1.5 py-0.5 rounded"
                     style={{
                       backgroundColor: "#f8514910",
                       color: "#f85149",
@@ -659,20 +662,25 @@ function DashboardInner() {
                           {post.content}
                         </p>
                         {post.media_urls?.[0] && (
-                          <img
-                            src={post.media_urls[0]}
-                            alt=""
-                            className="rounded-lg w-full max-h-52 object-cover mb-2.5"
-                          />
+                          <>
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={post.media_urls[0]}
+                              alt=""
+                              className="rounded-lg w-full max-h-52 object-cover mb-2.5"
+                            />
+                          </>
                         )}
                         <div className="flex items-center gap-4">
                           <button
                             onClick={() =>
                               setLikedPosts((prev) => {
                                 const n = new Set(prev);
-                                n.has(post.id)
-                                  ? n.delete(post.id)
-                                  : n.add(post.id);
+                                if (n.has(post.id)) {
+                                  n.delete(post.id);
+                                } else {
+                                  n.add(post.id);
+                                }
                                 return n;
                               })
                             }

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import {
+  getAdminSupabase,
+  isAdminSupabaseConfigured,
+} from "@/lib/supabase-admin";
 import { withRateLimit } from "@/lib/rate-limiter";
 
 async function getHandler(req: NextRequest) {
@@ -16,7 +19,8 @@ async function getHandler(req: NextRequest) {
 
     const { data: posts, error } = await sb
       .from("posts")
-      .select(`
+      .select(
+        `
         id,
         user_id,
         content,
@@ -26,40 +30,46 @@ async function getHandler(req: NextRequest) {
         is_ai_post,
         created_at,
         users:user_id (name, username, avatar_url)
-      `)
+      `,
+      )
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
 
     // Fetch comments for each post
-    const postIds = posts?.map(p => p.id) || [];
-    let commentsMap: Record<string, any[]> = {};
-    
+    const postIds = posts?.map((p) => p.id) || [];
+    let commentsMap: Record<string, unknown[]> = {};
+
     if (postIds.length > 0) {
       const { data: comments } = await sb
         .from("comments")
-        .select(`
+        .select(
+          `
           id,
           post_id,
           user_id,
           content,
           created_at,
           users:user_id (name, username, avatar_url)
-        `)
+        `,
+        )
         .in("post_id", postIds)
         .order("created_at", { ascending: true });
 
       if (comments) {
-        commentsMap = comments.reduce((acc, c) => {
-          if (!acc[c.post_id]) acc[c.post_id] = [];
-          acc[c.post_id].push(c);
-          return acc;
-        }, {} as Record<string, any[]>);
+        commentsMap = comments.reduce(
+          (acc, c) => {
+            if (!acc[c.post_id]) acc[c.post_id] = [];
+            acc[c.post_id].push(c);
+            return acc;
+          },
+          {} as Record<string, unknown[]>,
+        );
       }
     }
 
-    const enrichedPosts = (posts || []).map(post => ({
+    const enrichedPosts = (posts || []).map((post) => ({
       ...post,
       author: post.users,
       comments: commentsMap[post.id] || [],
@@ -81,9 +91,12 @@ async function postHandler(req: NextRequest) {
   const body = await req.json().catch(() => null);
   const hasContent = body?.content?.trim();
   const hasMedia = body?.media_urls?.length > 0;
-  
+
   if (!body || (!hasContent && !hasMedia)) {
-    return NextResponse.json({ error: "Content or media is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Content or media is required" },
+      { status: 400 },
+    );
   }
 
   if (!isAdminSupabaseConfigured()) {
@@ -92,7 +105,11 @@ async function postHandler(req: NextRequest) {
 
   try {
     const sb = getAdminSupabase();
-    let { data: user } = await sb.from("users").select("id").eq("clerk_id", userId).single();
+    let { data: user } = await sb
+      .from("users")
+      .select("id")
+      .eq("clerk_id", userId)
+      .single();
 
     if (!user) {
       const shortId = userId.slice(-8);
@@ -107,13 +124,18 @@ async function postHandler(req: NextRequest) {
         })
         .select()
         .single();
-      
+
       if (createError) {
-        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+        return NextResponse.json(
+          { error: "Failed to create user" },
+          { status: 500 },
+        );
       }
-      
+
       user = newUser;
-      await sb.from("wallets").insert({ user_id: user.id, balance: 500, lifetime_earned: 500 });
+      await sb
+        .from("wallets")
+        .insert({ user_id: user.id, balance: 500, lifetime_earned: 500 });
     }
 
     const { data: post, error } = await sb
@@ -129,7 +151,10 @@ async function postHandler(req: NextRequest) {
     if (error) throw error;
     return NextResponse.json({ success: true, post });
   } catch {
-    return NextResponse.json({ error: "Failed to create post" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create post" },
+      { status: 500 },
+    );
   }
 }
 

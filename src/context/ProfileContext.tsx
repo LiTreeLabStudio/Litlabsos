@@ -92,20 +92,23 @@ interface ProfileContextType {
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<UserProfile>(defaultProfile);
-  const [mounted, setMounted] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
+  const [profile, setProfile] = useState<UserProfile>(() => {
+    if (typeof window === "undefined") return defaultProfile;
     const stored = localStorage.getItem("litlabs-profile");
     if (stored) {
       try {
-        setProfile(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse profile", e);
+        return JSON.parse(stored);
+      } catch {
+        /* ignore */
       }
     }
-    setMounted(true);
+    return defaultProfile;
+  });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // Save to localStorage on change

@@ -1,8 +1,18 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Music, X, Settings } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  VolumeX,
+  Music,
+  X,
+  Settings,
+} from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 import {
   DEFAULT_PLAYLIST,
   loadMusicPreferences,
@@ -11,12 +21,16 @@ import {
   formatDuration,
   type UserMusicPreferences,
   type MusicTrack,
-} from '@/lib/music';
+} from "@/lib/music";
 
 export default function MusicPlayer() {
   const { resolvedColors: T } = useTheme();
-  const [prefs, setPrefs] = useState<UserMusicPreferences>(loadMusicPreferences());
-  const [currentTrack, setCurrentTrack] = useState<MusicTrack>(DEFAULT_PLAYLIST[0]);
+  const [prefs, setPrefs] = useState<UserMusicPreferences>(
+    loadMusicPreferences(),
+  );
+  const [currentTrack, setCurrentTrack] = useState<MusicTrack>(
+    DEFAULT_PLAYLIST[0],
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMinimized, setIsMinimized] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
@@ -26,22 +40,30 @@ export default function MusicPlayer() {
 
   // Load preferences on mount
   useEffect(() => {
-    const loaded = loadMusicPreferences();
-    setPrefs(loaded);
-    if (loaded.currentTrackId) {
-      const track = getTrackById(loaded.currentTrackId);
-      if (track) setCurrentTrack(track);
-    }
-    // Auto-play if enabled and not mobile
-    if (loaded.enabled && loaded.autoPlay && typeof window !== 'undefined' && window.innerWidth > 768) {
-      setIsPlaying(true);
-    }
+    const id = requestAnimationFrame(() => {
+      const loaded = loadMusicPreferences();
+      setPrefs(loaded);
+      if (loaded.currentTrackId) {
+        const track = getTrackById(loaded.currentTrackId);
+        if (track) setCurrentTrack(track);
+      }
+      // Auto-play if enabled and not mobile
+      if (
+        loaded.enabled &&
+        loaded.autoPlay &&
+        typeof window !== "undefined" &&
+        window.innerWidth > 768
+      ) {
+        setIsPlaying(true);
+      }
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // Handle visibility change (mute when user leaves tab)
   useEffect(() => {
     if (!prefs.muteOnLeave) return;
-    
+
     const handleVisibilityChange = () => {
       if (document.hidden) {
         if (audioRef.current) {
@@ -54,9 +76,50 @@ export default function MusicPlayer() {
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [prefs.muteOnLeave, isPlaying, prefs.enabled]);
+
+  const handlePlayPause = useCallback(() => {
+    setIsPlaying(!isPlaying);
+    setPrefs((p) => ({ ...p, enabled: true }));
+  }, [isPlaying]);
+
+  const handleNext = useCallback(() => {
+    const currentIndex = DEFAULT_PLAYLIST.findIndex(
+      (t) => t.id === currentTrack.id,
+    );
+    const nextTrack =
+      DEFAULT_PLAYLIST[(currentIndex + 1) % DEFAULT_PLAYLIST.length];
+    setCurrentTrack(nextTrack);
+    setProgress(0);
+    setPrefs((p) => ({ ...p, currentTrackId: nextTrack.id }));
+  }, [currentTrack]);
+
+  const handlePrev = useCallback(() => {
+    const currentIndex = DEFAULT_PLAYLIST.findIndex(
+      (t) => t.id === currentTrack.id,
+    );
+    const prevTrack =
+      DEFAULT_PLAYLIST[
+        (currentIndex - 1 + DEFAULT_PLAYLIST.length) % DEFAULT_PLAYLIST.length
+      ];
+    setCurrentTrack(prevTrack);
+    setProgress(0);
+    setPrefs((p) => ({ ...p, currentTrackId: prevTrack.id }));
+  }, [currentTrack]);
+
+  const handleVolumeChange = useCallback((volume: number) => {
+    setPrefs((p) => ({ ...p, volume }));
+  }, []);
+
+  const toggleEnabled = useCallback(() => {
+    setPrefs((p) => ({ ...p, enabled: !p.enabled }));
+    if (!prefs.enabled) {
+      setIsPlaying(false);
+    }
+  }, [prefs.enabled]);
 
   // Save preferences when they change
   useEffect(() => {
@@ -67,12 +130,12 @@ export default function MusicPlayer() {
   useEffect(() => {
     if (isPlaying && currentTrack.duration) {
       progressInterval.current = setInterval(() => {
-        setProgress(p => {
+        setProgress((p) => {
           if (p >= 100) {
             handleNext();
             return 0;
           }
-          return p + (100 / currentTrack.duration!);
+          return p + 100 / currentTrack.duration!;
         });
       }, 1000);
     } else {
@@ -85,39 +148,14 @@ export default function MusicPlayer() {
         clearInterval(progressInterval.current);
       }
     };
-  }, [isPlaying, currentTrack]);
+  }, [isPlaying, currentTrack, handleNext]);
 
-  const handlePlayPause = useCallback(() => {
-    setIsPlaying(!isPlaying);
-    setPrefs(p => ({ ...p, enabled: true }));
-  }, [isPlaying]);
-
-  const handleNext = useCallback(() => {
-    const currentIndex = DEFAULT_PLAYLIST.findIndex(t => t.id === currentTrack.id);
-    const nextTrack = DEFAULT_PLAYLIST[(currentIndex + 1) % DEFAULT_PLAYLIST.length];
-    setCurrentTrack(nextTrack);
-    setProgress(0);
-    setPrefs(p => ({ ...p, currentTrackId: nextTrack.id }));
-  }, [currentTrack]);
-
-  const handlePrev = useCallback(() => {
-    const currentIndex = DEFAULT_PLAYLIST.findIndex(t => t.id === currentTrack.id);
-    const prevTrack = DEFAULT_PLAYLIST[(currentIndex - 1 + DEFAULT_PLAYLIST.length) % DEFAULT_PLAYLIST.length];
-    setCurrentTrack(prevTrack);
-    setProgress(0);
-    setPrefs(p => ({ ...p, currentTrackId: prevTrack.id }));
-  }, [currentTrack]);
-
-  const handleVolumeChange = useCallback((volume: number) => {
-    setPrefs(p => ({ ...p, volume }));
-  }, []);
-
-  const toggleEnabled = useCallback(() => {
-    setPrefs(p => ({ ...p, enabled: !p.enabled }));
-    if (!prefs.enabled) {
-      setIsPlaying(false);
+  // Handle volume changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = prefs.volume / 100;
     }
-  }, [prefs.enabled]);
+  }, [prefs.volume]);
 
   if (!prefs.enabled) {
     // Show minimal trigger to enable music
@@ -137,32 +175,20 @@ export default function MusicPlayer() {
     );
   }
 
-  // Handle volume changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = prefs.volume / 100;
-    }
-  }, [prefs.volume]);
-
   return (
     <>
       {/* Audio element */}
-      <audio
-        ref={audioRef}
-        src={currentTrack.url}
-        loop
-        autoPlay={isPlaying}
-      />
+      <audio ref={audioRef} src={currentTrack.url} loop autoPlay={isPlaying} />
 
       {/* Music Player Widget */}
       <div
         className={`fixed bottom-4 right-4 z-50 transition-all duration-300 ${
-          isMinimized ? 'w-auto' : 'w-80'
+          isMinimized ? "w-auto" : "w-80"
         }`}
         style={{
           backgroundColor: T.boxBg,
           border: `1px solid ${T.borderColor}`,
-          borderRadius: '12px',
+          borderRadius: "12px",
           boxShadow: `0 8px 32px ${T.bgColor}80`,
         }}
       >
@@ -176,7 +202,9 @@ export default function MusicPlayer() {
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center"
               style={{
-                backgroundColor: isPlaying ? T.accentColor + '30' : T.borderColor,
+                backgroundColor: isPlaying
+                  ? T.accentColor + "30"
+                  : T.borderColor,
                 border: `1px solid ${isPlaying ? T.accentColor : T.borderColor}`,
               }}
             >
@@ -188,17 +216,29 @@ export default function MusicPlayer() {
             </div>
             <div className="text-left">
               <div className="text-xs font-bold" style={{ color: T.textColor }}>
-                {isPlaying ? 'Playing' : 'Paused'}
+                {isPlaying ? "Playing" : "Paused"}
               </div>
-              <div className="text-[10px] opacity-60" style={{ color: T.textMuted }}>
+              <div
+                className="text-[10px] opacity-60"
+                style={{ color: T.textMuted }}
+              >
                 {currentTrack.title}
               </div>
             </div>
             {isPlaying && (
               <div className="ml-1 flex gap-0.5">
-                <span className="w-1 h-3 bg-current animate-pulse" style={{ color: T.accentColor }} />
-                <span className="w-1 h-3 bg-current animate-pulse" style={{ color: T.accentColor, animationDelay: '0.1s' }} />
-                <span className="w-1 h-3 bg-current animate-pulse" style={{ color: T.accentColor, animationDelay: '0.2s' }} />
+                <span
+                  className="w-1 h-3 bg-current animate-pulse"
+                  style={{ color: T.accentColor }}
+                />
+                <span
+                  className="w-1 h-3 bg-current animate-pulse"
+                  style={{ color: T.accentColor, animationDelay: "0.1s" }}
+                />
+                <span
+                  className="w-1 h-3 bg-current animate-pulse"
+                  style={{ color: T.accentColor, animationDelay: "0.2s" }}
+                />
               </div>
             )}
           </button>
@@ -209,7 +249,10 @@ export default function MusicPlayer() {
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Music size={16} style={{ color: T.accentColor }} />
-                <span className="text-xs font-bold" style={{ color: T.textColor }}>
+                <span
+                  className="text-xs font-bold"
+                  style={{ color: T.textColor }}
+                >
                   LiTTree Radio
                 </span>
               </div>
@@ -233,10 +276,16 @@ export default function MusicPlayer() {
 
             {/* Track Info */}
             <div className="mb-4">
-              <div className="text-sm font-bold mb-1" style={{ color: T.headerColor }}>
+              <div
+                className="text-sm font-bold mb-1"
+                style={{ color: T.headerColor }}
+              >
                 {currentTrack.title}
               </div>
-              <div className="text-xs opacity-60" style={{ color: T.textMuted }}>
+              <div
+                className="text-xs opacity-60"
+                style={{ color: T.textMuted }}
+              >
                 {currentTrack.artist}
               </div>
             </div>
@@ -256,11 +305,21 @@ export default function MusicPlayer() {
                 />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] opacity-40" style={{ color: T.textMuted }}>
-                  {formatDuration(Math.floor((progress / 100) * (currentTrack.duration || 0)))}
+                <span
+                  className="text-[10px] opacity-40"
+                  style={{ color: T.textMuted }}
+                >
+                  {formatDuration(
+                    Math.floor((progress / 100) * (currentTrack.duration || 0)),
+                  )}
                 </span>
-                <span className="text-[10px] opacity-40" style={{ color: T.textMuted }}>
-                  {currentTrack.duration ? formatDuration(currentTrack.duration) : '--:--'}
+                <span
+                  className="text-[10px] opacity-40"
+                  style={{ color: T.textMuted }}
+                >
+                  {currentTrack.duration
+                    ? formatDuration(currentTrack.duration)
+                    : "--:--"}
                 </span>
               </div>
             </div>
@@ -282,7 +341,11 @@ export default function MusicPlayer() {
                   color: T.bgColor,
                 }}
               >
-                {isPlaying ? <Pause size={22} /> : <Play size={22} className="ml-0.5" />}
+                {isPlaying ? (
+                  <Pause size={22} />
+                ) : (
+                  <Play size={22} className="ml-0.5" />
+                )}
               </button>
               <button
                 onClick={handleNext}
@@ -299,7 +362,11 @@ export default function MusicPlayer() {
                 onClick={() => handleVolumeChange(prefs.volume === 0 ? 50 : 0)}
                 style={{ color: T.textMuted }}
               >
-                {prefs.volume === 0 ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                {prefs.volume === 0 ? (
+                  <VolumeX size={16} />
+                ) : (
+                  <Volume2 size={16} />
+                )}
               </button>
               <input
                 type="range"
@@ -313,20 +380,28 @@ export default function MusicPlayer() {
                   accentColor: T.accentColor,
                 }}
               />
-              <span className="text-[10px] w-8 text-right" style={{ color: T.textMuted }}>
+              <span
+                className="text-[10px] w-8 text-right"
+                style={{ color: T.textMuted }}
+              >
                 {prefs.volume}%
               </span>
             </div>
 
             {/* Settings Panel */}
             {showSettings && (
-              <div className="mt-4 pt-4 border-t" style={{ borderColor: T.borderColor }}>
+              <div
+                className="mt-4 pt-4 border-t"
+                style={{ borderColor: T.borderColor }}
+              >
                 <div className="space-y-3">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={prefs.autoPlay}
-                      onChange={(e) => setPrefs(p => ({ ...p, autoPlay: e.target.checked }))}
+                      onChange={(e) =>
+                        setPrefs((p) => ({ ...p, autoPlay: e.target.checked }))
+                      }
                       className="rounded"
                     />
                     <span className="text-xs" style={{ color: T.textMuted }}>
@@ -337,7 +412,12 @@ export default function MusicPlayer() {
                     <input
                       type="checkbox"
                       checked={prefs.muteOnLeave}
-                      onChange={(e) => setPrefs(p => ({ ...p, muteOnLeave: e.target.checked }))}
+                      onChange={(e) =>
+                        setPrefs((p) => ({
+                          ...p,
+                          muteOnLeave: e.target.checked,
+                        }))
+                      }
                       className="rounded"
                     />
                     <span className="text-xs" style={{ color: T.textMuted }}>

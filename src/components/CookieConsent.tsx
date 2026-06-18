@@ -3,26 +3,45 @@
 import { useState, useEffect } from "react";
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return !localStorage.getItem("cookie-consent");
+  });
   const [animateIn, setAnimateIn] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
-    if (!consent) {
-      setVisible(true);
-      // stagger animation
-      setTimeout(() => setAnimateIn(true), 100);
+    if (visible) {
+      const timer = setTimeout(() => setAnimateIn(true), 100);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [visible]);
 
   const acceptAll = () => {
-    localStorage.setItem("cookie-consent", JSON.stringify({ essential: true, preferences: true, analytics: true, marketing: true, timestamp: Date.now() }));
+    localStorage.setItem(
+      "cookie-consent",
+      JSON.stringify({
+        essential: true,
+        preferences: true,
+        analytics: true,
+        marketing: true,
+        timestamp: Date.now(),
+      }),
+    );
     setAnimateIn(false);
     setTimeout(() => setVisible(false), 300);
   };
 
   const acceptEssential = () => {
-    localStorage.setItem("cookie-consent", JSON.stringify({ essential: true, preferences: false, analytics: false, marketing: false, timestamp: Date.now() }));
+    localStorage.setItem(
+      "cookie-consent",
+      JSON.stringify({
+        essential: true,
+        preferences: false,
+        analytics: false,
+        marketing: false,
+        timestamp: Date.now(),
+      }),
+    );
     setAnimateIn(false);
     setTimeout(() => setVisible(false), 300);
   };
@@ -31,7 +50,7 @@ export default function CookieConsent() {
 
   return (
     <div
-      className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-[420px] z-[100] border-2 p-4 transition-all duration-300"
+      className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:w-[420px] z-100 border-2 p-4 transition-all duration-300"
       style={{
         borderColor: "#ff00ff",
         backgroundColor: "#1a0a2e",
@@ -46,32 +65,49 @@ export default function CookieConsent() {
       <div className="flex items-start gap-3">
         <span className="text-lg shrink-0">🍪</span>
         <div className="flex-1">
-          <div className="font-bold uppercase tracking-wider mb-1" style={{ color: "#00ffff" }}>
+          <div
+            className="font-bold uppercase tracking-wider mb-1"
+            style={{ color: "#00ffff" }}
+          >
             Neural Cookie Protocol
           </div>
           <p className="opacity-80 leading-relaxed mb-3 text-[10px]">
-            We use cookies and local storage to power themes, authentication, and AI agent sessions. 
-            Analytics help us optimize the grid. You can manage preferences anytime in Settings.
+            We use cookies and local storage to power themes, authentication,
+            and AI agent sessions. Analytics help us optimize the grid. You can
+            manage preferences anytime in Settings.
           </p>
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={acceptAll}
               className="px-3 py-1.5 text-[10px] font-bold border-2 hover:scale-105 transition-transform"
-              style={{ borderColor: "#00ff41", color: "#000", backgroundColor: "#00ff41" }}
+              style={{
+                borderColor: "#00ff41",
+                color: "#000",
+                backgroundColor: "#00ff41",
+              }}
             >
               ✓ ACCEPT ALL
             </button>
             <button
               onClick={acceptEssential}
               className="px-3 py-1.5 text-[10px] font-bold border-2 hover:scale-105 transition-transform"
-              style={{ borderColor: "#ff0080", color: "#ff0080", backgroundColor: "transparent" }}
+              style={{
+                borderColor: "#ff0080",
+                color: "#ff0080",
+                backgroundColor: "transparent",
+              }}
             >
               ESSENTIAL ONLY
             </button>
             <a
               href="/cookies"
               className="px-3 py-1.5 text-[10px] font-bold border-2 hover:scale-105 transition-transform inline-block"
-              style={{ borderColor: "#ff00ff", color: "#ff00ff", backgroundColor: "transparent", textDecoration: "none" }}
+              style={{
+                borderColor: "#ff00ff",
+                color: "#ff00ff",
+                backgroundColor: "transparent",
+                textDecoration: "none",
+              }}
             >
               DETAILS
             </a>

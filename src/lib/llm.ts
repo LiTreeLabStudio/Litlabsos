@@ -80,12 +80,13 @@ export interface LLMResult {
 /* ------------------------------------------------------------------ */
 /*  Env + provider config                                              */
 /* ------------------------------------------------------------------ */
-const GEMINI_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
+const GEMINI_KEY =
+  process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
 
 export const DEFAULT_MODELS: Record<LLMProvider, string> = {
-  "gemini": "gemini-2.5-flash",
+  gemini: "gemini-2.5-flash",
   "openrouter-free": "openrouter/free",
   "openrouter-qwen": "qwen/qwen-2.5-coder-32b-instruct:free",
   "openrouter-deepseek": "deepseek/deepseek-chat:free",
@@ -131,7 +132,11 @@ function defaultChain(task: LLMTask, opts: LLMOptions): LLMProvider[] {
 /*  Per-provider error helpers                                         */
 /* ------------------------------------------------------------------ */
 class ProviderError extends Error {
-  constructor(public provider: LLMProvider, public status: number | null, message: string) {
+  constructor(
+    public provider: LLMProvider,
+    public status: number | null,
+    message: string,
+  ) {
     super(message);
   }
   get isRetryable() {
@@ -142,7 +147,11 @@ class ProviderError extends Error {
   }
 }
 
-async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
   const ctrl = new AbortController();
   const tid = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -162,16 +171,21 @@ interface GenerateParams {
   opts: LLMOptions;
 }
 
-async function generateViaGemini(p: GenerateParams, modelName: string): Promise<{ text: string; usage?: LLMUsage; model: string }> {
+async function generateViaGemini(
+  p: GenerateParams,
+  modelName: string,
+): Promise<{ text: string; usage?: LLMUsage; model: string }> {
   const genAI = getGenAI();
   if (!genAI) throw new ProviderError("gemini", null, "GEMINI_API_KEY not set");
   const model = genAI.getGenerativeModel({ model: modelName });
 
   const generationConfig: Record<string, unknown> = {};
   if (p.opts.maxTokens) generationConfig.maxOutputTokens = p.opts.maxTokens;
-  if (p.opts.temperature !== undefined) generationConfig.temperature = p.opts.temperature;
+  if (p.opts.temperature !== undefined)
+    generationConfig.temperature = p.opts.temperature;
   else if (p.task === "creative") generationConfig.temperature = 0.9;
-  else if (p.task === "precise" || p.task === "json") generationConfig.temperature = 0.2;
+  else if (p.task === "precise" || p.task === "json")
+    generationConfig.temperature = 0.2;
   else if (p.task === "code") generationConfig.temperature = 0.1;
   else if (p.task === "chat") generationConfig.temperature = 0.7;
   if (p.opts.stop) generationConfig.stopSequences = p.opts.stop;
@@ -181,7 +195,6 @@ async function generateViaGemini(p: GenerateParams, modelName: string): Promise<
     ? `${p.systemPrompt}\n\n${p.prompt}`
     : p.prompt;
 
-  const t0 = Date.now();
   const result = await model.generateContent({
     contents: [{ role: "user", parts: [{ text: fullPrompt }] }],
     generationConfig,
@@ -225,20 +238,28 @@ async function generateViaOpenRouter(
   if (p.opts.stop) body.stop = p.opts.stop;
   if (p.task === "json") body.response_format = { type: "json_object" };
 
-  const res = await fetchWithTimeout(`${OPENROUTER_BASE}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_KEY}`,
-      "HTTP-Referer": SITE_URL,
-      "X-Title": "LiTTree Lab Studios",
+  const res = await fetchWithTimeout(
+    `${OPENROUTER_BASE}/chat/completions`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_KEY}`,
+        "HTTP-Referer": SITE_URL,
+        "X-Title": "LiTTree Lab Studios",
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  }, timeoutMs);
+    timeoutMs,
+  );
 
   if (!res.ok) {
     const txt = await res.text().catch(() => "");
-    throw new ProviderError(provider, res.status, `OpenRouter ${res.status}: ${txt.slice(0, 200)}`);
+    throw new ProviderError(
+      provider,
+      res.status,
+      `OpenRouter ${res.status}: ${txt.slice(0, 200)}`,
+    );
   }
   const data = await res.json();
   const choice = data.choices?.[0];
@@ -258,7 +279,8 @@ async function dispatchProvider(
   p: GenerateParams,
   timeoutMs: number,
 ): Promise<{ text: string; usage?: LLMUsage; model: string }> {
-  const modelName = p.opts.modelOverride?.[provider] ?? DEFAULT_MODELS[provider];
+  const modelName =
+    p.opts.modelOverride?.[provider] ?? DEFAULT_MODELS[provider];
 
   if (provider === "gemini") {
     // Try the configured model first, then fall back to the lite variant
@@ -296,7 +318,11 @@ export async function generateText(
   let lastErr: unknown = null;
   for (const provider of chain) {
     try {
-      const r = await dispatchProvider(provider, { prompt, systemPrompt, task, opts: options }, timeoutMs);
+      const r = await dispatchProvider(
+        provider,
+        { prompt, systemPrompt, task, opts: options },
+        timeoutMs,
+      );
       return {
         text: r.text,
         provider,
@@ -321,7 +347,7 @@ export async function generateText(
   throw new Error(
     `All LLM providers failed. Tried: ${[...failover].join(", ")}. Last error: ${
       lastErr instanceof Error ? lastErr.message : String(lastErr)
-    }`
+    }`,
   );
 }
 
@@ -334,7 +360,11 @@ export async function generateJSON<T = unknown>(
   systemPrompt?: string,
 ): Promise<T> {
   const jsonPrompt = `${prompt}\n\nRespond with valid JSON only. No markdown, no commentary, no code fences.`;
-  const r = await generateText(jsonPrompt, { ...options, task: "json" }, systemPrompt);
+  const r = await generateText(
+    jsonPrompt,
+    { ...options, task: "json" },
+    systemPrompt,
+  );
   const text = r.text.trim();
   // Be lenient: strip code fences if the model added them despite the instruction
   const cleaned = text
@@ -343,17 +373,21 @@ export async function generateJSON<T = unknown>(
     .trim();
   try {
     return JSON.parse(cleaned) as T;
-  } catch (err) {
+  } catch {
     // Last-ditch: try to find the first {...} block
     const match = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
     if (match) {
       try {
         return JSON.parse(match[0]) as T;
       } catch {
-        throw new Error(`LLM did not return valid JSON. Raw: ${text.slice(0, 300)}`);
+        throw new Error(
+          `LLM did not return valid JSON. Raw: ${text.slice(0, 300)}`,
+        );
       }
     }
-    throw new Error(`LLM did not return valid JSON. Raw: ${text.slice(0, 300)}`);
+    throw new Error(
+      `LLM did not return valid JSON. Raw: ${text.slice(0, 300)}`,
+    );
   }
 }
 
@@ -365,7 +399,12 @@ export async function streamText(
   onChunk: (text: string) => void,
   options: LLMOptions = {},
   systemPrompt?: string,
-): Promise<{ provider: LLMProvider; model: string; latencyMs: number; failover: LLMProvider[] }> {
+): Promise<{
+  provider: LLMProvider;
+  model: string;
+  latencyMs: number;
+  failover: LLMProvider[];
+}> {
   const task = options.task ?? "chat";
   const timeoutMs = options.timeoutMs ?? 60_000;
   const chain = defaultChain(task, options);
@@ -376,9 +415,21 @@ export async function streamText(
   for (const provider of chain) {
     try {
       if (provider === "gemini") {
-        return await streamViaGemini({ prompt, systemPrompt, task, opts: options }, onChunk, t0, failover);
+        return await streamViaGemini(
+          { prompt, systemPrompt, task, opts: options },
+          onChunk,
+          t0,
+          failover,
+        );
       }
-      return await streamViaOpenRouter(provider, { prompt, systemPrompt, task, opts: options }, onChunk, t0, failover, timeoutMs);
+      return await streamViaOpenRouter(
+        provider,
+        { prompt, systemPrompt, task, opts: options },
+        onChunk,
+        t0,
+        failover,
+        timeoutMs,
+      );
     } catch (err) {
       lastErr = err;
       const isProviderError = err instanceof ProviderError;
@@ -392,7 +443,7 @@ export async function streamText(
   throw new Error(
     `All LLM streaming providers failed. Tried: ${[...failover].join(", ")}. Last error: ${
       lastErr instanceof Error ? lastErr.message : String(lastErr)
-    }`
+    }`,
   );
 }
 
@@ -401,18 +452,31 @@ async function streamViaGemini(
   onChunk: (text: string) => void,
   t0: number,
   failover: LLMProvider[],
-): Promise<{ provider: LLMProvider; model: string; latencyMs: number; failover: LLMProvider[] }> {
+): Promise<{
+  provider: LLMProvider;
+  model: string;
+  latencyMs: number;
+  failover: LLMProvider[];
+}> {
   const genAI = getGenAI();
   if (!genAI) throw new ProviderError("gemini", null, "GEMINI_API_KEY not set");
-  const modelName = p.opts.modelOverride?.["gemini"] ?? DEFAULT_MODELS["gemini"];
+  const modelName =
+    p.opts.modelOverride?.["gemini"] ?? DEFAULT_MODELS["gemini"];
   const model = genAI.getGenerativeModel({ model: modelName });
-  const fullPrompt = p.systemPrompt ? `${p.systemPrompt}\n\n${p.prompt}` : p.prompt;
+  const fullPrompt = p.systemPrompt
+    ? `${p.systemPrompt}\n\n${p.prompt}`
+    : p.prompt;
   const result = await model.generateContentStream(fullPrompt);
   for await (const chunk of result.stream) {
     const t = chunk.text();
     if (t) onChunk(t);
   }
-  return { provider: "gemini", model: modelName, latencyMs: Date.now() - t0, failover };
+  return {
+    provider: "gemini",
+    model: modelName,
+    latencyMs: Date.now() - t0,
+    failover,
+  };
 }
 
 async function streamViaOpenRouter(
@@ -422,9 +486,16 @@ async function streamViaOpenRouter(
   t0: number,
   failover: LLMProvider[],
   timeoutMs: number,
-): Promise<{ provider: LLMProvider; model: string; latencyMs: number; failover: LLMProvider[] }> {
-  if (!OPENROUTER_KEY) throw new ProviderError(provider, null, "OPENROUTER_API_KEY not set");
-  const modelName = p.opts.modelOverride?.[provider] ?? DEFAULT_MODELS[provider];
+): Promise<{
+  provider: LLMProvider;
+  model: string;
+  latencyMs: number;
+  failover: LLMProvider[];
+}> {
+  if (!OPENROUTER_KEY)
+    throw new ProviderError(provider, null, "OPENROUTER_API_KEY not set");
+  const modelName =
+    p.opts.modelOverride?.[provider] ?? DEFAULT_MODELS[provider];
   const body: Record<string, unknown> = {
     model: modelName,
     stream: true,
@@ -436,20 +507,28 @@ async function streamViaOpenRouter(
   if (p.opts.maxTokens) body.max_tokens = p.opts.maxTokens;
   if (p.opts.temperature !== undefined) body.temperature = p.opts.temperature;
 
-  const res = await fetchWithTimeout(`${OPENROUTER_BASE}/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENROUTER_KEY}`,
-      "HTTP-Referer": SITE_URL,
-      "X-Title": "LiTTree Lab Studios",
+  const res = await fetchWithTimeout(
+    `${OPENROUTER_BASE}/chat/completions`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_KEY}`,
+        "HTTP-Referer": SITE_URL,
+        "X-Title": "LiTTree Lab Studios",
+      },
+      body: JSON.stringify(body),
     },
-    body: JSON.stringify(body),
-  }, timeoutMs);
+    timeoutMs,
+  );
 
   if (!res.ok || !res.body) {
     const txt = await res.text().catch(() => "");
-    throw new ProviderError(provider, res.status, `OpenRouter stream ${res.status}: ${txt.slice(0, 200)}`);
+    throw new ProviderError(
+      provider,
+      res.status,
+      `OpenRouter stream ${res.status}: ${txt.slice(0, 200)}`,
+    );
   }
 
   const reader = res.body.getReader();
@@ -492,7 +571,10 @@ export interface LLMHealth {
 export function llmHealth(): LLMHealth {
   return {
     gemini: { available: !!GEMINI_KEY, model: DEFAULT_MODELS.gemini },
-    openrouter: { available: !!OPENROUTER_KEY, model: DEFAULT_MODELS["openrouter-free"] },
+    openrouter: {
+      available: !!OPENROUTER_KEY,
+      model: DEFAULT_MODELS["openrouter-free"],
+    },
     preferFree: !GEMINI_KEY, // if no Gemini key, force the free route
     primary: defaultChain("chat", {})[0],
   };

@@ -268,7 +268,7 @@ Be technically precise. Think like a senior full-stack developer.`;
                       Hive Mind AI Builder
                     </h2>
                     <p className="text-sm text-zinc-500 max-w-md mx-auto">
-                      Describe what you want to build and I'll generate the
+                      Describe what you want to build and I&apos;ll generate the
                       code. Try a quick prompt from the sidebar or type your
                       own.
                     </p>

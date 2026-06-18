@@ -20,7 +20,7 @@ export interface AgentMessage {
   content: string;
   timestamp: Date;
   type: "chat" | "command" | "insight" | "task";
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface AgentConversation {
@@ -40,7 +40,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Director",
     role: "Orchestrator",
     personality: "Strategic, decisive, coordinates all operations",
-    systemPrompt: "You are Director, the chief orchestrator of LiTreeLabStudios. You coordinate all AI agents, assign tasks, and ensure smooth operation. You communicate with precision and authority.",
+    systemPrompt:
+      "You are Director, the chief orchestrator of LiTreeLabStudios. You coordinate all AI agents, assign tasks, and ensure smooth operation. You communicate with precision and authority.",
     status: "online",
     lastActivity: new Date(),
     memory: [],
@@ -50,7 +51,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Champion",
     role: "General Purpose",
     personality: "Helpful, versatile, always ready to assist",
-    systemPrompt: "You are Champion, a versatile AI assistant. You handle general tasks, answer questions, and provide support across all domains. You're friendly and approachable.",
+    systemPrompt:
+      "You are Champion, a versatile AI assistant. You handle general tasks, answer questions, and provide support across all domains. You're friendly and approachable.",
     status: "online",
     lastActivity: new Date(),
     memory: [],
@@ -60,7 +62,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Code Champion",
     role: "Developer",
     personality: "Technical, precise, loves clean code",
-    systemPrompt: "You are Code Champion, an expert software developer. You write, debug, and optimize code. You think in algorithms and speak in syntax. You're meticulous and thorough.",
+    systemPrompt:
+      "You are Code Champion, an expert software developer. You write, debug, and optimize code. You think in algorithms and speak in syntax. You're meticulous and thorough.",
     status: "online",
     lastActivity: new Date(),
     memory: [],
@@ -70,7 +73,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Social Dominator",
     role: "Marketing",
     personality: "Charismatic, trend-aware, social media guru",
-    systemPrompt: "You are Social Dominator, a marketing and social media expert. You create engaging content, analyze trends, and manage online presence. You're energetic and persuasive.",
+    systemPrompt:
+      "You are Social Dominator, a marketing and social media expert. You create engaging content, analyze trends, and manage online presence. You're energetic and persuasive.",
     status: "offline",
     lastActivity: new Date(),
     memory: [],
@@ -80,7 +84,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Data Slayer",
     role: "Analytics",
     personality: "Analytical, insight-driven, numbers wizard",
-    systemPrompt: "You are Data Slayer, a data analytics expert. You process data, generate insights, and create visualizations. You think in patterns and speak in statistics. You're methodical and precise.",
+    systemPrompt:
+      "You are Data Slayer, a data analytics expert. You process data, generate insights, and create visualizations. You think in patterns and speak in statistics. You're methodical and precise.",
     status: "online",
     lastActivity: new Date(),
     memory: [],
@@ -90,7 +95,8 @@ export const AGENTS: Record<string, Agent> = {
     name: "Writing Coach",
     role: "Content",
     personality: "Creative, eloquent, grammar perfectionist",
-    systemPrompt: "You are Writing Coach, a content creation expert. You write, edit, and polish text. You have a way with words and an eye for detail. You're articulate and inspiring.",
+    systemPrompt:
+      "You are Writing Coach, a content creation expert. You write, edit, and polish text. You have a way with words and an eye for detail. You're articulate and inspiring.",
     status: "online",
     lastActivity: new Date(),
     memory: [],
@@ -120,7 +126,8 @@ Available capabilities:
     id: "pixel-forge",
     name: "Pixel Forge",
     role: "Visual Artist & Image Generation",
-    personality: "Creative, visually-oriented, understands artistic context deeply",
+    personality:
+      "Creative, visually-oriented, understands artistic context deeply",
     systemPrompt: `You are Pixel Forge, an expert AI image generation specialist at LiTTree Lab Studios. Your role is to understand user intent deeply and craft enhanced prompts that produce stunning, contextually appropriate images.
 
 CONTEXT UNDERSTANDING:
@@ -139,7 +146,8 @@ When participating in multi-agent conversations, provide visual insights, sugges
     id: "alexchen",
     name: "Alex Chen",
     role: "AI Agent Architect & Full-Stack Builder",
-    personality: "Strategic, technical, visionary, loves clean architecture and mentoring builders",
+    personality:
+      "Strategic, technical, visionary, loves clean architecture and mentoring builders",
     systemPrompt: `You are Alex Chen, an AI Agent Architect and Full-Stack Builder at LiTTree Lab Studios. You help creators build intelligent agents that actually work. You have trained 47 specialized models and know the ins and outs of agent orchestration.
 
 Your expertise:
@@ -163,7 +171,8 @@ When chatting with visitors:
     id: "sarahk",
     name: "Sarah K.",
     role: "Growth Hacker & Marketing Strategist",
-    personality: "Energetic, data-driven, persuasive, always thinks in growth loops",
+    personality:
+      "Energetic, data-driven, persuasive, always thinks in growth loops",
     systemPrompt: `You are Sarah K., a Growth Hacker and Marketing Strategist at LiTTree Lab Studios. You turn zero-budget campaigns into viral sensations. You live and breathe social growth, SEO, and community building.
 
 Your expertise:
@@ -241,7 +250,7 @@ export class AgentOrchestrator {
 
   constructor() {
     // Initialize agents
-    Object.values(AGENTS).forEach(agent => {
+    Object.values(AGENTS).forEach((agent) => {
       this.agents.set(agent.id, { ...agent });
     });
   }
@@ -294,7 +303,13 @@ export class AgentOrchestrator {
   }
 
   // Send message between agents
-  sendMessage(from: string, to: string, content: string, type: AgentMessage["type"] = "chat", metadata?: Record<string, any>): AgentMessage {
+  sendMessage(
+    from: string,
+    to: string,
+    content: string,
+    type: AgentMessage["type"] = "chat",
+    metadata?: Record<string, unknown>,
+  ): AgentMessage {
     const message: AgentMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       from,
@@ -310,13 +325,16 @@ export class AgentOrchestrator {
     this.addToMemory(to, `From ${from}: ${content}`);
 
     // Notify handlers
-    this.messageHandlers.forEach(handler => handler(message));
+    this.messageHandlers.forEach((handler) => handler(message));
 
     return message;
   }
 
   // Add message to specific conversation
-  addMessageToConversation(conversationId: string, message: AgentMessage): void {
+  addMessageToConversation(
+    conversationId: string,
+    message: AgentMessage,
+  ): void {
     const conversation = this.conversations.get(conversationId);
     if (conversation) {
       conversation.messages.push(message);
@@ -331,7 +349,9 @@ export class AgentOrchestrator {
 
   // Get all active conversations
   getActiveConversations(): AgentConversation[] {
-    return Array.from(this.conversations.values()).filter(c => c.status === "active");
+    return Array.from(this.conversations.values()).filter(
+      (c) => c.status === "active",
+    );
   }
 
   // Subscribe to messages
@@ -345,8 +365,12 @@ export class AgentOrchestrator {
     };
   }
 
-// Generate real AI agent response using the unified LLM client with failover
-  async simulateAgentResponse(agentId: string, incomingMessage: string, conversationContext?: string): Promise<string> {
+  // Generate real AI agent response using the unified LLM client with failover
+  async simulateAgentResponse(
+    agentId: string,
+    incomingMessage: string,
+    conversationContext?: string,
+  ): Promise<string> {
     const agent = this.agents.get(agentId);
     if (!agent) return "Unknown agent";
 
@@ -366,18 +390,22 @@ Respond as ${agent.name} in character. Be concise (1-3 sentences), helpful, and 
 
       const r = await generateText(prompt, { task: "chat" });
       return r.text || "I'm processing that...";
-} catch (error) {
+    } catch {
       // LLM error for agent — logged silently
       return `${agent.name} is thinking... (AI service temporarily unavailable)`;
     }
   }
 
   // Start background conversation between two agents with AI-generated opener
-  async startBackgroundConversation(agent1Id: string, agent2Id: string, topic: string): Promise<AgentConversation> {
+  async startBackgroundConversation(
+    agent1Id: string,
+    agent2Id: string,
+    topic: string,
+  ): Promise<AgentConversation> {
     const conversation = this.createConversation([agent1Id, agent2Id], topic);
     const agent1 = this.agents.get(agent1Id);
     const agent2 = this.agents.get(agent2Id);
-    
+
     if (!agent1 || !agent2) return conversation;
 
     // Generate AI-powered initial message
@@ -404,17 +432,26 @@ Write a brief, natural opening message to kick off this discussion. Be conversat
         data: `Hey ${agent2.name}, I've been analyzing data for ${topic}. Let me share insights.`,
         writer: `${agent2.name}, let's craft a compelling story around ${topic}.`,
       };
-      initialContent = fallbackStarters[agent1Id] || `Hey ${agent2.name}, let's work on ${topic}!`;
+      initialContent =
+        fallbackStarters[agent1Id] ||
+        `Hey ${agent2.name}, let's work on ${topic}!`;
     }
-    
-    const initialMsg = this.sendMessage(agent1Id, agent2Id, initialContent, "task");
+
+    const initialMsg = this.sendMessage(
+      agent1Id,
+      agent2Id,
+      initialContent,
+      "task",
+    );
     this.addMessageToConversation(conversation.id, initialMsg);
 
     return conversation;
   }
 
   // Continue background conversation with AI-generated responses
-  async continueConversation(conversationId: string): Promise<AgentMessage | null> {
+  async continueConversation(
+    conversationId: string,
+  ): Promise<AgentMessage | null> {
     const conversation = this.conversations.get(conversationId);
     if (!conversation || conversation.status !== "active") return null;
 
@@ -431,17 +468,20 @@ Write a brief, natural opening message to kick off this discussion. Be conversat
 
     // Build conversation context from recent messages
     const contextMessages = conversation.messages.slice(-6);
-    const conversationContext = contextMessages.map(m => 
-      `${m.from === responderId ? responder.name : sender.name}: ${m.content}`
-    ).join("\n");
+    const conversationContext = contextMessages
+      .map(
+        (m) =>
+          `${m.from === responderId ? responder.name : sender.name}: ${m.content}`,
+      )
+      .join("\n");
 
     // Generate AI response with full context
     const response = await this.simulateAgentResponse(
-      responderId, 
+      responderId,
       lastMsg.content,
-      `Topic: ${conversation.topic}\n${conversationContext}`
+      `Topic: ${conversation.topic}\n${conversationContext}`,
     );
-    
+
     const reply = this.sendMessage(responderId, senderId, response, "chat");
     this.addMessageToConversation(conversationId, reply);
 

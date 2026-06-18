@@ -1,15 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useRef, useEffect } from "react";
-import {
-  useTheme,
-  darkSkins,
-  lightSkins,
-  type SkinPreset,
-  type AccentColor,
-} from "@/context/ThemeContext";
-import { useProfile, type UserProfile } from "@/context/ProfileContext";
+import { useState, useRef } from "react";
+import { useTheme } from "@/context/ThemeContext";
+import { useProfile } from "@/context/ProfileContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
@@ -174,11 +168,14 @@ export default function ProfilePage() {
         onClick={() => coverInputRef.current?.click()}
       >
         {profile.coverUrl ? (
-          <img
-            src={profile.coverUrl}
-            alt="Cover"
-            className="w-full h-full object-cover"
-          />
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={profile.coverUrl}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
+          </>
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-r from-purple-950 via-black to-blue-950">
             <span className="text-2xl font-bold tracking-widest text-white/50 animate-pulse">
@@ -232,11 +229,14 @@ export default function ProfilePage() {
               onClick={() => avatarInputRef.current?.click()}
             >
               {profile.avatarUrl ? (
-                <img
-                  src={profile.avatarUrl}
-                  alt="Avatar"
-                  className="w-full h-full object-cover"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={profile.avatarUrl}
+                    alt="Avatar"
+                    className="w-full h-full object-cover"
+                  />
+                </>
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center">
                   <span className="text-4xl">👤</span>

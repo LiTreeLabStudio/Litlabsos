@@ -6,9 +6,18 @@ import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { useRouter } from "next/navigation";
 import {
-  Activity, Users, Coins, ShoppingCart, Zap,
-  TrendingUp, TrendingDown, Clock, AlertCircle,
-  Terminal, RefreshCw, Server, Database
+  Activity,
+  Users,
+  Coins,
+  ShoppingCart,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Clock,
+  AlertCircle,
+  Terminal,
+  Server,
+  Database,
 } from "lucide-react";
 
 // Admin-only guard
@@ -45,23 +54,44 @@ const generateMockStats = (): LiveStats => ({
   systemHealth: "healthy",
 });
 
+const _now = Date.now();
 const generateMockEvents = (): RecentEvent[] => [
-  { id: "1", type: "sale", message: "User bought Code Champion for 250 LBC", timestamp: new Date(Date.now() - 1000 * 60 * 2) },
-  { id: "2", type: "signup", message: "New user: alex@example.com", timestamp: new Date(Date.now() - 1000 * 60 * 5) },
-  { id: "3", type: "chat", message: "47 new agent conversations today", timestamp: new Date(Date.now() - 1000 * 60 * 15) },
-  { id: "4", type: "sale", message: "User bought Social Dominator for 500 LBC", timestamp: new Date(Date.now() - 1000 * 60 * 30) },
+  {
+    id: "1",
+    type: "sale",
+    message: "User bought Code Champion for 250 LBC",
+    timestamp: new Date(_now - 1000 * 60 * 2),
+  },
+  {
+    id: "2",
+    type: "signup",
+    message: "New user: alex@example.com",
+    timestamp: new Date(_now - 1000 * 60 * 5),
+  },
+  {
+    id: "3",
+    type: "chat",
+    message: "47 new agent conversations today",
+    timestamp: new Date(_now - 1000 * 60 * 15),
+  },
+  {
+    id: "4",
+    type: "sale",
+    message: "User bought Social Dominator for 500 LBC",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30),
+  },
 ];
 
 export default function AdminDashboard() {
   const { resolvedColors: T } = useTheme();
   const { userId, isLoaded, isSignedIn } = useClerkAuth();
   const router = useRouter();
-  
+
   const [stats, setStats] = useState<LiveStats>(generateMockStats());
   const [events, setEvents] = useState<RecentEvent[]>(generateMockEvents());
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  
+
   const eventSourceRef = useRef<EventSource | null>(null);
 
   // Auth guard
@@ -80,7 +110,7 @@ export default function AdminDashboard() {
       eventSourceRef.current = es;
 
       es.onopen = () => setIsConnected(true);
-      
+
       es.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
@@ -103,7 +133,7 @@ export default function AdminDashboard() {
       };
     };
 
-    connectSSE();
+    const id = requestAnimationFrame(() => connectSSE());
 
     // Fallback: Update stats every 5 seconds if SSE fails
     const fallbackInterval = setInterval(() => {
@@ -114,6 +144,7 @@ export default function AdminDashboard() {
     }, 5000);
 
     return () => {
+      cancelAnimationFrame(id);
       eventSourceRef.current?.close();
       clearInterval(fallbackInterval);
     };
@@ -121,9 +152,16 @@ export default function AdminDashboard() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: T.bgColor }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: T.bgColor }}
+      >
         <div className="text-center">
-          <Activity className="animate-spin mx-auto mb-4" size={32} style={{ color: T.accentColor }} />
+          <Activity
+            className="animate-spin mx-auto mb-4"
+            size={32}
+            style={{ color: T.accentColor }}
+          />
           <p style={{ color: T.textMuted }}>Loading Admin Dashboard...</p>
         </div>
       </div>
@@ -132,9 +170,16 @@ export default function AdminDashboard() {
 
   if (!isSignedIn || userId !== ADMIN_USER_ID) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: T.bgColor }}>
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: T.bgColor }}
+      >
         <div className="text-center">
-          <AlertCircle size={48} className="mx-auto mb-4" style={{ color: T.warning }} />
+          <AlertCircle
+            size={48}
+            className="mx-auto mb-4"
+            style={{ color: T.warning }}
+          />
           <p style={{ color: T.textMuted }}>Access Denied - Admin Only</p>
         </div>
       </div>
@@ -142,25 +187,34 @@ export default function AdminDashboard() {
   }
 
   const formatTime = (date: Date) => {
-    const mins = Math.floor((Date.now() - date.getTime()) / 60000);
+    const mins = Math.floor((_now - date.getTime()) / 60000);
     if (mins < 1) return "Just now";
     if (mins < 60) return `${mins}m ago`;
     return `${Math.floor(mins / 60)}h ago`;
   };
 
   return (
-    <div className="min-h-screen p-6" style={{ backgroundColor: T.bgColor, color: T.textColor }}>
+    <div
+      className="min-h-screen p-6"
+      style={{ backgroundColor: T.bgColor, color: T.textColor }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="p-3 rounded-lg" style={{ backgroundColor: T.accentColor + "20" }}>
+          <div
+            className="p-3 rounded-lg"
+            style={{ backgroundColor: T.accentColor + "20" }}
+          >
             <Terminal size={24} style={{ color: T.accentColor }} />
           </div>
           <div>
             <h1 className="text-2xl font-bold" style={{ color: T.textColor }}>
               Admin Command Center
             </h1>
-            <div className="flex items-center gap-2 text-sm" style={{ color: T.textMuted }}>
+            <div
+              className="flex items-center gap-2 text-sm"
+              style={{ color: T.textMuted }}
+            >
               <span
                 className="w-2 h-2 rounded-full"
                 style={{
@@ -175,11 +229,14 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div
             className="px-4 py-2 rounded-lg text-sm"
-            style={{ backgroundColor: T.boxBg, border: `1px solid ${T.borderColor}` }}
+            style={{
+              backgroundColor: T.boxBg,
+              border: `1px solid ${T.borderColor}`,
+            }}
           >
             <span style={{ color: T.textMuted }}>System Status:</span>{" "}
             <span
@@ -235,7 +292,10 @@ export default function AdminDashboard() {
         {/* Live Event Feed */}
         <div
           className="lg:col-span-2 rounded-xl p-4"
-          style={{ backgroundColor: T.boxBg, border: `1px solid ${T.borderColor}` }}
+          style={{
+            backgroundColor: T.boxBg,
+            border: `1px solid ${T.borderColor}`,
+          }}
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold" style={{ color: T.textColor }}>
@@ -249,7 +309,7 @@ export default function AdminDashboard() {
               Clear
             </button>
           </div>
-          
+
           <div className="space-y-2 max-h-[400px] overflow-auto">
             {events.length === 0 ? (
               <div className="text-center py-8" style={{ color: T.textMuted }}>
@@ -269,10 +329,10 @@ export default function AdminDashboard() {
                         event.type === "sale"
                           ? T.success + "20"
                           : event.type === "signup"
-                          ? T.accentColor + "20"
-                          : event.type === "alert"
-                          ? T.warning + "20"
-                          : T.headerColor + "20",
+                            ? T.accentColor + "20"
+                            : event.type === "alert"
+                              ? T.warning + "20"
+                              : T.headerColor + "20",
                     }}
                   >
                     {event.type === "sale" ? (
@@ -302,27 +362,45 @@ export default function AdminDashboard() {
         {/* System Status */}
         <div
           className="rounded-xl p-4"
-          style={{ backgroundColor: T.boxBg, border: `1px solid ${T.borderColor}` }}
+          style={{
+            backgroundColor: T.boxBg,
+            border: `1px solid ${T.borderColor}`,
+          }}
         >
           <h2 className="text-lg font-bold mb-4" style={{ color: T.textColor }}>
             System Health
           </h2>
-          
+
           <div className="space-y-3">
             <StatusRow T={T} icon={Server} label="API Server" status="online" />
             <StatusRow T={T} icon={Database} label="Database" status="online" />
             <StatusRow T={T} icon={Zap} label="AI Models" status="online" />
-            <StatusRow T={T} icon={Activity} label="WebSocket" status={isConnected ? "online" : "degraded"} />
+            <StatusRow
+              T={T}
+              icon={Activity}
+              label="WebSocket"
+              status={isConnected ? "online" : "degraded"}
+            />
           </div>
 
-          <div className="mt-6 pt-4 border-t" style={{ borderColor: T.borderColor }}>
-            <h3 className="text-sm font-bold mb-3" style={{ color: T.textMuted }}>
+          <div
+            className="mt-6 pt-4 border-t"
+            style={{ borderColor: T.borderColor }}
+          >
+            <h3
+              className="text-sm font-bold mb-3"
+              style={{ color: T.textMuted }}
+            >
               Quick Actions
             </h3>
             <div className="space-y-2">
               <ActionButton T={T} label="Restart API" onClick={() => {}} />
               <ActionButton T={T} label="Clear Cache" onClick={() => {}} />
-              <ActionButton T={T} label="Send Test Notification" onClick={() => {}} />
+              <ActionButton
+                T={T}
+                label="Send Test Notification"
+                onClick={() => {}}
+              />
             </div>
           </div>
         </div>
@@ -397,7 +475,10 @@ function StatusRow({
   };
 
   return (
-    <div className="flex items-center justify-between p-2 rounded-lg" style={{ backgroundColor: T.bgColor }}>
+    <div
+      className="flex items-center justify-between p-2 rounded-lg"
+      style={{ backgroundColor: T.bgColor }}
+    >
       <div className="flex items-center gap-2">
         <Icon size={16} style={{ color: T.textMuted }} />
         <span className="text-sm" style={{ color: T.textColor }}>
@@ -409,7 +490,8 @@ function StatusRow({
           className="w-2 h-2 rounded-full"
           style={{
             backgroundColor: statusColors[status],
-            boxShadow: status === "online" ? `0 0 6px ${statusColors[status]}` : "none",
+            boxShadow:
+              status === "online" ? `0 0 6px ${statusColors[status]}` : "none",
           }}
         />
         <span

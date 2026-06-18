@@ -1,12 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { getAdminSupabase, isAdminSupabaseConfigured } from "@/lib/supabase-admin";
+import {
+  getAdminSupabase,
+  isAdminSupabaseConfigured,
+} from "@/lib/supabase-admin";
 import { withRateLimit } from "@/lib/rate-limiter";
 
-async function getHandler(req: NextRequest) {
+async function getHandler() {
   try {
     const { userId } = await auth();
-    
+
     if (!isAdminSupabaseConfigured()) {
       return NextResponse.json({
         visitors: 133786,
@@ -20,7 +23,7 @@ async function getHandler(req: NextRequest) {
     }
 
     const sb = getAdminSupabase();
-    
+
     const [usersRes, postsRes, agentsRes, walletRes] = await Promise.all([
       sb.from("users").select("id", { count: "exact", head: true }),
       sb.from("posts").select("id", { count: "exact", head: true }),

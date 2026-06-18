@@ -4,12 +4,12 @@
 
 import { supabase } from "./supabase";
 
-export type NotificationType = 
-  | "sale" 
-  | "signup" 
-  | "agent_created" 
-  | "system_alert" 
-  | "chat" 
+export type NotificationType =
+  | "sale"
+  | "signup"
+  | "agent_created"
+  | "system_alert"
+  | "chat"
   | "marketing"
   | "cli_event";
 
@@ -69,7 +69,7 @@ class Jarvis {
       if (error) {
         // Silenced
       }
-    } catch (err) {
+    } catch {
       // Silenced
     }
 
@@ -84,13 +84,13 @@ class Jarvis {
             results.push(await this.sendWebhook(payload));
             break;
           case "push":
-            results.push(await this.sendPush(payload));
+            results.push(await this.sendPush());
             break;
           case "email":
-            results.push(await this.sendEmail(payload));
+            results.push(await this.sendEmail());
             break;
         }
-      } catch (err) {
+      } catch {
         results.push(false);
       }
     }
@@ -104,9 +104,9 @@ class Jarvis {
     }
 
     const colorMap: Record<NotificationPriority, number> = {
-      low: 0x00ff00,    // Green
+      low: 0x00ff00, // Green
       medium: 0xffff00, // Yellow
-      high: 0xffa500,   // Orange
+      high: 0xffa500, // Orange
       critical: 0xff0000, // Red
     };
 
@@ -145,7 +145,7 @@ class Jarvis {
       });
 
       return response.ok;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
@@ -171,17 +171,17 @@ class Jarvis {
       });
 
       return response.ok;
-    } catch (err) {
+    } catch {
       return false;
     }
   }
 
-  private async sendPush(payload: NotificationPayload): Promise<boolean> {
+  private async sendPush(): Promise<boolean> {
     // OneSignal or WebPush implementation would go here
     return true;
   }
 
-  private async sendEmail(payload: NotificationPayload): Promise<boolean> {
+  private async sendEmail(): Promise<boolean> {
     // Resend or SendGrid implementation would go here
     return true;
   }
@@ -244,7 +244,11 @@ class Jarvis {
     });
   }
 
-  async systemAlert(data: { message: string; severity: NotificationPriority; details?: Record<string, unknown> }) {
+  async systemAlert(data: {
+    message: string;
+    severity: NotificationPriority;
+    details?: Record<string, unknown>;
+  }) {
     return this.notify({
       type: "system_alert",
       priority: data.severity,
@@ -255,12 +259,19 @@ class Jarvis {
     });
   }
 
-  async cliEvent(data: { tool: string; command: string; output: string; success: boolean }) {
+  async cliEvent(data: {
+    tool: string;
+    command: string;
+    output: string;
+    success: boolean;
+  }) {
     return this.notify({
       type: "cli_event",
       priority: data.success ? "low" : "high",
       title: `CLI: ${data.tool}`,
-      body: data.success ? "Command executed successfully" : `Failed: ${data.output}`,
+      body: data.success
+        ? "Command executed successfully"
+        : `Failed: ${data.output}`,
       data: {
         tool: data.tool,
         command: data.command,

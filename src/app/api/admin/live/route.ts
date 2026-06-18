@@ -3,7 +3,6 @@
 
 import { NextRequest } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { supabase } from "@/lib/supabase";
 
 const ADMIN_USER_ID = process.env.ADMIN_CLERK_ID || "user_litbit";
 
@@ -23,7 +22,7 @@ function generateStats() {
 
 export async function GET(req: NextRequest) {
   const { userId } = await auth();
-  
+
   if (!userId || userId !== ADMIN_USER_ID) {
     return new Response("Unauthorized", { status: 401 });
   }
@@ -35,7 +34,9 @@ export async function GET(req: NextRequest) {
     start(controller) {
       // Send initial stats
       controller.enqueue(
-        encoder.encode(`data: ${JSON.stringify({ type: "stats", payload: generateStats() })}\n\n`)
+        encoder.encode(
+          `data: ${JSON.stringify({ type: "stats", payload: generateStats() })}\n\n`,
+        ),
       );
 
       // Send stats every 3 seconds
@@ -44,9 +45,11 @@ export async function GET(req: NextRequest) {
           clearInterval(statsInterval);
           return;
         }
-        
+
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ type: "stats", payload: generateStats() })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({ type: "stats", payload: generateStats() })}\n\n`,
+          ),
         );
       }, 3000);
 
@@ -62,18 +65,20 @@ export async function GET(req: NextRequest) {
           { type: "signup", message: "New user signed up" },
           { type: "chat", message: "New agent conversation started" },
         ];
-        
+
         const event = events[Math.floor(Math.random() * events.length)];
-        
+
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify({ 
-            type: "event", 
-            payload: {
-              id: crypto.randomUUID(),
-              ...event,
-              timestamp: new Date().toISOString(),
-            }
-          })}\n\n`)
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "event",
+              payload: {
+                id: crypto.randomUUID(),
+                ...event,
+                timestamp: new Date().toISOString(),
+              },
+            })}\n\n`,
+          ),
         );
       }, 8000);
 
@@ -83,7 +88,9 @@ export async function GET(req: NextRequest) {
           clearInterval(pingInterval);
           return;
         }
-        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "ping" })}\n\n`));
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "ping" })}\n\n`),
+        );
       }, 15000);
 
       // Cleanup
@@ -101,7 +108,7 @@ export async function GET(req: NextRequest) {
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      "Connection": "keep-alive",
+      Connection: "keep-alive",
     },
   });
 }

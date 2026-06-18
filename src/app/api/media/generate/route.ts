@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getUserWallet, updateWalletBalance } from "@/lib/user-db";
 import { withRateLimit } from "@/lib/rate-limiter";
-import { MEDIA_PROVIDERS, MediaFormat, MediaProviderId, getProvider, defaultProviderFor } from "@/lib/media";
+import {
+  MEDIA_PROVIDERS,
+  MediaFormat,
+  MediaProviderId,
+  getProvider,
+  defaultProviderFor,
+} from "@/lib/media";
 
 const HF_API_KEY = process.env.HUGGING_FACE_API_KEY;
-const HF_VIDEO_URL = "https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7";
+const HF_VIDEO_URL =
+  "https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7";
 const POLLINATIONS_BASE = "https://image.pollinations.ai/prompt";
 const FAL_API_KEY = process.env.FAL_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -46,7 +53,11 @@ type MediaResult = {
 /* ------------------------------------------------------------------ */
 /*  Provider implementations                                            */
 /* ------------------------------------------------------------------ */
-function resolveGeminiAspect(width: number, height: number, explicitRatio?: string): string {
+function resolveGeminiAspect(
+  width: number,
+  height: number,
+  explicitRatio?: string,
+): string {
   const VALID = ["1:1", "3:4", "4:3", "9:16", "16:9"];
   if (explicitRatio && VALID.includes(explicitRatio)) return explicitRatio;
   // Infer from dimensions
@@ -60,35 +71,42 @@ function resolveGeminiAspect(width: number, height: number, explicitRatio?: stri
 
 async function handleGeminiImage(
   prompt: string,
-  _width: number,
-  _height: number,
+  width: number,
+  height: number,
   aspectRatio?: string,
-  _imageSize: "1K" | "2K" | "4K" = "1K",
 ): Promise<MediaResult> {
-  if (!GEMINI_API_KEY) throw new Error("Gemini key missing — set GEMINI_API_KEY");
+  if (!GEMINI_API_KEY)
+    throw new Error("Gemini key missing — set GEMINI_API_KEY");
 
-  const finalAspect = resolveGeminiAspect(_width, _height, aspectRatio);
+  const finalAspect = resolveGeminiAspect(width, height, aspectRatio);
 
   // Use stable Imagen 3 predict API - correct model name
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${GEMINI_API_KEY}`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "User-Agent": "litlabs-studio" },
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "litlabs-studio",
+      },
       body: JSON.stringify({
         instances: [{ prompt: prompt.trim() }],
         parameters: { sampleCount: 1, aspectRatio: finalAspect },
       }),
-    }
+    },
   );
 
   if (!res.ok) {
     const err = await res.text().catch(() => "");
     // Try fallback to older model if 404
     if (res.status === 404) {
-      throw new Error(`Gemini Imagen 3 model not found. Please check your API key or try Pollinations/Together.ai instead.`);
+      throw new Error(
+        `Gemini Imagen 3 model not found. Please check your API key or try Pollinations/Together.ai instead.`,
+      );
     }
-    throw new Error(`Gemini Imagen 3 error: ${err.slice(0, 300) || res.statusText}`);
+    throw new Error(
+      `Gemini Imagen 3 error: ${err.slice(0, 300) || res.statusText}`,
+    );
   }
 
   const data = await res.json();
@@ -120,7 +138,10 @@ async function handleFalImage(
     },
     body: JSON.stringify({
       prompt: prompt.trim(),
-      image_size: { width: Math.min(width, 1440), height: Math.min(height, 1440) },
+      image_size: {
+        width: Math.min(width, 1440),
+        height: Math.min(height, 1440),
+      },
       num_images: 1,
       enable_safety_checker: true,
     }),
@@ -128,7 +149,9 @@ async function handleFalImage(
 
   if (!submitRes.ok) {
     const err = await submitRes.text().catch(() => "");
-    throw new Error(`FAL.ai submit error: ${err.slice(0, 200) || submitRes.statusText}`);
+    throw new Error(
+      `FAL.ai submit error: ${err.slice(0, 200) || submitRes.statusText}`,
+    );
   }
 
   const submitData = await submitRes.json();
@@ -151,7 +174,7 @@ async function handleFalImage(
 
   const start = Date.now();
   while (Date.now() - start < 60_000) {
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 2000));
     const pollRes = await fetch(statusUrl, {
       headers: { Authorization: `Key ${FAL_API_KEY}` },
     });
@@ -178,8 +201,12 @@ async function handleFalImage(
   throw new Error("FAL.ai timed out after 60s");
 }
 
-async function handleHuggingFaceVideo(prompt: string, referenceUrl?: string): Promise<MediaResult> {
-  if (!HF_API_KEY) throw new Error("Hugging Face key missing — set HUGGING_FACE_API_KEY");
+async function handleHuggingFaceVideo(
+  prompt: string,
+  referenceUrl?: string,
+): Promise<MediaResult> {
+  if (!HF_API_KEY)
+    throw new Error("Hugging Face key missing — set HUGGING_FACE_API_KEY");
 
   // If a reference image is provided, use image-to-video pipeline (img2vid)
   const modelUrl = referenceUrl
@@ -187,12 +214,21 @@ async function handleHuggingFaceVideo(prompt: string, referenceUrl?: string): Pr
     : HF_VIDEO_URL;
 
   const body: Record<string, unknown> = referenceUrl
-    ? { inputs: referenceUrl, options: { wait_for_model: true, use_cache: false } }
-    : { inputs: prompt.trim(), options: { wait_for_model: true, use_cache: false } };
+    ? {
+        inputs: referenceUrl,
+        options: { wait_for_model: true, use_cache: false },
+      }
+    : {
+        inputs: prompt.trim(),
+        options: { wait_for_model: true, use_cache: false },
+      };
 
   const res = await fetch(modelUrl, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${HF_API_KEY}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${HF_API_KEY}`,
+    },
     body: JSON.stringify(body),
   });
 
@@ -225,7 +261,7 @@ async function handlePollinationsImage(
     height: String(Math.min(height, 1024)),
     seed: String(fixedSeed),
     nologo: "true",
-    enhance: "false",  // enhance adds latency — skip it
+    enhance: "false", // enhance adds latency — skip it
     model: "flux",
   });
   if (negativePrompt.trim()) params.set("negative", negativePrompt.trim());
@@ -236,7 +272,10 @@ async function handlePollinationsImage(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 25_000);
   try {
-    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+    const res = await fetch(url, {
+      signal: controller.signal,
+      cache: "no-store",
+    });
     clearTimeout(timer);
     if (res.ok) {
       const ct = res.headers.get("content-type") || "image/jpeg";
@@ -266,8 +305,13 @@ async function handlePollinationsImage(
   };
 }
 
-async function handleTogetherImage(prompt: string, width: number, height: number): Promise<MediaResult> {
-  if (!TOGETHER_API_KEY) throw new Error("Together.ai key missing — set TOGETHER_API_KEY");
+async function handleTogetherImage(
+  prompt: string,
+  width: number,
+  height: number,
+): Promise<MediaResult> {
+  if (!TOGETHER_API_KEY)
+    throw new Error("Together.ai key missing — set TOGETHER_API_KEY");
 
   const res = await fetch("https://api.together.xyz/v1/images/generations", {
     method: "POST",
@@ -287,7 +331,9 @@ async function handleTogetherImage(prompt: string, width: number, height: number
 
   if (!res.ok) {
     const err = await res.text().catch(() => "");
-    throw new Error(`Together.ai error: ${err.slice(0, 200) || res.statusText}`);
+    throw new Error(
+      `Together.ai error: ${err.slice(0, 200) || res.statusText}`,
+    );
   }
 
   const data = await res.json();
@@ -314,8 +360,9 @@ async function handleTogetherImage(prompt: string, width: number, height: number
   throw new Error("Together.ai returned no image data");
 }
 
-async function handleOpenAIImage(prompt: string, _width: number, _height: number): Promise<MediaResult> {
-  if (!OPENAI_API_KEY) throw new Error("OpenAI key missing — set OPENAI_API_KEY");
+async function handleOpenAIImage(prompt: string): Promise<MediaResult> {
+  if (!OPENAI_API_KEY)
+    throw new Error("OpenAI key missing — set OPENAI_API_KEY");
 
   const res = await fetch("https://api.openai.com/v1/images/generations", {
     method: "POST",
@@ -350,21 +397,25 @@ async function handleOpenAIImage(prompt: string, _width: number, _height: number
   };
 }
 
-async function handleRecraftImage(prompt: string, _width: number, _height: number): Promise<MediaResult> {
-  if (!RECRAFT_API_KEY) throw new Error("Recraft key missing — set RECRAFT_API_KEY");
+async function handleRecraftImage(prompt: string): Promise<MediaResult> {
+  if (!RECRAFT_API_KEY)
+    throw new Error("Recraft key missing — set RECRAFT_API_KEY");
 
-  const res = await fetch("https://external.api.recraft.ai/v1/images/generations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${RECRAFT_API_KEY}`,
+  const res = await fetch(
+    "https://external.api.recraft.ai/v1/images/generations",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${RECRAFT_API_KEY}`,
+      },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        style: "digital_illustration",
+        n: 1,
+      }),
     },
-    body: JSON.stringify({
-      prompt: prompt.trim(),
-      style: "digital_illustration",
-      n: 1,
-    }),
-  });
+  );
 
   if (!res.ok) {
     const err = await res.text().catch(() => "");
@@ -390,31 +441,45 @@ async function handleRecraftImage(prompt: string, _width: number, _height: numbe
 async function handler(req: NextRequest) {
   const { userId } = await auth();
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized — sign in to generate media" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized — sign in to generate media" },
+      { status: 401 },
+    );
   }
 
   let body: MediaRequest;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid request body — send JSON" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body — send JSON" },
+      { status: 400 },
+    );
   }
   const prompt = body.prompt?.trim();
   if (!prompt || prompt.length < 3) {
-    return NextResponse.json({ error: "Prompt must be at least 3 characters" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Prompt must be at least 3 characters" },
+      { status: 400 },
+    );
   }
 
   // Resolve provider + format with smart defaults
-  const format: MediaFormat = body.format ?? (body.providerId === "huggingface" ? "video" : "image");
-  const providerId: MediaProviderId = body.providerId ?? defaultProviderFor(format);
+  const format: MediaFormat =
+    body.format ?? (body.providerId === "huggingface" ? "video" : "image");
+  const providerId: MediaProviderId =
+    body.providerId ?? defaultProviderFor(format);
   const provider = getProvider(providerId);
   if (!provider) {
-    return NextResponse.json({ error: "Unknown media provider" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Unknown media provider" },
+      { status: 400 },
+    );
   }
   if (!provider.supportedFormats.includes(format)) {
     return NextResponse.json(
       { error: `${provider.label} does not support ${format}` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -427,8 +492,10 @@ async function handler(req: NextRequest) {
     wallet = await getUserWallet(userId);
     if (wallet.balance < cost) {
       return NextResponse.json(
-        { error: `Insufficient LiTBit Coins. Need ${cost}, have ${wallet.balance}` },
-        { status: 402 }
+        {
+          error: `Insufficient LiTBit Coins. Need ${cost}, have ${wallet.balance}`,
+        },
+        { status: 402 },
       );
     }
   }
@@ -438,10 +505,17 @@ async function handler(req: NextRequest) {
   try {
     if (providerId === "gemini") {
       result = await handleGeminiImage(
-        prompt, body.width ?? 1024, body.height ?? 1024, body.aspectRatio, body.imageSize ?? "1K"
+        prompt,
+        body.width ?? 1024,
+        body.height ?? 1024,
+        body.aspectRatio,
       );
     } else if (providerId === "fal") {
-      result = await handleFalImage(prompt, body.width ?? 1024, body.height ?? 1024);
+      result = await handleFalImage(
+        prompt,
+        body.width ?? 1024,
+        body.height ?? 1024,
+      );
     } else if (providerId === "huggingface") {
       result = await handleHuggingFaceVideo(prompt, body.referenceUrl);
     } else if (providerId === "pollinations") {
@@ -453,21 +527,27 @@ async function handler(req: NextRequest) {
         body.height ?? 1024,
       );
     } else if (providerId === "together") {
-      result = await handleTogetherImage(prompt, body.width ?? 1024, body.height ?? 1024);
+      result = await handleTogetherImage(
+        prompt,
+        body.width ?? 1024,
+        body.height ?? 1024,
+      );
     } else if (providerId === "openai") {
-      result = await handleOpenAIImage(prompt, body.width ?? 1024, body.height ?? 1024);
+      result = await handleOpenAIImage(prompt);
     } else if (providerId === "recraft") {
-      result = await handleRecraftImage(prompt, body.width ?? 1024, body.height ?? 1024);
+      result = await handleRecraftImage(prompt);
     } else {
       return NextResponse.json(
-        { error: `${provider.label} is not yet wired. Add the provider handler in /api/media/generate/route.ts` },
-        { status: 501 }
+        {
+          error: `${provider.label} is not yet wired. Add the provider handler in /api/media/generate/route.ts`,
+        },
+        { status: 501 },
       );
     }
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Provider error" },
-      { status: 502 }
+      { status: 502 },
     );
   }
 

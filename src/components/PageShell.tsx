@@ -17,7 +17,7 @@ interface PageShellProps {
   icon?: ReactNode;
   breadcrumbs?: BreadcrumbItem[];
   className?: string;
-  fullWidth?: boolean;
+
   animate?: boolean;
   headerAction?: ReactNode;
 }
@@ -29,7 +29,6 @@ export default function PageShell({
   icon,
   breadcrumbs,
   className = "",
-  fullWidth = false,
   animate = true,
   headerAction,
 }: PageShellProps) {

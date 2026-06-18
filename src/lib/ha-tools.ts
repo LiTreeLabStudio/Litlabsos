@@ -5,9 +5,19 @@
  */
 
 import {
-  turnOn, turnOff, toggle, setBrightness, setColor,
-  setTemperature, mediaPlay, mediaPause, playMedia,
-  notify, tts, getState, getDeviceMap, HAEntity,
+  turnOn,
+  turnOff,
+  toggle,
+  setBrightness,
+  setColor,
+  setTemperature,
+  mediaPlay,
+  mediaPause,
+  playMedia,
+  notify,
+  tts,
+  getState,
+  getDeviceMap,
   HAServiceResponse,
 } from "./ha-api";
 
@@ -20,7 +30,10 @@ export interface HAToolSchema {
   description: string;
   parameters: {
     type: "object";
-    properties: Record<string, { type: string; description: string; enum?: string[] }>;
+    properties: Record<
+      string,
+      { type: string; description: string; enum?: string[] }
+    >;
     required: string[];
   };
 }
@@ -32,7 +45,10 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Full entity ID, e.g. light.living_room" },
+        entity_id: {
+          type: "string",
+          description: "Full entity ID, e.g. light.living_room",
+        },
       },
       required: ["entity_id"],
     },
@@ -43,7 +59,10 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Full entity ID, e.g. light.living_room" },
+        entity_id: {
+          type: "string",
+          description: "Full entity ID, e.g. light.living_room",
+        },
       },
       required: ["entity_id"],
     },
@@ -54,7 +73,10 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Full entity ID, e.g. switch.coffee_maker" },
+        entity_id: {
+          type: "string",
+          description: "Full entity ID, e.g. switch.coffee_maker",
+        },
       },
       required: ["entity_id"],
     },
@@ -65,8 +87,14 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Light entity ID, e.g. light.living_room" },
-        brightness_pct: { type: "number", description: "Brightness percentage from 0 to 100" },
+        entity_id: {
+          type: "string",
+          description: "Light entity ID, e.g. light.living_room",
+        },
+        brightness_pct: {
+          type: "number",
+          description: "Brightness percentage from 0 to 100",
+        },
       },
       required: ["entity_id", "brightness_pct"],
     },
@@ -77,7 +105,10 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Light entity ID, e.g. light.kitchen" },
+        entity_id: {
+          type: "string",
+          description: "Light entity ID, e.g. light.kitchen",
+        },
         color: { type: "string", description: "Hex color code, e.g. #ff0080" },
       },
       required: ["entity_id", "color"],
@@ -89,8 +120,14 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Climate entity ID, e.g. climate.thermostat" },
-        temperature: { type: "number", description: "Target temperature in degrees Celsius" },
+        entity_id: {
+          type: "string",
+          description: "Climate entity ID, e.g. climate.thermostat",
+        },
+        temperature: {
+          type: "number",
+          description: "Target temperature in degrees Celsius",
+        },
       },
       required: ["entity_id", "temperature"],
     },
@@ -101,7 +138,11 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Media player entity ID, e.g. media_player.living_room_speaker" },
+        entity_id: {
+          type: "string",
+          description:
+            "Media player entity ID, e.g. media_player.living_room_speaker",
+        },
       },
       required: ["entity_id"],
     },
@@ -148,7 +189,11 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
       type: "object",
       properties: {
         message: { type: "string", description: "Text to speak" },
-        entity_id: { type: "string", description: "Optional media player entity ID. If omitted, uses default TTS target." },
+        entity_id: {
+          type: "string",
+          description:
+            "Optional media player entity ID. If omitted, uses default TTS target.",
+        },
       },
       required: ["message"],
     },
@@ -159,7 +204,10 @@ export const HA_TOOL_SCHEMAS: HAToolSchema[] = [
     parameters: {
       type: "object",
       properties: {
-        entity_id: { type: "string", description: "Full entity ID, e.g. sensor.living_room_temp" },
+        entity_id: {
+          type: "string",
+          description: "Full entity ID, e.g. sensor.living_room_temp",
+        },
       },
       required: ["entity_id"],
     },
@@ -186,7 +234,10 @@ export interface ToolCallResult {
   message: string;
 }
 
-export async function executeHATool(toolName: string, args: Record<string, unknown>): Promise<ToolCallResult> {
+export async function executeHATool(
+  toolName: string,
+  args: Record<string, unknown>,
+): Promise<ToolCallResult> {
   try {
     let result: unknown;
 
@@ -201,13 +252,19 @@ export async function executeHATool(toolName: string, args: Record<string, unkno
         result = await toggle(args.entity_id as string);
         break;
       case "ha_set_brightness":
-        result = await setBrightness(args.entity_id as string, args.brightness_pct as number);
+        result = await setBrightness(
+          args.entity_id as string,
+          args.brightness_pct as number,
+        );
         break;
       case "ha_set_color":
         result = await setColor(args.entity_id as string, args.color as string);
         break;
       case "ha_set_temperature":
-        result = await setTemperature(args.entity_id as string, args.temperature as number);
+        result = await setTemperature(
+          args.entity_id as string,
+          args.temperature as number,
+        );
         break;
       case "ha_media_play":
         result = await mediaPlay(args.entity_id as string);
@@ -216,13 +273,22 @@ export async function executeHATool(toolName: string, args: Record<string, unkno
         result = await mediaPause(args.entity_id as string);
         break;
       case "ha_play_media":
-        result = await playMedia(args.entity_id as string, args.media_url as string);
+        result = await playMedia(
+          args.entity_id as string,
+          args.media_url as string,
+        );
         break;
       case "ha_notify":
-        result = await notify(args.message as string, (args.title as string) || "LiTree Labs");
+        result = await notify(
+          args.message as string,
+          (args.title as string) || "LiTree Labs",
+        );
         break;
       case "ha_tts":
-        result = await tts(args.message as string, args.entity_id as string | undefined);
+        result = await tts(
+          args.message as string,
+          args.entity_id as string | undefined,
+        );
         break;
       case "ha_get_state":
         result = await getState(args.entity_id as string);
@@ -231,7 +297,12 @@ export async function executeHATool(toolName: string, args: Record<string, unkno
         result = await getDeviceMap();
         break;
       default:
-        return { tool: toolName, success: false, result: null, message: `Unknown tool: ${toolName}` };
+        return {
+          tool: toolName,
+          success: false,
+          result: null,
+          message: `Unknown tool: ${toolName}`,
+        };
     }
 
     const serviceResult = result as HAServiceResponse;
@@ -244,7 +315,12 @@ export async function executeHATool(toolName: string, args: Record<string, unkno
       };
     }
 
-    return { tool: toolName, success: true, result, message: `${toolName} executed successfully` };
+    return {
+      tool: toolName,
+      success: true,
+      result,
+      message: `${toolName} executed successfully`,
+    };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     return { tool: toolName, success: false, result: null, message: msg };
@@ -258,7 +334,10 @@ export async function executeHATool(toolName: string, args: Record<string, unkno
 export function getHAToolSchemaText(): string {
   return HA_TOOL_SCHEMAS.map((t) => {
     const params = Object.entries(t.parameters.properties)
-      .map(([k, v]) => `  ${k}: ${v.type}${v.enum ? ` (enum: ${v.enum.join(", ")})` : ""} — ${v.description}`)
+      .map(
+        ([k, v]) =>
+          `  ${k}: ${v.type}${v.enum ? ` (enum: ${v.enum.join(", ")})` : ""} — ${v.description}`,
+      )
       .join("\n");
     return `${t.name}:\n  description: ${t.description}\n  parameters:\n${params}`;
   }).join("\n\n");

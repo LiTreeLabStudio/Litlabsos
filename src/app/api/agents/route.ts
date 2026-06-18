@@ -13,14 +13,21 @@ async function getHandler(req: NextRequest) {
 
     let query = supabase
       .from("agents")
-      .select("id, slug, display_name, description, role, system_prompt, model, is_core, owner_id, created_at, updated_at")
+      .select(
+        "id, slug, display_name, description, role, system_prompt, model, is_core, owner_id, created_at, updated_at",
+      )
       .order("is_core", { ascending: false })
       .order("created_at", { ascending: false });
 
     if (includeOwn) {
       const { userId } = await auth();
-      if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      const { data: user } = await supabase.from("users").select("id").eq("clerk_id", userId).single();
+      if (!userId)
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      const { data: user } = await supabase
+        .from("users")
+        .select("id")
+        .eq("clerk_id", userId)
+        .single();
       if (user) query = query.or(`is_core.eq.true,owner_id.eq.${user.id}`);
       else query = query.eq("is_core", true);
     } else {
@@ -28,41 +35,46 @@ async function getHandler(req: NextRequest) {
     }
 
     if (roleFilter) query = query.eq("role", roleFilter);
-    if (coreOnly)   query = query.eq("is_core", true);
+    if (coreOnly) query = query.eq("is_core", true);
 
     const { data: rows, error } = await query;
 
     if (error) {
       // Supabase error:
-      return NextResponse.json({ error: "Failed to fetch agents" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to fetch agents" },
+        { status: 500 },
+      );
     }
 
-    const agents = (rows || []).map(a => ({
-      id:            a.id,
-      slug:          a.slug,
-      name:          a.display_name,
-      description:   a.description ?? "",
-      category:      a.role ?? "general",
-      avatar_url:    "",
+    const agents = (rows || []).map((a) => ({
+      id: a.id,
+      slug: a.slug,
+      name: a.display_name,
+      description: a.description ?? "",
+      category: a.role ?? "general",
+      avatar_url: "",
       system_prompt: a.system_prompt ?? "",
-      personality:   "",
-      price_cents:   0,
-      is_public:     true,
-      is_featured:   a.is_core ?? false,
-      features:      [],
-      model:         a.model,
-      created_at:    a.created_at,
+      personality: "",
+      price_cents: 0,
+      is_public: true,
+      is_featured: a.is_core ?? false,
+      features: [],
+      model: a.model,
+      created_at: a.created_at,
     }));
 
     return NextResponse.json({
       agents,
       total: agents.length,
-      categories: [...new Set(agents.map(a => a.category))],
+      categories: [...new Set(agents.map((a) => a.category))],
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     // Error fetching agents:
-    return NextResponse.json({ error: "Failed to fetch agents" }, { status: 500 }
+    return NextResponse.json(
+      { error: "Failed to fetch agents" },
+      { status: 500 },
     );
   }
 }
@@ -75,50 +87,74 @@ async function postHandler(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, slug, description, category, system_prompt, personality, avatar_url } = body;
+    const { name, slug, description, category, system_prompt } = body;
 
     if (!name || !slug || !system_prompt) {
-      return NextResponse.json({ error: "name, slug, and system_prompt are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "name, slug, and system_prompt are required" },
+        { status: 400 },
+      );
     }
 
-    const slugClean = String(slug).toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/--+/g, "-").replace(/^-|-$/g, "");
+    const slugClean = String(slug)
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, "-")
+      .replace(/--+/g, "-")
+      .replace(/^-|-$/g, "");
     if (!slugClean) {
       return NextResponse.json({ error: "Invalid slug" }, { status: 400 });
     }
 
-    const { data: user } = await supabase.from("users").select("id").eq("clerk_id", clerkId).single();
+    const { data: user } = await supabase
+      .from("users")
+      .select("id")
+      .eq("clerk_id", clerkId)
+      .single();
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const { data: existing } = await supabase.from("agents").select("id").eq("slug", slugClean).single();
+    const { data: existing } = await supabase
+      .from("agents")
+      .select("id")
+      .eq("slug", slugClean)
+      .single();
     if (existing) {
-      return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Slug already exists" },
+        { status: 409 },
+      );
     }
 
     const { data: agent, error } = await supabase
       .from("agents")
       .insert({
-        display_name:  String(name).trim(),
-        slug:          slugClean,
-        description:   description ? String(description).trim() : null,
-        role:          category ? String(category).trim() : "general",
+        display_name: String(name).trim(),
+        slug: slugClean,
+        description: description ? String(description).trim() : null,
+        role: category ? String(category).trim() : "general",
         system_prompt: String(system_prompt).trim(),
-        owner_id:      user.id,
-        is_core:       false,
+        owner_id: user.id,
+        is_core: false,
       })
       .select()
       .single();
 
     if (error) {
       // Supabase insert error:
-      return NextResponse.json({ error: "Failed to create agent" }, { status: 500 });
+      return NextResponse.json(
+        { error: "Failed to create agent" },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ success: true, agent }, { status: 201 });
-  } catch (error) {
+  } catch {
     // Error creating agent:
-    return NextResponse.json({ error: "Failed to create agent" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create agent" },
+      { status: 500 },
+    );
   }
 }
 

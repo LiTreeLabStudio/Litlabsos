@@ -88,9 +88,26 @@ export default function AudioTool() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState<AudioGen | null>(null);
-  const [history, setHistory] = useState<AudioGen[]>([]);
+  const [history, setHistory] = useState<AudioGen[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
   const [playingId, setPlayingId] = useState<string | null>(null);
-  const [coinBalance, setCoinBalance] = useState<number | null>(null);
+  const [coinBalance, setCoinBalance] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const coinsRaw = localStorage.getItem("litcoins");
+      const val = coinsRaw ? Number(coinsRaw) : null;
+      return val !== null && !isNaN(val) ? val : null;
+    } catch {
+      return null;
+    }
+  });
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const cost =
@@ -100,17 +117,6 @@ export default function AudioTool() {
   const canAfford = coinBalance === null || coinBalance >= cost;
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-    try {
-      const coinsRaw = localStorage.getItem("litcoins");
-      if (coinsRaw) {
-        const val = Number(coinsRaw);
-        if (!isNaN(val)) setCoinBalance(val);
-      }
-    } catch {}
     fetch("/api/wallet")
       .then((r) => r.json())
       .then((d) => {

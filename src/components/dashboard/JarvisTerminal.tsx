@@ -11,12 +11,36 @@ import {
   Bot,
   Activity,
   StopCircle,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  lang: string;
+  interimResults: boolean;
+  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onresult:
+    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown)
+    | null;
+  onerror: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  start(): void;
+  stop(): void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+}
 
 interface LogEntry {
   id: string;
   timestamp: string;
-  type: "system" | "user" | "agent" | "error" | "success";
+  type: "system" | "user" | "agent" | "error" | "success" | "brain";
   text: string;
   agentName?: string;
 }
@@ -29,94 +53,342 @@ function getTimestamp() {
     second: "2-digit",
   });
 }
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function MatrixRain() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    const chars =
+      "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモ";
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns)
+      .fill(0)
+      .map(() => Math.random() * -50);
+    let animId: number;
+    const draw = () => {
+      ctx.fillStyle = "rgba(5, 5, 5, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+        const alpha = Math.max(0.05, 1 - y / canvas.height);
+        ctx.fillStyle = `rgba(0, 255, 157, ${alpha})`;
+        ctx.font = `${fontSize}px monospace`;
+        ctx.fillText(text, x, y);
+        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(animId);
+      ro.disconnect();
+    };
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none opacity-25"
+    />
+  );
+}
+
+function Particles() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const resize = () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+    const particles: {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      alpha: number;
+    }[] = [];
+    for (let i = 0; i < 30; i++)
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -Math.random() * 0.5 - 0.2,
+        size: Math.random() * 2 + 1,
+        alpha: Math.random() * 0.4 + 0.15,
+      });
+    let animId: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.y < -10) {
+          p.y = canvas.height + 10;
+          p.x = Math.random() * canvas.width;
+        }
+        if (p.x < -10) p.x = canvas.width + 10;
+        if (p.x > canvas.width + 10) p.x = -10;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(0, 255, 157, ${p.alpha})`;
+        ctx.fill();
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(animId);
+      ro.disconnect();
+    };
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 w-full h-full pointer-events-none"
+    />
+  );
+}
+
+function AudioBars() {
+  const [bars, setBars] = useState<number[]>(Array(10).fill(4));
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBars(
+        Array(10)
+          .fill(0)
+          .map(() => Math.random() * 18 + 3),
+      );
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <div className="flex items-end gap-[2px] h-4">
+      {bars.map((h, i) => (
+        <div
+          key={i}
+          className="w-[2px] bg-[#00ff9d] transition-all duration-100"
+          style={{ height: `${h}px`, opacity: 0.5 + h / 40 }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function buildBootLogs(): LogEntry[] {
+  const bootLogs: LogEntry[] = [
+    {
+      id: uid(),
+      timestamp: getTimestamp(),
+      type: "system",
+      text: "INITIALIZING LiTTree CORE v3.0-MAD...",
+    },
+    {
+      id: uid(),
+      timestamp: getTimestamp(),
+      type: "system",
+      text: "MOUNTING NEURAL INTERFACE...",
+    },
+    {
+      id: uid(),
+      timestamp: getTimestamp(),
+      type: "system",
+      text: "HANDSHAKE WITH AGENT CLUSTER...",
+    },
+    {
+      id: uid(),
+      timestamp: getTimestamp(),
+      type: "success",
+      text: ">> CONNECTION ESTABLISHED — TLS 1.3 verified",
+    },
+  ];
+  Object.values(REAL_AGENTS).forEach((agent, i) => {
+    bootLogs.push({
+      id: `boot-agent-${i}`,
+      timestamp: getTimestamp(),
+      type: "agent",
+      text: `${agent.status === "online" ? "ONLINE" : "STANDBY"} // ${agent.role}`,
+      agentName: agent.name,
+    });
+  });
+  bootLogs.push({
+    id: uid(),
+    timestamp: getTimestamp(),
+    type: "success",
+    text: "WELCOME BACK, OVERLORD. ALL AGENTS NOMINAL. AWAITING COMMAND.",
+  });
+  return bootLogs;
+}
 
 export default function JarvisTerminal() {
   const { resolvedColors: T } = useTheme();
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>(buildBootLogs);
   const [input, setInput] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState("director");
   const [stats, setStats] = useState({ cpu: 12, mem: 4.2 });
+  const [flicker, setFlicker] = useState(false);
+  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [brainText, setBrainText] = useState("");
+  const [isBrainStreaming, setIsBrainStreaming] = useState(false);
+  const [continuousMode, setContinuousMode] = useState(false);
+  const [wakeWordEnabled, setWakeWordEnabled] = useState(false);
+  const [showAgents, setShowAgents] = useState(false);
+
   const terminalRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const ttsQueue = useRef<string[]>([]);
+  const isSpeaking = useRef(false);
+  const pushTimerRef = useRef<number | null>(null);
 
-  /* Auto-scroll terminal */
   useEffect(() => {
     if (terminalRef.current) {
       terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
     }
-  }, [logs, isProcessing]);
+  }, [logs, brainText, isBrainStreaming]);
 
-  /* Boot sequence */
-  useEffect(() => {
-    const bootLogs: LogEntry[] = [
-      {
-        id: "b1",
-        timestamp: getTimestamp(),
-        type: "system",
-        text: "Initializing LiTTree Core v2.4...",
-      },
-      {
-        id: "b2",
-        timestamp: getTimestamp(),
-        type: "system",
-        text: "Connecting to Agent Cluster...",
-      },
-      {
-        id: "b3",
-        timestamp: getTimestamp(),
-        type: "success",
-        text: "Connection established. TLS 1.3 verified.",
-      },
-    ];
-
-    Object.values(REAL_AGENTS).forEach((agent, i) => {
-      bootLogs.push({
-        id: `b-agent-${i}`,
-        timestamp: getTimestamp(),
-        type: "agent",
-        text: `${agent.name} ready — ${agent.role} [${agent.status.toUpperCase()}]`,
-        agentName: agent.name,
-      });
-    });
-
-    bootLogs.push({
-      id: "b-welcome",
-      timestamp: getTimestamp(),
-      type: "system",
-      text: `System nominal. ${
-        Object.values(REAL_AGENTS).filter((a) => a.status === "online").length
-      } agents online. Awaiting command.`,
-    });
-
-    setLogs(bootLogs);
-  }, []);
-
-  /* Simulated stats ticker */
   useEffect(() => {
     const interval = setInterval(() => {
       setStats((s) => ({
         cpu: Math.min(100, Math.max(5, s.cpu + (Math.random() - 0.5) * 14)),
         mem: Math.min(16, Math.max(2, s.mem + (Math.random() - 0.5) * 0.6)),
       }));
-    }, 2500);
+      if (Math.random() > 0.97) {
+        setFlicker(true);
+        setTimeout(() => setFlicker(false), 60);
+      }
+    }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const speak = useCallback(
+    (text: string) => {
+      if (!ttsEnabled || typeof window === "undefined") return;
+      const synth = window.speechSynthesis;
+      if (!synth) return;
+      ttsQueue.current.push(text);
+      if (isSpeaking.current) return;
+      const processQueue = () => {
+        if (ttsQueue.current.length === 0) {
+          isSpeaking.current = false;
+          return;
+        }
+        isSpeaking.current = true;
+        const utterance = new SpeechSynthesisUtterance(
+          ttsQueue.current.shift()!,
+        );
+        utterance.rate = 1.15;
+        utterance.pitch = 0.85;
+        const voices = synth.getVoices();
+        const preferred =
+          voices.find((v) => v.name.includes("Google UK English Male")) ||
+          voices.find((v) => v.name.includes("Microsoft David")) ||
+          voices.find(
+            (v) => v.name.includes("Male") && v.lang.startsWith("en"),
+          ) ||
+          voices[0];
+        if (preferred) utterance.voice = preferred;
+        utterance.onend = processQueue;
+        utterance.onerror = processQueue;
+        synth.speak(utterance);
+      };
+      processQueue();
+    },
+    [ttsEnabled],
+  );
 
   const addLog = useCallback((entry: Omit<LogEntry, "id" | "timestamp">) => {
     setLogs((prev) => [
       ...prev,
-      {
-        ...entry,
-        id: Math.random().toString(36).slice(2, 9),
-        timestamp: getTimestamp(),
-      },
+      { ...entry, id: uid(), timestamp: getTimestamp() },
     ]);
   }, []);
+
+  const streamBrain = useCallback(
+    async (msg: string) => {
+      setIsBrainStreaming(true);
+      setBrainText("");
+      setIsProcessing(true);
+      try {
+        const res = await fetch("/api/gemini/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            agentSlug: selectedAgent,
+            message: msg,
+            provider: "gemini",
+            stream: true,
+          }),
+        });
+        if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n").filter((l) => l.trim());
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            try {
+              const data = JSON.parse(line.slice(6));
+              const text = data.text || "";
+              if (text) {
+                fullText += text;
+                setBrainText(fullText);
+              }
+            } catch {
+              /* ignore malformed SSE */
+            }
+          }
+        }
+        addLog({
+          type: "brain",
+          text: fullText || "No response received.",
+          agentName: "JARVIS",
+        });
+        speak(fullText);
+      } catch (err) {
+        addLog({
+          type: "error",
+          text: err instanceof Error ? err.message : "Neural link severed.",
+        });
+      } finally {
+        setIsBrainStreaming(false);
+        setBrainText("");
+        setIsProcessing(false);
+      }
+    },
+    [selectedAgent, addLog, speak],
+  );
 
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isProcessing) return;
@@ -125,41 +397,43 @@ export default function JarvisTerminal() {
     addLog({ type: "user", text: msg });
     setIsProcessing(true);
 
-    // ── Slash command router ────────────────────────────────────
     if (msg.startsWith("/")) {
       const [cmd, ...rest] = msg.slice(1).split(" ");
       const arg = rest.join(" ");
-
       switch (cmd.toLowerCase()) {
         case "help":
           addLog({
             type: "success",
-            text: `Available commands:
-  /scan              — Analyze your codebase
-  /status            — Check system health
-  /image <prompt>    — Open image generator
-  /code <prompt>     — Open code agent
-  /agent <name>      — Switch active agent
-  /clear             — Clear terminal`,
+            text: "Available commands:\n  /scan              - Analyze your codebase\n  /status            - Check system health\n  /image <prompt>    - Open image generator\n  /code <prompt>     - Open code agent\n  /agent <name>      - Switch active agent\n  /clear             - Clear terminal\n  /tts               - Toggle voice output",
           });
           setIsProcessing(false);
           return;
-
         case "clear":
           setLogs([]);
           setIsProcessing(false);
           return;
-
-        case "agent":
-          if (arg && REAL_AGENTS[arg]) {
+        case "tts":
+          setTtsEnabled((v) => {
+            const next = !v;
+            addLog({
+              type: "success",
+              text: `Voice output ${next ? "ENABLED" : "MUTED"}.`,
+            });
+            return next;
+          });
+          setIsProcessing(false);
+          return;
+        case "agent": {
+          if (arg && REAL_AGENTS[arg as keyof typeof REAL_AGENTS]) {
+            const a = REAL_AGENTS[arg as keyof typeof REAL_AGENTS];
             setSelectedAgent(arg);
             addLog({
               type: "success",
-              text: `Switched to ${REAL_AGENTS[arg].name} (${REAL_AGENTS[arg].role})`,
+              text: `Switched to ${a.name} (${a.role})`,
             });
           } else {
             const list = Object.entries(REAL_AGENTS)
-              .map(([id, a]) => `  ${id} — ${a.name}`)
+              .map(([id, a]) => `  ${id} - ${a.name}`)
               .join("\n");
             addLog({
               type: "error",
@@ -168,7 +442,7 @@ export default function JarvisTerminal() {
           }
           setIsProcessing(false);
           return;
-
+        }
         case "image":
           addLog({ type: "system", text: "Opening Image Forge..." });
           window.open(
@@ -178,7 +452,6 @@ export default function JarvisTerminal() {
           addLog({ type: "success", text: "Image Forge opened in new tab." });
           setIsProcessing(false);
           return;
-
         case "code":
           addLog({ type: "system", text: "Opening Code Agent..." });
           window.open(
@@ -188,8 +461,7 @@ export default function JarvisTerminal() {
           addLog({ type: "success", text: "Code Agent opened in new tab." });
           setIsProcessing(false);
           return;
-
-        case "status":
+        case "status": {
           try {
             const [health, wallet] = await Promise.all([
               fetch("/api/llm/health").then((r) => (r.ok ? r.json() : null)),
@@ -197,7 +469,7 @@ export default function JarvisTerminal() {
             ]);
             const lines = [
               `LLM Health: ${health?.gemini?.available ? "ONLINE" : health?.openrouter?.available ? "FALLBACK" : "OFFLINE"}`,
-              `Wallet: ${wallet?.balance ?? "—"} LBC`,
+              `Wallet: ${wallet?.balance ?? "-"} LBC`,
               `Agents online: ${Object.values(REAL_AGENTS).filter((a) => a.status === "online").length}/${Object.values(REAL_AGENTS).length}`,
             ];
             addLog({ type: "success", text: lines.join("\n") });
@@ -206,8 +478,8 @@ export default function JarvisTerminal() {
           }
           setIsProcessing(false);
           return;
-
-        case "scan":
+        }
+        case "scan": {
           try {
             addLog({
               type: "system",
@@ -226,8 +498,8 @@ export default function JarvisTerminal() {
               `APIs: ${data.apiEndpoints.length} endpoints`,
               `Build: ${data.health.buildStatus}`,
               data.health.envVarsMissing.length > 0
-                ? `⚠ Missing: ${data.health.envVarsMissing.join(", ")}`
-                : "✓ All env vars configured",
+                ? `Missing: ${data.health.envVarsMissing.join(", ")}`
+                : "All env vars configured",
               data.recentChanges.length > 0
                 ? `Recent commits:\n  ${data.recentChanges.slice(0, 3).join("\n  ")}`
                 : "",
@@ -243,7 +515,7 @@ export default function JarvisTerminal() {
           }
           setIsProcessing(false);
           return;
-
+        }
         default:
           addLog({
             type: "error",
@@ -254,78 +526,80 @@ export default function JarvisTerminal() {
       }
     }
 
-    // ── Regular AI chat ──────────────────────────────────────────
-    const agent = REAL_AGENTS[selectedAgent];
-    addLog({
-      type: "system",
-      text: `Routing to ${agent?.name ?? "Director"}...`,
-    });
+    await streamBrain(msg);
+  }, [input, isProcessing, addLog, streamBrain]);
 
-    try {
-      const res = await fetch("/api/gemini/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          agentSlug: selectedAgent,
-          message: msg,
-          provider: "gemini",
-          stream: false,
-        }),
-      });
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const data = await res.json();
-      addLog({
-        type: "agent",
-        text: data.response || "No response received.",
-        agentName: agent?.name || "Agent",
-      });
-    } catch (err) {
-      addLog({
-        type: "error",
-        text:
-          err instanceof Error ? err.message : "Request failed. Check API key.",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [input, isProcessing, selectedAgent, addLog, logs]);
-
-  /* Voice recognition */
+  /* ── Speech recognition setup ── */
   useEffect(() => {
     if (typeof window === "undefined") return;
     const SR =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
+      (
+        window as unknown as {
+          SpeechRecognition?: SpeechRecognitionConstructor;
+          webkitSpeechRecognition?: SpeechRecognitionConstructor;
+        }
+      ).SpeechRecognition ||
+      (
+        window as unknown as {
+          SpeechRecognition?: SpeechRecognitionConstructor;
+          webkitSpeechRecognition?: SpeechRecognitionConstructor;
+        }
+      ).webkitSpeechRecognition;
     if (!SR) return;
-
     const rec = new SR();
     rec.continuous = false;
     rec.lang = "en-US";
-    rec.interimResults = false;
-
+    rec.interimResults = true;
     rec.onstart = () => setIsListening(true);
-    rec.onend = () => setIsListening(false);
-    rec.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(transcript);
-      // Auto-send after a brief delay so the user sees what was captured
-      setTimeout(() => {
-        setInput((prev) => {
-          if (prev === transcript) {
-            // Trigger send via a separate effect would be cleaner,
-            // but we'll let user press Enter or click Execute
-          }
-          return prev;
-        });
-      }, 200);
+    rec.onend = () => {
+      setIsListening(false);
+      if (continuousMode && recognitionRef.current && !isSpeaking.current) {
+        try {
+          recognitionRef.current.start();
+        } catch {
+          /* ignore restart failures */
+        }
+      }
     };
-
+    rec.onresult = (event: SpeechRecognitionEvent) => {
+      const results = event.results;
+      if (!results.length) return;
+      const transcript = results[results.length - 1][0].transcript.trim();
+      setInput(transcript);
+      if (results[results.length - 1].isFinal) {
+        if (wakeWordEnabled) {
+          const lower = transcript.toLowerCase();
+          if (lower.startsWith("hey jarvis") || lower.startsWith("jarvis")) {
+            const cmd = transcript
+              .replace(/^(hey\s+)?jarvis[,\s]*/i, "")
+              .trim();
+            setInput(cmd);
+            if (cmd) {
+              setTimeout(() => sendMessage(), 200);
+            } else {
+              addLog({
+                type: "system",
+                text: "Wake word detected. Awaiting command.",
+              });
+            }
+          }
+        } else {
+          setTimeout(() => sendMessage(), 200);
+        }
+      }
+    };
+    rec.onerror = () => setIsListening(false);
     recognitionRef.current = rec;
-  }, []);
+    return () => {
+      try {
+        rec.stop();
+      } catch {
+        /* ignore */
+      }
+    };
+  }, [sendMessage, wakeWordEnabled, continuousMode, addLog]);
 
-  const toggleMic = () => {
+  const startMic = () => {
     if (!recognitionRef.current) {
       addLog({
         type: "error",
@@ -333,15 +607,39 @@ export default function JarvisTerminal() {
       });
       return;
     }
-    if (isListening) {
-      recognitionRef.current.stop();
-    } else {
+    try {
+      recognitionRef.current.start();
+    } catch {
+      addLog({ type: "error", text: "Mic already active or denied." });
+    }
+  };
+
+  const stopMic = () => {
+    if (recognitionRef.current && isListening) {
       try {
-        recognitionRef.current.start();
+        recognitionRef.current.stop();
       } catch {
-        addLog({ type: "error", text: "Mic already active." });
+        /* ignore */
       }
     }
+  };
+
+  const toggleMic = () => {
+    if (isListening) stopMic();
+    else startMic();
+  };
+
+  const handleMicPointerDown = () => {
+    if (pushTimerRef.current) window.clearTimeout(pushTimerRef.current);
+    pushTimerRef.current = window.setTimeout(() => startMic(), 150);
+  };
+
+  const handleMicPointerUp = () => {
+    if (pushTimerRef.current) {
+      window.clearTimeout(pushTimerRef.current);
+      pushTimerRef.current = null;
+    }
+    if (isListening) stopMic();
   };
 
   const toggleCamera = async () => {
@@ -371,347 +669,413 @@ export default function JarvisTerminal() {
 
   const agentList = Object.values(REAL_AGENTS);
   const onlineCount = agentList.filter((a) => a.status === "online").length;
-
   return (
-    <div className="flex flex-col h-full gap-3 min-h-[500px]">
+    <div
+      className={`relative flex flex-col h-full gap-3 min-h-[500px] overflow-hidden ${flicker ? "brightness-125" : ""} transition-all duration-75`}
+    >
+      <MatrixRain />
+      <Particles />
+      <div
+        className="pointer-events-none absolute inset-0 z-20"
+        style={{
+          background:
+            "linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%), linear-gradient(90deg, rgba(255,0,0,0.04), rgba(0,255,0,0.01), rgba(0,0,255,0.04))",
+          backgroundSize: "100% 2px, 3px 100%",
+        }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 z-10"
+        style={{
+          background:
+            "radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.5) 100%)",
+        }}
+      />
+
       {/* Status bar */}
       <div
-        className="flex items-center justify-between px-3 py-2 rounded-lg border"
+        className="relative z-30 flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2 rounded-lg border backdrop-blur-md"
         style={{
-          backgroundColor: `${T.boxBg}90`,
-          borderColor: `${T.borderColor}25`,
+          backgroundColor: "rgba(0,0,0,0.4)",
+          borderColor: `${T.accentColor}30`,
+          boxShadow: `0 0 15px ${T.accentColor}10`,
         }}
       >
-        <div className="flex items-center gap-3">
-          <Terminal size={16} style={{ color: T.accentColor }} />
-          <span
-            className="text-xs font-mono uppercase tracking-widest font-bold"
-            style={{ color: T.accentColor }}
-          >
-            JARVIS
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Terminal
+            size={16}
+            className="text-[#00ff9d] drop-shadow-[0_0_6px_#00ff9d]"
+          />
+          <span className="text-xs font-mono uppercase tracking-[0.2em] font-bold text-white">
+            JARVIS<span className="text-[#00ff9d]">.MAD</span>
           </span>
           <span
-            className="w-1.5 h-1.5 rounded-full animate-pulse"
-            style={{ backgroundColor: T.success }}
+            className="w-2 h-2 rounded-full animate-pulse"
+            style={{
+              backgroundColor: T.success,
+              boxShadow: `0 0 8px ${T.success}`,
+            }}
           />
           <span
-            className="text-[10px] font-mono uppercase"
+            className="hidden sm:inline text-[10px] font-mono uppercase"
             style={{ color: T.success }}
           >
-            ONLINE
+            NEURAL LINK ACTIVE
           </span>
         </div>
-
-        <div className="flex items-center gap-4 text-[10px] font-mono">
-          <div className="flex items-center gap-1.5">
-            <Activity size={10} style={{ color: T.headerColor }} />
-            <span className="opacity-50">CPU</span>
-            <span style={{ color: T.headerColor }}>
+        <div className="flex items-center gap-3 sm:gap-5 text-[10px] font-mono">
+          <AudioBars />
+          <div className="hidden sm:flex items-center gap-1.5">
+            <span className="opacity-40">CPU</span>
+            <span className="font-bold text-white drop-shadow-[0_0_4px_rgba(0,255,157,0.5)]">
               {stats.cpu.toFixed(0)}%
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="opacity-50">MEM</span>
-            <span style={{ color: T.headerColor }}>
+          <div className="hidden sm:flex items-center gap-1.5">
+            <span className="opacity-40">MEM</span>
+            <span className="font-bold text-white">
               {stats.mem.toFixed(1)} GB
             </span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Bot size={10} style={{ color: T.success }} />
-            <span style={{ color: T.success }}>{onlineCount} ACTIVE</span>
+            <Bot size={10} className="text-[#00b8ff]" />
+            <span className="font-bold text-[#00b8ff] drop-shadow-[0_0_4px_rgba(0,184,255,0.5)]">
+              {onlineCount} ACTIVE
+            </span>
           </div>
+          <button
+            onClick={() => setTtsEnabled((v) => !v)}
+            className="transition-opacity hover:opacity-100"
+            style={{ opacity: ttsEnabled ? 1 : 0.4 }}
+            title={ttsEnabled ? "Mute voice" : "Enable voice"}
+          >
+            {ttsEnabled ? (
+              <Volume2 size={12} className="text-[#00ff9d]" />
+            ) : (
+              <VolumeX size={12} className="text-gray-500" />
+            )}
+          </button>
+          {/* Mobile agent toggle */}
+          <button
+            onClick={() => setShowAgents((v) => !v)}
+            className="md:hidden p-1 rounded transition-all"
+            style={{
+              opacity: showAgents ? 1 : 0.5,
+              color: showAgents ? "#00ff9d" : "#fff",
+            }}
+            title="Toggle agent panel"
+          >
+            <Bot size={14} />
+          </button>
         </div>
       </div>
 
       {/* Main workspace */}
-      <div className="flex-1 flex gap-3 min-h-0">
+      <div className="relative z-30 flex-1 flex flex-col md:flex-row gap-3 min-h-0">
         {/* Terminal column */}
-        <div className="flex-1 flex flex-col min-w-0 gap-3">
-          {/* Terminal output */}
+        <div className="flex-1 flex flex-col min-w-0 gap-3 order-1">
           <div
             ref={terminalRef}
-            className="relative scanlines flex-1 rounded-lg border p-3 overflow-y-auto font-mono text-xs space-y-1 min-h-0"
+            className="relative scanlines flex-1 rounded-lg border p-4 overflow-y-auto font-mono text-[12px] space-y-1.5 min-h-0 group"
             style={{
-              backgroundColor: `${T.boxBg}50`,
-              borderColor: `${T.borderColor}20`,
+              backgroundColor: "rgba(10,15,20,0.7)",
+              borderColor: `${T.accentColor}20`,
+              boxShadow: `inset 0 0 30px ${T.accentColor}05, 0 0 20px ${T.accentColor}05`,
+              backdropFilter: "blur(8px)",
             }}
           >
+            <div
+              className="absolute inset-0 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                boxShadow: `inset 0 0 20px ${T.accentColor}08, 0 0 30px ${T.accentColor}08`,
+              }}
+            />
+            <div className="absolute top-3 right-3 text-[10px] text-[#00ff9d]/30 select-none tracking-widest font-bold">
+              LOG_STREAM_V.3.0-MAD
+            </div>
             {logs.map((log) => (
               <div key={log.id} className="wrap-break-word leading-relaxed">
-                <span className="opacity-30 mr-1.5">[{log.timestamp}]</span>
+                <span className="opacity-30 mr-1.5 text-[10px]">
+                  [{log.timestamp}]
+                </span>
                 {log.type === "user" && (
-                  <span className="font-bold" style={{ color: T.textColor }}>
-                    <span style={{ color: T.accentColor }}>&gt;</span>{" "}
+                  <span className="font-bold text-white">
+                    <span className="text-[#00ff9d] drop-shadow-[0_0_4px_#00ff9d]">
+                      &gt;&gt;
+                    </span>{" "}
                     {log.text}
                   </span>
                 )}
                 {log.type === "agent" && (
                   <>
-                    <span
-                      className="font-bold mr-1"
-                      style={{ color: T.linkColor }}
-                    >
+                    <span className="font-bold mr-1 text-[#00b8ff] drop-shadow-[0_0_4px_rgba(0,184,255,0.5)]">
                       [{log.agentName}]
                     </span>
-                    <span style={{ color: T.textMuted }}>{log.text}</span>
+                    <span className="text-gray-300">{log.text}</span>
+                  </>
+                )}
+                {log.type === "brain" && (
+                  <>
+                    <span className="font-bold mr-1 text-[#ff66cc] drop-shadow-[0_0_4px_rgba(255,102,204,0.5)]">
+                      [JARVIS]
+                    </span>
+                    <span className="text-gray-200">{log.text}</span>
                   </>
                 )}
                 {log.type === "system" && (
-                  <span style={{ color: T.textMuted }}>
-                    <span className="opacity-50">[SYS]</span> {log.text}
+                  <span className="text-gray-400">
+                    <span className="opacity-50 text-[#ff66cc]">[SYS]</span>{" "}
+                    {log.text}
                   </span>
                 )}
                 {log.type === "success" && (
-                  <span style={{ color: T.success }}>
+                  <span className="text-[#00ff9d] drop-shadow-[0_0_4px_rgba(0,255,157,0.3)]">
                     <span className="opacity-70">[OK]</span> {log.text}
                   </span>
                 )}
                 {log.type === "error" && (
-                  <span style={{ color: T.accentColor }}>
+                  <span className="text-[#ff0055]">
                     <span className="opacity-70">[ERR]</span> {log.text}
                   </span>
                 )}
               </div>
             ))}
-
-            {isProcessing && (
-              <div
-                className="flex items-center gap-2 animate-pulse"
-                style={{ color: T.textMuted }}
-              >
+            {isBrainStreaming && (
+              <div className="text-[#ff66cc] wrap-break-word leading-relaxed">
+                <span className="opacity-30 mr-1.5 text-[10px]">
+                  [{getTimestamp()}]
+                </span>
+                <span className="font-bold mr-1 text-[#ff66cc]">[JARVIS]</span>
+                <span className="text-gray-200">{brainText}</span>
+                <span className="inline-block w-1.5 h-4 bg-[#ff66cc] ml-0.5 animate-pulse" />
+              </div>
+            )}
+            {isProcessing && !isBrainStreaming && (
+              <div className="flex items-center gap-2 animate-pulse text-gray-400">
                 <Activity size={12} className="animate-spin" />
                 <span>Processing request...</span>
               </div>
             )}
           </div>
 
-          {/* Input area */}
-          <div
-            className="rounded-lg border p-3 flex flex-col gap-2 shrink-0"
-            style={{
-              backgroundColor: `${T.boxBg}80`,
-              borderColor: `${T.borderColor}20`,
-            }}
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-[10px] uppercase tracking-wider opacity-40 font-mono">
-                Command Input
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={toggleCamera}
-                  className="text-[10px] border px-2 py-1 rounded transition-all flex items-center gap-1"
-                  style={{
-                    borderColor: cameraOn
-                      ? T.accentColor
-                      : `${T.borderColor}50`,
-                    color: cameraOn ? T.accentColor : T.textMuted,
-                    backgroundColor: cameraOn
-                      ? `${T.accentColor}10`
-                      : "transparent",
-                  }}
-                >
-                  <Camera size={10} />
-                  CAM:{cameraOn ? "ON" : "OFF"}
-                </button>
-                <button
-                  onClick={toggleMic}
-                  className="text-[10px] border px-2 py-1 rounded transition-all flex items-center gap-1"
-                  style={{
-                    borderColor: isListening
-                      ? T.accentColor
-                      : `${T.borderColor}50`,
-                    color: isListening ? T.accentColor : T.textMuted,
-                    backgroundColor: isListening
-                      ? `${T.accentColor}10`
-                      : "transparent",
-                  }}
-                >
-                  {isListening ? <StopCircle size={10} /> : <Mic size={10} />}
-                  {isListening ? "LISTENING..." : "VOICE"}
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span
-                className="font-mono text-sm select-none"
-                style={{ color: T.accentColor }}
-              >
-                &gt;
-              </span>
-              <input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                placeholder="Type /scan, /status, /image, /code or just chat..."
-                className="flex-1 bg-transparent border-none outline-none text-sm font-mono placeholder:opacity-30 min-w-0"
-                style={{ color: T.textColor }}
-                disabled={isProcessing}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={!input.trim() || isProcessing}
-                className="px-4 py-1.5 rounded text-xs font-bold transition-all disabled:opacity-30 flex items-center gap-1.5 shrink-0"
-                style={{
-                  backgroundColor: T.accentColor,
-                  color: "#000",
-                }}
-              >
-                <Send size={12} />
-                EXECUTE
-              </button>
-            </div>
-            {/* Command hints */}
-            <div className="flex flex-wrap gap-1.5 mt-1">
-              {[
-                { cmd: "/scan", desc: "Analyze codebase" },
-                { cmd: "/status", desc: "System health" },
-                { cmd: "/image", desc: "Generate image" },
-                { cmd: "/code", desc: "Code agent" },
-                { cmd: "/agent", desc: "Switch agent" },
-                { cmd: "/help", desc: "Commands" },
-              ].map(({ cmd, desc }) => (
+          {/* Command hint pills */}
+          <div className="flex flex-wrap gap-1.5 text-[10px] font-mono select-none">
+            {["/scan", "/status", "/image", "/code", "/agent", "/clear"].map(
+              (cmd) => (
                 <button
                   key={cmd}
-                  onClick={() => setInput(cmd + " ")}
-                  className="text-[9px] px-1.5 py-0.5 rounded border transition-all hover:opacity-80"
-                  style={{
-                    borderColor: `${T.borderColor}40`,
-                    color: T.textMuted,
-                    backgroundColor: `${T.boxBg}60`,
+                  onClick={() => {
+                    setInput(cmd);
                   }}
-                  title={desc}
+                  className="px-2 py-0.5 rounded border border-[#00ff9d]/20 text-[#00ff9d]/60 hover:text-[#00ff9d] hover:border-[#00ff9d]/50 hover:bg-[#00ff9d]/5 transition-all"
                 >
-                  <span style={{ color: T.accentColor }}>{cmd}</span>
+                  {cmd}
                 </button>
-              ))}
+              ),
+            )}
+          </div>
+
+          {/* Mobile listening indicator bar */}
+          {isListening && (
+            <div className="md:hidden w-full h-1 rounded-full overflow-hidden bg-white/5">
+              <div
+                className="h-full bg-[#ff0055] animate-pulse rounded-full"
+                style={{
+                  boxShadow: "0 0 8px #ff0055",
+                  width: "100%",
+                }}
+              />
             </div>
+          )}
+
+          {/* Voice mode toggles */}
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono">
+            <button
+              onClick={() => {
+                setContinuousMode((v) => {
+                  const next = !v;
+                  addLog({
+                    type: "success",
+                    text: `Continuous conversation ${next ? "ENABLED" : "DISABLED"}.`,
+                  });
+                  return next;
+                });
+              }}
+              className={`px-2 py-0.5 rounded border transition-all ${continuousMode ? "border-[#00ff9d]/40 text-[#00ff9d] bg-[#00ff9d]/5" : "border-white/10 text-white/40 hover:text-white/60"}`}
+            >
+              {continuousMode ? "●" : "○"} Continuous
+            </button>
+            <button
+              onClick={() => {
+                setWakeWordEnabled((v) => {
+                  const next = !v;
+                  addLog({
+                    type: "success",
+                    text: `Wake word ${next ? "ENABLED" : "DISABLED"} — say "Hey JARVIS".`,
+                  });
+                  return next;
+                });
+              }}
+              className={`px-2 py-0.5 rounded border transition-all ${wakeWordEnabled ? "border-[#00ff9d]/40 text-[#00ff9d] bg-[#00ff9d]/5" : "border-white/10 text-white/40 hover:text-white/60"}`}
+            >
+              {wakeWordEnabled ? "●" : "○"} Wake Word
+            </button>
+            {isListening && (
+              <span className="text-[#ff0055] animate-pulse font-bold">
+                LISTENING...
+              </span>
+            )}
+          </div>
+
+          {/* Input row */}
+          <div
+            className="flex items-center gap-2 rounded-lg border p-2 backdrop-blur-md relative z-30"
+            style={{
+              backgroundColor: "rgba(0,0,0,0.4)",
+              borderColor: `${T.accentColor}25`,
+              boxShadow: `0 0 12px ${T.accentColor}08`,
+            }}
+          >
+            <span className="text-[#00ff9d] font-mono text-sm shrink-0 pl-1 select-none">
+              &gt;&gt;
+            </span>
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") sendMessage();
+              }}
+              placeholder="Command JARVIS... (try /scan, /help)"
+              className="flex-1 bg-transparent border-none outline-none text-white text-sm font-mono placeholder:text-white/20 min-w-0"
+            />
+            <button
+              onClick={toggleMic}
+              onMouseDown={handleMicPointerDown}
+              onMouseUp={handleMicPointerUp}
+              onMouseLeave={handleMicPointerUp}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleMicPointerDown();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleMicPointerUp();
+              }}
+              className={`p-3 sm:p-2.5 rounded-md transition-all select-none touch-manipulation min-w-[44px] min-h-[44px] flex items-center justify-center ${isListening ? "bg-[#ff0055]/20 text-[#ff0055] ring-2 ring-[#ff0055]/30" : "text-white/40 hover:text-[#00ff9d] hover:bg-white/5"}`}
+              style={{
+                WebkitTapHighlightColor: "transparent",
+              }}
+              title={isListening ? "Stop listening" : "Push & hold to talk"}
+              aria-label={
+                isListening ? "Stop listening" : "Push and hold to talk"
+              }
+            >
+              {isListening ? <StopCircle size={20} /> : <Mic size={20} />}
+            </button>
+            <button
+              onClick={toggleCamera}
+              className={`p-3 sm:p-2.5 rounded-md transition-all min-w-[44px] min-h-[44px] flex items-center justify-center ${cameraOn ? "bg-[#00b8ff]/20 text-[#00b8ff]" : "text-white/40 hover:text-[#00ff9d] hover:bg-white/5"}`}
+              aria-label="Toggle camera"
+            >
+              <Camera size={20} />
+            </button>
+            <button
+              onClick={sendMessage}
+              disabled={isProcessing}
+              className="p-3 sm:p-2.5 rounded-md bg-[#00ff9d]/10 text-[#00ff9d] hover:bg-[#00ff9d]/20 transition-all disabled:opacity-30 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Send message"
+            >
+              <Send size={20} />
+            </button>
           </div>
         </div>
 
-        {/* Right sidebar — agents + camera */}
-        <div className="hidden lg:flex w-64 flex-col gap-3 shrink-0">
+        {/* Right panel: Agent cards + Camera */}
+        <div
+          className={`flex flex-col gap-3 shrink-0 md:w-64 ${showAgents ? "flex" : "hidden md:flex"}`}
+        >
           {/* Camera feed */}
           <div
-            className="h-36 rounded-lg border relative overflow-hidden"
+            className="relative rounded-lg border overflow-hidden h-40 shrink-0 group"
             style={{
-              backgroundColor: `${T.boxBg}60`,
-              borderColor: `${T.borderColor}20`,
+              borderColor: `${T.accentColor}25`,
+              boxShadow: `0 0 15px ${T.accentColor}05`,
             }}
           >
-            {cameraOn && (
-              <span
-                className="absolute top-2 left-2 text-[9px] z-10 px-1.5 py-0.5 rounded font-mono"
-                style={{
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  color: T.accentColor,
-                }}
-              >
-                LIVE FEED
-              </span>
-            )}
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-full object-cover"
-              style={{ opacity: cameraOn ? 0.8 : 0 }}
-            />
-            {!cameraOn && (
-              <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                <Camera size={28} style={{ color: T.textMuted }} />
-              </div>
-            )}
-            {/* Crosshair overlay */}
-            {cameraOn && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
-                <div
-                  className="w-8 h-8 border rounded-full flex items-center justify-center"
-                  style={{ borderColor: T.accentColor }}
-                >
-                  <div
-                    className="w-1 h-1 rounded-full"
-                    style={{ backgroundColor: T.accentColor }}
-                  />
+            {cameraOn ? (
+              <>
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-[#ff0055]/80 text-white text-[10px] font-bold font-mono uppercase animate-pulse">
+                  Live Feed
+                </div>
+                <div className="absolute inset-0 pointer-events-none">
+                  <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-[#00ff9d]/50" />
+                  <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-[#00ff9d]/50" />
+                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-[#00ff9d]/50" />
+                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-[#00ff9d]/50" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 border border-[#ff0055]/40 rounded-full" />
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 bg-[#ff0055] rounded-full" />
+                </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-white/20 font-mono text-[10px]">
+                <div className="text-center space-y-1">
+                  <Camera size={24} className="mx-auto opacity-30" />
+                  <div>CAMERA OFFLINE</div>
+                  <div className="text-white/10 text-[9px]">
+                    Click camera button to activate
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Agent selector */}
+          {/* Agent cards */}
           <div
-            className="flex-1 rounded-lg border p-3 overflow-y-auto min-h-0"
+            className="flex-1 rounded-lg border p-3 overflow-y-auto space-y-2 backdrop-blur-md"
             style={{
-              backgroundColor: `${T.boxBg}60`,
-              borderColor: `${T.borderColor}20`,
+              backgroundColor: "rgba(0,0,0,0.35)",
+              borderColor: `${T.accentColor}20`,
+              boxShadow: `inset 0 0 20px ${T.accentColor}05`,
             }}
           >
-            <div
-              className="text-[10px] uppercase tracking-wider opacity-40 mb-3 border-b pb-2 font-mono"
-              style={{ borderColor: `${T.borderColor}30` }}
-            >
-              Active Agents
+            <div className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-1">
+              Agent Cluster
             </div>
-            <div className="space-y-1.5">
-              {agentList.map((agent) => {
-                const isActive = selectedAgent === agent.id;
-                const statusColor =
-                  agent.status === "online"
-                    ? T.success
-                    : agent.status === "busy"
-                      ? "#f59e0b"
-                      : T.textMuted;
-                return (
-                  <button
-                    key={agent.id}
-                    onClick={() => setSelectedAgent(agent.id)}
-                    className="w-full flex items-center gap-2.5 p-2 rounded-md transition-all text-left"
+            {Object.entries(REAL_AGENTS).map(([slug, agent]) => (
+              <button
+                key={agent.id}
+                onClick={() => {
+                  setSelectedAgent(slug);
+                  addLog({
+                    type: "system",
+                    text: `Selected agent: ${agent.name}`,
+                  });
+                }}
+                className={`w-full text-left rounded-md border px-2.5 py-2 transition-all group hover:scale-[1.02] ${selectedAgent === slug ? "border-[#00ff9d]/40 bg-[#00ff9d]/5" : "border-white/5 hover:border-white/15"}`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white group-hover:text-[#00ff9d] transition-colors">
+                    {agent.name}
+                  </span>
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${agent.status === "online" ? "bg-[#00ff9d]" : "bg-gray-600"}`}
                     style={{
-                      backgroundColor: isActive
-                        ? `${T.accentColor}12`
-                        : "transparent",
-                      border: `1px solid ${
-                        isActive ? `${T.accentColor}35` : "transparent"
-                      }`,
+                      boxShadow:
+                        agent.status === "online" ? "0 0 6px #00ff9d" : "none",
                     }}
-                  >
-                    <div
-                      className="w-8 h-8 rounded flex items-center justify-center shrink-0"
-                      style={{
-                        backgroundColor: `${statusColor}15`,
-                        color: statusColor,
-                      }}
-                    >
-                      <Bot size={14} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className="text-xs font-bold truncate"
-                        style={{ color: T.textColor }}
-                      >
-                        {agent.name}
-                      </div>
-                      <div className="text-[10px] opacity-50 truncate">
-                        {agent.role}
-                      </div>
-                    </div>
-                    <span
-                      className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                        agent.status === "online" ? "animate-pulse" : ""
-                      }`}
-                      style={{ backgroundColor: statusColor }}
-                    />
-                  </button>
-                );
-              })}
-            </div>
+                  />
+                </div>
+                <div className="text-[10px] text-white/40 font-mono mt-0.5">
+                  {agent.role}
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       </div>

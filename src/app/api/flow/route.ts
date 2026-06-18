@@ -2,20 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getUserWallet, updateWalletBalance } from "@/lib/user-db";
 import { withRateLimit } from "@/lib/rate-limiter";
-import {
-  MEDIA_PROVIDERS,
-  MediaFormat,
-  MediaProviderId,
-  getProvider,
-  defaultProviderFor,
-} from "@/lib/media";
+import { MediaFormat, MediaProviderId, getProvider } from "@/lib/media";
 
 /* ------------------------------------------------------------------ */
 /*  Storyboard types — shared with the /flow UI                        */
 /* ------------------------------------------------------------------ */
 export type FlowCell = {
-  id: string;            // local UI id
-  label: string;         // "Scene 1: establishing shot"
+  id: string; // local UI id
+  label: string; // "Scene 1: establishing shot"
   format: MediaFormat;
   providerId: MediaProviderId;
   prompt: string;
@@ -87,7 +81,12 @@ function arrayBufferToBase64(buffer: ArrayBuffer) {
 async function dispatchCell(
   cell: FlowCell,
   referenceUrl?: string,
-): Promise<{ downloadUrl: string; thumbUrl?: string; providerId: MediaProviderId; format: MediaFormat }> {
+): Promise<{
+  downloadUrl: string;
+  thumbUrl?: string;
+  providerId: MediaProviderId;
+  format: MediaFormat;
+}> {
   if (cell.providerId === "pollinations") {
     const params = new URLSearchParams({
       width: String(cell.width ?? 1024),
@@ -96,10 +95,12 @@ async function dispatchCell(
       nologo: "true",
       enhance: "true",
     });
-    if (cell.negativePrompt?.trim()) params.set("negative", cell.negativePrompt.trim());
+    if (cell.negativePrompt?.trim())
+      params.set("negative", cell.negativePrompt.trim());
     const url = `${POLLINATIONS_BASE}/${encodeURIComponent(cell.prompt.trim())}?${params}`;
     const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Pollinations: ${(await res.text()).slice(0, 200)}`);
+    if (!res.ok)
+      throw new Error(`Pollinations: ${(await res.text()).slice(0, 200)}`);
     const ct = res.headers.get("content-type") || "image/jpeg";
     const buf = await res.arrayBuffer();
     return {
@@ -113,37 +114,55 @@ async function dispatchCell(
     if (!FAL_API_KEY) throw new Error("FAL_KEY not configured");
     const submitRes = await fetch("https://queue.fal.run/fal-ai/flux/schnell", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Key ${FAL_API_KEY}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Key ${FAL_API_KEY}`,
+      },
       body: JSON.stringify({
         prompt: cell.prompt.trim(),
-        image_size: { width: Math.min(cell.width ?? 1024, 1440), height: Math.min(cell.height ?? 1024, 1440) },
+        image_size: {
+          width: Math.min(cell.width ?? 1024, 1440),
+          height: Math.min(cell.height ?? 1024, 1440),
+        },
         num_images: 1,
         enable_safety_checker: true,
       }),
     });
-    if (!submitRes.ok) throw new Error(`FAL.ai: ${(await submitRes.text()).slice(0, 200)}`);
+    if (!submitRes.ok)
+      throw new Error(`FAL.ai: ${(await submitRes.text()).slice(0, 200)}`);
     const submitData = await submitRes.json();
     if (submitData.images?.[0]?.url) {
-      return { downloadUrl: submitData.images[0].url, providerId: "fal", format: "image" };
+      return {
+        downloadUrl: submitData.images[0].url,
+        providerId: "fal",
+        format: "image",
+      };
     }
     const requestId = submitData.request_id;
     const start = Date.now();
     while (Date.now() - start < 60_000) {
-      await new Promise(r => setTimeout(r, 2000));
-      const pollRes = await fetch(`https://queue.fal.run/fal-ai/flux/schnell/requests/${requestId}/status`, {
-        headers: { Authorization: `Key ${FAL_API_KEY}` },
-      });
+      await new Promise((r) => setTimeout(r, 2000));
+      const pollRes = await fetch(
+        `https://queue.fal.run/fal-ai/flux/schnell/requests/${requestId}/status`,
+        {
+          headers: { Authorization: `Key ${FAL_API_KEY}` },
+        },
+      );
       const pollData = await pollRes.json();
       if (pollData.status === "COMPLETED") {
-        const resultRes = await fetch(`https://queue.fal.run/fal-ai/flux/schnell/requests/${requestId}`, {
-          headers: { Authorization: `Key ${FAL_API_KEY}` },
-        });
+        const resultRes = await fetch(
+          `https://queue.fal.run/fal-ai/flux/schnell/requests/${requestId}`,
+          {
+            headers: { Authorization: `Key ${FAL_API_KEY}` },
+          },
+        );
         const resultData = await resultRes.json();
         const imgUrl = resultData.images?.[0]?.url;
         if (!imgUrl) throw new Error("FAL.ai returned no image URL");
         return { downloadUrl: imgUrl, providerId: "fal", format: "image" };
       }
-      if (pollData.status === "FAILED") throw new Error("FAL.ai generation failed");
+      if (pollData.status === "FAILED")
+        throw new Error("FAL.ai generation failed");
     }
     throw new Error("FAL.ai timed out");
   }
@@ -154,14 +173,24 @@ async function dispatchCell(
       ? "https://api-inference.huggingface.co/models/stabilityai/stable-video-diffusion-img2vid"
       : "https://api-inference.huggingface.co/models/damo-vilab/text-to-video-ms-1.7";
     const body: Record<string, unknown> = referenceUrl
-      ? { inputs: referenceUrl, options: { wait_for_model: true, use_cache: false } }
-      : { inputs: cell.prompt.trim(), options: { wait_for_model: true, use_cache: false } };
+      ? {
+          inputs: referenceUrl,
+          options: { wait_for_model: true, use_cache: false },
+        }
+      : {
+          inputs: cell.prompt.trim(),
+          options: { wait_for_model: true, use_cache: false },
+        };
     const res = await fetch(modelUrl, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${HF_API_KEY}` },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${HF_API_KEY}`,
+      },
       body: JSON.stringify(body),
     });
-    if (!res.ok) throw new Error(`HuggingFace: ${(await res.text()).slice(0, 200)}`);
+    if (!res.ok)
+      throw new Error(`HuggingFace: ${(await res.text()).slice(0, 200)}`);
     const buf = await res.arrayBuffer();
     return {
       downloadUrl: `data:video/mp4;base64,${arrayBufferToBase64(buf)}`,
@@ -170,7 +199,9 @@ async function dispatchCell(
     };
   }
 
-  throw new Error(`Provider ${cell.providerId} is not yet implemented in /api/flow`);
+  throw new Error(
+    `Provider ${cell.providerId} is not yet implemented in /api/flow`,
+  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -183,7 +214,7 @@ async function runFlow(
 ): Promise<FlowRun> {
   const startedAt = Date.now();
   const totalCost = computeTotalCost(cells);
-  const results: FlowCellResult[] = cells.map(c => ({
+  const results: FlowCellResult[] = cells.map((c) => ({
     cellId: c.id,
     status: "pending",
     providerId: c.providerId,
@@ -195,7 +226,9 @@ async function runFlow(
   if (totalCost > 0) {
     const wallet = await getUserWallet(userId);
     if (wallet.balance < totalCost) {
-      throw new Error(`Insufficient LiTBit Coins. Need ${totalCost}, have ${wallet.balance}`);
+      throw new Error(
+        `Insufficient LiTBit Coins. Need ${totalCost}, have ${wallet.balance}`,
+      );
     }
     await updateWalletBalance(userId, -totalCost);
   }
@@ -214,7 +247,8 @@ async function runFlow(
 
     // Smart chain: per-cell reference override first, else use prior output for videos
     const referenceUrl =
-      cell.referenceUrl ?? (cell.format === "video" && lastOutputUrl ? lastOutputUrl : undefined);
+      cell.referenceUrl ??
+      (cell.format === "video" && lastOutputUrl ? lastOutputUrl : undefined);
 
     try {
       const t0 = Date.now();
@@ -259,7 +293,7 @@ async function runFlow(
 /*  Handlers                                                           */
 /* ------------------------------------------------------------------ */
 async function postHandler(req: NextRequest) {
-  const body = await req.json().catch(() => null) as FlowPostBody | null;
+  const body = (await req.json().catch(() => null)) as FlowPostBody | null;
   const headers = req.headers;
   const serviceToken = headers.get("x-flow-service-token");
   const isService = FLOW_SERVICE_TOKEN && serviceToken === FLOW_SERVICE_TOKEN;
@@ -268,7 +302,10 @@ async function postHandler(req: NextRequest) {
   if (isService) {
     userId = body?.userId ?? null;
     if (!userId) {
-      return NextResponse.json({ error: "Service calls must include a userId" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Service calls must include a userId" },
+        { status: 400 },
+      );
     }
   } else {
     const authResult = await auth();
@@ -281,10 +318,16 @@ async function postHandler(req: NextRequest) {
 
   const cells = body?.cells;
   if (!cells || !Array.isArray(cells) || cells.length === 0) {
-    return NextResponse.json({ error: "Storyboard must have at least one cell" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Storyboard must have at least one cell" },
+      { status: 400 },
+    );
   }
   if (cells.length > 12) {
-    return NextResponse.json({ error: "Storyboard capped at 12 cells" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Storyboard capped at 12 cells" },
+      { status: 400 },
+    );
   }
 
   // Validate each cell
@@ -292,18 +335,21 @@ async function postHandler(req: NextRequest) {
     if (!c.prompt || c.prompt.trim().length < 3) {
       return NextResponse.json(
         { error: `Cell "${c.label || c.id}" needs a prompt (≥3 chars)` },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (!getProvider(c.providerId)) {
-      return NextResponse.json({ error: `Unknown provider: ${c.providerId}` }, { status: 400 });
+      return NextResponse.json(
+        { error: `Unknown provider: ${c.providerId}` },
+        { status: 400 },
+      );
     }
   }
 
   // Dry-run option: just return the cost, don't actually run
   if (req.nextUrl.searchParams.get("dryRun") === "1") {
     const totalCost = computeTotalCost(cells);
-    const breakdown = cells.map(c => ({
+    const breakdown = cells.map((c) => ({
       cellId: c.id,
       label: c.label,
       provider: c.providerId,
@@ -319,7 +365,7 @@ async function postHandler(req: NextRequest) {
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Flow run failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

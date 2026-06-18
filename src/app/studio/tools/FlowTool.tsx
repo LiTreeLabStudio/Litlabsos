@@ -6,18 +6,13 @@ import {
   Play,
   Plus,
   Trash2,
-  Save,
-  Download,
-  RefreshCw,
   Loader2,
   Sparkles,
   Film,
-  Image as ImageIcon,
   AlertTriangle,
   CheckCircle2,
   Coins,
   History,
-  Zap,
   GitBranch,
 } from "lucide-react";
 import {
@@ -88,23 +83,28 @@ export default function FlowTool() {
       totalCost: number;
       createdAt: number;
     }[]
-  >([]);
-  const [coinBalance, setCoinBalance] = useState<number | null>(null);
+  >(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [coinBalance, setCoinBalance] = useState<number | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const coinsRaw = localStorage.getItem("litcoins");
+      const val = coinsRaw ? Number(coinsRaw) : null;
+      return val !== null && !isNaN(val) ? val : null;
+    } catch {
+      return null;
+    }
+  });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
-    } catch {}
-    // Read litcoins from localStorage first (consistent with Navbar)
-    try {
-      const coinsRaw = localStorage.getItem("litcoins");
-      if (coinsRaw) {
-        const val = Number(coinsRaw);
-        if (!isNaN(val)) setCoinBalance(val);
-      }
-    } catch {}
     // Then sync from API
     fetch("/api/wallet")
       .then((r) => r.json())
@@ -208,7 +208,7 @@ export default function FlowTool() {
     } finally {
       setRunning(false);
     }
-  }, [canRun, cells, cellCosts, flowName]);
+  }, [canRun, cells, cellCosts, flowName, history]);
 
   const clearHistory = () => {
     setHistory([]);
@@ -495,12 +495,15 @@ export default function FlowTool() {
                       style={{ maxHeight: "140px", backgroundColor: "#000" }}
                     />
                   ) : (
-                    <img
-                      src={result.downloadUrl}
-                      alt={cell.label}
-                      className="w-full object-cover"
-                      style={{ maxHeight: "140px" }}
-                    />
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={result.downloadUrl}
+                        alt={cell.label}
+                        className="w-full object-cover"
+                        style={{ maxHeight: "140px" }}
+                      />
+                    </>
                   )}
                 </div>
               )}

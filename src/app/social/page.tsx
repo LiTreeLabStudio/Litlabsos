@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+
+const _socialNow = Date.now();
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { useProfile } from "@/context/ProfileContext";
 import RetroBackground from "@/components/RetroBackground";
@@ -16,7 +18,6 @@ import {
   Users,
   Plus,
   BarChart3,
-  Crown,
   Send,
   Flame,
   Loader2,
@@ -73,19 +74,12 @@ const ONLINE_AGENTS = [
   { name: "Writing Coach", icon: "✍️", status: "online", task: "Drafting..." },
 ];
 
-function timeAgo(iso: string) {
-  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+function timeAgo(iso: string, now: number) {
+  const diff = (now - new Date(iso).getTime()) / 1000;
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function getInitial(post: ApiPost) {
-  const a = post.author;
-  if (a?.avatar_url && !a.avatar_url.startsWith("http")) return a.avatar_url; // emoji fallback
-  if (a?.name) return a.name.charAt(0).toUpperCase();
-  return "?";
 }
 
 export default function SocialFeed() {
@@ -130,7 +124,8 @@ export default function SocialFeed() {
   };
 
   useEffect(() => {
-    loadPosts(activeTab);
+    const id = requestAnimationFrame(() => loadPosts(activeTab));
+    return () => cancelAnimationFrame(id);
   }, [activeTab]);
 
   const handlePost = async () => {
@@ -162,7 +157,11 @@ export default function SocialFeed() {
     // Optimistic update
     setLikedPosts((prev) => {
       const next = new Set(prev);
-      alreadyLiked ? next.delete(postId) : next.add(postId);
+      if (alreadyLiked) {
+        next.delete(postId);
+      } else {
+        next.add(postId);
+      }
       return next;
     });
     setPosts((prev) =>
@@ -180,7 +179,11 @@ export default function SocialFeed() {
       // revert on failure
       setLikedPosts((prev) => {
         const next = new Set(prev);
-        alreadyLiked ? next.add(postId) : next.delete(postId);
+        if (alreadyLiked) {
+          next.add(postId);
+        } else {
+          next.delete(postId);
+        }
         return next;
       });
       setPosts((prev) =>
@@ -290,11 +293,14 @@ export default function SocialFeed() {
                     style={{ borderColor: C.accentColor }}
                   >
                     {profile.avatarUrl ? (
-                      <img
-                        src={profile.avatarUrl}
-                        className="w-full h-full object-cover"
-                        alt=""
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={profile.avatarUrl}
+                          className="w-full h-full object-cover"
+                          alt=""
+                        />
+                      </>
                     ) : (
                       <span>{profile.displayName?.charAt(0) || "👤"}</span>
                     )}
@@ -418,11 +424,14 @@ export default function SocialFeed() {
                     style={{ borderColor: C.accentColor }}
                   >
                     {profile?.avatarUrl ? (
-                      <img
-                        src={profile.avatarUrl}
-                        className="w-full h-full object-cover"
-                        alt=""
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={profile.avatarUrl}
+                          className="w-full h-full object-cover"
+                          alt=""
+                        />
+                      </>
                     ) : (
                       <span>{profile?.displayName?.charAt(0) || "👤"}</span>
                     )}
@@ -555,11 +564,14 @@ export default function SocialFeed() {
                       }}
                     >
                       {post.author?.avatar_url?.startsWith("http") ? (
-                        <img
-                          src={post.author.avatar_url}
-                          className="w-full h-full object-cover"
-                          alt=""
-                        />
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={post.author.avatar_url}
+                            className="w-full h-full object-cover"
+                            alt=""
+                          />
+                        </>
                       ) : (
                         <span>
                           {post.author?.avatar_url ||
@@ -588,7 +600,7 @@ export default function SocialFeed() {
                           @{post.author?.username || "user"}
                         </span>
                         <span className="text-[10px] opacity-40">
-                          · {timeAgo(post.created_at)}
+                          · {timeAgo(post.created_at, _socialNow)}
                         </span>
                       </div>
                     </div>
@@ -609,16 +621,19 @@ export default function SocialFeed() {
                       }}
                     >
                       {post.media_urls.map((url, i) => (
-                        <img
-                          key={i}
-                          src={url}
-                          alt=""
-                          className="w-full object-cover border"
-                          style={{
-                            borderColor: C.borderColor,
-                            maxHeight: "300px",
-                          }}
-                        />
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            key={i}
+                            src={url}
+                            alt=""
+                            className="w-full object-cover border"
+                            style={{
+                              borderColor: C.borderColor,
+                              maxHeight: "300px",
+                            }}
+                          />
+                        </>
                       ))}
                     </div>
                   )}

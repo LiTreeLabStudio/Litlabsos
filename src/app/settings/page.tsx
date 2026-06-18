@@ -1,7 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   useTheme,
   darkSkins,
@@ -12,7 +12,6 @@ import { useProfile } from "@/context/ProfileContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
-import { WALLPAPERS } from "@/lib/wallpapers";
 import {
   Palette,
   User,
@@ -28,7 +27,6 @@ import {
   Trash2,
   Eye,
   Camera,
-  ImageIcon,
   MapPin,
   Globe,
   AtSign,
@@ -37,19 +35,14 @@ import {
   Link2,
   Hash,
   Fingerprint,
-  Upload,
-  X,
   ChevronDown,
   ChevronUp,
   Terminal,
   Activity,
-  Wifi,
-  Cpu,
   Database,
   AlertTriangle,
   Music,
   Volume2,
-  VolumeX,
 } from "lucide-react";
 
 const skinLabels: Record<SkinPreset, string> = {
@@ -309,15 +302,8 @@ function GenBtn({
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
-  const {
-    theme,
-    resolvedColors,
-    setMode,
-    setSkin,
-    setAccent,
-    setBackgroundMode,
-    resetTheme,
-  } = useTheme();
+  const { theme, setMode, setSkin, setAccent, setBackgroundMode, resetTheme } =
+    useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
   const [activeTab, setActiveTab] = useState<TabId>("theme");
@@ -325,37 +311,72 @@ export default function SettingsPage() {
   const [generating, setGenerating] = useState<string | null>(null);
 
   // UI prefs
-  const [animSpeed, setAnimSpeed] = useState("normal");
-  const [compactMode, setCompactMode] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [soundEffects, setSoundEffects] = useState(false);
-  const [customCSS, setCustomCSS] = useState("");
+  const [animSpeed, setAnimSpeed] = useState(() => {
+    if (typeof window === "undefined") return "normal";
+    return localStorage.getItem("litlabs-anim-speed") || "normal";
+  });
+  const [compactMode, setCompactMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("litlabs-compact") === "true";
+  });
+  const [reducedMotion, setReducedMotion] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("litlabs-reduced-motion") === "true";
+  });
+  const [soundEffects, setSoundEffects] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("litlabs-sound") === "true";
+  });
+  const [customCSS, setCustomCSS] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("litlabs-custom-css") || "";
+  });
 
   // Music prefs
-  const [musicEnabled, setMusicEnabled] = useState(false);
-  const [musicVolume, setMusicVolume] = useState(50);
-  const [musicAutoPlay, setMusicAutoPlay] = useState(false);
-  const [musicMuteOnLeave, setMusicMuteOnLeave] = useState(true);
-
-  useEffect(() => {
-    setAnimSpeed(localStorage.getItem("litlabs-anim-speed") || "normal");
-    setCompactMode(localStorage.getItem("litlabs-compact") === "true");
-    setReducedMotion(localStorage.getItem("litlabs-reduced-motion") === "true");
-    setSoundEffects(localStorage.getItem("litlabs-sound") === "true");
-    setCustomCSS(localStorage.getItem("litlabs-custom-css") || "");
-    // Load music prefs
+  const [musicEnabled, setMusicEnabled] = useState(() => {
+    if (typeof window === "undefined") return false;
     try {
-      const musicPrefs = JSON.parse(
+      const prefs = JSON.parse(
         localStorage.getItem("litlabs-music-prefs") || "{}",
       );
-      setMusicEnabled(musicPrefs.enabled ?? false);
-      setMusicVolume(musicPrefs.volume ?? 50);
-      setMusicAutoPlay(musicPrefs.autoPlay ?? false);
-      setMusicMuteOnLeave(musicPrefs.muteOnLeave ?? true);
+      return prefs.enabled ?? false;
     } catch {
-      /* ignore */
+      return false;
     }
-  }, []);
+  });
+  const [musicVolume, setMusicVolume] = useState(() => {
+    if (typeof window === "undefined") return 50;
+    try {
+      const prefs = JSON.parse(
+        localStorage.getItem("litlabs-music-prefs") || "{}",
+      );
+      return prefs.volume ?? 50;
+    } catch {
+      return 50;
+    }
+  });
+  const [musicAutoPlay, setMusicAutoPlay] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const prefs = JSON.parse(
+        localStorage.getItem("litlabs-music-prefs") || "{}",
+      );
+      return prefs.autoPlay ?? false;
+    } catch {
+      return false;
+    }
+  });
+  const [musicMuteOnLeave, setMusicMuteOnLeave] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      const prefs = JSON.parse(
+        localStorage.getItem("litlabs-music-prefs") || "{}",
+      );
+      return prefs.muteOnLeave ?? true;
+    } catch {
+      return true;
+    }
+  });
 
   const showSaved = useCallback(() => {
     setSaved(true);
@@ -428,7 +449,7 @@ export default function SettingsPage() {
     "matrix-green",
     "sunset-orange",
     "ocean-blue",
-  ];
+  ] as const;
 
   if (!isLoaded) {
     return (
@@ -587,7 +608,7 @@ export default function SettingsPage() {
                   <button
                     key={accent}
                     onClick={() => {
-                      setAccent(accent as any);
+                      setAccent(accent);
                       showSaved();
                     }}
                     className={`w-8 h-8 border transition-all hover:scale-110 ${
@@ -636,11 +657,14 @@ export default function SettingsPage() {
                     }}
                   >
                     {profile.avatarUrl ? (
-                      <img
-                        src={profile.avatarUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={profile.avatarUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      </>
                     ) : (
                       <User size={24} className="m-4 opacity-50" />
                     )}
@@ -1057,7 +1081,7 @@ export default function SettingsPage() {
                 </p>
                 <div className="p-3 border border-white/10 bg-black/20">
                   <div className="text-[10px] opacity-60 mb-2">
-                    // Currently Playing
+                    Currently Playing
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-lg">🎵</span>
@@ -1109,7 +1133,7 @@ export default function SettingsPage() {
 
             <Section title="Data Management" icon={Database}>
               <p className="text-[10px] opacity-60 mb-3">
-                // Erase all local config and reset system
+                Erase all local config and reset system
               </p>
               <button
                 onClick={() => {

@@ -15,7 +15,6 @@ import {
   Link as LinkIcon,
   Calendar,
   Sparkles,
-  Zap,
   Bot,
   Image as ImageIcon,
   Heart,
@@ -23,19 +22,7 @@ import {
   MoreHorizontal,
   Verified,
   BadgeCheck,
-  Crown,
-  Target,
-  Gift,
-  TrendingUp,
-  Users,
-  Flame,
   Send,
-  X,
-  Minus,
-  Plus,
-  Star,
-  Award,
-  Radio,
 } from "lucide-react";
 
 // Retro neon palette - matching homepage
@@ -51,117 +38,6 @@ const C = {
   success: "#00ff41",
   warning: "#ffff00",
 };
-
-// Campaign types for agents - helps grow the platform
-const CAMPAIGN_TYPES = [
-  {
-    id: "invite",
-    name: "Invite Friends",
-    icon: "👥",
-    reward: 100,
-    desc: "Get 100 coins per friend who joins",
-    progress: 60,
-  },
-  {
-    id: "content",
-    name: "Content Creator",
-    icon: "📝",
-    reward: 50,
-    desc: "Post daily to earn 50 coins",
-    progress: 30,
-  },
-  {
-    id: "agent_builder",
-    name: "Agent Builder",
-    icon: "🤖",
-    reward: 200,
-    desc: "Build an agent, earn 200 coins",
-    progress: 0,
-  },
-  {
-    id: "viral",
-    name: "Viral Hunter",
-    icon: "🔥",
-    reward: 500,
-    desc: "Create content that gets 100+ likes",
-    progress: 80,
-  },
-  {
-    id: "community",
-    name: "Community Helper",
-    icon: "💬",
-    reward: 75,
-    desc: "Help 5 new users, earn 75 coins",
-    progress: 45,
-  },
-];
-
-// Agent brain capabilities - gives agents autonomy
-const AGENT_BRAIN_FEATURES = [
-  {
-    id: "autonomous_posting",
-    name: "Auto Poster",
-    desc: "Agent posts content when you're away",
-    unlocked: true,
-    cost: 0,
-  },
-  {
-    id: "growth_optimizer",
-    name: "Growth AI",
-    desc: "Optimizes your profile for followers",
-    unlocked: true,
-    cost: 0,
-  },
-  {
-    id: "dm_responder",
-    name: "DM Handler",
-    desc: "Responds to messages automatically",
-    unlocked: false,
-    cost: 500,
-  },
-  {
-    id: "content_curator",
-    name: "Curator",
-    desc: "Finds and shares trending content",
-    unlocked: false,
-    cost: 500,
-  },
-  {
-    id: "analytics_insights",
-    name: "Analytics AI",
-    desc: "Provides weekly performance reports",
-    unlocked: true,
-    cost: 0,
-  },
-  {
-    id: "campaign_runner",
-    name: "Campaign Bot",
-    desc: "Auto-runs growth campaigns",
-    unlocked: false,
-    cost: 1000,
-  },
-];
-
-// Top Friends for MySpace style
-const TOP_FRIENDS = [
-  { name: "Director", icon: "🎯", role: "Orchestrator", status: "online" },
-  { name: "Code Champ", icon: "💻", role: "Engineer", status: "online" },
-  { name: "Data Slayer", icon: "📊", role: "Analytics", status: "busy" },
-  { name: "Social Dom", icon: "📱", role: "Growth", status: "online" },
-];
-
-// Helper to format timestamps
-function formatTimeAgo(timestamp: string): string {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (seconds < 60) return "just now";
-  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-  return date.toLocaleDateString();
-}
 
 // Generate retro profile with neon aesthetics
 function generateUserProfile(username: string) {
@@ -251,6 +127,7 @@ function generateUserProfile(username: string) {
       likes: Math.floor((hash * 999) % 10000) + 500,
       coins: Math.floor((hash * 77) % 5000) + 500,
     },
+    isAgent: false,
     interests: ["AI", "Coding", "Design", "Music", "Gaming", "Crypto"].slice(
       0,
       (hash % 4) + 2,
@@ -288,16 +165,26 @@ function generateUserProfile(username: string) {
   };
 }
 
+type TabId = "posts" | "generations" | "agents";
+
+interface Activity {
+  type: string;
+  text: string;
+  time: string;
+  likes: number;
+  comments: number;
+}
+
 export default function UserProfilePage() {
-  const { isLoaded, isSignedIn, userId } = useClerkAuth();
-  const { profile: myProfile } = useProfile();
+  const { isLoaded } = useClerkAuth();
+  useProfile();
   const router = useRouter();
   const params = useParams();
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<ReturnType<
+    typeof generateUserProfile
+  > | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [activeTab, setActiveTab] = useState<
-    "posts" | "generations" | "agents"
-  >("posts");
+  const [activeTab, setActiveTab] = useState<TabId>("posts");
 
   // Agent chat state
   const [chatOpen, setChatOpen] = useState(false);
@@ -308,22 +195,17 @@ export default function UserProfilePage() {
   const [chatLoading, setChatLoading] = useState(false);
 
   // Get current user's username from localStorage or default
-  const [currentUsername, setCurrentUsername] = useState<string>("");
-
-  const usernameParam = (params?.username as string) || "";
-
-  useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? localStorage.getItem("litlabs-profile")
-        : null;
+  const [currentUsername] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    const stored = localStorage.getItem("litlabs-profile");
     if (stored) {
       const profile = JSON.parse(stored);
-      setCurrentUsername(
-        profile.displayName?.toLowerCase().replace(/\s+/g, "") || "",
-      );
+      return profile.displayName?.toLowerCase().replace(/\s+/g, "") || "";
     }
-  }, []);
+    return "";
+  });
+
+  const usernameParam = (params?.username as string) || "";
 
   useEffect(() => {
     const username = usernameParam;
@@ -331,8 +213,11 @@ export default function UserProfilePage() {
 
     // Generate profile for this username (includes agent-like profiles)
     const profile = generateUserProfile(username.toLowerCase());
-    setUserProfile(profile);
-    setIsFollowing(false);
+    const id = requestAnimationFrame(() => {
+      setUserProfile(profile);
+      setIsFollowing(false);
+    });
+    return () => cancelAnimationFrame(id);
   }, [usernameParam]);
 
   const handleFollow = () => {
@@ -478,11 +363,14 @@ export default function UserProfilePage() {
           {/* Cover */}
           <div className="h-40 sm:h-48 w-full relative">
             {userProfile.cover?.startsWith("http") ? (
-              <img
-                src={userProfile.cover}
-                alt="Cover"
-                className="w-full h-full object-cover"
-              />
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={userProfile.cover}
+                  alt="Cover"
+                  className="w-full h-full object-cover"
+                />
+              </>
             ) : (
               <div
                 className="w-full h-full"
@@ -501,11 +389,14 @@ export default function UserProfilePage() {
                 style={{ backgroundColor: C.bgColor, borderColor: C.boxBg }}
               >
                 {userProfile.avatar?.startsWith("http") ? (
-                  <img
-                    src={userProfile.avatar}
-                    alt={userProfile.displayName}
-                    className="w-full h-full object-cover"
-                  />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={userProfile.avatar}
+                      alt={userProfile.displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  </>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl">
                     {userProfile.avatar}
@@ -744,7 +635,7 @@ export default function UserProfilePage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as TabId)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-bold transition-all"
               style={{
                 backgroundColor:
@@ -767,7 +658,7 @@ export default function UserProfilePage() {
           {activeTab === "posts" && (
             <div className="space-y-4">
               {(userProfile.recentActivity || []).map(
-                (activity: any, i: number) => (
+                (activity: Activity, i: number) => (
                   <div
                     key={i}
                     className="p-4 rounded-xl transition-all hover:scale-[1.01]"
@@ -954,11 +845,14 @@ export default function UserProfilePage() {
                       }}
                     >
                       {userProfile.avatar?.startsWith("http") ? (
-                        <img
-                          src={userProfile.avatar}
-                          alt=""
-                          className="w-full h-full rounded-full object-cover"
-                        />
+                        <>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={userProfile.avatar}
+                            alt=""
+                            className="w-full h-full rounded-full object-cover"
+                          />
+                        </>
                       ) : (
                         <Bot size={12} />
                       )}

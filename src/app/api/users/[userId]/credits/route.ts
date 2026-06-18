@@ -9,7 +9,7 @@ import { rateLimit } from "@/lib/rate-limiter";
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   // Rate limiting
   const { success, remaining, resetTime } = rateLimit(req, 50, 60);
@@ -42,7 +42,7 @@ export async function POST(
     if (newBalance < 0) {
       return NextResponse.json(
         { error: "Insufficient balance", currentBalance: wallet.balance },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -54,17 +54,17 @@ export async function POST(
       previousBalance: wallet.balance,
       change: amount,
     });
-    
+
     response.headers.set("X-RateLimit-Limit", "50");
     response.headers.set("X-RateLimit-Remaining", String(remaining));
     response.headers.set("X-RateLimit-Reset", String(resetTime));
-    
+
     return response;
-  } catch (error) {
+  } catch {
     // Error updating credits:
     return NextResponse.json(
       { error: "Failed to update credits" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -75,10 +75,10 @@ export async function POST(
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ userId: string }> }
+  { params }: { params: Promise<{ userId: string }> },
 ) {
   // Rate limiting
-  const { success, remaining, resetTime } = rateLimit(req, 100, 60);
+  const { success, resetTime } = rateLimit(req, 100, 60);
   if (!success) {
     return new NextResponse(JSON.stringify({ error: "Rate limit exceeded" }), {
       status: 429,
@@ -100,11 +100,11 @@ export async function GET(
     const { userId } = await params;
     const wallet = await getUserWallet(userId);
     return NextResponse.json({ credits: wallet.balance });
-  } catch (error) {
+  } catch {
     // Error fetching credits:
     return NextResponse.json(
       { error: "Failed to fetch credits" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

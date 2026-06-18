@@ -7,7 +7,7 @@ import { withRateLimit } from "@/lib/rate-limiter";
  * GET /api/settings/preferences
  * Returns the user's preferences from the database.
  */
-async function getHandler(req: NextRequest) {
+async function getHandler() {
   try {
     const { userId: clerkId } = await auth();
     if (!clerkId) {
@@ -15,7 +15,7 @@ async function getHandler(req: NextRequest) {
     }
 
     const preferences = await getUserPreferences(clerkId);
-    
+
     // Return defaults if no preferences found
     return NextResponse.json({
       preferences: preferences || {
@@ -25,11 +25,11 @@ async function getHandler(req: NextRequest) {
         crt_enabled: false,
       },
     });
-  } catch (error) {
+  } catch {
     // Error fetching preferences:
     return NextResponse.json(
       { error: "Failed to fetch preferences" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -52,7 +52,7 @@ async function postHandler(req: NextRequest) {
 
     // Map client preferences to database fields
     const updates: Record<string, string | boolean> = {};
-    
+
     if (typeof body.theme === "string") {
       updates.theme_mode = body.theme;
     }
@@ -66,13 +66,20 @@ async function postHandler(req: NextRequest) {
       updates.crt_enabled = body.crtEnabled;
     }
     // Support direct DB field names too
-    if (typeof body.theme_mode === "string") updates.theme_mode = body.theme_mode;
-    if (typeof body.theme_skin === "string") updates.theme_skin = body.theme_skin;
-    if (typeof body.theme_accent === "string") updates.theme_accent = body.theme_accent;
-    if (typeof body.crt_enabled === "boolean") updates.crt_enabled = body.crt_enabled;
+    if (typeof body.theme_mode === "string")
+      updates.theme_mode = body.theme_mode;
+    if (typeof body.theme_skin === "string")
+      updates.theme_skin = body.theme_skin;
+    if (typeof body.theme_accent === "string")
+      updates.theme_accent = body.theme_accent;
+    if (typeof body.crt_enabled === "boolean")
+      updates.crt_enabled = body.crt_enabled;
 
     if (Object.keys(updates).length === 0) {
-      return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No valid fields to update" },
+        { status: 400 },
+      );
     }
 
     const updated = await updateUserPreferences(clerkId, updates);
@@ -81,11 +88,11 @@ async function postHandler(req: NextRequest) {
       message: "Preferences updated successfully",
       preferences: updated,
     });
-  } catch (error) {
+  } catch {
     // Error updating preferences:
     return NextResponse.json(
       { error: "Failed to update preferences" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

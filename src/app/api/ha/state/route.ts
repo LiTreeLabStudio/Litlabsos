@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getStates, getState, getDeviceMap } from "@/lib/ha-api";
+import { getStates, getState } from "@/lib/ha-api";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -9,7 +9,10 @@ export async function GET(req: NextRequest) {
     if (entityId) {
       const state = await getState(entityId);
       if (!state) {
-        return NextResponse.json({ error: "Entity not found" }, { status: 404 });
+        return NextResponse.json(
+          { error: "Entity not found" },
+          { status: 404 },
+        );
       }
       return NextResponse.json({ entity: state });
     }

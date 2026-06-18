@@ -21,17 +21,20 @@ export function ClerkUserWidget({ compact }: Props) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       {user?.imageUrl ? (
-        <img
-          src={user.imageUrl}
-          alt="Profile"
-          style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "4px",
-            border: "2px solid #ff0080",
-            objectFit: "cover",
-          }}
-        />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={user.imageUrl}
+            alt="Profile"
+            style={{
+              width: "44px",
+              height: "44px",
+              borderRadius: "4px",
+              border: "2px solid #ff0080",
+              objectFit: "cover",
+            }}
+          />
+        </>
       ) : (
         <div
           style={{

@@ -3,13 +3,37 @@
 import { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import {
-  Image, Film, Music, LayoutGrid, Bot, Rocket,
-  ChevronLeft, ChevronRight, Zap, Sparkles, Terminal, Network, Shell
+  Image,
+  Film,
+  Music,
+  LayoutGrid,
+  Bot,
+  Rocket,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Terminal,
+  Network,
+  Shell,
 } from "lucide-react";
 
-export type StudioTool = "image" | "video" | "audio" | "agents" | "terminal" | "pipeline" | "gallery" | "space" | "clibridge";
+export type StudioTool =
+  | "image"
+  | "video"
+  | "audio"
+  | "agents"
+  | "terminal"
+  | "pipeline"
+  | "gallery"
+  | "space"
+  | "clibridge";
 
-type ToolItem = { id: StudioTool; label: string; icon: typeof Image; shortcut: string };
+type ToolItem = {
+  id: StudioTool;
+  label: string;
+  icon: typeof Image;
+  shortcut: string;
+};
 
 const CREATE_TOOLS: ToolItem[] = [
   { id: "image", label: "Image", icon: Image, shortcut: "1" },
@@ -18,9 +42,9 @@ const CREATE_TOOLS: ToolItem[] = [
 ];
 
 const AI_TOOLS: ToolItem[] = [
-  { id: "agents",   label: "Agents",   icon: Bot,     shortcut: "4" },
+  { id: "agents", label: "Agents", icon: Bot, shortcut: "4" },
   { id: "terminal", label: "Terminal", icon: Terminal, shortcut: "5" },
-  { id: "pipeline", label: "Pipeline", icon: Network,  shortcut: "6" },
+  { id: "pipeline", label: "Pipeline", icon: Network, shortcut: "6" },
   { id: "clibridge", label: "CLI Bridge", icon: Shell, shortcut: "0" },
 ];
 
@@ -33,7 +57,12 @@ const EXTERNAL_TOOLS: ToolItem[] = [
 ];
 
 function ToolGroup({
-  title, tools, activeTool, onToolChange, collapsed, T,
+  title,
+  tools,
+  activeTool,
+  onToolChange,
+  collapsed,
+  T,
 }: {
   title: string;
   tools: ToolItem[];
@@ -66,9 +95,13 @@ function ToolGroup({
               style={{
                 color: active ? T.accentColor : T.textColor + "99",
                 backgroundColor: active ? T.accentColor + "12" : "transparent",
-                boxShadow: active ? `inset 0 0 0 1px ${T.accentColor}25, 0 0 12px ${T.accentColor}10` : "none",
+                boxShadow: active
+                  ? `inset 0 0 0 1px ${T.accentColor}25, 0 0 12px ${T.accentColor}10`
+                  : "none",
               }}
-              title={collapsed ? `${tool.label} (Ctrl+${tool.shortcut})` : undefined}
+              title={
+                collapsed ? `${tool.label} (Ctrl+${tool.shortcut})` : undefined
+              }
             >
               {/* Active glow dot */}
               {active && (
@@ -122,95 +155,144 @@ export default function StudioSidebar({
 
   return (
     <>
-    {/* Mobile overlay */}
-    {mobileOpen && (
-      <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setMobileOpen(false)} />
-    )}
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
 
-    {/* Mobile hamburger */}
-    <button
-      onClick={() => setMobileOpen(!mobileOpen)}
-      className="fixed top-16 left-3 z-50 md:hidden p-2 rounded-lg"
-      style={{ backgroundColor: T.boxBg, border: `1px solid ${T.borderColor}30` }}
-    >
-      {mobileOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
-    </button>
-
-    <aside
-      className={`flex flex-col h-full shrink-0 transition-all duration-300 ease-out fixed md:relative z-40 ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
-      style={{
-        width: collapsed ? "64px" : "196px",
-        backgroundColor: T.boxBg + "70",
-        backdropFilter: "blur(20px) saturate(180%)",
-        borderRight: `1px solid ${T.borderColor}18`,
-      }}
-    >
-      {/* Logo header */}
-      <div
-        className="flex items-center justify-between px-3 h-11 shrink-0"
-        style={{ borderBottom: `1px solid ${T.borderColor}12` }}
+      {/* Mobile hamburger */}
+      <button
+        onClick={() => setMobileOpen(!mobileOpen)}
+        className="fixed top-16 left-3 z-50 md:hidden p-2 rounded-lg"
+        style={{
+          backgroundColor: T.boxBg,
+          border: `1px solid ${T.borderColor}30`,
+        }}
       >
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div
-              className="w-5 h-5 rounded-md flex items-center justify-center"
-              style={{
-                background: `linear-gradient(135deg, ${T.accentColor}, ${T.linkColor})`,
-              }}
-            >
-              <Sparkles size={11} className="text-white" />
-            </div>
-            <span className="text-[11px] font-black uppercase tracking-[0.15em]" style={{ color: T.headerColor }}>
-              Studio
-            </span>
-          </div>
-        )}
-        <button
-          onClick={() => setCollapsed((v) => !v)}
-          className="p-1 rounded-md transition-all hover:bg-white/10 hover:scale-105"
-          style={{ color: T.textMuted + "80" }}
-          title={collapsed ? "Expand" : "Collapse"}
+        {mobileOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+      </button>
+
+      <aside
+        className={`flex flex-col h-full shrink-0 transition-all duration-300 ease-out fixed md:relative z-40 ${mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
+        style={{
+          width: collapsed ? "64px" : "196px",
+          backgroundColor: T.boxBg + "70",
+          backdropFilter: "blur(20px) saturate(180%)",
+          borderRight: `1px solid ${T.borderColor}18`,
+        }}
+      >
+        {/* Logo header */}
+        <div
+          className="flex items-center justify-between px-3 h-11 shrink-0"
+          style={{ borderBottom: `1px solid ${T.borderColor}12` }}
         >
-          {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
-      </div>
-
-      {/* Tools — grouped */}
-      <nav className="flex-1 py-2 overflow-y-auto">
-        <ToolGroup title="Create" tools={CREATE_TOOLS} activeTool={activeTool} onToolChange={onToolChange} collapsed={collapsed} T={T} />
-        <ToolGroup title="AI" tools={AI_TOOLS} activeTool={activeTool} onToolChange={onToolChange} collapsed={collapsed} T={T} />
-        <ToolGroup title="Organize" tools={ORGANIZE_TOOLS} activeTool={activeTool} onToolChange={onToolChange} collapsed={collapsed} T={T} />
-        <ToolGroup title="External" tools={EXTERNAL_TOOLS} activeTool={activeTool} onToolChange={onToolChange} collapsed={collapsed} T={T} />
-      </nav>
-
-      {/* Bottom status */}
-      <div
-        className="px-3 py-2.5 shrink-0"
-        style={{ borderTop: `1px solid ${T.borderColor}12` }}
-      >
-        {collapsed ? (
-          <div className="flex justify-center">
-            <span
-              className="w-2 h-2 rounded-full animate-pulse"
-              style={{ backgroundColor: T.success, boxShadow: `0 0 6px ${T.success}` }}
-            />
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-mono opacity-40" style={{ color: T.textMuted }}>
-              v1.0
-            </span>
-            <span className="flex items-center gap-1.5 text-[9px] font-mono" style={{ color: T.textMuted + "80" }}>
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <div
+                className="w-5 h-5 rounded-md flex items-center justify-center"
+                style={{
+                  background: `linear-gradient(135deg, ${T.accentColor}, ${T.linkColor})`,
+                }}
+              >
+                <Sparkles size={11} className="text-white" />
+              </div>
               <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: T.success, boxShadow: `0 0 4px ${T.success}` }}
+                className="text-[11px] font-black uppercase tracking-[0.15em]"
+                style={{ color: T.headerColor }}
+              >
+                Studio
+              </span>
+            </div>
+          )}
+          <button
+            onClick={() => setCollapsed((v) => !v)}
+            className="p-1 rounded-md transition-all hover:bg-white/10 hover:scale-105"
+            style={{ color: T.textMuted + "80" }}
+            title={collapsed ? "Expand" : "Collapse"}
+          >
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+        </div>
+
+        {/* Tools — grouped */}
+        <nav className="flex-1 py-2 overflow-y-auto">
+          <ToolGroup
+            title="Create"
+            tools={CREATE_TOOLS}
+            activeTool={activeTool}
+            onToolChange={onToolChange}
+            collapsed={collapsed}
+            T={T}
+          />
+          <ToolGroup
+            title="AI"
+            tools={AI_TOOLS}
+            activeTool={activeTool}
+            onToolChange={onToolChange}
+            collapsed={collapsed}
+            T={T}
+          />
+          <ToolGroup
+            title="Organize"
+            tools={ORGANIZE_TOOLS}
+            activeTool={activeTool}
+            onToolChange={onToolChange}
+            collapsed={collapsed}
+            T={T}
+          />
+          <ToolGroup
+            title="External"
+            tools={EXTERNAL_TOOLS}
+            activeTool={activeTool}
+            onToolChange={onToolChange}
+            collapsed={collapsed}
+            T={T}
+          />
+        </nav>
+
+        {/* Bottom status */}
+        <div
+          className="px-3 py-2.5 shrink-0"
+          style={{ borderTop: `1px solid ${T.borderColor}12` }}
+        >
+          {collapsed ? (
+            <div className="flex justify-center">
+              <span
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{
+                  backgroundColor: T.success,
+                  boxShadow: `0 0 6px ${T.success}`,
+                }}
               />
-              Online
-            </span>
-          </div>
-        )}
-      </div>
-    </aside>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[9px] font-mono opacity-40"
+                style={{ color: T.textMuted }}
+              >
+                v1.0
+              </span>
+              <span
+                className="flex items-center gap-1.5 text-[9px] font-mono"
+                style={{ color: T.textMuted + "80" }}
+              >
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{
+                    backgroundColor: T.success,
+                    boxShadow: `0 0 4px ${T.success}`,
+                  }}
+                />
+                Online
+              </span>
+            </div>
+          )}
+        </div>
+      </aside>
     </>
   );
 }

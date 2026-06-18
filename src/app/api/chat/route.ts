@@ -15,7 +15,7 @@ async function handler(req: NextRequest) {
     if (!from || !to || !message) {
       return NextResponse.json(
         { error: "Missing required fields: from, to, message" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -26,19 +26,25 @@ async function handler(req: NextRequest) {
     if (!fromAgent || !toAgent) {
       return NextResponse.json(
         { error: "Invalid agent ID(s)" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Send message
-    const agentMessage = orchestrator.sendMessage(from, to, message, type, metadata);
+    const agentMessage = orchestrator.sendMessage(
+      from,
+      to,
+      message,
+      type,
+      metadata,
+    );
 
     // If simulating, generate a response
     let response = null;
     if (body.simulateResponse) {
       response = await orchestrator.simulateAgentResponse(to, message);
       const reply = orchestrator.sendMessage(to, from, response, "chat");
-      
+
       return NextResponse.json({
         sent: agentMessage,
         received: reply,
@@ -57,11 +63,11 @@ async function handler(req: NextRequest) {
         name: toAgent.name,
       },
     });
-  } catch (error) {
+  } catch {
     // Error in agent chat:
     return NextResponse.json(
       { error: "Failed to process message" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

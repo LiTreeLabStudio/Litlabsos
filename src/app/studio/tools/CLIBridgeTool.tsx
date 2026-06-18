@@ -3,14 +3,46 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
-import { Terminal, Play, Square, Trash2, Loader2, AlertCircle } from "lucide-react";
+import {
+  Terminal,
+  Play,
+  Square,
+  Trash2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 const CLI_TOOLS = [
-  { id: "qwen", name: "Qwen", description: "Qwen Code CLI assistant", color: "#00f0ff" },
-  { id: "hermes", name: "Hermes", description: "Hermes AI Agent Framework", color: "#ff00a0" },
-  { id: "gemini", name: "Gemini", description: "Google Gemini CLI", color: "#00ff41" },
-  { id: "openclaw", name: "OpenClaw", description: "OpenClaw Gateway TUI", color: "#ff6b6b" },
-  { id: "terminal", name: "Terminal", description: "Bash shell access", color: "#ffff00" },
+  {
+    id: "qwen",
+    name: "Qwen",
+    description: "Qwen Code CLI assistant",
+    color: "#00f0ff",
+  },
+  {
+    id: "hermes",
+    name: "Hermes",
+    description: "Hermes AI Agent Framework",
+    color: "#ff00a0",
+  },
+  {
+    id: "gemini",
+    name: "Gemini",
+    description: "Google Gemini CLI",
+    color: "#00ff41",
+  },
+  {
+    id: "openclaw",
+    name: "OpenClaw",
+    description: "OpenClaw Gateway TUI",
+    color: "#ff6b6b",
+  },
+  {
+    id: "terminal",
+    name: "Terminal",
+    description: "Bash shell access",
+    color: "#ffff00",
+  },
 ];
 
 interface TerminalLine {
@@ -31,7 +63,7 @@ export default function CLIBridgeTool() {
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  
+
   const eventSourceRef = useRef<EventSource | null>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -41,7 +73,10 @@ export default function CLIBridgeTool() {
     if (isLoaded && userId) {
       // In production, this would check against a database or env var
       // For now, hardcoded to your user ID
-      setIsAdmin(userId === "user_litbit" || userId?.includes("litbit"));
+      const id = requestAnimationFrame(() =>
+        setIsAdmin(userId === "user_litbit" || userId?.includes("litbit")),
+      );
+      return () => cancelAnimationFrame(id);
     }
   }, [isLoaded, userId]);
 
@@ -59,19 +94,35 @@ export default function CLIBridgeTool() {
     ]);
   }, []);
 
+  const disconnect = useCallback(async () => {
+    if (sessionId) {
+      try {
+        await fetch(`/api/bridge/cli?sessionId=${sessionId}`, {
+          method: "DELETE",
+        });
+      } catch {
+        // Ignore errors
+      }
+    }
+
+    eventSourceRef.current?.close();
+    eventSourceRef.current = null;
+    setIsConnected(false);
+    setSessionId(null);
+    addLine("system", "🔌 Disconnected");
+  }, [sessionId, addLine]);
+
   const connect = useCallback(async () => {
     if (!isAdmin || isConnecting || isConnected) return;
-    
+
     setIsConnecting(true);
     setError(null);
     setLines([]);
     addLine("system", `🔌 Connecting to ${selectedTool.name}...`);
 
     try {
-      const es = new EventSource(
-        `/api/bridge/cli?tool=${selectedTool.id}`
-      );
-      
+      const es = new EventSource(`/api/bridge/cli?tool=${selectedTool.id}`);
+
       eventSourceRef.current = es;
 
       es.onopen = () => {
@@ -85,7 +136,7 @@ export default function CLIBridgeTool() {
       es.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          
+
           switch (data.type) {
             case "connected":
               setSessionId(data.sessionId);
@@ -116,39 +167,20 @@ export default function CLIBridgeTool() {
         addLine("error", "❌ Connection error");
         es.close();
       };
-
-    } catch (err) {
+    } catch {
       setError("Failed to establish connection");
       setIsConnecting(false);
       addLine("error", "❌ Connection failed");
     }
-  }, [isAdmin, isConnecting, isConnected, selectedTool, addLine]);
-
-  const disconnect = useCallback(async () => {
-    if (sessionId) {
-      try {
-        await fetch(`/api/bridge/cli?sessionId=${sessionId}`, {
-          method: "DELETE",
-        });
-      } catch {
-        // Ignore errors
-      }
-    }
-    
-    eventSourceRef.current?.close();
-    eventSourceRef.current = null;
-    setIsConnected(false);
-    setSessionId(null);
-    addLine("system", "🔌 Disconnected");
-  }, [sessionId, addLine]);
+  }, [isAdmin, isConnecting, isConnected, selectedTool, addLine, disconnect]);
 
   const sendInput = useCallback(async () => {
     if (!input.trim() || !isConnected || !sessionId) return;
-    
+
     const command = input.trim();
     addLine("input", `> ${command}`);
     setInput("");
-    
+
     try {
       const res = await fetch("/api/bridge/cli", {
         method: "POST",
@@ -159,7 +191,7 @@ export default function CLIBridgeTool() {
           input: command,
         }),
       });
-      
+
       if (!res.ok) {
         addLine("error", "Failed to send command");
       }
@@ -211,17 +243,26 @@ export default function CLIBridgeTool() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: T.borderColor + "30" }}>
+      <div
+        className="flex items-center justify-between px-4 py-3 border-b"
+        style={{ borderColor: T.borderColor + "30" }}
+      >
         <div className="flex items-center gap-3">
           <Terminal size={18} style={{ color: T.accentColor }} />
           <span className="text-sm font-bold" style={{ color: T.textColor }}>
             CLI Bridge
           </span>
-          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: T.accentColor + "20", color: T.accentColor }}>
+          <span
+            className="text-[10px] px-2 py-0.5 rounded-full"
+            style={{
+              backgroundColor: T.accentColor + "20",
+              color: T.accentColor,
+            }}
+          >
             Admin Only
           </span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           {CLI_TOOLS.map((tool) => (
             <button
@@ -236,7 +277,8 @@ export default function CLIBridgeTool() {
                   : "opacity-60 hover:opacity-100"
               }`}
               style={{
-                backgroundColor: selectedTool.id === tool.id ? tool.color + "20" : T.boxBg,
+                backgroundColor:
+                  selectedTool.id === tool.id ? tool.color + "20" : T.boxBg,
                 color: selectedTool.id === tool.id ? tool.color : T.textColor,
                 border: `1px solid ${selectedTool.id === tool.id ? tool.color : T.borderColor + "30"}`,
               }}
@@ -248,7 +290,10 @@ export default function CLIBridgeTool() {
       </div>
 
       {/* Tool Info */}
-      <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: T.boxBg + "50" }}>
+      <div
+        className="px-4 py-2 flex items-center justify-between"
+        style={{ backgroundColor: T.boxBg + "50" }}
+      >
         <div className="flex items-center gap-2">
           <span style={{ color: selectedTool.color }}>●</span>
           <span className="text-xs" style={{ color: T.textMuted }}>
@@ -270,7 +315,9 @@ export default function CLIBridgeTool() {
               disabled={isConnecting}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md transition-all"
               style={{
-                backgroundColor: isConnecting ? T.borderColor : T.accentColor + "20",
+                backgroundColor: isConnecting
+                  ? T.borderColor
+                  : T.accentColor + "20",
                 color: isConnecting ? T.textMuted : T.accentColor,
               }}
             >
@@ -297,7 +344,10 @@ export default function CLIBridgeTool() {
 
       {/* Error Message */}
       {error && (
-        <div className="px-4 py-2 text-xs" style={{ backgroundColor: "#ff444420", color: "#ff4444" }}>
+        <div
+          className="px-4 py-2 text-xs"
+          style={{ backgroundColor: "#ff444420", color: "#ff4444" }}
+        >
           <AlertCircle size={12} className="inline mr-1" />
           {error}
         </div>
@@ -315,7 +365,9 @@ export default function CLIBridgeTool() {
         {lines.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full opacity-40">
             <Terminal size={32} className="mb-2" />
-            <p className="text-xs">Click Connect to start {selectedTool.name}</p>
+            <p className="text-xs">
+              Click Connect to start {selectedTool.name}
+            </p>
           </div>
         ) : (
           lines.map((line) => (
@@ -327,10 +379,10 @@ export default function CLIBridgeTool() {
                   line.type === "error"
                     ? "#ff4444"
                     : line.type === "system"
-                    ? T.accentColor
-                    : line.type === "input"
-                    ? T.textMuted
-                    : T.textColor,
+                      ? T.accentColor
+                      : line.type === "input"
+                        ? T.textMuted
+                        : T.textColor,
               }}
             >
               {line.content}
@@ -340,7 +392,10 @@ export default function CLIBridgeTool() {
       </div>
 
       {/* Input */}
-      <div className="px-4 py-3 border-t flex items-center gap-2" style={{ borderColor: T.borderColor + "30" }}>
+      <div
+        className="px-4 py-3 border-t flex items-center gap-2"
+        style={{ borderColor: T.borderColor + "30" }}
+      >
         <span style={{ color: isConnected ? T.success : T.textMuted }}>
           {isConnected ? "❯" : "○"}
         </span>
@@ -366,7 +421,8 @@ export default function CLIBridgeTool() {
           disabled={!isConnected || !input.trim()}
           className="px-3 py-1 text-xs rounded transition-all"
           style={{
-            backgroundColor: isConnected && input.trim() ? T.accentColor : T.borderColor,
+            backgroundColor:
+              isConnected && input.trim() ? T.accentColor : T.borderColor,
             color: isConnected && input.trim() ? T.bgColor : T.textMuted,
           }}
         >

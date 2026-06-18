@@ -16,7 +16,7 @@ export function getR2Config(): R2Config {
   return config;
 }
 
-export function getUploadUrl(key: string, contentType: string): string {
+export function getUploadUrl(key: string): string {
   if (!config.accountId || !config.accessKeyId) {
     return "";
   }

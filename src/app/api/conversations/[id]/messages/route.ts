@@ -7,16 +7,13 @@ import { generateText } from "@/lib/llm";
 // GET: Load messages for conversation
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: conversationId } = await params;
@@ -32,7 +29,7 @@ export async function GET(
     if (!conversation) {
       return NextResponse.json(
         { error: "Conversation not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -46,7 +43,7 @@ export async function GET(
       // Supabase error:
       return NextResponse.json(
         { error: "Failed to fetch messages" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -54,11 +51,11 @@ export async function GET(
       messages: messages || [],
       conversation,
     });
-  } catch (error) {
+  } catch {
     // Error fetching messages:
     return NextResponse.json(
       { error: "Failed to fetch messages" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -66,36 +63,32 @@ export async function GET(
 // POST: Send message and get AI response
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { userId } = await auth();
-    
+
     if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { id: conversationId } = await params;
     const body = await req.json();
     const { content } = body;
-    
+
     if (!content) {
-      return NextResponse.json(
-        { error: "Missing content" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing content" }, { status: 400 });
     }
 
     // Get conversation with agent details
     const { data: conversation } = await supabase
       .from("conversations")
-      .select(`
+      .select(
+        `
         *,
         agent:agent_id (*)
-      `)
+      `,
+      )
       .eq("id", conversationId)
       .eq("user_id", userId)
       .single();
@@ -103,7 +96,7 @@ export async function POST(
     if (!conversation) {
       return NextResponse.json(
         { error: "Conversation not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -132,9 +125,10 @@ export async function POST(
 
     // Build prompt for AI
     const agent = conversation.agent;
-    const history = recentMessages?.reverse().map(m => 
-      `${m.role === 'user' ? 'User' : agent.name}: ${m.content}`
-    ).join("\n");
+    const history = recentMessages
+      ?.reverse()
+      .map((m) => `${m.role === "user" ? "User" : agent.name}: ${m.content}`)
+      .join("\n");
 
     const prompt = `${agent.system_prompt}
 
@@ -153,7 +147,7 @@ Respond as ${agent.name} in character. Be helpful, concise (1-3 sentences), and 
     try {
       const r = await generateText(prompt, { task: "chat", maxTokens: 1024 });
       aiResponse = r.text || "I'm thinking...";
-    } catch (aiError) {
+    } catch {
       // AI error:
       aiResponse = `${agent.name} is temporarily unavailable. Please try again.`;
     }
@@ -181,13 +175,16 @@ Respond as ${agent.name} in character. Be helpful, concise (1-3 sentences), and 
 
     return NextResponse.json({
       userMessage: userMessage || { role: "user", content },
-      assistantMessage: assistantMessage || { role: "assistant", content: aiResponse },
+      assistantMessage: assistantMessage || {
+        role: "assistant",
+        content: aiResponse,
+      },
     });
-  } catch (error) {
+  } catch {
     // Error in chat:
     return NextResponse.json(
       { error: "Failed to process message" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

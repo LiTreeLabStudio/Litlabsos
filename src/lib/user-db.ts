@@ -10,14 +10,18 @@ function getDb(): SupabaseClient | null {
   // Server-side: try admin first
   if (typeof window === "undefined") {
     try {
-      const { getAdminSupabase } = require("./supabase-admin");
+      const { getAdminSupabase } =
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("./supabase-admin");
       if (!_admin) _admin = getAdminSupabase();
       return _admin;
     } catch {
       // admin not configured — fall through to anon
     }
     try {
-      const { getSupabase } = require("./supabase");
+      const { getSupabase } =
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        require("./supabase");
       if (!_anon) _anon = getSupabase();
       return _anon;
     } catch {
@@ -26,7 +30,9 @@ function getDb(): SupabaseClient | null {
   }
   // Browser-side: use anon client
   try {
-    const { getSupabase } = require("./supabase");
+    const { getSupabase } =
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      require("./supabase");
     if (!_anon) _anon = getSupabase();
     return _anon;
   } catch {
@@ -69,19 +75,32 @@ export type Wallet = {
 };
 
 /** Get or create user by Clerk ID */
-export async function getOrCreateUser(clerkId: string, email: string, name?: string | null) {
+export async function getOrCreateUser(
+  clerkId: string,
+  email: string,
+  name?: string | null,
+) {
   const db = getDb();
   if (!db) {
     // Supabase not configured — returning mock user
     return { user: null as unknown as UserProfile, isNew: true };
   }
 
-  const { data: existing } = await db.from("users").select("*").eq("clerk_id", clerkId).single();
+  const { data: existing } = await db
+    .from("users")
+    .select("*")
+    .eq("clerk_id", clerkId)
+    .single();
   if (existing) return { user: existing as UserProfile, isNew: false };
 
   const { data: user, error: createError } = await db
     .from("users")
-    .insert({ clerk_id: clerkId, email, name: name || email.split("@")[0], username: email.split("@")[0] })
+    .insert({
+      clerk_id: clerkId,
+      email,
+      name: name || email.split("@")[0],
+      username: email.split("@")[0],
+    })
     .select()
     .single();
 
@@ -97,10 +116,16 @@ export async function getOrCreateUser(clerkId: string, email: string, name?: str
 }
 
 /** Get user profile by Clerk ID */
-export async function getUserByClerkId(clerkId: string): Promise<UserProfile | null> {
+export async function getUserByClerkId(
+  clerkId: string,
+): Promise<UserProfile | null> {
   const db = getDb();
   if (!db) return null;
-  const { data, error } = await db.from("users").select("*").eq("clerk_id", clerkId).single();
+  const { data, error } = await db
+    .from("users")
+    .select("*")
+    .eq("clerk_id", clerkId)
+    .single();
   if (error || !data) return null;
   return data as UserProfile;
 }
@@ -108,24 +133,37 @@ export async function getUserByClerkId(clerkId: string): Promise<UserProfile | n
 /** Update user profile */
 export async function updateUserProfile(
   clerkId: string,
-  updates: Partial<Omit<UserProfile, "id" | "clerk_id" | "email" | "created_at" | "updated_at">>
+  updates: Partial<
+    Omit<UserProfile, "id" | "clerk_id" | "email" | "created_at" | "updated_at">
+  >,
 ) {
   const db = getDb();
   if (!db) throw new Error("Database not configured");
   const user = await getUserByClerkId(clerkId);
   if (!user) throw new Error("User not found");
-  const { data, error } = await db.from("users").update({ ...updates, updated_at: new Date().toISOString() }).eq("id", user.id).select().single();
+  const { data, error } = await db
+    .from("users")
+    .update({ ...updates, updated_at: new Date().toISOString() })
+    .eq("id", user.id)
+    .select()
+    .single();
   if (error) throw new Error(`Failed to update profile: ${error.message}`);
   return data as UserProfile;
 }
 
 /** Get user preferences */
-export async function getUserPreferences(clerkId: string): Promise<UserPreferences | null> {
+export async function getUserPreferences(
+  clerkId: string,
+): Promise<UserPreferences | null> {
   const db = getDb();
   if (!db) return null;
   const user = await getUserByClerkId(clerkId);
   if (!user) return null;
-  const { data, error } = await db.from("user_preferences").select("*").eq("user_id", user.id).single();
+  const { data, error } = await db
+    .from("user_preferences")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
   if (error || !data) return null;
   return data as UserPreferences;
 }
@@ -133,13 +171,23 @@ export async function getUserPreferences(clerkId: string): Promise<UserPreferenc
 /** Update user preferences */
 export async function updateUserPreferences(
   clerkId: string,
-  updates: Partial<Omit<UserPreferences, "id" | "user_id" | "created_at" | "updated_at">>
+  updates: Partial<
+    Omit<UserPreferences, "id" | "user_id" | "created_at" | "updated_at">
+  >,
 ) {
   const db = getDb();
   if (!db) throw new Error("Database not configured");
   const user = await getUserByClerkId(clerkId);
   if (!user) throw new Error("User not found");
-  const { data, error } = await db.from("user_preferences").upsert({ user_id: user.id, ...updates, updated_at: new Date().toISOString() }).select().single();
+  const { data, error } = await db
+    .from("user_preferences")
+    .upsert({
+      user_id: user.id,
+      ...updates,
+      updated_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
   if (error) throw new Error(`Failed to update preferences: ${error.message}`);
   return data as UserPreferences;
 }
@@ -151,7 +199,11 @@ export async function getUserWallet(clerkId: string): Promise<Wallet> {
     try {
       const user = await getUserByClerkId(clerkId);
       if (user) {
-        const { data } = await db.from("wallets").select("*").eq("user_id", user.id).single();
+        const { data } = await db
+          .from("wallets")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
         if (data) return data as Wallet;
         // Wallet missing — create with default 500 coins
         const { data: created } = await db
@@ -165,16 +217,17 @@ export async function getUserWallet(clerkId: string): Promise<Wallet> {
       // DB query failed — fall through to synthetic wallet
     }
   }
-  
+
   // Fallback: Use localStorage for wallet persistence when Supabase isn't configured
   const storageKey = `litlabs-wallet-${clerkId}`;
   let stored: string | null = null;
   try {
-    stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+    stored =
+      typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
   } catch {
     // localStorage not available
   }
-  
+
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -190,7 +243,7 @@ export async function getUserWallet(clerkId: string): Promise<Wallet> {
       // Invalid stored data
     }
   }
-  
+
   // Default fallback wallet
   return {
     id: "fallback",
@@ -206,7 +259,7 @@ export async function getUserWallet(clerkId: string): Promise<Wallet> {
 export async function updateWalletBalance(
   clerkId: string,
   amount: number,
-  options?: { absolute?: boolean; lastClaimDate?: string }
+  options?: { absolute?: boolean; lastClaimDate?: string },
 ) {
   const { absolute = false, lastClaimDate } = options || {};
   const db = getDb();
@@ -215,10 +268,11 @@ export async function updateWalletBalance(
   if (!db) {
     const storageKey = `litlabs-wallet-${clerkId}`;
     let currentBalance = 9999;
-    
+
     // Try to get existing balance from localStorage
     try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+      const stored =
+        typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
       if (stored) {
         const parsed = JSON.parse(stored);
         currentBalance = parsed.balance ?? 9999;
@@ -226,10 +280,10 @@ export async function updateWalletBalance(
     } catch {
       // localStorage not available
     }
-    
+
     // Calculate new balance
     const newBalance = absolute ? amount : currentBalance + amount;
-    
+
     // Save to localStorage
     const walletData = {
       balance: Math.max(0, newBalance),
@@ -237,15 +291,15 @@ export async function updateWalletBalance(
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    
+
     try {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         localStorage.setItem(storageKey, JSON.stringify(walletData));
       }
     } catch {
       // localStorage not available
     }
-    
+
     return {
       id: "local",
       user_id: clerkId,
@@ -258,15 +312,18 @@ export async function updateWalletBalance(
     // Graceful fallback — user exists in Clerk but not yet in Supabase, use localStorage
     const storageKey = `litlabs-wallet-${clerkId}`;
     let currentBalance = 9999;
-    
+
     try {
-      const stored = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+      const stored =
+        typeof window !== "undefined" ? localStorage.getItem(storageKey) : null;
       if (stored) {
         const parsed = JSON.parse(stored);
         currentBalance = parsed.balance ?? 9999;
       }
-    } catch { /* ignore */ }
-    
+    } catch {
+      /* ignore */
+    }
+
     const newBalance = absolute ? amount : currentBalance + amount;
     const walletData = {
       balance: Math.max(0, newBalance),
@@ -274,13 +331,15 @@ export async function updateWalletBalance(
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    
+
     try {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         localStorage.setItem(storageKey, JSON.stringify(walletData));
       }
-    } catch { /* ignore */ }
-    
+    } catch {
+      /* ignore */
+    }
+
     return {
       id: "local",
       user_id: clerkId,
@@ -290,20 +349,40 @@ export async function updateWalletBalance(
 
   let targetBalance = amount;
   if (!absolute) {
-    const { data: wallet } = await db.from("wallets").select("balance").eq("user_id", user.id).single();
+    const { data: wallet } = await db
+      .from("wallets")
+      .select("balance")
+      .eq("user_id", user.id)
+      .single();
     targetBalance = (wallet?.balance ?? 0) + amount;
     if (targetBalance < 0) throw new Error("Insufficient balance");
   }
 
-  const { data, error } = await db.from("wallets").update({ balance: targetBalance, ...(lastClaimDate && { last_claim_date: lastClaimDate }), updated_at: new Date().toISOString() }).eq("user_id", user.id).select().single();
+  const { data, error } = await db
+    .from("wallets")
+    .update({
+      balance: targetBalance,
+      ...(lastClaimDate && { last_claim_date: lastClaimDate }),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", user.id)
+    .select()
+    .single();
   if (error) throw new Error(`Failed to update wallet: ${error.message}`);
   return data as Wallet;
 }
 
 /** Claim daily bonus */
-export async function claimDailyBonus(clerkId: string, bonusAmount: number = 50) {
+export async function claimDailyBonus(
+  clerkId: string,
+  bonusAmount: number = 50,
+) {
   const wallet = await getUserWallet(clerkId);
   const today = new Date().toISOString().split("T")[0];
-  if (wallet.last_claim_date === today) throw new Error("Daily bonus already claimed");
-  return updateWalletBalance(clerkId, wallet.balance + bonusAmount, { absolute: true, lastClaimDate: today });
+  if (wallet.last_claim_date === today)
+    throw new Error("Daily bonus already claimed");
+  return updateWalletBalance(clerkId, wallet.balance + bonusAmount, {
+    absolute: true,
+    lastClaimDate: today,
+  });
 }

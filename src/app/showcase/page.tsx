@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
@@ -779,8 +779,8 @@ export default function ShowcasePage() {
                 Want This For Your Workflow?
               </h4>
               <p className="text-sm mb-4" style={{ color: T.textMuted }}>
-                Book a discovery call and let's map your automation opportunity
-                in 20 minutes.
+                Book a discovery call and let&apos;s map your automation
+                opportunity in 20 minutes.
               </p>
               <Link href="/agent-chat" className="btn btn-primary">
                 🚀 Build My Pipeline

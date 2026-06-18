@@ -52,11 +52,18 @@
 /* ============================================================
    BASE
    ============================================================ */
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 /* html scroll-behavior removed - was causing scroll-to-bottom on page refresh */
+
+html,
+body {
+  overflow-x: hidden;
+}
 
 body {
   background-color: var(--bg-color);

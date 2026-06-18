@@ -93,7 +93,7 @@ export default function RootLayout({
         <div className="relative z-10 flex flex-col min-h-screen">
           <UserSync />
           <Navbar />
-          <main className="flex-1 mx-auto max-w-[100vw] overflow-x-hidden">{children}</main>
+          <main className="flex-1 w-full max-w-full overflow-x-hidden">{children}</main>
           <Footer />
           <MusicPlayer />
           <CookieConsent />
@@ -105,6 +105,20 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        {/* Google tag (gtag.js) */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-0G4JPF3HXG" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-0G4JPF3HXG');
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
         <ClerkProvider
           publishableKey={clerkKey}

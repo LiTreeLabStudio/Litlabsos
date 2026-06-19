@@ -42,8 +42,12 @@ export function useClerkAuth() {
   const isLoaded = clerk.isLoaded || sessionLoaded;
   const isSignedIn = clerk.isSignedIn || !!sessionUser;
   const userId = clerk.userId || sessionUser?.id || null;
-  const sessionClaims =
-    clerk.sessionClaims ||
+  const sessionClaims:
+    | { name?: string | null; username?: string | null }
+    | undefined =
+    (clerk.sessionClaims as
+      | { name?: string | null; username?: string | null }
+      | undefined) ||
     (sessionUser
       ? { name: sessionUser.name, username: sessionUser.email }
       : undefined);

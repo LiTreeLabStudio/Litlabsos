@@ -85,4 +85,15 @@ debug_*.js
 supabase/.temp/
 
 # Devin local config
+.devin/
+!.devin/skills/
+!.devin/skills/**
+!.devin/rules/
+!.devin/rules/**
 .devin/config.local.json
+
+# Local sync artifacts
+.stfolder/
+.tmp.driveupload/
+.tmp.drivedownload/
+diff.txt

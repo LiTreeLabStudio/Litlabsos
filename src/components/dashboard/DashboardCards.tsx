@@ -11,6 +11,8 @@ import {
   type IconComponent,
 } from "./dashboard-data";
 import SocialFeed from "@/components/SocialFeed";
+import SocialPageContent from "@/components/SocialPageContent";
+import DashboardContent from "./DashboardContent";
 import JarvisTerminal from "./JarvisTerminal";
 
 export function HeroCard({
@@ -210,6 +212,10 @@ export function CenterStage({
           />
         </div>
       );
+    case "dashboard":
+      return <DashboardContent />;
+    case "social":
+      return <SocialPageContent />;
     case "gallery":
       return (
         <div className="space-y-6">

@@ -17,7 +17,6 @@ import {
   List,
   Zap,
   ExternalLink,
-  Maximize2,
 } from "lucide-react";
 import {
   GAME_LIBRARY,
@@ -261,7 +260,8 @@ export default function GamesPage() {
                       No game file available
                     </p>
                     <p className="text-[10px] opacity-40 max-w-md">
-                      This game requires a ROM file that hasn't been added yet.
+                      This game requires a ROM file that hasn&apos;t been added
+                      yet.
                     </p>
                   </div>
                 </div>

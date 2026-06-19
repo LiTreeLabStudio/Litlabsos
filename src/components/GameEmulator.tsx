@@ -9,6 +9,14 @@ interface GameEmulatorProps {
   onError?: (error: string) => void;
 }
 
+interface NESInstance {
+  loadROM: (rom: string) => void;
+  frame: () => void;
+  buttonDown: (player: number, button: number) => void;
+  buttonUp: (player: number, button: number) => void;
+  reset: () => void;
+}
+
 // NES Key Mappings
 const NES_KEYS: Record<string, number> = {
   // Player 1
@@ -35,11 +43,20 @@ export default function GameEmulator({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedColors: T } = useTheme();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(() => platform === "nes");
+  const [error, setError] = useState<string | null>(() =>
+    platform === "nes"
+      ? null
+      : `${platform.toUpperCase()} emulator coming soon. Try NES games!`,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
-  const nesRef = useRef<any>(null);
+  const playingRef = useRef(isPlaying);
+  const nesRef = useRef<NESInstance | null>(null);
   const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    playingRef.current = isPlaying;
+  }, [isPlaying]);
 
   // Initialize emulator
   useEffect(() => {
@@ -75,7 +92,7 @@ export default function GameEmulator({
             }
             ctx.putImageData(imageData, 0, 0);
           },
-          onAudioSample: (left: number, right: number) => {
+          onAudioSample: () => {
             // Audio handling - could connect to Web Audio API
           },
         });
@@ -105,7 +122,7 @@ export default function GameEmulator({
 
         // Start emulation loop
         const frame = () => {
-          if (nesRef.current && isPlaying) {
+          if (nesRef.current && playingRef.current) {
             nesRef.current.frame();
           }
           animationRef.current = requestAnimationFrame(frame);
@@ -123,12 +140,6 @@ export default function GameEmulator({
 
     if (platform === "nes") {
       initEmulator();
-    } else {
-      // For SNES/Genesis, show placeholder for now
-      setError(
-        `${platform.toUpperCase()} emulator coming soon. Try NES games!`,
-      );
-      setIsLoading(false);
     }
 
     return () => {
@@ -140,7 +151,7 @@ export default function GameEmulator({
         nesRef.current = null;
       }
     };
-  }, [romUrl, platform, onError, isPlaying]);
+  }, [romUrl, platform, onError]);
 
   // Keyboard controls
   useEffect(() => {

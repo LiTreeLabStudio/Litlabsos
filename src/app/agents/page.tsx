@@ -181,6 +181,16 @@ export default function AgentsPage() {
     }
   }, [isLoaded, isSignedIn, router]);
 
+  const activeAgent = AGENTS.find((a) => a.id === activeId);
+
+  useEffect(() => {
+    if (activeId)
+      endRefs.current[activeId]?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+  }, [chats, activeId]);
+
   if (!isLoaded) {
     return (
       <div
@@ -208,16 +218,6 @@ export default function AgentsPage() {
       </div>
     );
   }
-
-  const activeAgent = AGENTS.find((a) => a.id === activeId);
-
-  useEffect(() => {
-    if (activeId)
-      endRefs.current[activeId]?.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-      });
-  }, [chats, activeId]);
 
   const send = async (agentId: string, text?: string) => {
     const agent = AGENTS.find((a) => a.id === agentId);

@@ -23,6 +23,7 @@ import {
   Mic,
   LayoutDashboard,
   MessageSquare,
+  ShoppingBag,
 } from "lucide-react";
 
 // Dashboard imports (lazy loaded when signed in)
@@ -458,7 +459,7 @@ function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {/* Studio Preview */}
             <div
               className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
@@ -660,6 +661,136 @@ function LandingPage() {
                 style={{ color: C.linkColor }}
               >
                 Join the Feed <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Marketplace Preview */}
+            <div
+              className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+              style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.accentColor + "60";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  `0 0 30px ${C.accentColor}15`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.borderColor;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
+            >
+              <div
+                className="p-3 border-2 inline-flex mb-4 transition-all group-hover:scale-110"
+                style={{ borderColor: C.accentColor + "40" }}
+              >
+                <ShoppingBag size={24} style={{ color: C.accentColor }} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Marketplace Preview</h3>
+              <p className="text-sm mb-6" style={{ color: C.textMuted }}>
+                Discover agents, credit packs, and creator tools built by the
+                community.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Bot size={10} className="inline mr-1" /> Agents
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Zap size={10} className="inline mr-1" /> Coins
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Sparkles size={10} className="inline mr-1" /> Skins
+                </span>
+              </div>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-80 transition-all"
+                style={{ color: C.accentColor }}
+              >
+                Browse Marketplace <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Agents Preview */}
+            <div
+              className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+              style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.success + "60";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  `0 0 30px ${C.success}15`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.borderColor;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
+            >
+              <div
+                className="p-3 border-2 inline-flex mb-4 transition-all group-hover:scale-110"
+                style={{ borderColor: C.success + "40" }}
+              >
+                <Bot size={24} style={{ color: C.success }} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Agents Preview</h3>
+              <p className="text-sm mb-6" style={{ color: C.textMuted }}>
+                Chat with specialist AI agents for code, writing, strategy, and
+                creative work.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.success + "30",
+                    color: C.success,
+                  }}
+                >
+                  <Code size={10} className="inline mr-1" /> Code
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.success + "30",
+                    color: C.success,
+                  }}
+                >
+                  <Zap size={10} className="inline mr-1" /> Strategy
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.success + "30",
+                    color: C.success,
+                  }}
+                >
+                  <Sparkles size={10} className="inline mr-1" /> Creative
+                </span>
+              </div>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-80 transition-all"
+                style={{ color: C.success }}
+              >
+                Meet the Agents <ArrowRight size={14} />
               </Link>
             </div>
           </div>

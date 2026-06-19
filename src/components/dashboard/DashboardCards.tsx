@@ -12,6 +12,7 @@ import {
 } from "./dashboard-data";
 import SocialFeed from "@/components/SocialFeed";
 import SocialPageContent from "@/components/SocialPageContent";
+import DashboardContent from "./DashboardContent";
 import JarvisTerminal from "./JarvisTerminal";
 
 export function HeroCard({
@@ -419,6 +420,7 @@ export function CenterStage({
               },
             ]}
           />
+          <DashboardContent />
           <SocialFeed embedded />
         </div>
       );

@@ -18,6 +18,11 @@ import {
   CheckCircle,
   Loader2,
   ChevronDown,
+  Image as ImageIcon,
+  Video,
+  Mic,
+  LayoutDashboard,
+  MessageSquare,
 } from "lucide-react";
 
 // Dashboard imports (lazy loaded when signed in)
@@ -429,6 +434,234 @@ function LandingPage() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* See what's inside */}
+      <section
+        className="py-24 border-y"
+        style={{ borderColor: C.borderColor }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-black mb-4">
+              See What&apos;s{" "}
+              <span style={{ color: C.headerColor }}>Inside</span>
+            </h2>
+            <p
+              className="text-lg max-w-2xl mx-auto"
+              style={{ color: C.textMuted }}
+            >
+              A preview of the creative tools, dashboard, and community waiting
+              for you.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Studio Preview */}
+            <div
+              className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+              style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.headerColor + "60";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  `0 0 30px ${C.headerColor}15`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.borderColor;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
+            >
+              <div
+                className="p-3 border-2 inline-flex mb-4 transition-all group-hover:scale-110"
+                style={{ borderColor: C.headerColor + "40" }}
+              >
+                <Zap size={24} style={{ color: C.headerColor }} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Studio Preview</h3>
+              <p className="text-sm mb-6" style={{ color: C.textMuted }}>
+                Generate images, video, audio, and code with AI-powered tools in
+                one workspace.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.headerColor + "30",
+                    color: C.headerColor,
+                  }}
+                >
+                  <ImageIcon size={10} className="inline mr-1" /> Image
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.headerColor + "30",
+                    color: C.headerColor,
+                  }}
+                >
+                  <Video size={10} className="inline mr-1" /> Video
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.headerColor + "30",
+                    color: C.headerColor,
+                  }}
+                >
+                  <Mic size={10} className="inline mr-1" /> Audio
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.headerColor + "30",
+                    color: C.headerColor,
+                  }}
+                >
+                  <Code size={10} className="inline mr-1" /> Code
+                </span>
+              </div>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-80 transition-all"
+                style={{ color: C.headerColor }}
+              >
+                Open Studio <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Dashboard Preview */}
+            <div
+              className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+              style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.accentColor + "60";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  `0 0 30px ${C.accentColor}15`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.borderColor;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
+            >
+              <div
+                className="p-3 border-2 inline-flex mb-4 transition-all group-hover:scale-110"
+                style={{ borderColor: C.accentColor + "40" }}
+              >
+                <LayoutDashboard size={24} style={{ color: C.accentColor }} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Dashboard Preview</h3>
+              <p className="text-sm mb-6" style={{ color: C.textMuted }}>
+                Track your stats, manage agents, and organize widgets from your
+                personal command center.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Bot size={10} className="inline mr-1" /> Agents
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Zap size={10} className="inline mr-1" /> Stats
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.accentColor + "30",
+                    color: C.accentColor,
+                  }}
+                >
+                  <Globe size={10} className="inline mr-1" /> Widgets
+                </span>
+              </div>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-80 transition-all"
+                style={{ color: C.accentColor }}
+              >
+                View Dashboard <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            {/* Social Preview */}
+            <div
+              className="group p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+              style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.linkColor + "60";
+                (e.currentTarget as HTMLDivElement).style.boxShadow =
+                  `0 0 30px ${C.linkColor}15`;
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLDivElement).style.borderColor =
+                  C.borderColor;
+                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+              }}
+            >
+              <div
+                className="p-3 border-2 inline-flex mb-4 transition-all group-hover:scale-110"
+                style={{ borderColor: C.linkColor + "40" }}
+              >
+                <Users size={24} style={{ color: C.linkColor }} />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Social Preview</h3>
+              <p className="text-sm mb-6" style={{ color: C.textMuted }}>
+                Share your work, follow creators, and join conversations in the
+                community feed.
+              </p>
+              <div className="flex flex-wrap gap-2 mb-6">
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.linkColor + "30",
+                    color: C.linkColor,
+                  }}
+                >
+                  <MessageSquare size={10} className="inline mr-1" /> Feed
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.linkColor + "30",
+                    color: C.linkColor,
+                  }}
+                >
+                  <Share2 size={10} className="inline mr-1" /> Posts
+                </span>
+                <span
+                  className="px-2 py-1 text-[10px] font-bold border"
+                  style={{
+                    borderColor: C.linkColor + "30",
+                    color: C.linkColor,
+                  }}
+                >
+                  <Users size={10} className="inline mr-1" /> Community
+                </span>
+              </div>
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-2 text-sm font-bold hover:opacity-80 transition-all"
+                style={{ color: C.linkColor }}
+              >
+                Join the Feed <ArrowRight size={14} />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

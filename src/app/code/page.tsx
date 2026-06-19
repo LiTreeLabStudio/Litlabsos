@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import {
   Search,
@@ -297,7 +299,8 @@ function SyntaxHighlighter({ code }: { code: string }) {
 // Main Page
 export default function CodeScannerPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const [selectedPath, setSelectedPath] = useState("/src/app/page.tsx");
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(
     new Set(["/", "/src", "/src/app"]),
@@ -358,21 +361,45 @@ export default function CodeScannerPage() {
     ? searchFileTree(DEMO_FILE_TREE, searchQuery)
     : [];
 
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/code");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   if (!isLoaded) {
     return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: T?.bgColor }}
-      >
-        <div className="text-center">
-          <Cpu
-            className="animate-spin mx-auto mb-4"
-            size={32}
-            style={{ color: T?.accentColor }}
-          />
-          <div>Loading Code Scanner...</div>
+      <PageShell title="Loading...">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <Cpu
+              className="animate-spin mx-auto mb-4"
+              size={32}
+              style={{ color: T?.accentColor }}
+            />
+            <div>Loading Code Scanner...</div>
+          </div>
         </div>
-      </div>
+      </PageShell>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <PageShell title="Sign In">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <p className="text-sm opacity-60">
+            Please sign in to use the Code Scanner.
+          </p>
+          <Link
+            href="/sign-in?redirect_url=/code"
+            className="px-4 py-2 rounded-lg text-sm font-bold"
+            style={{ backgroundColor: "#6366f1", color: "#fff" }}
+          >
+            Sign In
+          </Link>
+        </div>
+      </PageShell>
     );
   }
 

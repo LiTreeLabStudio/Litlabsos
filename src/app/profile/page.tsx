@@ -1,7 +1,8 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
 import { useProfile } from "@/context/ProfileContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
@@ -10,8 +11,15 @@ import PageShell from "@/components/PageShell";
 
 export default function ProfilePage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const { resolvedColors: T } = useTheme();
   const { profile, updateProfile } = useProfile();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/profile");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [visitorCount, setVisitorCount] = useState(133742);
@@ -131,7 +139,7 @@ export default function ProfilePage() {
             Please sign in to view your profile.
           </p>
           <Link
-            href="/login"
+            href="/sign-in?redirect_url=/profile"
             className="px-4 py-2 rounded-lg text-sm font-bold"
             style={{ backgroundColor: "#6366f1", color: "#fff" }}
           >

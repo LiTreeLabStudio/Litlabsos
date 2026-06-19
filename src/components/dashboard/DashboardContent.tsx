@@ -235,7 +235,7 @@ export default function DashboardContent() {
           Please sign in to view your dashboard.
         </p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/dashboard"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

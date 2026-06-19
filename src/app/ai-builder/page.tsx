@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Link from "next/link";
 
@@ -17,6 +18,7 @@ interface GeneratedFile {
 
 export default function AIBuilder() {
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isBuilding, setIsBuilding] = useState(false);
@@ -26,6 +28,12 @@ export default function AIBuilder() {
   );
   const [streamingMessage, setStreamingMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/ai-builder");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
@@ -189,7 +197,7 @@ Be technically precise. Think like a senior full-stack developer.`;
           Please sign in to use the AI Builder.
         </p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/ai-builder"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

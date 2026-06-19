@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   AGENT_AVATARS,
   AGENT_AVATAR_META,
@@ -498,6 +498,7 @@ function MarketplaceInner() {
   const { isLoaded, isSignedIn, userId } = useClerkAuth();
   const { resolvedColors: T } = useTheme();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [agents, setAgents] = useState<Agent[]>(DEMO_AGENTS);
   const [installedAgents, setInstalledAgents] = useState<Set<string>>(
     new Set(),
@@ -856,6 +857,13 @@ function MarketplaceInner() {
     setSellPrice("");
   }, []);
 
+  // Auth redirect
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/marketplace");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   // Require authentication (after all hooks to respect Rules of Hooks)
   if (!isLoaded) {
     return (
@@ -885,7 +893,7 @@ function MarketplaceInner() {
           Please sign in to view the marketplace.
         </p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/marketplace"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

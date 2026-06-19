@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useClerkAuth } from "@/hooks/useClerkAuth";
 import PageShell from "@/components/PageShell";
 import { AGENT_AVATARS } from "@/lib/avatars";
 
@@ -67,10 +70,50 @@ export default function AgentDeploymentPage({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, loading]);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/gallery");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded) {
+    return (
+      <PageShell title="Loading...">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-3xl mb-4 animate-pulse">🎨</div>
+            <div>Loading agent...</div>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <PageShell title="Sign In">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <p className="text-sm opacity-60">
+            Please sign in to chat with gallery agents.
+          </p>
+          <Link
+            href="/sign-in?redirect_url=/gallery"
+            className="px-4 py-2 rounded-lg text-sm font-bold"
+            style={{ backgroundColor: "#6366f1", color: "#fff" }}
+          >
+            Sign In
+          </Link>
+        </div>
+      </PageShell>
+    );
+  }
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;

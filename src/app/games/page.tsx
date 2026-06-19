@@ -3,6 +3,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import GameEmulator from "@/components/GameEmulator";
 import {
@@ -41,7 +43,8 @@ const CATEGORIES: {
 
 export default function GamesPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<GameCategory | "all">(
     "all",
@@ -67,6 +70,12 @@ export default function GamesPage() {
     );
   }, []);
 
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/games");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   if (!isLoaded) {
     return (
       <div
@@ -78,6 +87,23 @@ export default function GamesPage() {
           <div>Loading Game Cloud...</div>
         </div>
       </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <PageShell title="Sign In">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <p className="text-sm opacity-60">Please sign in to play games.</p>
+          <Link
+            href="/sign-in?redirect_url=/games"
+            className="px-4 py-2 rounded-lg text-sm font-bold"
+            style={{ backgroundColor: "#6366f1", color: "#fff" }}
+          >
+            Sign In
+          </Link>
+        </div>
+      </PageShell>
     );
   }
 

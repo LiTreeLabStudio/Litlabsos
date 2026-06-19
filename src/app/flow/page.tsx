@@ -2,6 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -469,6 +470,14 @@ export default function FlowPage() {
   const selectedNode = nodes.find((n) => n.id === selectedNodeId);
 
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/flow");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center font-mono bg-[#050108] text-fuchsia-400">
@@ -484,7 +493,7 @@ export default function FlowPage() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <p className="text-sm opacity-60">Please sign in to view flows.</p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/flow"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

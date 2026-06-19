@@ -276,6 +276,12 @@ function StudioInner() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [router]);
 
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/studio");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   if (!isLoaded) {
     return (
       <div
@@ -295,7 +301,7 @@ function StudioInner() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <p className="text-sm opacity-60">Please sign in to use the Studio.</p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/studio"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

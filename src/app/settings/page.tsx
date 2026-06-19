@@ -1,7 +1,8 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   useTheme,
   darkSkins,
@@ -322,9 +323,16 @@ function GenBtn({
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const { theme, setMode, setSkin, setAccent, setBackgroundMode, resetTheme } =
     useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/settings");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   const [activeTab, setActiveTab] = useState<TabId>("theme");
   const [saved, setSaved] = useState(false);
@@ -489,7 +497,7 @@ export default function SettingsPage() {
           <AlertTriangle size={32} className="text-red-500" />
           <p className="text-xs opacity-60">AUTHENTICATION REQUIRED</p>
           <Link
-            href="/login"
+            href="/sign-in?redirect_url=/settings"
             className="px-4 py-2 border border-cyan-500/50 text-cyan-400 text-xs hover:bg-cyan-500/10"
           >
             LOGIN &gt;&gt;

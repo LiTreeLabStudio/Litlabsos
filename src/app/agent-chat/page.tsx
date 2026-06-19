@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
@@ -71,7 +72,15 @@ type GeneratedWorld = {
 
 export default function AgentChat() {
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const { resolvedColors: T } = useTheme();
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/agent-chat");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
   const [selectedAgent, setSelectedAgent] = useState(WORLD_AGENTS[0]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -299,7 +308,7 @@ export default function AgentChat() {
           Please sign in to chat with agents.
         </p>
         <Link
-          href="/login"
+          href="/sign-in?redirect_url=/agent-chat"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: "#6366f1", color: "#fff" }}
         >

@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
+import { useClerkAuth } from "@/hooks/useClerkAuth";
 import PageShell from "@/components/PageShell";
 import { AGENT_AVATARS } from "@/lib/avatars";
 
@@ -153,6 +154,8 @@ export default function AgentDetail() {
   const params = useParams();
   const slug = params.slug as string;
   const { resolvedColors: theme } = useTheme();
+  const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -214,6 +217,44 @@ export default function AgentDetail() {
       block: "nearest",
     });
   }, [chatMessages]);
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/agents");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded) {
+    return (
+      <PageShell title="Loading...">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-3xl mb-4 animate-pulse">🤖</div>
+            <div>Loading agent...</div>
+          </div>
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <PageShell title="Sign In">
+        <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+          <p className="text-sm opacity-60">
+            Please sign in to chat with agents.
+          </p>
+          <Link
+            href="/sign-in?redirect_url=/agents"
+            className="px-4 py-2 rounded-lg text-sm font-bold"
+            style={{ backgroundColor: "#6366f1", color: "#fff" }}
+          >
+            Sign In
+          </Link>
+        </div>
+      </PageShell>
+    );
+  }
 
   async function sendChat() {
     if (!chatInput.trim() || !agent) return;

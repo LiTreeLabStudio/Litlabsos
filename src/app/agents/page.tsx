@@ -3,6 +3,8 @@ export const dynamic = "force-dynamic";
 
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
+import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Send,
@@ -165,11 +167,47 @@ type Msg = { role: "user" | "agent"; text: string };
 
 export default function AgentsPage() {
   const { resolvedColors: T } = useTheme();
+  const { isLoaded, isSignedIn } = useClerkAuth();
+  const router = useRouter();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [chats, setChats] = useState<Record<string, Msg[]>>({});
   const [inputs, setInputs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const endRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in?redirect_url=/agents");
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  if (!isLoaded) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: T?.bgColor || "#0a0a12" }}
+      >
+        <div className="text-center">
+          <div className="text-3xl mb-4 animate-pulse">🤖</div>
+          <div>Loading agents...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ backgroundColor: T?.bgColor || "#0a0a12" }}
+      >
+        <div className="text-center">
+          <div className="text-3xl mb-4">🔒</div>
+          <div>Sign in to use agents.</div>
+        </div>
+      </div>
+    );
+  }
 
   const activeAgent = AGENTS.find((a) => a.id === activeId);
 

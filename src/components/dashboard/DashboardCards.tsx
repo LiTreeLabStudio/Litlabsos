@@ -10,10 +10,31 @@ import {
   TOOLS,
   type IconComponent,
 } from "./dashboard-data";
+import dynamic from "next/dynamic";
 import SocialFeed from "@/components/SocialFeed";
-import SocialPageContent from "@/components/SocialPageContent";
-import DashboardContent from "./DashboardContent";
-import JarvisTerminal from "./JarvisTerminal";
+
+/* Lazy-load heavy dashboard panes so the initial dashboard bundle stays small */
+const DashboardContent = dynamic(() => import("./DashboardContent"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-48 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
+  ),
+});
+const SocialPageContent = dynamic(
+  () => import("@/components/SocialPageContent"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
+    ),
+  },
+);
+const JarvisTerminal = dynamic(() => import("./JarvisTerminal"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex-1 min-h-0 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
+  ),
+});
 
 export function HeroCard({
   title,

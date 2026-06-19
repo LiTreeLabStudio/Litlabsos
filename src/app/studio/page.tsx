@@ -3,14 +3,13 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState, Suspense, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useTheme } from "@/context/ThemeContext";
+import { useTheme, useCrtToggle } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Link from "next/link";
 import lazyLoad from "next/dynamic";
 import { Monitor, Coins } from "lucide-react";
 import StudioSidebar, { StudioTool } from "./components/StudioSidebar";
 import { MEDIA_PROVIDERS } from "@/lib/media";
-import { useCrtToggle } from "@/context/ThemeContext";
 
 /* Lazy-load tools to keep bundle reasonable */
 const ImageTool = lazyLoad(() => import("./tools/ImageTool"), { ssr: false });

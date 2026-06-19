@@ -34,23 +34,28 @@ export const viewport: Viewport = {
   themeColor: "#0d0d0d",
 };
 
+const META_TITLE = "LiTTree Lab Studios — The Creator Network With AI Agents";
+const META_DESC =
+  "Build, share, and grow with agents at your side. LiTTree is a creator network where AI helps you create, connect, and distribute your work.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "LiTTree Lab Studios — AI Agent Platform",
+    default: META_TITLE,
     template: "%s | LiTTree Lab Studios",
   },
-  description:
-    "Deploy specialized AI agents, build no-code workflows, and automate your business with LiTTree Lab Studios — the AI-first creator platform.",
+  description: META_DESC,
   keywords: [
+    "creator network",
     "AI agents",
+    "creators",
+    "builders",
+    "social distribution",
     "automation",
-    "workflow",
     "artificial intelligence",
     "NoCode",
     "LiTTree",
     "LiTPage",
-    "Gemini",
     "AI platform",
   ],
   authors: [{ name: "LiTTree Lab Studios", url: SITE_URL }],
@@ -66,23 +71,21 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: "LiTTree Lab Studios",
-    title: "LiTTree Lab Studios — AI Agent Platform",
-    description:
-      "Deploy specialized AI agents, build no-code workflows, and automate your business with LiTTree Lab Studios.",
+    title: META_TITLE,
+    description: META_DESC,
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "LiTTree Lab Studios — AI Agent Platform",
+        alt: META_TITLE,
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LiTTree Lab Studios — AI Agent Platform",
-    description:
-      "Deploy specialized AI agents, build no-code workflows, and automate your business.",
+    title: META_TITLE,
+    description: META_DESC,
     creator: "@litlabs",
     images: ["/og-image.png"],
   },

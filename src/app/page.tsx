@@ -55,39 +55,51 @@ function LandingPage() {
   const features = [
     {
       icon: Bot,
-      title: "AI Agents That Work For You",
-      desc: "Deploy autonomous agents to handle coding, research, and creative tasks. They run 24/7 in the background.",
+      title: "AI Agents as Your Co-Pilots",
+      desc: "Bring autonomous agents into your creative workflow. They code, write, remix, and publish alongside you.",
       color: C.headerColor,
     },
     {
       icon: Code,
-      title: "Built for Developers",
-      desc: "Generate code, debug issues, and ship faster with AI that understands your codebase and stack.",
+      title: "A Creator Network for Builders",
+      desc: "Share projects, discover creators, and build in public. Your workspace is connected to a network of makers.",
       color: C.accentColor,
     },
     {
       icon: Share2,
-      title: "Own Your Distribution",
-      desc: "Cross-post to Twitter, Discord, and blogs automatically. Build an audience while you sleep.",
+      title: "Social Distribution, On Autopilot",
+      desc: "Cross-post to your channels, grow your audience, and let agents help your work travel farther.",
       color: C.linkColor,
     },
     {
       icon: Shield,
-      title: "You Control Everything",
-      desc: "Your agents, your data, your API keys. No lock-in. Export anything, anytime.",
+      title: "Freedom & Ownership",
+      desc: "Your content, your agents, your data. No lock-in. No algorithms you don't control. Build on your terms.",
       color: C.success,
     },
   ];
 
   const useCases = [
-    { name: "Indie Hackers", desc: "Ship MVPs in days, not months", icon: Zap },
     {
-      name: "Content Creators",
-      desc: "Auto-generate and distribute content",
+      name: "Builders & Makers",
+      desc: "Turn ideas into projects with agents at your side",
+      icon: Zap,
+    },
+    {
+      name: "Digital Artists",
+      desc: "Create, remix, and share with AI-powered tools",
       icon: MessageCircle,
     },
-    { name: "Dev Teams", desc: "Automate repetitive dev tasks", icon: Code },
-    { name: "Solo Founders", desc: "Do the work of 10 people", icon: Users },
+    {
+      name: "Dev Crews",
+      desc: "Ship faster together with code agents",
+      icon: Code,
+    },
+    {
+      name: "Community Leaders",
+      desc: "Grow and engage your people at scale",
+      icon: Users,
+    },
   ];
 
   return (
@@ -109,16 +121,17 @@ function LandingPage() {
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight">
-                Build Your
-                <span style={{ color: C.headerColor }}> AI Workforce</span>
+                The Creator Network
+                <span style={{ color: C.headerColor }}> With AI Agents</span>
               </h1>
 
               <p
                 className="text-lg sm:text-xl mb-8 max-w-xl mx-auto lg:mx-0"
                 style={{ color: C.textMuted }}
               >
-                Deploy autonomous AI agents that code, create, and distribute
-                while you sleep. Stop doing repetitive work. Start shipping.
+                Build, share, and grow — with agents at your side. LiTTree is a
+                new space for creators where AI helps you create, connect, and
+                distribute your work.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -369,14 +382,15 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
-              What You Can <span style={{ color: C.accentColor }}>Build</span>
+              Create, Automate,{" "}
+              <span style={{ color: C.accentColor }}>Connect</span>
             </h2>
             <p
               className="text-lg max-w-2xl mx-auto"
               style={{ color: C.textMuted }}
             >
-              Agents are software that works for you. Train them once, deploy
-              them forever.
+              A creator network where your agents handle the busywork, so you
+              can focus on making, sharing, and growing together.
             </p>
           </div>
 
@@ -430,7 +444,8 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
-              Who Is This <span style={{ color: C.headerColor }}>For?</span>
+              Built for the Next Generation of{" "}
+              <span style={{ color: C.headerColor }}>Creators</span>
             </h2>
           </div>
 
@@ -468,14 +483,14 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
-              Loved by{" "}
-              <span style={{ color: C.accentColor }}>Early Builders</span>
+              What Early <span style={{ color: C.accentColor }}>Creators</span>{" "}
+              Are Saying
             </h2>
             <p
               className="text-lg max-w-2xl mx-auto"
               style={{ color: C.textMuted }}
             >
-              Real creators using LiTTree to ship faster and think bigger.
+              Real people building, sharing, and growing on LiTTree.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -484,21 +499,21 @@ function LandingPage() {
                 name: "Alex Chen",
                 role: "Indie Hacker",
                 quote:
-                  "Deployed a code-review agent in 5 minutes. It caught a bug I would've shipped to production.",
+                  "LiTTree feels like the creative network I always wanted. My agents handle the grunt work while I focus on building weird, fun stuff.",
                 color: "#00f0ff",
               },
               {
                 name: "Sarah K.",
                 role: "Content Creator",
                 quote:
-                  "I auto-post to 4 channels now. My audience grew 3x in two weeks without me lifting a finger.",
+                  "I finally own my distribution. My agents cross-post my work and my community has grown faster than on any 'old' platform.",
                 color: "#ff00a0",
               },
               {
                 name: "Mike Dev",
                 role: "Full-Stack Engineer",
                 quote:
-                  "The studio tools are insane. Image gen + code agent in one workspace. My new default setup.",
+                  "It's not just an agent tool — it's a place to build in public, meet other makers, and ship with AI as your co-pilot.",
                 color: "#ff9ff3",
               },
             ].map((t) => (
@@ -557,12 +572,12 @@ function LandingPage() {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-5xl font-black mb-6">
-            Ready to <span style={{ color: C.accentColor }}>Multiply</span>{" "}
-            Yourself?
+            Ready to <span style={{ color: C.accentColor }}>Build Your</span>{" "}
+            Space?
           </h2>
           <p className="text-xl mb-8" style={{ color: C.textMuted }}>
-            Join the beta. Start with 500 free LitCoins. No credit card
-            required.
+            Join the creator network. Bring your ideas, your community, and your
+            agents. Start free — no credit card required.
           </p>
           <Link
             href="/sign-up"
@@ -570,7 +585,7 @@ function LandingPage() {
             style={{ borderColor: C.headerColor, color: C.headerColor }}
           >
             <Sparkles size={20} />
-            Create Free Account
+            Join the Creator Network
           </Link>
           <p className="mt-4 text-sm" style={{ color: C.textMuted }}>
             Already have an account?{" "}

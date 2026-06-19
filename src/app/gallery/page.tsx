@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import PageShell from "@/components/PageShell";
 import Lightbox from "@/components/Lightbox";
@@ -225,14 +226,42 @@ function stringToColor(str: string): string {
   return `hsl(${h}, 65%, 45%)`;
 }
 
+// Extract aspect ratio from Pollinations URL (width/height params)
+function getImageAspectRatio(imageUrl: string): number {
+  // Default to 1:1 if URL parsing fails
+  let width = 1024;
+  let height = 1024;
+
+  try {
+    const url = new URL(imageUrl);
+    const w = url.searchParams.get("width");
+    const h = url.searchParams.get("height");
+    if (w) width = parseInt(w, 10) || width;
+    if (h) height = parseInt(h, 10) || height;
+  } catch {
+    // If URL parsing fails, try regex fallback
+    const widthMatch = imageUrl.match(/[?&]width=(\d+)/);
+    const heightMatch = imageUrl.match(/[?&]height=(\d+)/);
+    if (widthMatch) width = parseInt(widthMatch[1], 10) || width;
+    if (heightMatch) height = parseInt(heightMatch[1], 10) || height;
+  }
+
+  // Clamp aspect ratio to reasonable masonry bounds
+  const ratio = width / height;
+  return Math.max(0.6, Math.min(1.8, ratio));
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 type GalleryItem = {
   id: string;
   title: string;
   artist: string;
+  artistAvatar?: string | null;
   category: string;
   imageUrl: string;
   likes: number;
+  isPublic?: boolean;
+  isOwner?: boolean;
   createdAt: string;
   mediaType?: "image" | "video" | "audio";
   videoUrl?: string;
@@ -241,9 +270,13 @@ type GalleryItem = {
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function Gallery() {
   const { isLoaded, isSignedIn } = useClerkAuth();
+  const { user } = useUser();
   const router = useRouter();
   const { resolvedColors: T } = useTheme();
   const [apiItems, setApiItems] = useState<GalleryItem[]>([]);
+  const [viewMode, setViewMode] = useState<"community" | "my-uploads">(
+    "community",
+  );
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("newest");
@@ -270,9 +303,11 @@ export default function Gallery() {
     artist: "",
     category: "abstract",
     mediaType: "image" as "image" | "video",
+    isPublic: true,
   });
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [toast, setToast] = useState<{
     msg: string;
     type: "success" | "error";
@@ -315,18 +350,31 @@ export default function Gallery() {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Fetch gallery items when view mode or category changes
   useEffect(() => {
-    fetch("/api/gallery")
+    const params = new URLSearchParams();
+    params.set("view", viewMode);
+    if (selectedCategory !== "all") {
+      params.set("category", selectedCategory);
+    }
+
+    fetch(`/api/gallery?${params.toString()}`)
       .then((r) => r.json())
       .then((data: { items?: GalleryItem[] }) => {
         if (data.items && data.items.length > 0) {
-          setApiItems(data.items);
+          // Mark items as owned by current user
+          const currentUserName = user?.fullName || user?.username;
+          const itemsWithOwnership = data.items.map((item) => ({
+            ...item,
+            isOwner: item.artist === currentUserName,
+          }));
+          setApiItems(itemsWithOwnership);
         }
       })
       .catch(() => {
         // silent fail — demo items still show
       });
-  }, []);
+  }, [viewMode, selectedCategory, user]);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -462,6 +510,8 @@ export default function Gallery() {
             url: finalUrl,
             caption: uploadForm.title.trim(),
             type: isImage ? "image" : "video",
+            isPublic: uploadForm.isPublic,
+            category: uploadForm.category,
           }),
         });
         const saveData = await saveRes.json();
@@ -488,6 +538,8 @@ export default function Gallery() {
           ? imageUrl
           : "https://images.unsplash.com/photo-1515630278258-407f66498911?w=400&h=300&fit=crop",
         likes: 0,
+        isPublic: uploadForm.isPublic,
+        isOwner: true,
         createdAt: new Date().toISOString().split("T")[0],
         mediaType: isImage ? "image" : "video",
         videoUrl: isImage ? undefined : videoUrl,
@@ -502,6 +554,7 @@ export default function Gallery() {
         artist: "",
         category: "abstract",
         mediaType: "image",
+        isPublic: true,
       });
       setUploadFile(null);
       setShowUpload(false);
@@ -513,11 +566,77 @@ export default function Gallery() {
     }
   };
 
-  const handleDeleteUserItem = (id: string) => {
-    const updated = userItems.filter((i) => i.id !== id);
-    setUserItems(updated);
-    localStorage.setItem("litlabs-gallery-user", JSON.stringify(updated));
-    showToast("Item removed.");
+  const handleDeleteItem = async (id: string) => {
+    try {
+      const res = await fetch(`/api/gallery?id=${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+
+      // Remove from local state
+      setApiItems((prev) => prev.filter((i) => i.id !== id));
+      const updated = userItems.filter((i) => i.id !== id);
+      setUserItems(updated);
+      localStorage.setItem("litlabs-gallery-user", JSON.stringify(updated));
+      showToast("Item deleted successfully");
+    } catch {
+      showToast("Failed to delete item", "error");
+    }
+  };
+
+  const handleToggleVisibility = async (id: string, isPublic: boolean) => {
+    try {
+      const res = await fetch(`/api/gallery?id=${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublic }),
+      });
+      if (!res.ok) throw new Error("Failed to update");
+
+      // Update local state
+      setApiItems((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, isPublic } : item)),
+      );
+      showToast(isPublic ? "Item is now public" : "Item is now private");
+    } catch {
+      showToast("Failed to update visibility", "error");
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
+        setUploadFile(file);
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setUploadForm((prev) => ({
+            ...prev,
+            imageUrl: ev.target?.result as string,
+            mediaType: file.type.startsWith("video/") ? "video" : "image",
+          }));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        showToast("Please drop an image or video file", "error");
+      }
+    }
   };
 
   return (
@@ -800,31 +919,81 @@ export default function Gallery() {
           backgroundColor: T.boxBg + "dd",
         }}
       >
-        {/* Category pills */}
-        <div className="flex gap-2 flex-wrap">
-          {CATEGORIES.map((cat) => (
+        {/* Left side: View Mode Tabs + Categories */}
+        <div className="flex gap-3 flex-wrap items-center">
+          {/* View Mode Tabs */}
+          <div
+            className="flex rounded-lg p-0.5"
+            style={{
+              backgroundColor: T.bgColor + "60",
+              border: `1px solid ${T.borderColor}30`,
+            }}
+          >
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200"
+              onClick={() => setViewMode("community")}
+              className="px-3 py-1.5 rounded-md text-[11px] font-bold transition-all"
               style={{
-                border: `1px solid ${selectedCategory === cat.id ? T.accentColor + "60" : T.borderColor + "30"}`,
                 backgroundColor:
-                  selectedCategory === cat.id
-                    ? T.accentColor + "12"
-                    : T.bgColor + "60",
+                  viewMode === "community"
+                    ? T.accentColor + "20"
+                    : "transparent",
                 color:
-                  selectedCategory === cat.id
-                    ? T.accentColor
-                    : T.textColor + "cc",
-                cursor: "pointer",
+                  viewMode === "community" ? T.accentColor : T.textColor + "80",
               }}
             >
-              {cat.label.replace(/[🌌🌍👤🏔️🎨]/g, "").trim()}{" "}
-              <span style={{ opacity: 0.5 }}>{cat.count}</span>
+              🌐 Community
             </button>
-          ))}
+            <button
+              onClick={() => setViewMode("my-uploads")}
+              className="px-3 py-1.5 rounded-md text-[11px] font-bold transition-all"
+              style={{
+                backgroundColor:
+                  viewMode === "my-uploads"
+                    ? T.accentColor + "20"
+                    : "transparent",
+                color:
+                  viewMode === "my-uploads"
+                    ? T.accentColor
+                    : T.textColor + "80",
+              }}
+            >
+              👤 My Uploads
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div
+            className="w-px h-6 hidden sm:block"
+            style={{ backgroundColor: T.borderColor + "40" }}
+          />
+
+          {/* Category pills */}
+          <div className="flex gap-2 flex-wrap">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className="px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-200"
+                style={{
+                  border: `1px solid ${selectedCategory === cat.id ? T.accentColor + "60" : T.borderColor + "30"}`,
+                  backgroundColor:
+                    selectedCategory === cat.id
+                      ? T.accentColor + "12"
+                      : T.bgColor + "60",
+                  color:
+                    selectedCategory === cat.id
+                      ? T.accentColor
+                      : T.textColor + "cc",
+                  cursor: "pointer",
+                }}
+              >
+                {cat.label.replace(/[🌌🌍👤🏔️🎨]/g, "").trim()}{" "}
+                <span style={{ opacity: 0.5 }}>{cat.count}</span>
+              </button>
+            ))}
+          </div>
         </div>
+
         {/* Right controls */}
         <div className="flex gap-2 items-center flex-wrap">
           <div className="relative">
@@ -957,81 +1126,153 @@ export default function Gallery() {
               </div>
               {uploadForm.mediaType === "image" && (
                 <>
-                  <div>
-                    <label
-                      style={{
-                        fontSize: "10px",
-                        color: T.textMuted,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                      }}
-                    >
-                      Image File (optional)
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) =>
-                        setUploadFile(e.target.files?.[0] ?? null)
-                      }
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        backgroundColor: T.bgColor,
-                        border: `1px solid ${T.borderColor}`,
-                        color: T.textColor,
-                        fontSize: "12px",
-                        outline: "none",
-                        marginTop: "4px",
-                      }}
-                    />
-                    {uploadFile && (
-                      <div
-                        style={{
-                          fontSize: "10px",
-                          color: T.accentColor,
-                          marginTop: "4px",
-                        }}
-                      >
-                        Selected: {uploadFile.name}
+                  {/* Drag and drop zone */}
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    style={{
+                      border: `2px dashed ${isDragging ? T.accentColor : T.borderColor + "60"}`,
+                      borderRadius: "8px",
+                      padding: "24px",
+                      textAlign: "center",
+                      backgroundColor: isDragging
+                        ? T.accentColor + "10"
+                        : T.bgColor + "60",
+                      transition: "all 0.2s",
+                    }}
+                  >
+                    {uploadFile ? (
+                      <div>
+                        <div style={{ fontSize: "14px", marginBottom: "8px" }}>
+                          📄
+                        </div>
+                        <div style={{ fontSize: "12px", color: T.textColor }}>
+                          {uploadFile.name}
+                        </div>
+                        <button
+                          onClick={() => {
+                            setUploadFile(null);
+                            setUploadForm((prev) => ({
+                              ...prev,
+                              imageUrl: "",
+                            }));
+                          }}
+                          style={{
+                            fontSize: "10px",
+                            color: "#ff4444",
+                            marginTop: "8px",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Remove file
+                        </button>
+                      </div>
+                    ) : uploadForm.imageUrl ? (
+                      <div>
+                        <img
+                          src={uploadForm.imageUrl}
+                          alt="Preview"
+                          style={{
+                            maxHeight: "120px",
+                            maxWidth: "100%",
+                            borderRadius: "4px",
+                            marginBottom: "8px",
+                          }}
+                        />
+                        <button
+                          onClick={() =>
+                            setUploadForm((prev) => ({ ...prev, imageUrl: "" }))
+                          }
+                          style={{
+                            fontSize: "10px",
+                            color: "#ff4444",
+                            background: "none",
+                            border: "none",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Clear URL
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontSize: "24px", marginBottom: "8px" }}>
+                          📁
+                        </div>
+                        <div style={{ fontSize: "12px", color: T.textMuted }}>
+                          Drag & drop image here, or{" "}
+                          <label
+                            style={{
+                              color: T.accentColor,
+                              cursor: "pointer",
+                              textDecoration: "underline",
+                            }}
+                          >
+                            browse
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  setUploadFile(file);
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    setUploadForm((prev) => ({
+                                      ...prev,
+                                      imageUrl: ev.target?.result as string,
+                                    }));
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              style={{ display: "none" }}
+                            />
+                          </label>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            color: T.textMuted,
+                            marginTop: "8px",
+                            opacity: 0.6,
+                          }}
+                        >
+                          — or paste an image URL below —
+                        </div>
                       </div>
                     )}
                   </div>
-                  <div>
-                    <label
-                      style={{
-                        fontSize: "10px",
-                        color: T.textMuted,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                      }}
-                    >
-                      — or Image URL
-                    </label>
-                    <input
-                      type="text"
-                      value={uploadForm.imageUrl}
-                      onChange={(e) =>
-                        setUploadForm({
-                          ...uploadForm,
-                          imageUrl: e.target.value,
-                        })
-                      }
-                      placeholder="https://..."
-                      disabled={!!uploadFile}
-                      style={{
-                        width: "100%",
-                        padding: "8px",
-                        backgroundColor: T.bgColor,
-                        border: `1px solid ${T.borderColor}`,
-                        color: T.textColor,
-                        fontSize: "12px",
-                        outline: "none",
-                        marginTop: "4px",
-                        opacity: uploadFile ? 0.4 : 1,
-                      }}
-                    />
-                  </div>
+
+                  {/* URL input (alternative) */}
+                  {!uploadFile && !uploadForm.imageUrl && (
+                    <div>
+                      <input
+                        type="text"
+                        value={uploadForm.imageUrl}
+                        onChange={(e) =>
+                          setUploadForm({
+                            ...uploadForm,
+                            imageUrl: e.target.value,
+                          })
+                        }
+                        placeholder="https://... (paste image URL)"
+                        style={{
+                          width: "100%",
+                          padding: "8px",
+                          backgroundColor: T.bgColor,
+                          border: `1px solid ${T.borderColor}`,
+                          color: T.textColor,
+                          fontSize: "12px",
+                          outline: "none",
+                          borderRadius: "4px",
+                        }}
+                      />
+                    </div>
+                  )}
                 </>
               )}
               {uploadForm.mediaType === "video" && (
@@ -1136,6 +1377,50 @@ export default function Gallery() {
                     <option value="360-worlds">360° Worlds</option>
                   </select>
                 </div>
+
+                {/* Visibility toggle */}
+                <div>
+                  <label
+                    style={{
+                      fontSize: "10px",
+                      color: T.textMuted,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                    }}
+                  >
+                    Visibility
+                  </label>
+                  <button
+                    onClick={() =>
+                      setUploadForm({
+                        ...uploadForm,
+                        isPublic: !uploadForm.isPublic,
+                      })
+                    }
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      backgroundColor: T.bgColor,
+                      border: `1px solid ${T.borderColor}`,
+                      color: T.textColor,
+                      fontSize: "12px",
+                      outline: "none",
+                      marginTop: "4px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <span>{uploadForm.isPublic ? "🌐" : "🔒"}</span>
+                    <span>
+                      {uploadForm.isPublic
+                        ? "Public (visible to all)"
+                        : "Private (only you)"}
+                    </span>
+                  </button>
+                </div>
               </div>
               <button
                 onClick={handleUpload}
@@ -1161,10 +1446,9 @@ export default function Gallery() {
       {/* ── Enhanced Masonry Gallery ── */}
       <div className="px-4 py-6 sm:px-6 w-full">
         <div className="gallery-masonry">
-          {filteredItems.map((item, idx) => {
-            const aspect = [
-              1, 1.25, 0.85, 1.1, 1.3, 0.9, 1.15, 1, 1.2, 0.8, 1.05, 1.35,
-            ][idx % 12];
+          {filteredItems.map((item) => {
+            // Calculate actual aspect ratio from image URL dimensions
+            const aspect = getImageAspectRatio(item.imageUrl);
             const isLiked = likedItems.has(item.id);
             return (
               <div
@@ -1257,21 +1541,48 @@ export default function Gallery() {
                     {item.category}
                   </div>
 
-                  {/* Delete button for user items */}
-                  {item.id.startsWith("user_") && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteUserItem(item.id);
-                      }}
-                      className="absolute top-3 left-3 w-7 h-7 rounded-md flex items-center justify-center text-xs backdrop-blur-sm transition-colors hover:bg-red-500/80"
-                      style={{
-                        backgroundColor: T.bgColor + "cc",
-                        color: "#fff",
-                      }}
-                    >
-                      🗑
-                    </button>
+                  {/* Ownership controls - show for user's own items */}
+                  {item.isOwner && (
+                    <div className="absolute top-3 left-3 flex gap-1">
+                      {/* Visibility toggle */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleVisibility(item.id, !item.isPublic);
+                        }}
+                        className="w-7 h-7 rounded-md flex items-center justify-center text-xs backdrop-blur-sm transition-colors"
+                        style={{
+                          backgroundColor: T.bgColor + "cc",
+                          color: item.isPublic ? "#22c55e" : T.textMuted,
+                        }}
+                        title={
+                          item.isPublic
+                            ? "Public - click to make private"
+                            : "Private - click to make public"
+                        }
+                      >
+                        {item.isPublic ? "🌐" : "🔒"}
+                      </button>
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (
+                            confirm("Delete this item? This cannot be undone.")
+                          ) {
+                            handleDeleteItem(item.id);
+                          }
+                        }}
+                        className="w-7 h-7 rounded-md flex items-center justify-center text-xs backdrop-blur-sm transition-colors hover:bg-red-500/80"
+                        style={{
+                          backgroundColor: T.bgColor + "cc",
+                          color: "#fff",
+                        }}
+                        title="Delete"
+                      >
+                        🗑
+                      </button>
+                    </div>
                   )}
 
                   {/* Hover action bar */}
@@ -1319,15 +1630,27 @@ export default function Gallery() {
                 {/* Card footer */}
                 <div className="px-3 py-2.5 flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black shrink-0"
-                      style={{
-                        backgroundColor: stringToColor(item.artist),
-                        color: "#fff",
-                      }}
-                    >
-                      {item.artist.charAt(0)}
-                    </div>
+                    {item.artistAvatar ? (
+                      <img
+                        src={item.artistAvatar}
+                        alt={item.artist}
+                        className="w-5 h-5 rounded-full object-cover shrink-0"
+                        onError={(e) => {
+                          // Fallback to initial on error
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black shrink-0"
+                        style={{
+                          backgroundColor: stringToColor(item.artist),
+                          color: "#fff",
+                        }}
+                      >
+                        {item.artist.charAt(0)}
+                      </div>
+                    )}
                     <span
                       className="text-[11px] truncate opacity-60"
                       style={{ color: T.textColor }}

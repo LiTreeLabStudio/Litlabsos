@@ -84,6 +84,11 @@ export default function AgentsTerminalTool() {
   const [streaming, setStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Command history
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [tempInput, setTempInput] = useState("");
+
   const [selectedAgentId, setSelectedAgentId] = useState(
     AGENT_LIST[0]?.id ?? "director",
   );
@@ -205,7 +210,15 @@ export default function AgentsTerminalTool() {
         imageUrl: attachedImageUrl || undefined,
       };
       appendLine(userLine);
+
+      // Save to command history
+      if (content && !content.startsWith("/")) {
+        setCommandHistory((prev) => [content, ...prev].slice(0, 50));
+        setHistoryIndex(-1);
+      }
+
       setInput("");
+      setTempInput("");
       setAttachedImageUrl("");
       setShowImageInput(false);
       setImageUrlInput("");
@@ -315,6 +328,42 @@ export default function AgentsTerminalTool() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
+      return;
+    }
+
+    // Command history navigation
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (historyIndex === -1 && input.trim()) {
+        setTempInput(input);
+      }
+      if (historyIndex < commandHistory.length - 1) {
+        const newIndex = historyIndex + 1;
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[newIndex]);
+      }
+      return;
+    }
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex > 0) {
+        const newIndex = historyIndex - 1;
+        setHistoryIndex(newIndex);
+        setInput(commandHistory[newIndex]);
+      } else if (historyIndex === 0) {
+        setHistoryIndex(-1);
+        setInput(tempInput);
+      }
+      return;
+    }
+
+    // Clear history index on any other key
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      if (historyIndex !== -1) {
+        setHistoryIndex(-1);
+        setTempInput("");
+      }
     }
   };
 
@@ -366,96 +415,120 @@ export default function AgentsTerminalTool() {
         />
       )}
 
-      {/* ── LEFT: Agent List ── */}
+      {/* ── LEFT: Agent List - Terminal Sidebar ── */}
       <div
-        className="w-[220px] shrink-0 flex flex-col border-r"
+        className="w-[240px] shrink-0 flex flex-col border-r"
         style={{
           borderColor: T.borderColor + "20",
-          backgroundColor: T.boxBg + "90",
+          backgroundColor: "#1a1a1a",
         }}
       >
         {/* Header */}
         <div
-          className="px-3 py-2.5 border-b flex items-center justify-between"
-          style={{ borderColor: T.borderColor + "15" }}
+          className="px-3 py-2 border-b flex items-center justify-between"
+          style={{ borderColor: T.borderColor + "20" }}
         >
+          <div className="flex items-center gap-2">
+            <span
+              className="text-[10px] font-bold uppercase tracking-widest"
+              style={{ color: T.accentColor }}
+            >
+              Agent Shell
+            </span>
+          </div>
           <span
-            className="text-[10px] font-bold uppercase tracking-widest"
-            style={{ color: T.accentColor }}
+            className="text-[9px] font-mono px-1.5 py-0.5 rounded"
+            style={{
+              background: T.accentColor + "15",
+              color: T.accentColor,
+              border: `1px solid ${T.accentColor}30`,
+            }}
           >
-            Agents
-          </span>
-          <span
-            className="text-[9px] font-mono px-1 rounded"
-            style={{ background: T.accentColor + "20", color: T.accentColor }}
-          >
-            {AGENT_LIST.length}
+            {AGENT_LIST.length} agents
           </span>
         </div>
 
         {/* Agent list */}
-        <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
-          {AGENT_LIST.map((agent) => {
+        <div className="flex-1 overflow-y-auto py-1">
+          {AGENT_LIST.map((agent, idx) => {
             const isActive = selectedAgentId === agent.id;
             return (
               <button
                 key={agent.id}
                 onClick={() => setSelectedAgentId(agent.id)}
-                className="w-full text-left rounded-lg px-2.5 py-2 transition-all group"
+                className="w-full text-left px-3 py-2 transition-all group border-l-2"
                 style={{
                   backgroundColor: isActive
-                    ? agent.color + "12"
+                    ? agent.color + "08"
                     : "transparent",
-                  border: `1px solid ${isActive ? agent.color + "35" : "transparent"}`,
-                  boxShadow: isActive ? `0 0 12px ${agent.color}15` : "none",
+                  borderLeftColor: isActive ? agent.color : "transparent",
                 }}
               >
                 <div className="flex items-center gap-2">
-                  <div
-                    className="w-5 h-5 rounded flex items-center justify-center text-[10px] shrink-0"
-                    style={{
-                      backgroundColor: agent.color + "20",
-                      border: `1px solid ${agent.color}30`,
-                      color: agent.color,
-                    }}
+                  <span
+                    className="text-[9px] font-mono w-4 shrink-0"
+                    style={{ color: T.textMuted + "60" }}
                   >
-                    {agent.name.charAt(0)}
-                  </div>
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <div
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: agent.color,
+                      boxShadow: isActive ? `0 0 6px ${agent.color}` : "none",
+                    }}
+                  />
                   <div className="flex-1 min-w-0">
                     <div
-                      className="text-[10px] font-bold truncate"
+                      className="text-[11px] font-bold truncate"
                       style={{ color: isActive ? agent.color : T.textColor }}
                     >
                       {agent.name}
                     </div>
                     <div
-                      className="text-[8px] truncate"
-                      style={{ color: T.textMuted }}
+                      className="text-[9px] truncate"
+                      style={{
+                        color: isActive ? T.textMuted : T.textMuted + "60",
+                      }}
                     >
                       {agent.role}
                     </div>
                   </div>
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: agent.color,
-                      boxShadow: `0 0 4px ${agent.color}`,
-                      opacity: isActive ? 1 : 0.3,
-                    }}
-                  />
+                  {isActive && <span style={{ color: agent.color }}>▶</span>}
                 </div>
               </button>
             );
           })}
         </div>
 
+        {/* Quick commands footer */}
+        <div
+          className="border-t px-3 py-2 space-y-1"
+          style={{ borderColor: T.borderColor + "20" }}
+        >
+          <div
+            className="text-[9px] font-mono"
+            style={{ color: T.textMuted + "60" }}
+          >
+            Quick commands:
+          </div>
+          <div className="grid grid-cols-2 gap-1 text-[9px] font-mono">
+            <span style={{ color: T.accentColor }}>/help</span>
+            <span style={{ color: T.textMuted + "60" }}>show help</span>
+            <span style={{ color: T.accentColor }}>/clear</span>
+            <span style={{ color: T.textMuted + "60" }}>clear chat</span>
+            <span style={{ color: T.accentColor }}>/image</span>
+            <span style={{ color: T.textMuted + "60" }}>gen image</span>
+          </div>
+        </div>
+
         {/* Stats footer */}
         <div
-          className="border-t px-3 py-2 text-[9px] font-mono grid grid-cols-2 gap-1"
-          style={{ borderColor: T.borderColor + "15", color: T.textMuted }}
+          className="border-t px-3 py-2 text-[9px] font-mono grid grid-cols-2 gap-2"
+          style={{ borderColor: T.borderColor + "20", color: T.textMuted }}
         >
           <div>
-            <span className="opacity-50">Lines</span>
+            <span style={{ color: T.textMuted + "40" }}>Lines:</span>
             <br />
             <span style={{ color: T.accentColor }}>{lines.length}</span>
           </div>
@@ -474,71 +547,85 @@ export default function AgentsTerminalTool() {
         className="flex-1 flex flex-col min-w-0"
         style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
       >
-        {/* Top controls bar */}
+        {/* Top controls bar - Terminal title bar style */}
         <div
-          className="flex items-center justify-between px-3 h-10 border-b shrink-0"
+          className="flex items-center justify-between px-3 h-9 border-b shrink-0"
           style={{
-            borderColor: T.borderColor + "15",
-            backgroundColor: T.boxBg + "60",
+            borderColor: T.borderColor + "20",
+            backgroundColor: "#1a1a1a",
           }}
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* Window controls */}
+            <div className="flex gap-1.5">
+              <span className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+              <span className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+              <span className="w-3 h-3 rounded-full bg-[#27ca40]" />
+            </div>
+
+            <div
+              className="w-px h-4 mx-1"
+              style={{ backgroundColor: T.borderColor + "30" }}
+            />
+
             {/* Terminal icon */}
-            <Terminal size={12} style={{ color: T.accentColor }} />
+            <Terminal size={12} style={{ color: selectedAgent.color }} />
             <span
-              className="text-[10px] font-bold uppercase tracking-widest"
-              style={{ color: T.accentColor }}
+              className="text-[10px] font-bold"
+              style={{ color: T.textColor }}
             >
               {selectedAgent.name}
             </span>
             <span
               className="text-[8px] px-1.5 py-0.5 rounded font-mono"
               style={{
-                background: selectedAgent.color + "20",
+                background: selectedAgent.color + "15",
                 color: selectedAgent.color,
+                border: `1px solid ${selectedAgent.color}30`,
               }}
             >
               {selectedAgent.role}
             </span>
+
             {streaming && (
               <span
-                className="flex items-center gap-1 text-[8px] font-mono"
-                style={{ color: "#4ade80" }}
+                className="flex items-center gap-1 text-[8px] font-mono px-1.5 py-0.5 rounded"
+                style={{
+                  backgroundColor: "#22c55e20",
+                  color: "#22c55e",
+                  border: "1px solid #22c55e40",
+                }}
               >
-                <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
-                STREAMING
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                Processing...
               </span>
             )}
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Provider toggles */}
-            {PROVIDERS.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setProvider(p.id)}
-                className="text-[8px] font-bold px-2 py-0.5 rounded transition-all"
-                style={{
-                  backgroundColor:
-                    provider === p.id ? p.color + "20" : "transparent",
-                  border: `1px solid ${provider === p.id ? p.color + "50" : T.borderColor + "20"}`,
-                  color: provider === p.id ? p.color : T.textMuted,
-                }}
-              >
-                {p.label}
-              </button>
-            ))}
-
-            {/* Model badge */}
-            <span
-              className="text-[8px] font-mono px-1.5 py-0.5 rounded"
-              style={{
-                background: providerConfig.color + "15",
-                color: providerConfig.color,
-              }}
+            {/* Provider selector */}
+            <div
+              className="flex items-center gap-1 px-2 py-1 rounded text-[9px]"
+              style={{ backgroundColor: T.boxBg }}
             >
-              {providerConfig.label}
-            </span>
+              <span style={{ color: T.textMuted }}>Model:</span>
+              <select
+                value={provider}
+                onChange={(e) => setProvider(e.target.value)}
+                className="bg-transparent outline-none cursor-pointer font-mono"
+                style={{ color: providerConfig.color }}
+              >
+                {PROVIDERS.map((p) => (
+                  <option
+                    key={p.id}
+                    value={p.id}
+                    style={{ backgroundColor: T.bgColor }}
+                  >
+                    {p.label}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {/* CRT toggle */}
             <button
@@ -547,127 +634,135 @@ export default function AgentsTerminalTool() {
                 setCrtEnabled(next);
                 localStorage.setItem("crt_global_scanlines", String(next));
               }}
-              className="flex items-center gap-1 text-[8px] font-bold px-1.5 py-0.5 rounded transition-all"
+              className="flex items-center gap-1 text-[9px] px-2 py-1 rounded transition-all"
               style={{
-                backgroundColor: crtEnabled
-                  ? T.accentColor + "12"
-                  : "transparent",
-                border: `1px solid ${crtEnabled ? T.accentColor + "30" : T.borderColor + "15"}`,
+                backgroundColor: crtEnabled ? T.accentColor + "15" : T.boxBg,
+                border: `1px solid ${crtEnabled ? T.accentColor + "30" : T.borderColor + "20"}`,
                 color: crtEnabled ? T.accentColor : T.textMuted,
               }}
             >
-              <Monitor size={9} /> CRT
+              <Monitor size={10} />
+              <span className="hidden sm:inline">CRT</span>
             </button>
 
             {/* Clear */}
             <button
               onClick={clearChat}
-              className="flex items-center gap-1 text-[8px] px-1.5 py-0.5 rounded opacity-50 hover:opacity-100 transition-all"
+              className="flex items-center gap-1 text-[9px] px-2 py-1 rounded transition-all hover:bg-red-500/10"
               style={{
                 border: `1px solid ${T.borderColor + "20"}`,
                 color: T.textMuted,
               }}
             >
-              <Trash2 size={9} /> Clear
+              <Trash2 size={10} />
+              <span className="hidden sm:inline">Clear</span>
             </button>
           </div>
         </div>
 
-        {/* Terminal scrollback */}
+        {/* Terminal scrollback - PowerShell style */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-3 space-y-0.5 font-mono text-[10px] leading-relaxed"
+          className="flex-1 overflow-y-auto p-3 space-y-1 font-mono text-[11px] leading-relaxed"
+          style={{ backgroundColor: "#0c0c0c" }}
         >
           {lines.length === 0 && !streaming && (
             <div
-              className="flex flex-col items-center justify-center h-full text-center opacity-40"
-              style={{ color: T.textMuted }}
+              className="flex flex-col items-center justify-center h-full text-center"
+              style={{ color: T.textMuted + "60" }}
             >
-              <Terminal size={28} className="mb-2 opacity-50" />
-              <div className="text-[10px]">
-                Connected to {selectedAgent.name}
+              <div className="text-center space-y-2">
+                <div
+                  className="text-[12px] font-bold"
+                  style={{ color: T.accentColor }}
+                >
+                  LiTree Labs Terminal
+                </div>
+                <div className="text-[10px] opacity-60">
+                  Copyright (c) LiTree Lab Studios. All rights reserved.
+                </div>
+                <div className="mt-4 text-[10px] opacity-40">
+                  Connected to{" "}
+                  <span style={{ color: selectedAgent.color }}>
+                    {selectedAgent.name}
+                  </span>
+                </div>
+                <div className="text-[9px] opacity-30 mt-2">
+                  Try: <span className="text-cyan-400">/help</span> for commands
+                </div>
               </div>
-              <div className="text-[9px] mt-1">Type a message to start...</div>
             </div>
           )}
 
           {lines.map((line) => (
-            <div key={line.id} className="flex gap-2 py-0.5">
-              {/* Timestamp */}
-              <span
-                className="shrink-0 opacity-40"
-                style={{ color: T.textMuted }}
-              >
-                [{line.ts}]
-              </span>
-              {/* Agent badge */}
-              <span
-                className="shrink-0 font-bold"
-                style={{
-                  color:
-                    AGENT_COLORS[line.agent] ??
-                    (line.role === "user"
-                      ? T.accentColor
-                      : line.role === "error"
-                        ? "#f87171"
-                        : "#94a3b8"),
-                }}
-              >
-                [{line.agent}]
-              </span>
-              {/* Content */}
+            <div key={line.id} className="group">
+              {/* User input - PowerShell style prompt */}
               {line.role === "user" ? (
-                <div
-                  className="flex-1 text-right"
-                  style={{ color: T.accentColor }}
-                >
-                  {line.content}
-                  {line.imageUrl && (
-                    <>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                <div className="flex items-start gap-1">
+                  <span
+                    className="shrink-0 font-bold"
+                    style={{ color: "#00a2ed" }}
+                  >
+                    PS
+                  </span>
+                  <span style={{ color: T.textMuted + "80" }}>
+                    [{line.ts}] {selectedAgent.name}&gt;
+                  </span>
+                  <div className="flex-1" style={{ color: T.textColor }}>
+                    {line.content.split("\n").map((text, i) => (
+                      <div key={i}>{text}</div>
+                    ))}
+                    {line.imageUrl && (
                       <img
                         src={line.imageUrl}
                         alt="attachment"
-                        className="mt-1 max-h-24 rounded border inline-block"
+                        className="mt-2 max-h-32 rounded border inline-block"
                         style={{ borderColor: T.borderColor + "30" }}
                       />
-                    </>
-                  )}
+                    )}
+                  </div>
                 </div>
               ) : line.role === "error" ? (
-                <span style={{ color: "#f87171" }}>{line.content}</span>
+                <div className="flex items-start gap-1 pl-4">
+                  <span style={{ color: "#ff6b6b" }}>ERR:</span>
+                  <span style={{ color: "#ff6b6b" }}>{line.content}</span>
+                </div>
               ) : line.role === "system" ? (
-                <span
-                  className="italic opacity-50"
-                  style={{ color: T.textMuted }}
-                >
-                  {line.content}
-                </span>
+                <div className="flex items-start gap-1 pl-4 opacity-50">
+                  <span style={{ color: T.textMuted }}># {line.content}</span>
+                </div>
               ) : (
-                <span className="flex-1" style={{ color: selectedAgent.color }}>
-                  {line.content}
-                </span>
+                /* AI Response */
+                <div className="flex items-start gap-1 pl-4">
+                  <span style={{ color: selectedAgent.color + "80" }}>
+                    &lt;
+                  </span>
+                  <span
+                    className="flex-1 whitespace-pre-wrap"
+                    style={{ color: T.textColor }}
+                  >
+                    {line.content}
+                  </span>
+                </div>
               )}
             </div>
           ))}
 
+          {/* Current streaming response */}
           {streaming && (
-            <div className="flex gap-2 py-0.5">
+            <div className="flex items-start gap-1 pl-4">
+              <span style={{ color: selectedAgent.color + "80" }}>&lt;</span>
               <span
-                className="shrink-0 opacity-40"
-                style={{ color: T.textMuted }}
-              >
-                [{formatTime()}]
-              </span>
-              <span
-                className="shrink-0 font-bold animate-pulse"
+                className="animate-pulse"
                 style={{ color: selectedAgent.color }}
               >
-                [{selectedAgent.name}]
+                ▊
               </span>
-              <span style={{ color: selectedAgent.color }}>▊</span>
             </div>
           )}
+
+          {/* Spacer for input visibility */}
+          <div className="h-2" />
         </div>
 
         {/* Image attachment preview */}
@@ -692,17 +787,23 @@ export default function AgentsTerminalTool() {
           </div>
         )}
 
-        {/* Bottom input bar */}
+        {/* Bottom input bar - PowerShell style */}
         <div
           className="px-3 py-2 border-t shrink-0"
           style={{
             borderColor: T.borderColor + "15",
-            backgroundColor: T.boxBg + "40",
+            backgroundColor: "#0c0c0c",
           }}
         >
           {/* Image URL input */}
           {showImageInput && (
             <div className="flex gap-1.5 mb-2">
+              <span
+                className="shrink-0 text-[10px] py-1"
+                style={{ color: "#00a2ed" }}
+              >
+                PS Image&gt;
+              </span>
               <input
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
@@ -711,9 +812,9 @@ export default function AgentsTerminalTool() {
                   if (e.key === "Enter") attachImage();
                   if (e.key === "Escape") setShowImageInput(false);
                 }}
-                className="flex-1 px-2 py-1 text-[10px] rounded outline-none"
+                className="flex-1 px-2 py-1 text-[11px] outline-none font-mono"
                 style={{
-                  backgroundColor: T.bgColor,
+                  backgroundColor: "transparent",
                   border: `1px solid ${T.borderColor}30`,
                   color: T.textColor,
                 }}
@@ -721,14 +822,12 @@ export default function AgentsTerminalTool() {
               />
               <button
                 onClick={attachImage}
-                className="px-2 py-1 text-[9px] font-bold rounded"
+                className="px-2 py-1 text-[9px] font-bold"
                 style={{
-                  backgroundColor: T.accentColor + "20",
                   color: T.accentColor,
-                  border: `1px solid ${T.accentColor}40`,
                 }}
               >
-                Attach
+                [Attach]
               </button>
               <button
                 onClick={() => setShowImageInput(false)}
@@ -739,72 +838,102 @@ export default function AgentsTerminalTool() {
             </div>
           )}
 
-          <div className="flex gap-2 items-end">
-            {/* Image attach button */}
-            <button
-              onClick={() => setShowImageInput((v) => !v)}
-              className="shrink-0 p-1.5 rounded border transition-all hover:scale-105"
-              style={{
-                borderColor: T.borderColor + "30",
-                color: T.textMuted,
-                backgroundColor: attachedImageUrl
-                  ? T.accentColor + "10"
-                  : "transparent",
-              }}
-              title="Attach image URL"
-            >
-              <ImageIcon size={12} />
-            </button>
+          {attachedImageUrl && (
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <span style={{ color: T.textMuted + "60" }}>📎 Attached:</span>
+              <span
+                className="text-[10px] truncate max-w-[200px]"
+                style={{ color: T.accentColor }}
+              >
+                {attachedImageUrl}
+              </span>
+              <button
+                onClick={() => setAttachedImageUrl("")}
+                className="text-[9px] opacity-50 hover:opacity-100"
+                style={{ color: "#ff6b6b" }}
+              >
+                [Remove]
+              </button>
+            </div>
+          )}
 
-            <textarea
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKey}
-              placeholder={`Message ${selectedAgent.name}... (Enter to send, Shift+Enter for newline)`}
-              rows={1}
-              disabled={isLoading}
-              className="flex-1 px-3 py-1.5 text-[11px] rounded-lg outline-none resize-none overflow-hidden font-mono disabled:opacity-40"
-              style={{
-                backgroundColor: T.bgColor,
-                border: `1px solid ${T.borderColor}30`,
-                color: T.textColor,
-                minHeight: "38px",
-                maxHeight: "140px",
-              }}
-            />
+          {/* PowerShell-style input line */}
+          <div className="flex gap-2 items-start">
+            {/* PowerShell prompt */}
+            <div className="shrink-0 pt-1 select-none">
+              <span className="font-bold" style={{ color: "#00a2ed" }}>
+                PS
+              </span>
+              <span style={{ color: T.textMuted + "80" }}>
+                {" "}
+                [{formatTime()}] {selectedAgent.name}&gt;
+              </span>
+            </div>
 
-            <button
-              onClick={() => sendMessage()}
-              disabled={(!input.trim() && !attachedImageUrl) || isLoading}
-              className="shrink-0 px-3 py-1.5 rounded-lg font-bold disabled:opacity-30 transition-all hover:scale-105"
-              style={{
-                backgroundColor: selectedAgent.color,
-                color: "#0a0a0f",
-                minHeight: "38px",
-              }}
-            >
-              {streaming ? (
-                <Loader2 size={12} className="animate-spin" />
-              ) : (
-                <Send size={12} />
-              )}
-            </button>
+            {/* Input area */}
+            <div className="flex-1 flex gap-2 items-start">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKey}
+                placeholder={`Type message or /help...`}
+                rows={1}
+                disabled={isLoading}
+                className="flex-1 py-1 text-[11px] outline-none resize-none overflow-hidden font-mono disabled:opacity-40 bg-transparent"
+                style={{
+                  color: T.textColor,
+                  minHeight: "22px",
+                  maxHeight: "140px",
+                }}
+              />
+
+              {/* Quick actions */}
+              <div className="flex gap-1 shrink-0">
+                <button
+                  onClick={() => setShowImageInput((v) => !v)}
+                  className="p-1.5 transition-all hover:opacity-80"
+                  style={{
+                    color: showImageInput ? T.accentColor : T.textMuted + "60",
+                  }}
+                  title="Attach image (Ctrl+I)"
+                >
+                  <ImageIcon size={14} />
+                </button>
+
+                <button
+                  onClick={() => sendMessage()}
+                  disabled={(!input.trim() && !attachedImageUrl) || isLoading}
+                  className="p-1.5 transition-all hover:opacity-80 disabled:opacity-20"
+                  style={{
+                    color: selectedAgent.color,
+                  }}
+                  title="Send (Enter)"
+                >
+                  {streaming ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Send size={14} />
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between mt-1 px-0.5">
-            <span
-              className="text-[8px] opacity-30"
-              style={{ color: T.textMuted }}
-            >
-              {providerConfig.label} · Shift+Enter for newline
-            </span>
-            {input.length > 0 && (
-              <span
-                className="text-[8px] font-mono opacity-30"
-                style={{ color: T.textMuted }}
-              >
-                {input.length}
+          {/* Status bar */}
+          <div
+            className="flex items-center justify-between mt-2 px-0.5 text-[9px]"
+            style={{ color: T.textMuted + "40" }}
+          >
+            <div className="flex gap-3">
+              <span>{providerConfig.label}</span>
+              <span>↑↓ History</span>
+              <span>Shift+Enter Newline</span>
+              {input.length > 0 && <span>{input.length} chars</span>}
+            </div>
+            {commandHistory.length > 0 && (
+              <span className="font-mono">
+                History: {commandHistory.length}
               </span>
             )}
           </div>

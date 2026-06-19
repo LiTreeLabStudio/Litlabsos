@@ -171,6 +171,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   design: "Design",
   research: "Research",
   legal: "Legal",
+  "smart-home": "Smart Home",
 };
 
 // AGENT PRICING TIERS (in LiTBit Coins 🪙)
@@ -384,6 +385,109 @@ const DEMO_AGENTS: Agent[] = [
     personality: "Methodical, experimental, rigorous",
     rating: 4.8,
     installs: 89,
+  },
+
+  // SPECIALIST AGENTS - Real team members from agents.ts
+  {
+    id: "14",
+    slug: "alexchen",
+    name: "Alex Chen",
+    description:
+      "AI Agent Architect & Full-Stack Builder. Trained 47 specialized models. Builds multi-agent systems that actually work.",
+    category: "developer",
+    avatar_url: AGENT_AVATARS.alexchen,
+    price_cents: 500,
+    features: [
+      "Multi-agent architecture",
+      "React/Node/Gemini integration",
+      "Prompt engineering",
+      "Mentoring",
+    ],
+    is_featured: true,
+    personality: "Strategic, technical, visionary, nerdy-helpful",
+    rating: 4.9,
+    installs: 342,
+  },
+  {
+    id: "15",
+    slug: "sarahk",
+    name: "Sarah K.",
+    description:
+      "Growth Hacker & Marketing Strategist. Turns zero-budget campaigns into viral sensations. Lives for social growth and SEO.",
+    category: "marketing",
+    avatar_url: AGENT_AVATARS.sarahk,
+    price_cents: 400,
+    features: [
+      "Viral marketing",
+      "SEO strategy",
+      "Community building",
+      "Growth loops",
+    ],
+    is_featured: true,
+    personality: "Energetic, data-driven, sharp, results-obsessed",
+    rating: 4.8,
+    installs: 567,
+  },
+  {
+    id: "16",
+    slug: "mikedev",
+    name: "Mike Dev",
+    description:
+      "Full-Stack Engineer & API Wizard. Builds systems that scale. React, Node, Go, Rust — ships fast, open sources everything.",
+    category: "developer",
+    avatar_url: AGENT_AVATARS.mikedev,
+    price_cents: 450,
+    features: [
+      "Full-stack architecture",
+      "API design",
+      "Real-time systems",
+      "Database optimization",
+    ],
+    is_featured: true,
+    personality:
+      "Pragmatic, systems-oriented, blunt but fair, deeply technical",
+    rating: 4.9,
+    installs: 423,
+  },
+  {
+    id: "17",
+    slug: "jtaylor",
+    name: "J. Taylor",
+    description:
+      "Storyteller, Content Strategist, and AI Writing Coach. Helps founders find their voice and brands find their story.",
+    category: "content",
+    avatar_url: AGENT_AVATARS.jtaylor,
+    price_cents: 350,
+    features: [
+      "Copywriting that converts",
+      "Brand voice development",
+      "SEO content strategy",
+      "Script writing",
+    ],
+    is_featured: true,
+    personality: "Eloquent, thoughtful, creative, warm and strategically sharp",
+    rating: 4.8,
+    installs: 389,
+  },
+  {
+    id: "18",
+    slug: "home",
+    name: "Home Controller",
+    description:
+      "Smart Home Manager. Controls Home Assistant devices — lights, climate, media, notifications. Your home's AI butler.",
+    category: "general",
+    avatar_url: AGENT_AVATARS.home,
+    price_cents: 250,
+    features: [
+      "Device control",
+      "Climate management",
+      "Media playback",
+      "TTS announcements",
+    ],
+    is_featured: false,
+    personality: "Friendly, efficient, knows every device in your home",
+    rating: 4.7,
+    installs: 278,
   },
 ];
 
@@ -614,7 +718,12 @@ function MarketplaceInner() {
     });
 
   const featuredAgents = filteredAgents.filter((a) => a.is_featured);
-  const regularAgents = filteredAgents.filter((a) => !a.is_featured);
+  const newArrivals = filteredAgents.filter((a) =>
+    ["14", "15", "16", "17", "18"].includes(a.id),
+  );
+  const regularAgents = filteredAgents.filter(
+    (a) => !["14", "15", "16", "17", "18"].includes(a.id),
+  );
 
   const syncWallet = async (amount: number) => {
     try {
@@ -795,6 +904,7 @@ function MarketplaceInner() {
 
   return (
     <div
+      className="min-h-screen flex flex-col"
       style={{
         backgroundColor: T.bgColor,
         color: T.textColor,
@@ -1014,7 +1124,7 @@ function MarketplaceInner() {
       </div>
 
       {activeTab === "agents" && (
-        <>
+        <div className="flex-1 flex flex-col">
           <div
             style={{
               padding: "16px 24px",
@@ -1150,7 +1260,13 @@ function MarketplaceInner() {
           </div>
 
           <div
-            style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}
+            className="flex-1"
+            style={{
+              padding: "24px",
+              maxWidth: "1200px",
+              margin: "0 auto",
+              width: "100%",
+            }}
           >
             {featuredAgents.length > 0 && !searchQuery && (
               <div style={{ marginBottom: "32px" }}>
@@ -1186,6 +1302,58 @@ function MarketplaceInner() {
                 </div>
               </div>
             )}
+
+            {/* NEW ARRIVALS */}
+            {newArrivals.length > 0 && !searchQuery && !selectedCategory && (
+              <div style={{ marginBottom: "32px" }}>
+                <div
+                  style={{
+                    color: "#22d3ee",
+                    fontSize: "11px",
+                    letterSpacing: "2px",
+                    marginBottom: "12px",
+                    fontWeight: "bold",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                  }}
+                >
+                  <span>✨</span> NEW ARRIVALS
+                  <span
+                    style={{
+                      backgroundColor: "#22d3ee20",
+                      color: "#22d3ee",
+                      padding: "2px 8px",
+                      borderRadius: "4px",
+                      fontSize: "10px",
+                    }}
+                  >
+                    Just Added
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(auto-fill, minmax(260px, 1fr))",
+                    gap: "16px",
+                  }}
+                >
+                  {newArrivals.map((agent) => (
+                    <AgentCard
+                      key={agent.id}
+                      agent={agent}
+                      isInstalled={installedAgents.has(agent.id)}
+                      onInstall={() => installAgent(agent.id)}
+                      onPreview={() => setPreviewAgent(agent)}
+                      theme={T}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ALL/REGULAR AGENTS */}
             <div>
               <div
                 style={{
@@ -1198,7 +1366,9 @@ function MarketplaceInner() {
               >
                 {selectedCategory
                   ? selectedCategory.toUpperCase() + " AGENTS"
-                  : "ALL AGENTS"}
+                  : searchQuery
+                    ? "SEARCH RESULTS"
+                    : "ALL AGENTS"}
                 <span
                   style={{
                     color: T.textColor,
@@ -1251,11 +1421,19 @@ function MarketplaceInner() {
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
 
       {activeTab === "coins" && (
-        <div style={{ padding: "24px", maxWidth: "1200px", margin: "0 auto" }}>
+        <div
+          className="flex-1"
+          style={{
+            padding: "24px",
+            maxWidth: "1200px",
+            margin: "0 auto",
+            width: "100%",
+          }}
+        >
           {/* SMART COIN PACKS */}
           <div style={{ marginBottom: "32px" }}>
             <div

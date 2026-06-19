@@ -79,7 +79,7 @@ export default function PageShell({
               <div className="flex items-center gap-3">
                 {icon && (
                   <div
-                    className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+                    className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-xl"
                     style={{
                       background: `linear-gradient(135deg, ${resolvedColors.accentColor}20, ${resolvedColors.headerColor}15)`,
                       border: `1px solid ${resolvedColors.accentColor}30`,

@@ -43,6 +43,12 @@ import {
   AlertTriangle,
   Music,
   Volume2,
+  CreditCard,
+  Mail,
+  Bell,
+  UserX,
+  Key,
+  Settings2,
 } from "lucide-react";
 
 const skinLabels: Record<SkinPreset, string> = {
@@ -75,7 +81,17 @@ const accentHex: Record<string, string> = {
   "purple-haze": "#a855f7",
 };
 
-type TabId = "theme" | "profile" | "agents" | "interface" | "system" | "music";
+type TabId =
+  | "theme"
+  | "profile"
+  | "agents"
+  | "interface"
+  | "system"
+  | "music"
+  | "security"
+  | "notifications"
+  | "privacy"
+  | "wallet";
 
 const TABS: {
   id: TabId;
@@ -85,9 +101,13 @@ const TABS: {
 }[] = [
   { id: "theme", label: "Theme", icon: Palette, shortcut: "T" },
   { id: "profile", label: "Identity", icon: Fingerprint, shortcut: "I" },
+  { id: "wallet", label: "Wallet", icon: Zap, shortcut: "W" },
+  { id: "notifications", label: "Alerts", icon: Activity, shortcut: "N" },
+  { id: "security", label: "Security", icon: Hash, shortcut: "X" },
   { id: "agents", label: "Agents", icon: Bot, shortcut: "A" },
   { id: "interface", label: "UI", icon: Monitor, shortcut: "U" },
   { id: "music", label: "Audio", icon: Music, shortcut: "M" },
+  { id: "privacy", label: "Privacy", icon: Eye, shortcut: "P" },
   { id: "system", label: "SYS", icon: Terminal, shortcut: "S" },
 ];
 
@@ -414,8 +434,8 @@ export default function SettingsPage() {
         });
         showSaved();
       }
-    } catch (e) {
-      console.error("Gen failed", e);
+    } catch {
+      /* ignore generation errors */
     } finally {
       setGenerating(null);
     }
@@ -838,29 +858,73 @@ export default function SettingsPage() {
             </Section>
 
             <Section title="Core Agents" icon={Bot}>
-              <div className="space-y-1">
+              <div className="space-y-1 max-h-60 overflow-y-auto">
                 {[
-                  { name: "Director", role: "Orchestrator", color: "#00ffff" },
+                  {
+                    name: "Director",
+                    role: "Orchestrator",
+                    color: "#00ffff",
+                    installed: true,
+                  },
                   {
                     name: "Champion",
                     role: "General Assistant",
                     color: "#ff0080",
+                    installed: true,
                   },
                   {
                     name: "Code Champion",
                     role: "Software Expert",
                     color: "#00ff41",
+                    installed: true,
                   },
                   {
                     name: "Social Dominator",
                     role: "Growth & Viral",
                     color: "#ff6b6b",
+                    installed: false,
                   },
-                  { name: "Data Slayer", role: "Analytics", color: "#ffff00" },
+                  {
+                    name: "Data Slayer",
+                    role: "Analytics",
+                    color: "#ffff00",
+                    installed: false,
+                  },
                   {
                     name: "Writing Coach",
                     role: "Copy & Content",
                     color: "#ff9ff3",
+                    installed: true,
+                  },
+                  {
+                    name: "Alex Chen",
+                    role: "Developer",
+                    color: "#3b82f6",
+                    installed: false,
+                  },
+                  {
+                    name: "Sarah K.",
+                    role: "Marketing",
+                    color: "#ec4899",
+                    installed: false,
+                  },
+                  {
+                    name: "Mike Dev",
+                    role: "Developer",
+                    color: "#06b6d4",
+                    installed: false,
+                  },
+                  {
+                    name: "J. Taylor",
+                    role: "Content",
+                    color: "#f59e0b",
+                    installed: false,
+                  },
+                  {
+                    name: "Home Controller",
+                    role: "Smart Home",
+                    color: "#22d3ee",
+                    installed: false,
                   },
                 ].map((a) => (
                   <div
@@ -872,11 +936,74 @@ export default function SettingsPage() {
                       style={{ backgroundColor: a.color }}
                     />
                     <span className="text-[11px] font-bold">{a.name}</span>
-                    <span className="text-[10px] opacity-40 ml-auto">
-                      {a.role}
+                    <span className="text-[10px] opacity-40">{a.role}</span>
+                    <span className="ml-auto">
+                      {a.installed ? (
+                        <span className="px-1.5 py-0.5 bg-green-500/20 text-green-400 text-[9px]">
+                          INSTALLED
+                        </span>
+                      ) : (
+                        <button className="px-2 py-0.5 border border-cyan-500/50 text-cyan-400 text-[9px] hover:bg-cyan-500/10">
+                          INSTALL
+                        </button>
+                      )}
                     </span>
                   </div>
                 ))}
+              </div>
+            </Section>
+
+            <Section title="API Keys" icon={Key} defaultOpen={false}>
+              <div className="space-y-3">
+                <p className="text-[10px] opacity-60">
+                  Personal API keys for external integrations
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value="lit_key_••••••••••••••••"
+                    readOnly
+                    className="flex-1 p-2 text-[11px] bg-black/30 border border-white/10 outline-none font-mono"
+                  />
+                  <button
+                    onClick={() => showSaved()}
+                    className="px-3 py-2 border border-cyan-500/50 text-cyan-400 text-[10px] uppercase hover:bg-cyan-500/10 transition-colors"
+                  >
+                    Regenerate
+                  </button>
+                </div>
+                <div className="text-[9px] opacity-40">
+                  Created: Jan 15, 2026 • Never used
+                </div>
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-dashed border-white/20 text-[10px] uppercase hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors"
+                >
+                  + Create New API Key
+                </button>
+              </div>
+            </Section>
+
+            <Section title="Agent Preferences" icon={Settings2}>
+              <div className="space-y-1">
+                <Toggle
+                  label="Auto-run on Startup"
+                  desc="Launch installed agents when you log in"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Agent Suggestions"
+                  desc="Show AI-powered agent recommendations"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Share Usage Data"
+                  desc="Help improve agents by sharing anonymized data"
+                  value={false}
+                  onChange={() => showSaved()}
+                />
               </div>
             </Section>
           </div>
@@ -1144,6 +1271,471 @@ export default function SettingsPage() {
               >
                 <Trash2 size={12} className="inline-block mr-2" /> WIPE_ALL_DATA
               </button>
+            </Section>
+          </div>
+        )}
+
+        {/* SECURITY TAB */}
+        {activeTab === "security" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <Section title="Password" icon={Hash}>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider opacity-40 mb-1 block">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full p-2 text-[11px] bg-black/30 border border-white/10 outline-none focus:border-cyan-500/50 font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-wider opacity-40 mb-1 block">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="w-full p-2 text-[11px] bg-black/30 border border-white/10 outline-none focus:border-cyan-500/50 font-mono"
+                  />
+                </div>
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-cyan-500/50 text-cyan-400 text-[10px] uppercase hover:bg-cyan-500/10 transition-colors"
+                >
+                  Update Password
+                </button>
+              </div>
+            </Section>
+
+            <Section title="Two-Factor Auth" icon={Fingerprint}>
+              <div className="space-y-3">
+                <Toggle
+                  label="Enable 2FA"
+                  desc="Require code from authenticator app"
+                  value={false}
+                  onChange={() => showSaved()}
+                />
+                <div className="p-3 border border-white/10 bg-black/20">
+                  <div className="text-[10px] opacity-60 mb-2">Status</div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-yellow-500" />
+                    <span className="text-[11px]">Not Configured</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-white/20 text-[10px] uppercase hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors"
+                >
+                  Setup 2FA
+                </button>
+              </div>
+            </Section>
+
+            <Section title="Active Sessions" icon={Monitor} defaultOpen={false}>
+              <div className="space-y-2">
+                {[
+                  {
+                    device: "Chrome on Windows",
+                    ip: "192.168.1.1",
+                    current: true,
+                  },
+                  {
+                    device: "Firefox on MacOS",
+                    ip: "10.0.0.5",
+                    current: false,
+                  },
+                ].map((session, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2 border border-white/10 bg-black/20"
+                  >
+                    <div>
+                      <div className="text-[11px] font-bold">
+                        {session.device}
+                        {session.current && (
+                          <span className="ml-2 px-1.5 py-0.5 bg-green-500/20 text-green-400 text-[9px]">
+                            CURRENT
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] opacity-40">{session.ip}</div>
+                    </div>
+                    {!session.current && (
+                      <button className="px-2 py-1 border border-red-500/50 text-red-400 text-[9px] hover:bg-red-500/10">
+                        Revoke
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-red-500/50 text-red-400 text-[10px] uppercase hover:bg-red-500/10 transition-colors"
+                >
+                  Revoke All Other Sessions
+                </button>
+              </div>
+            </Section>
+
+            <Section title="Login History" icon={Activity} defaultOpen={false}>
+              <div className="space-y-1 max-h-40 overflow-y-auto">
+                {[
+                  {
+                    date: "Today, 14:32",
+                    action: "Login",
+                    location: "Chrome/Windows",
+                  },
+                  {
+                    date: "Yesterday, 09:15",
+                    action: "Login",
+                    location: "Firefox/MacOS",
+                  },
+                  {
+                    date: "Jan 10, 18:45",
+                    action: "Password Change",
+                    location: "Chrome/Windows",
+                  },
+                ].map((log, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2 text-[10px] border-b border-white/5"
+                  >
+                    <span className="opacity-60">{log.date}</span>
+                    <span>{log.action}</span>
+                    <span className="opacity-40">{log.location}</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+        )}
+
+        {/* WALLET TAB */}
+        {activeTab === "wallet" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <Section title="LiTBit Coins" icon={Zap}>
+              <div className="p-4 border border-yellow-500/30 bg-yellow-500/5">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <div className="text-[10px] opacity-60 uppercase">
+                      Balance
+                    </div>
+                    <div className="text-3xl font-bold text-yellow-400">
+                      9,999 🪙
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] opacity-60">Value</div>
+                    <div className="text-sm">~$99.99</div>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => showSaved()}
+                    className="flex-1 p-2 border border-yellow-500/50 text-yellow-400 text-[10px] uppercase hover:bg-yellow-500/10 transition-colors"
+                  >
+                    Buy Coins
+                  </button>
+                  <button
+                    onClick={() => showSaved()}
+                    className="flex-1 p-2 border border-white/20 text-[10px] uppercase hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors"
+                  >
+                    Earn Free
+                  </button>
+                </div>
+              </div>
+            </Section>
+
+            <Section title="Payment Methods" icon={CreditCard}>
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 p-3 border border-white/10 bg-black/20">
+                  <div className="w-8 h-8 bg-blue-500/20 flex items-center justify-center text-blue-400 text-lg">
+                    💳
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-[11px] font-bold">
+                      Visa ending in 4242
+                    </div>
+                    <div className="text-[10px] opacity-40">Expires 12/25</div>
+                  </div>
+                  <button className="text-[9px] text-red-400 hover:underline">
+                    Remove
+                  </button>
+                </div>
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-dashed border-white/20 text-[10px] uppercase hover:border-cyan-500/50 hover:bg-cyan-500/10 transition-colors"
+                >
+                  + Add Payment Method
+                </button>
+              </div>
+            </Section>
+
+            <Section
+              title="Transaction History"
+              icon={Database}
+              defaultOpen={false}
+            >
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {[
+                  {
+                    date: "Today",
+                    type: "Daily Bonus",
+                    amount: "+50",
+                    color: "text-green-400",
+                  },
+                  {
+                    date: "Yesterday",
+                    type: "Agent Purchase",
+                    amount: "-200",
+                    color: "text-red-400",
+                  },
+                  {
+                    date: "Jan 10",
+                    type: "Stripe Top-up",
+                    amount: "+1000",
+                    color: "text-green-400",
+                  },
+                  {
+                    date: "Jan 8",
+                    type: "Referral Bonus",
+                    amount: "+100",
+                    color: "text-green-400",
+                  },
+                ].map((tx, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2 text-[10px] border-b border-white/5"
+                  >
+                    <span className="opacity-60">{tx.date}</span>
+                    <span>{tx.type}</span>
+                    <span className={tx.color}>{tx.amount} 🪙</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="Referrals" icon={Link2}>
+              <div className="space-y-3">
+                <p className="text-[10px] opacity-60">
+                  Invite friends and earn 100 🪙 for each signup
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value="https://litlabs.net/ref/user123"
+                    readOnly
+                    className="flex-1 p-2 text-[11px] bg-black/30 border border-white/10 outline-none font-mono"
+                  />
+                  <button
+                    onClick={() => showSaved()}
+                    className="px-3 py-2 border border-cyan-500/50 text-cyan-400 text-[10px] uppercase hover:bg-cyan-500/10 transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div className="flex justify-between text-[10px]">
+                  <span className="opacity-60">Referrals: 0</span>
+                  <span className="opacity-60">Earned: 0 🪙</span>
+                </div>
+              </div>
+            </Section>
+          </div>
+        )}
+
+        {/* NOTIFICATIONS TAB */}
+        {activeTab === "notifications" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <Section title="Email Notifications" icon={Mail}>
+              <div className="space-y-1">
+                <Toggle
+                  label="Account Updates"
+                  desc="Password changes, security alerts"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Marketing Emails"
+                  desc="New features, promotions, tips"
+                  value={false}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Weekly Digest"
+                  desc="Summary of your activity"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+              </div>
+            </Section>
+
+            <Section title="Push Notifications" icon={Bell}>
+              <div className="space-y-1">
+                <Toggle
+                  label="Browser Push"
+                  desc="Enable browser notifications"
+                  value={false}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Agent Messages"
+                  desc="When agents complete tasks"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Social Activity"
+                  desc="Likes, comments, mentions"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+              </div>
+            </Section>
+
+            <Section title="Notification Channels" icon={Globe}>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-2 border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📧</span>
+                    <span className="text-[11px]">Email</span>
+                  </div>
+                  <span className="px-2 py-0.5 bg-green-500/20 text-green-400 text-[9px]">
+                    Active
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2 border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">🔔</span>
+                    <span className="text-[11px]">Push</span>
+                  </div>
+                  <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-[9px]">
+                    Disabled
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2 border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">💬</span>
+                    <span className="text-[11px]">Discord</span>
+                  </div>
+                  <button className="text-[9px] text-cyan-400 hover:underline">
+                    Connect
+                  </button>
+                </div>
+              </div>
+            </Section>
+
+            <Section title="Quiet Hours" icon={Moon}>
+              <div className="space-y-3">
+                <Toggle
+                  label="Enable Quiet Hours"
+                  desc="Pause notifications during set times"
+                  value={false}
+                  onChange={() => showSaved()}
+                />
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <label className="text-[10px] opacity-40">From</label>
+                    <input
+                      type="time"
+                      defaultValue="22:00"
+                      className="w-full p-2 text-[11px] bg-black/30 border border-white/10 outline-none focus:border-cyan-500/50"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[10px] opacity-40">To</label>
+                    <input
+                      type="time"
+                      defaultValue="08:00"
+                      className="w-full p-2 text-[11px] bg-black/30 border border-white/10 outline-none focus:border-cyan-500/50"
+                    />
+                  </div>
+                </div>
+              </div>
+            </Section>
+          </div>
+        )}
+
+        {/* PRIVACY TAB */}
+        {activeTab === "privacy" && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <Section title="Visibility" icon={Eye}>
+              <div className="space-y-1">
+                <Toggle
+                  label="Public Profile"
+                  desc="Allow others to view your profile"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Show Activity Status"
+                  desc="Display when you're online"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+                <Toggle
+                  label="Allow Friend Requests"
+                  desc="Others can add you as friend"
+                  value={true}
+                  onChange={() => showSaved()}
+                />
+              </div>
+            </Section>
+
+            <Section title="Data & Export" icon={Database}>
+              <div className="space-y-3">
+                <p className="text-[10px] opacity-60">
+                  Download all your data in JSON format
+                </p>
+                <button
+                  onClick={() => showSaved()}
+                  className="w-full p-2 border border-cyan-500/50 text-cyan-400 text-[10px] uppercase hover:bg-cyan-500/10 transition-colors"
+                >
+                  Export My Data
+                </button>
+                <div className="text-[9px] opacity-40">Last export: Never</div>
+              </div>
+            </Section>
+
+            <Section title="Blocked Users" icon={UserX} defaultOpen={false}>
+              <div className="space-y-2">
+                {[].map((user, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-2 border border-white/10"
+                  >
+                    <span className="text-[11px]">{user}</span>
+                    <button className="text-[9px] text-cyan-400 hover:underline">
+                      Unblock
+                    </button>
+                  </div>
+                ))}
+                <p className="text-[10px] opacity-40 italic">
+                  No blocked users
+                </p>
+              </div>
+            </Section>
+
+            <Section title="Danger Zone" icon={AlertTriangle}>
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    if (
+                      confirm("Delete your account? This cannot be undone!")
+                    ) {
+                      localStorage.clear();
+                      window.location.href = "/";
+                    }
+                  }}
+                  className="w-full p-3 border border-red-500/50 text-red-400 text-[10px] uppercase hover:bg-red-500/10 transition-colors"
+                >
+                  <Trash2 size={12} className="inline-block mr-2" /> Delete
+                  Account
+                </button>
+                <p className="text-[9px] opacity-40">
+                  This will permanently delete all your data
+                </p>
+              </div>
             </Section>
           </div>
         )}

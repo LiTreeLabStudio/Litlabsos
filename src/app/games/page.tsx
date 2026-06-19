@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import PageShell from "@/components/PageShell";
+import GameEmulator from "@/components/GameEmulator";
 import {
   Search,
   Users,
@@ -13,6 +14,8 @@ import {
   Grid3X3,
   List,
   Zap,
+  ExternalLink,
+  Maximize2,
 } from "lucide-react";
 import {
   GAME_LIBRARY,
@@ -31,7 +34,8 @@ const CATEGORIES: {
 }[] = [
   { id: "all", label: "All Games", icon: Grid3X3 },
   { id: "retro", label: "Retro", icon: Gamepad2 },
-  { id: "puzzle", label: "Puzzle", icon: Zap },
+  { id: "arcade", label: "Arcade", icon: Zap },
+  { id: "puzzle", label: "Puzzle", icon: Grid3X3 },
   { id: "multiplayer", label: "Multiplayer", icon: Users },
 ];
 
@@ -186,29 +190,52 @@ export default function GamesPage() {
               </div>
             </div>
 
-            {/* Game Canvas / Iframe */}
+            {/* Game Canvas / Iframe / Emulator */}
             <div
-              className="aspect-video border-2 relative"
+              className="aspect-video border-2 relative overflow-hidden"
               style={{ backgroundColor: "#000", borderColor: T.borderColor }}
             >
               {selectedGame.html5Url ? (
-                <iframe
-                  src={selectedGame.html5Url}
-                  className="w-full h-full"
-                  allow="fullscreen"
-                  sandbox="allow-scripts allow-same-origin allow-popups"
+                <div className="w-full h-full relative">
+                  <iframe
+                    src={selectedGame.html5Url}
+                    className="w-full h-full"
+                    allow="fullscreen; gamepad"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    referrerPolicy="no-referrer"
+                    style={{ border: "none" }}
+                  />
+                  {/* Overlay for external link */}
+                  <a
+                    href={selectedGame.html5Url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-bold flex items-center gap-1 opacity-0 hover:opacity-100 transition-opacity"
+                    style={{
+                      backgroundColor: T.bgColor + "cc",
+                      color: T.textColor,
+                      backdropFilter: "blur(4px)",
+                    }}
+                  >
+                    <ExternalLink size={10} />
+                    Open in New Tab
+                  </a>
+                </div>
+              ) : selectedGame.romUrl && selectedGame.platform !== "html5" ? (
+                <GameEmulator
+                  romUrl={selectedGame.romUrl}
+                  platform={selectedGame.platform}
+                  onError={(err) => console.error("Emulator error:", err)}
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center">
                     <div className="text-4xl mb-4">🎮</div>
                     <p className="text-sm opacity-60 mb-4">
-                      Emulator loading...
+                      No game file available
                     </p>
                     <p className="text-[10px] opacity-40 max-w-md">
-                      {selectedGame.platform.toUpperCase()} emulator will load
-                      the ROM from secure storage. Save states are synced to
-                      your account.
+                      This game requires a ROM file that hasn't been added yet.
                     </p>
                   </div>
                 </div>

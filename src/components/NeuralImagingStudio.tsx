@@ -79,9 +79,7 @@ export default function NeuralImagingStudio() {
   // Use useCallback for stable handler
   const handlePromptChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      const newValue = e.target.value;
-      console.log("Prompt changed:", newValue.length, "chars");
-      setPrompt(newValue);
+      setPrompt(e.target.value);
       setError(null);
     },
     [],
@@ -100,7 +98,6 @@ export default function NeuralImagingStudio() {
     setError(null);
 
     try {
-      console.log("Generating with prompt:", prompt);
       const response = await fetch("/api/studio/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,7 +122,6 @@ export default function NeuralImagingStudio() {
         throw new Error("No images returned");
       }
     } catch (err) {
-      console.error("Generation failed:", err);
       setError(err instanceof Error ? err.message : "Generation failed");
 
       // Fallback to pollinations

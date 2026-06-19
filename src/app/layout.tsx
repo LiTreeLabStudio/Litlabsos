@@ -8,7 +8,6 @@ import Footer from "@/components/Footer";
 import CookieConsent from "@/components/CookieConsent";
 import UserSync from "@/components/UserSync";
 import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
-import MusicPlayer from "@/components/MusicPlayer";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import { SITE_URL } from "@/lib/siteConfig";
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -99,9 +98,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-const clerkKey =
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ??
-  "pk_test_dmVyaWZpZWQtY2xlcmsta2V5LTEyMzQ1Njc4OTA";
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+if (!clerkKey) {
+  throw new Error("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY is required");
+}
 
 export default function RootLayout({
   children,
@@ -119,7 +119,6 @@ export default function RootLayout({
             {children}
           </main>
           <Footer />
-          <MusicPlayer />
           <CookieConsent />
           <ServiceWorkerRegistration />
         </div>

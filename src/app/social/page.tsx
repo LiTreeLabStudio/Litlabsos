@@ -4,7 +4,6 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-const _socialNow = Date.now();
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { useProfile } from "@/context/ProfileContext";
 import RetroBackground from "@/components/RetroBackground";
@@ -74,8 +73,8 @@ const ONLINE_AGENTS = [
   { name: "Writing Coach", icon: "✍️", status: "online", task: "Drafting..." },
 ];
 
-function timeAgo(iso: string, now: number) {
-  const diff = (now - new Date(iso).getTime()) / 1000;
+function timeAgo(iso: string) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
@@ -600,7 +599,7 @@ export default function SocialFeed() {
                           @{post.author?.username || "user"}
                         </span>
                         <span className="text-[10px] opacity-40">
-                          · {timeAgo(post.created_at, _socialNow)}
+                          · {timeAgo(post.created_at)}
                         </span>
                       </div>
                     </div>

@@ -28,6 +28,7 @@ import {
   ChevronDown,
   ChevronUp,
   ImageIcon,
+  Menu,
 } from "lucide-react";
 import { MediaProviderId } from "@/lib/media";
 
@@ -123,6 +124,8 @@ const REMIX_MODES: {
   },
 ];
 
+/* ─── Enhanced Style Presets ─────────────────────────────────────────────── */
+
 const STYLE_PRESETS = [
   "Cyberpunk neon noir",
   "Oil painting Renaissance",
@@ -136,6 +139,100 @@ const STYLE_PRESETS = [
   "Comic halftone",
   "Art nouveau",
   "Charcoal sketch",
+  "3D Render octane",
+  "Cinematic film",
+  "Anime studio ghibli",
+  "Vaporwave aesthetic",
+  "Steampunk industrial",
+  "Bioluminescent ethereal",
+  "Low poly geometric",
+  "Double exposure artistic",
+];
+
+const LIGHTING_PRESETS = [
+  "Golden hour warm",
+  "Blue hour twilight",
+  "Dramatic chiaroscuro",
+  "Soft diffused studio",
+  "Neon rim lighting",
+  "Volumetric god rays",
+  "Cinematic three-point",
+  "High key bright",
+  "Low key moody",
+  "Backlit silhouette",
+  "Overcast soft",
+  "Strobe frozen action",
+];
+
+const MOOD_PRESETS = [
+  "Epic grandiose",
+  "Mysterious enigmatic",
+  "Serene peaceful",
+  "Melancholic somber",
+  "Whimsical playful",
+  "Tense dramatic",
+  "Nostalgic dreamy",
+  "Futuristic sleek",
+  "Rustic cozy",
+  "Eerie unsettling",
+  "Romantic soft",
+  "Chaotic energetic",
+];
+
+const CAMERA_PRESETS = [
+  "Close-up macro",
+  "Medium portrait",
+  "Wide establishing",
+  "Extreme wide aerial",
+  "Low angle heroic",
+  "High angle俯视",
+  "Dutch tilt dynamic",
+  "Overhead flat lay",
+  "Bird's eye drone",
+  "Worm's eye worm",
+  "First person POV",
+  "Telephoto compressed",
+  "Fisheye distorted",
+];
+
+const QUALITY_TAGS = [
+  "masterpiece best quality",
+  "highly detailed intricate",
+  "8k uhd sharp focus",
+  "professional photography",
+  "trending on artstation",
+  "award winning",
+];
+
+const SAMPLER_OPTIONS = [
+  { id: "euler", label: "Euler", desc: "Fast, good quality" },
+  { id: "euler_a", label: "Euler a", desc: "Ancestral, creative" },
+  { id: "dpmpp_2m", label: "DPM++ 2M", desc: "High quality default" },
+  { id: "dpmpp_2m_karras", label: "DPM++ 2M Karras", desc: "Smooth, detailed" },
+  { id: "dpmpp_sde", label: "DPM++ SDE", desc: "Stochastic, varied" },
+  { id: "ddim", label: "DDIM", desc: "Deterministic, few steps" },
+  { id: "lms", label: "LMS", desc: "Linear, stable" },
+  { id: "heun", label: "Heun", desc: "Accurate, slower" },
+  { id: "uni_pc", label: "UniPC", desc: "Fast convergence" },
+];
+
+const QUALITY_PRESETS = [
+  { id: "fast", label: "Fast", steps: 20, cfg: 5, desc: "Quick drafts" },
+  {
+    id: "balanced",
+    label: "Balanced",
+    steps: 30,
+    cfg: 7,
+    desc: "Good default",
+  },
+  {
+    id: "quality",
+    label: "Quality",
+    steps: 50,
+    cfg: 7.5,
+    desc: "Best results",
+  },
+  { id: "extreme", label: "Extreme", steps: 80, cfg: 8, desc: "Max detail" },
 ];
 
 const ASPECT_OPTIONS = [
@@ -231,6 +328,28 @@ export default function ImageTool() {
   const [batchSize, setBatchSize] = useState<1 | 2 | 4>(1);
   const [negativePromptOpen, setNegativePromptOpen] = useState(false);
 
+  /* ── Advanced generation controls ── */
+  const [guidanceScale, setGuidanceScale] = useState<number>(7.5);
+  const [inferenceSteps, setInferenceSteps] = useState<number>(30);
+  const [sampler, setSampler] = useState<string>("dpmpp_2m");
+  const [strength, setStrength] = useState<number>(0.75);
+  const [seedLocked, setSeedLocked] = useState<boolean>(false);
+  const [qualityPreset, setQualityPreset] = useState<string>("balanced");
+
+  /* ── Gallery save options ── */
+  const [gallerySharePublic, setGallerySharePublic] = useState<boolean>(true);
+  const [galleryCategory, setGalleryCategory] = useState<string>("abstract");
+
+  /* ── Style enhancers ── */
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [selectedLighting, setSelectedLighting] = useState<string | null>(null);
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
+  const [selectedQualityTag, setSelectedQualityTag] = useState<string | null>(
+    "masterpiece best quality",
+  );
+  const [autoEnhance, setAutoEnhance] = useState<boolean>(true);
+
   const currentAspect = ASPECT_OPTIONS.find((a) => a.value === aspectRatio)!;
   const currentProvider =
     PROVIDER_OPTIONS.find((p) => p.id === providerId) || PROVIDER_OPTIONS[0];
@@ -269,6 +388,96 @@ export default function ImageTool() {
     "prompt",
   );
   const [historyOpen, setHistoryOpen] = useState(true);
+  const [mobileLeftOpen, setMobileLeftOpen] = useState(false);
+  const [mobileRightOpen, setMobileRightOpen] = useState(false);
+
+  /* ── Resizable panel widths ── */
+  const [leftWidth, setLeftWidth] = useState(() => {
+    if (typeof window === "undefined") return 288;
+    try {
+      const v = Number(localStorage.getItem("litlabs-studio-left-width"));
+      return Number.isFinite(v) ? Math.max(200, Math.min(400, v)) : 288;
+    } catch {
+      return 288;
+    }
+  });
+  const [rightWidth, setRightWidth] = useState(() => {
+    if (typeof window === "undefined") return 208;
+    try {
+      const v = Number(localStorage.getItem("litlabs-studio-right-width"));
+      return Number.isFinite(v) ? Math.max(160, Math.min(320, v)) : 208;
+    } catch {
+      return 208;
+    }
+  });
+  const leftWRef = useRef(leftWidth);
+  const rightWRef = useRef(rightWidth);
+  useEffect(() => {
+    leftWRef.current = leftWidth;
+  }, [leftWidth]);
+  useEffect(() => {
+    rightWRef.current = rightWidth;
+  }, [rightWidth]);
+  const [draggingSide, setDraggingSide] = useState<"left" | "right" | null>(
+    null,
+  );
+  const dragRef = useRef<{
+    side: "left" | "right" | null;
+    startX: number;
+    startWidth: number;
+  }>({
+    side: null,
+    startX: 0,
+    startWidth: 0,
+  });
+
+  /* Persist widths on drag end */
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      const d = dragRef.current;
+      if (!d.side) return;
+      if (d.side === "left") {
+        const nw = Math.max(
+          200,
+          Math.min(400, d.startWidth + (e.clientX - d.startX)),
+        );
+        setLeftWidth(nw);
+      } else {
+        const nw = Math.max(
+          160,
+          Math.min(320, d.startWidth + (d.startX - e.clientX)),
+        );
+        setRightWidth(nw);
+      }
+    };
+    const onUp = () => {
+      const d = dragRef.current;
+      if (!d.side) return;
+      try {
+        if (d.side === "left") {
+          localStorage.setItem(
+            "litlabs-studio-left-width",
+            String(leftWRef.current),
+          );
+        } else {
+          localStorage.setItem(
+            "litlabs-studio-right-width",
+            String(rightWRef.current),
+          );
+        }
+      } catch {
+        /* ignore */
+      }
+      dragRef.current = { side: null, startX: 0, startWidth: 0 };
+      setDraggingSide(null);
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
 
   /* ── Workspaces ── */
   const [workspaces, setWorkspaces] = useState<Workspace[]>(() => {
@@ -339,6 +548,18 @@ export default function ImageTool() {
         });
     });
     return () => cancelAnimationFrame(id);
+  }, []);
+
+  /* Close mobile drawers on Escape */
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMobileLeftOpen(false);
+        setMobileRightOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   useEffect(() => {
@@ -479,7 +700,22 @@ export default function ImageTool() {
 
   const buildFinalPrompt = useCallback(
     (base: string, mode: RemixMode, hasRef: boolean): string => {
-      if (!hasRef) return base;
+      const parts: string[] = [base];
+
+      // Add selected style enhancers if auto-enhance is enabled
+      if (autoEnhance) {
+        if (selectedStyle) parts.push(selectedStyle);
+        if (selectedLighting) parts.push(selectedLighting);
+        if (selectedMood) parts.push(selectedMood);
+        if (selectedCamera) parts.push(selectedCamera);
+        if (selectedQualityTag) parts.push(selectedQualityTag);
+      }
+
+      const result = parts.join(", ");
+
+      // Add remix prefix if reference image exists
+      if (!hasRef) return result;
+
       const prefix: Record<RemixMode, string> = {
         reskin:
           "Reimagine this scene with a completely new look — different colors, textures, style — but keep the same composition",
@@ -489,9 +725,16 @@ export default function ImageTool() {
           "Use the same spatial layout and structure as the reference, but with entirely new subject matter",
         mood: "Capture and transfer the atmosphere, emotional tone, and lighting from the reference to this scene",
       };
-      return `${prefix[mode]}. Scene: ${base}`;
+      return `${prefix[mode]}. Scene: ${result}`;
     },
-    [],
+    [
+      autoEnhance,
+      selectedStyle,
+      selectedLighting,
+      selectedMood,
+      selectedCamera,
+      selectedQualityTag,
+    ],
   );
 
   const handleClearHistory = useCallback(() => {
@@ -541,18 +784,31 @@ export default function ImageTool() {
 
       try {
         addLog("info", `[${i + 1}/${batchSize}] Dispatching...`);
+
+        // Generate random seed if not locked
+        const effectiveSeed = seedLocked
+          ? seed
+          : (seed || Math.floor(Math.random() * 2147483647)) + i;
+
         const body: Record<string, unknown> = {
           prompt: finalPrompt,
           negativePrompt: negativePrompt.trim(),
-          seed: (seed || Math.floor(Math.random() * 1_000_000)) + i,
+          seed: effectiveSeed,
           providerId,
           format: "image",
           width: currentAspect.width,
           height: currentAspect.height,
           aspectRatio: currentAspect.value,
           imageSize: providerId === "gemini" ? imageSize : undefined,
+          // Advanced parameters
+          guidanceScale,
+          inferenceSteps,
+          sampler,
         };
-        if (referenceImage) body.referenceUrl = referenceImage;
+        if (referenceImage) {
+          body.referenceUrl = referenceImage;
+          body.strength = strength;
+        }
 
         const res = await fetch("/api/media/generate", {
           method: "POST",
@@ -625,6 +881,7 @@ export default function ImageTool() {
     referenceImage,
     providerId,
     seed,
+    seedLocked,
     currentAspect,
     imageSize,
     batchSize,
@@ -635,30 +892,44 @@ export default function ImageTool() {
     currentProvider,
     buildFinalPrompt,
     addLog,
+    guidanceScale,
+    inferenceSteps,
+    sampler,
+    strength,
   ]);
 
-  const handleSaveToGallery = useCallback(async (gen: Generation) => {
-    if (!gen.fileUrl) return;
-    setStatus("saving");
-    try {
-      const res = await fetch("/api/gallery", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: gen.fileUrl,
-          caption: gen.prompt.slice(0, 200),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Save failed");
-      setStatus("succeeded");
-      setError("Saved to Gallery ✓");
-      setTimeout(() => setError(null), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Save failed");
-      setStatus("succeeded");
-    }
-  }, []);
+  const handleSaveToGallery = useCallback(
+    async (gen: Generation) => {
+      if (!gen.fileUrl) return;
+      setStatus("saving");
+      try {
+        const res = await fetch("/api/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url: gen.fileUrl,
+            caption: gen.prompt.slice(0, 200),
+            type: "image",
+            isPublic: gallerySharePublic,
+            category: galleryCategory,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Save failed");
+        setStatus("succeeded");
+        setError(
+          gallerySharePublic
+            ? "Saved to Gallery ✓ (Public)"
+            : "Saved to Gallery ✓ (Private)",
+        );
+        setTimeout(() => setError(null), 3000);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Save failed");
+        setStatus("succeeded");
+      }
+    },
+    [gallerySharePublic, galleryCategory],
+  );
 
   const handleDownload = useCallback(async (url: string, name: string) => {
     try {
@@ -811,7 +1082,7 @@ export default function ImageTool() {
                           e.stopPropagation();
                           deleteWorkspace(ws.id);
                         }}
-                        className="opacity-0 group-hover:opacity-60 hover:!opacity-100 ml-0.5 flex items-center cursor-pointer"
+                        className="opacity-0 group-hover:opacity-60 hover:opacity-100! ml-0.5 flex items-center cursor-pointer"
                       >
                         <X size={8} />
                       </span>
@@ -829,6 +1100,42 @@ export default function ImageTool() {
               <Plus size={9} />
             </button>
           </div>
+        </div>
+
+        {/* Mobile panel toggles */}
+        <div className="flex items-center gap-1.5 shrink-0 md:hidden">
+          <button
+            onClick={() => setMobileRightOpen((v) => !v)}
+            className="h-8 px-2 flex items-center gap-1 rounded border text-[10px] font-bold transition-all"
+            style={{
+              borderColor: mobileRightOpen
+                ? T.accentColor + "60"
+                : T.borderColor + "40",
+              color: mobileRightOpen ? T.accentColor : T.textMuted,
+              backgroundColor: mobileRightOpen
+                ? T.accentColor + "10"
+                : "transparent",
+            }}
+            aria-label="Toggle history"
+          >
+            <History size={14} />
+          </button>
+          <button
+            onClick={() => setMobileLeftOpen((v) => !v)}
+            className="h-8 px-2 flex items-center gap-1 rounded border text-[10px] font-bold transition-all"
+            style={{
+              borderColor: mobileLeftOpen
+                ? T.accentColor + "60"
+                : T.borderColor + "40",
+              color: mobileLeftOpen ? T.accentColor : T.textMuted,
+              backgroundColor: mobileLeftOpen
+                ? T.accentColor + "10"
+                : "transparent",
+            }}
+            aria-label="Toggle controls"
+          >
+            <Menu size={14} />
+          </button>
         </div>
 
         {/* Right: coins + claim + log toggle */}
@@ -874,15 +1181,46 @@ export default function ImageTool() {
       </header>
 
       {/* ── Body ────────────────────────────────────────────────────────── */}
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex min-h-0 relative">
+        {/* Mobile backdrop */}
+        {(mobileLeftOpen || mobileRightOpen) && (
+          <div
+            className="fixed inset-0 bg-black/40 z-20 md:hidden"
+            onClick={() => {
+              setMobileLeftOpen(false);
+              setMobileRightOpen(false);
+            }}
+          />
+        )}
+
         {/* ── LEFT PANEL: Controls ──────────────────────────────────── */}
         <div
-          className="w-72 shrink-0 flex flex-col overflow-y-auto"
+          className={`shrink-0 flex flex-col overflow-y-auto transition-transform duration-300 ease-out md:relative md:translate-x-0 fixed inset-y-0 left-0 z-30 ${mobileLeftOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}
           style={{
+            width: leftWidth,
             borderRight: `1px solid ${T.borderColor}18`,
             backgroundColor: T.boxBg + "40",
+            backdropFilter: "blur(20px)",
           }}
         >
+          {/* Mobile close */}
+          <div className="md:hidden flex items-center justify-between px-3 pt-3 pb-1">
+            <span
+              className="text-[11px] font-black uppercase tracking-widest"
+              style={{ color: T.headerColor }}
+            >
+              Controls
+            </span>
+            <button
+              onClick={() => setMobileLeftOpen(false)}
+              className="p-1 rounded transition-all hover:bg-white/10"
+              style={{ color: T.textMuted }}
+              aria-label="Close controls"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
           {/* Tab nav */}
           <div className="flex shrink-0 gap-0.5 px-3 pt-3 pb-2">
             {(["prompt", "style", "settings"] as const).map((tab) => (
@@ -1127,35 +1465,300 @@ export default function ImageTool() {
                 className="rounded-lg border overflow-hidden"
                 style={sectionBox}
               >
-                <div className="px-3 py-2">
+                <div className="px-3 py-2 flex items-center justify-between">
                   <span
                     className="text-[10px] font-bold"
                     style={{ color: T.textMuted }}
                   >
                     Style Presets
                   </span>
+                  {selectedStyle && (
+                    <button
+                      onClick={() => setSelectedStyle(null)}
+                      className="text-[9px] opacity-60 hover:opacity-100"
+                      style={{ color: T.accentColor }}
+                    >
+                      Clear
+                    </button>
+                  )}
                 </div>
                 <div className="px-3 pb-3 flex flex-wrap gap-1.5">
                   {STYLE_PRESETS.map((style) => (
                     <button
                       key={style}
                       onClick={() => {
-                        setPrompt((prev) =>
-                          prev.trim() ? prev + ", " + style : style,
-                        );
+                        setSelectedStyle(style);
                         addLog("info", `Style: ${style}`);
                       }}
                       disabled={isWorking}
                       className="px-2.5 py-1 text-[9px] font-bold rounded-full border transition-all hover:scale-105 disabled:opacity-40"
                       style={{
-                        borderColor: T.borderColor + "60",
-                        color: T.textMuted,
-                        backgroundColor: T.bgColor,
+                        borderColor:
+                          selectedStyle === style
+                            ? T.accentColor
+                            : T.borderColor + "60",
+                        color:
+                          selectedStyle === style ? T.accentColor : T.textMuted,
+                        backgroundColor:
+                          selectedStyle === style
+                            ? T.accentColor + "15"
+                            : T.bgColor,
                       }}
                     >
                       {style}
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Lighting presets */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Lighting
+                  </span>
+                  {selectedLighting && (
+                    <button
+                      onClick={() => setSelectedLighting(null)}
+                      className="text-[9px] opacity-60 hover:opacity-100"
+                      style={{ color: T.accentColor }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {LIGHTING_PRESETS.map((lighting) => (
+                    <button
+                      key={lighting}
+                      onClick={() => {
+                        setSelectedLighting(lighting);
+                        addLog("info", `Lighting: ${lighting}`);
+                      }}
+                      disabled={isWorking}
+                      className="px-2.5 py-1 text-[9px] font-bold rounded-full border transition-all hover:scale-105 disabled:opacity-40"
+                      style={{
+                        borderColor:
+                          selectedLighting === lighting
+                            ? T.accentColor
+                            : T.borderColor + "60",
+                        color:
+                          selectedLighting === lighting
+                            ? T.accentColor
+                            : T.textMuted,
+                        backgroundColor:
+                          selectedLighting === lighting
+                            ? T.accentColor + "15"
+                            : T.bgColor,
+                      }}
+                    >
+                      {lighting}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mood presets */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Mood & Atmosphere
+                  </span>
+                  {selectedMood && (
+                    <button
+                      onClick={() => setSelectedMood(null)}
+                      className="text-[9px] opacity-60 hover:opacity-100"
+                      style={{ color: T.accentColor }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {MOOD_PRESETS.map((mood) => (
+                    <button
+                      key={mood}
+                      onClick={() => {
+                        setSelectedMood(mood);
+                        addLog("info", `Mood: ${mood}`);
+                      }}
+                      disabled={isWorking}
+                      className="px-2.5 py-1 text-[9px] font-bold rounded-full border transition-all hover:scale-105 disabled:opacity-40"
+                      style={{
+                        borderColor:
+                          selectedMood === mood
+                            ? T.accentColor
+                            : T.borderColor + "60",
+                        color:
+                          selectedMood === mood ? T.accentColor : T.textMuted,
+                        backgroundColor:
+                          selectedMood === mood
+                            ? T.accentColor + "15"
+                            : T.bgColor,
+                      }}
+                    >
+                      {mood}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Camera angle presets */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Camera Angle
+                  </span>
+                  {selectedCamera && (
+                    <button
+                      onClick={() => setSelectedCamera(null)}
+                      className="text-[9px] opacity-60 hover:opacity-100"
+                      style={{ color: T.accentColor }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {CAMERA_PRESETS.map((camera) => (
+                    <button
+                      key={camera}
+                      onClick={() => {
+                        setSelectedCamera(camera);
+                        addLog("info", `Camera: ${camera}`);
+                      }}
+                      disabled={isWorking}
+                      className="px-2.5 py-1 text-[9px] font-bold rounded-full border transition-all hover:scale-105 disabled:opacity-40"
+                      style={{
+                        borderColor:
+                          selectedCamera === camera
+                            ? T.accentColor
+                            : T.borderColor + "60",
+                        color:
+                          selectedCamera === camera
+                            ? T.accentColor
+                            : T.textMuted,
+                        backgroundColor:
+                          selectedCamera === camera
+                            ? T.accentColor + "15"
+                            : T.bgColor,
+                      }}
+                    >
+                      {camera}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quality tag */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Quality Tag
+                  </span>
+                  {selectedQualityTag && (
+                    <button
+                      onClick={() => setSelectedQualityTag(null)}
+                      className="text-[9px] opacity-60 hover:opacity-100"
+                      style={{ color: T.accentColor }}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <div className="px-3 pb-3 flex flex-wrap gap-1.5">
+                  {QUALITY_TAGS.map((tag) => (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        setSelectedQualityTag(tag);
+                        addLog("info", `Quality: ${tag}`);
+                      }}
+                      disabled={isWorking}
+                      className="px-2.5 py-1 text-[9px] font-bold rounded-full border transition-all hover:scale-105 disabled:opacity-40"
+                      style={{
+                        borderColor:
+                          selectedQualityTag === tag
+                            ? T.accentColor
+                            : T.borderColor + "60",
+                        color:
+                          selectedQualityTag === tag
+                            ? T.accentColor
+                            : T.textMuted,
+                        backgroundColor:
+                          selectedQualityTag === tag
+                            ? T.accentColor + "15"
+                            : T.bgColor,
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Auto-enhance toggle */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-3 flex items-center justify-between">
+                  <div>
+                    <span
+                      className="text-[10px] font-bold"
+                      style={{ color: T.textMuted }}
+                    >
+                      Auto-Enhance Prompt
+                    </span>
+                    <p
+                      className="text-[9px] mt-0.5 opacity-60"
+                      style={{ color: T.textMuted }}
+                    >
+                      Automatically append selected tags to prompt
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setAutoEnhance(!autoEnhance)}
+                    className="relative w-10 h-5 rounded-full transition-colors"
+                    style={{
+                      backgroundColor: autoEnhance
+                        ? T.accentColor
+                        : T.borderColor + "60",
+                    }}
+                  >
+                    <div
+                      className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all"
+                      style={{
+                        left: autoEnhance
+                          ? "calc(100% - 1.125rem)"
+                          : "0.125rem",
+                      }}
+                    />
+                  </button>
                 </div>
               </div>
             </div>
@@ -1317,6 +1920,260 @@ export default function ImageTool() {
                 </div>
               )}
 
+              {/* Quality Preset */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Quality Preset
+                  </span>
+                  <p
+                    className="text-[9px] mt-0.5 opacity-60"
+                    style={{ color: T.textMuted }}
+                  >
+                    Steps & guidance pre-configured
+                  </p>
+                </div>
+                <div className="px-3 pb-3 grid grid-cols-2 gap-1.5">
+                  {QUALITY_PRESETS.map((preset) => (
+                    <button
+                      key={preset.id}
+                      onClick={() => {
+                        setQualityPreset(preset.id);
+                        setInferenceSteps(preset.steps);
+                        setGuidanceScale(preset.cfg);
+                      }}
+                      disabled={isWorking}
+                      className="p-2 text-left rounded-md border transition-all hover:scale-[1.01] disabled:opacity-40"
+                      style={pill(qualityPreset === preset.id)}
+                    >
+                      <div className="font-bold text-[10px]">
+                        {preset.label}
+                      </div>
+                      <div className="text-[9px] opacity-60">{preset.desc}</div>
+                      <div className="text-[8px] opacity-40 mt-0.5">
+                        {preset.steps} steps · CFG {preset.cfg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Guidance Scale */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <div>
+                    <span
+                      className="text-[10px] font-bold"
+                      style={{ color: T.textMuted }}
+                    >
+                      Guidance Scale (CFG)
+                    </span>
+                    <p
+                      className="text-[9px] mt-0.5 opacity-60"
+                      style={{ color: T.textMuted }}
+                    >
+                      Adherence to prompt vs creativity
+                    </p>
+                  </div>
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded"
+                    style={{
+                      backgroundColor: T.accentColor + "20",
+                      color: T.accentColor,
+                    }}
+                  >
+                    {guidanceScale.toFixed(1)}
+                  </span>
+                </div>
+                <div className="px-3 pb-3">
+                  <input
+                    type="range"
+                    min={1}
+                    max={15}
+                    step={0.5}
+                    value={guidanceScale}
+                    onChange={(e) =>
+                      setGuidanceScale(parseFloat(e.target.value))
+                    }
+                    disabled={isWorking}
+                    className="w-full accent-current cursor-pointer"
+                    style={{ accentColor: T.accentColor }}
+                  />
+                  <div
+                    className="flex justify-between text-[8px] mt-1"
+                    style={{ color: T.textMuted }}
+                  >
+                    <span>Creative (1)</span>
+                    <span>Balanced (7.5)</span>
+                    <span>Strict (15)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inference Steps */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2 flex items-center justify-between">
+                  <div>
+                    <span
+                      className="text-[10px] font-bold"
+                      style={{ color: T.textMuted }}
+                    >
+                      Inference Steps
+                    </span>
+                    <p
+                      className="text-[9px] mt-0.5 opacity-60"
+                      style={{ color: T.textMuted }}
+                    >
+                      More steps = more detail, slower
+                    </p>
+                  </div>
+                  <span
+                    className="text-[11px] font-bold px-2 py-0.5 rounded"
+                    style={{
+                      backgroundColor: T.accentColor + "20",
+                      color: T.accentColor,
+                    }}
+                  >
+                    {inferenceSteps}
+                  </span>
+                </div>
+                <div className="px-3 pb-3">
+                  <input
+                    type="range"
+                    min={10}
+                    max={100}
+                    step={5}
+                    value={inferenceSteps}
+                    onChange={(e) =>
+                      setInferenceSteps(parseInt(e.target.value))
+                    }
+                    disabled={isWorking}
+                    className="w-full accent-current cursor-pointer"
+                    style={{ accentColor: T.accentColor }}
+                  />
+                  <div
+                    className="flex justify-between text-[8px] mt-1"
+                    style={{ color: T.textMuted }}
+                  >
+                    <span>Fast (10)</span>
+                    <span>Draft (20)</span>
+                    <span>Quality (50)</span>
+                    <span>Extreme (100)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sampling Method */}
+              <div
+                className="rounded-lg border overflow-hidden"
+                style={sectionBox}
+              >
+                <div className="px-3 py-2">
+                  <span
+                    className="text-[10px] font-bold"
+                    style={{ color: T.textMuted }}
+                  >
+                    Sampling Method
+                  </span>
+                  <p
+                    className="text-[9px] mt-0.5 opacity-60"
+                    style={{ color: T.textMuted }}
+                  >
+                    Algorithm for denoising (provider support varies)
+                  </p>
+                </div>
+                <div className="px-3 pb-3 space-y-1">
+                  {SAMPLER_OPTIONS.map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => setSampler(s.id)}
+                      disabled={isWorking}
+                      className="w-full flex items-center justify-between px-2.5 py-2 rounded-md border text-left transition-all hover:scale-[1.005] disabled:opacity-40"
+                      style={pill(sampler === s.id)}
+                    >
+                      <div>
+                        <div className="text-[11px] font-bold">{s.label}</div>
+                        <div className="text-[9px] opacity-50">{s.desc}</div>
+                      </div>
+                      {sampler === s.id && (
+                        <div
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: T.accentColor }}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Img2Img Strength (when using reference) */}
+              {referenceImage && (
+                <div
+                  className="rounded-lg border overflow-hidden"
+                  style={sectionBox}
+                >
+                  <div className="px-3 py-2 flex items-center justify-between">
+                    <div>
+                      <span
+                        className="text-[10px] font-bold"
+                        style={{ color: T.textMuted }}
+                      >
+                        Img2Img Strength
+                      </span>
+                      <p
+                        className="text-[9px] mt-0.5 opacity-60"
+                        style={{ color: T.textMuted }}
+                      >
+                        How much to deviate from reference
+                      </p>
+                    </div>
+                    <span
+                      className="text-[11px] font-bold px-2 py-0.5 rounded"
+                      style={{
+                        backgroundColor: T.accentColor + "20",
+                        color: T.accentColor,
+                      }}
+                    >
+                      {Math.round(strength * 100)}%
+                    </span>
+                  </div>
+                  <div className="px-3 pb-3">
+                    <input
+                      type="range"
+                      min={0.1}
+                      max={1}
+                      step={0.05}
+                      value={strength}
+                      onChange={(e) => setStrength(parseFloat(e.target.value))}
+                      disabled={isWorking}
+                      className="w-full accent-current cursor-pointer"
+                      style={{ accentColor: T.accentColor }}
+                    />
+                    <div
+                      className="flex justify-between text-[8px] mt-1"
+                      style={{ color: T.textMuted }}
+                    >
+                      <span>Subtle (10%)</span>
+                      <span>Balanced (50%)</span>
+                      <span>Strong (75%)</span>
+                      <span>Creative (100%)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Seed */}
               <div
                 className="rounded-lg border overflow-hidden"
@@ -1329,12 +2186,36 @@ export default function ImageTool() {
                   >
                     Seed
                   </span>
-                  <span
-                    className="text-[9px] opacity-50"
-                    style={{ color: T.textMuted }}
-                  >
-                    0 = random
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSeedLocked(!seedLocked)}
+                      className="text-[9px] px-2 py-0.5 rounded border transition-all"
+                      style={{
+                        borderColor: seedLocked
+                          ? T.accentColor
+                          : T.borderColor + "60",
+                        color: seedLocked ? T.accentColor : T.textMuted,
+                        backgroundColor: seedLocked
+                          ? T.accentColor + "15"
+                          : "transparent",
+                      }}
+                    >
+                      {seedLocked ? "Locked" : "Random"}
+                    </button>
+                    <button
+                      onClick={() =>
+                        setSeed(Math.floor(Math.random() * 2147483647))
+                      }
+                      disabled={isWorking || seedLocked}
+                      className="text-[9px] px-2 py-0.5 rounded border transition-all hover:opacity-80 disabled:opacity-40"
+                      style={{
+                        borderColor: T.borderColor + "60",
+                        color: T.accentColor,
+                      }}
+                    >
+                      🎲 Randomize
+                    </button>
+                  </div>
                 </div>
                 <div className="px-3 pb-3">
                   <input
@@ -1342,6 +2223,7 @@ export default function ImageTool() {
                     value={seed}
                     onChange={(e) => setSeed(parseInt(e.target.value) || 0)}
                     min={0}
+                    max={2147483647}
                     disabled={isWorking}
                     className="w-full px-2.5 py-2 text-[11px] rounded-md outline-none disabled:opacity-40"
                     style={{
@@ -1350,6 +2232,12 @@ export default function ImageTool() {
                       color: T.textColor,
                     }}
                   />
+                  <p
+                    className="text-[9px] mt-1.5 opacity-50"
+                    style={{ color: T.textMuted }}
+                  >
+                    Same seed + settings = reproducible results
+                  </p>
                 </div>
               </div>
             </div>
@@ -1401,6 +2289,30 @@ export default function ImageTool() {
               </div>
             )}
           </div>
+        </div>
+
+        {/* Left resize handle */}
+        <div
+          className="hidden md:block w-1 shrink-0 cursor-col-resize relative z-10 group"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            dragRef.current = {
+              side: "left",
+              startX: e.clientX,
+              startWidth: leftWRef.current,
+            };
+            setDraggingSide("left");
+          }}
+          style={{ backgroundColor: "transparent" }}
+        >
+          <div
+            className="absolute inset-y-0 left-0 w-px group-hover:w-0.5 transition-all"
+            style={{
+              backgroundColor: T.accentColor + "20",
+              boxShadow:
+                draggingSide === "left" ? `0 0 6px ${T.accentColor}60` : "none",
+            }}
+          />
         </div>
 
         {/* ── CENTER + RIGHT: Canvas + History ──────────────────────── */}
@@ -1457,22 +2369,71 @@ export default function ImageTool() {
                     >
                       <Download size={9} /> Save
                     </button>
-                    <button
-                      onClick={() => handleSaveToGallery(currentResult)}
-                      disabled={status === "saving"}
-                      className="h-6 px-2.5 flex items-center gap-1 rounded border text-[9px] font-bold transition-all hover:opacity-80 disabled:opacity-40"
-                      style={{
-                        borderColor: T.borderColor + "50",
-                        color: T.textMuted,
-                      }}
+
+                    {/* Gallery save with options */}
+                    <div
+                      className="flex items-center gap-0.5 rounded border overflow-hidden"
+                      style={{ borderColor: T.borderColor + "50" }}
                     >
-                      {status === "saving" ? (
-                        <Loader2 size={9} className="animate-spin" />
-                      ) : (
-                        <Save size={9} />
-                      )}{" "}
-                      Gallery
-                    </button>
+                      {/* Visibility toggle */}
+                      <button
+                        onClick={() =>
+                          setGallerySharePublic(!gallerySharePublic)
+                        }
+                        className="h-6 px-1.5 flex items-center gap-1 text-[9px] transition-all"
+                        style={{
+                          backgroundColor: gallerySharePublic
+                            ? "#22c55e20"
+                            : T.bgColor,
+                          color: gallerySharePublic ? "#22c55e" : T.textMuted,
+                          borderRight: `1px solid ${T.borderColor}30`,
+                        }}
+                        title={
+                          gallerySharePublic
+                            ? "Public - visible to all"
+                            : "Private - only you"
+                        }
+                      >
+                        {gallerySharePublic ? "🌐" : "🔒"}
+                      </button>
+
+                      {/* Category selector */}
+                      <select
+                        value={galleryCategory}
+                        onChange={(e) => setGalleryCategory(e.target.value)}
+                        className="h-6 px-1 text-[9px] outline-none cursor-pointer"
+                        style={{
+                          backgroundColor: T.bgColor,
+                          color: T.textMuted,
+                          border: "none",
+                          borderRight: `1px solid ${T.borderColor}30`,
+                        }}
+                      >
+                        <option value="abstract">Abstract</option>
+                        <option value="character">Character</option>
+                        <option value="landscape">Landscape</option>
+                        <option value="360-worlds">360° Worlds</option>
+                      </select>
+
+                      {/* Save button */}
+                      <button
+                        onClick={() => handleSaveToGallery(currentResult)}
+                        disabled={status === "saving"}
+                        className="h-6 px-2 flex items-center gap-1 text-[9px] font-bold transition-all hover:opacity-80 disabled:opacity-40"
+                        style={{
+                          backgroundColor: T.bgColor,
+                          color: T.textMuted,
+                        }}
+                      >
+                        {status === "saving" ? (
+                          <Loader2 size={9} className="animate-spin" />
+                        ) : (
+                          <Save size={9} />
+                        )}
+                        Gallery
+                      </button>
+                    </div>
+
                     <button
                       onClick={handleGenerate}
                       className="h-6 px-2.5 flex items-center gap-1 rounded border text-[9px] font-bold transition-all hover:opacity-80"
@@ -1634,12 +2595,40 @@ export default function ImageTool() {
               </div>
             </div>
 
+            {/* Right resize handle */}
+            <div
+              className="hidden md:block w-1 shrink-0 cursor-col-resize relative z-10 group"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                dragRef.current = {
+                  side: "right",
+                  startX: e.clientX,
+                  startWidth: rightWRef.current,
+                };
+                setDraggingSide("right");
+              }}
+              style={{ backgroundColor: "transparent" }}
+            >
+              <div
+                className="absolute inset-y-0 right-0 w-px group-hover:w-0.5 transition-all"
+                style={{
+                  backgroundColor: T.accentColor + "20",
+                  boxShadow:
+                    draggingSide === "right"
+                      ? `0 0 6px ${T.accentColor}60`
+                      : "none",
+                }}
+              />
+            </div>
+
             {/* History sidebar (right) */}
             <div
-              className="w-52 shrink-0 flex flex-col"
+              className={`shrink-0 flex flex-col transition-transform duration-300 ease-out md:relative md:translate-x-0 fixed inset-y-0 right-0 z-30 ${mobileRightOpen ? "translate-x-0" : "translate-x-full md:translate-x-0"}`}
               style={{
+                width: rightWidth,
                 borderLeft: `1px solid ${T.borderColor}15`,
                 backgroundColor: T.boxBg + "30",
+                backdropFilter: "blur(20px)",
               }}
             >
               <button
@@ -1656,6 +2645,17 @@ export default function ImageTool() {
                   <span className="opacity-50">({history.length})</span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMobileRightOpen(false);
+                    }}
+                    className="md:hidden p-1 rounded transition-all hover:bg-white/10"
+                    style={{ color: T.textMuted }}
+                    aria-label="Close history"
+                  >
+                    <X size={14} />
+                  </button>
                   {history.length > 0 && (
                     <span
                       onClick={(e) => {

@@ -205,8 +205,7 @@ export default function ChatTool() {
           }
         }
       }
-    } catch (error) {
-      console.error("Chat error:", error);
+    } catch {
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === assistantId

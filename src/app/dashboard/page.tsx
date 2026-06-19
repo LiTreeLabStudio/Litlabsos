@@ -58,47 +58,49 @@ const DEMO_STATS: Stats = {
   postsToday: 12,
 };
 
-const _now = Date.now();
-const DEMO_POSTS: Post[] = [
-  {
-    id: "demo_1",
-    user_id: "demo_user_1",
-    content:
-      "Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60% 🚀",
-    media_urls: [],
-    likes_count: 24,
-    comments_count: 3,
-    is_ai_post: false,
-    created_at: new Date(_now - 900000).toISOString(),
-    author: { name: "Alex Chen", username: "alexchen", avatar_url: "" },
-  },
-  {
-    id: "demo_2",
-    user_id: "demo_user_2",
-    content:
-      "Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly 🎵",
-    media_urls: [
-      "https://images.unsplash.com/photo-1515630278258-407f66498911?w=600&h=400&fit=crop",
-    ],
-    likes_count: 56,
-    comments_count: 12,
-    is_ai_post: false,
-    created_at: new Date(_now - 3600000).toISOString(),
-    author: { name: "Sarah Kim", username: "sarahk", avatar_url: "" },
-  },
-  {
-    id: "demo_3",
-    user_id: "demo_user_3",
-    content:
-      "The Code Champion agent just refactored my entire Rust backend — memory safety, zero-cost abstractions, the works. Didn't break a single test. 🔥",
-    media_urls: [],
-    likes_count: 42,
-    comments_count: 7,
-    is_ai_post: false,
-    created_at: new Date(_now - 14400000).toISOString(),
-    author: { name: "Mike Dev", username: "mikedev", avatar_url: "" },
-  },
-];
+const DEMO_POSTS: Post[] = (() => {
+  const _now = Date.now();
+  return [
+    {
+      id: "demo_1",
+      user_id: "demo_user_1",
+      content:
+        "Just deployed my first dual-agent setup — Director handles planning, Executor handles the code. Cut my dev workflow time by 60% 🚀",
+      media_urls: [],
+      likes_count: 24,
+      comments_count: 3,
+      is_ai_post: false,
+      created_at: new Date(_now - 900000).toISOString(),
+      author: { name: "Alex Chen", username: "alexchen", avatar_url: "" },
+    },
+    {
+      id: "demo_2",
+      user_id: "demo_user_2",
+      content:
+        "Pixel Forge just generated the perfect album art for my new EP. The AI understood my vision instantly 🎵",
+      media_urls: [
+        "https://images.unsplash.com/photo-1515630278258-407f66498911?w=600&h=400&fit=crop",
+      ],
+      likes_count: 56,
+      comments_count: 12,
+      is_ai_post: false,
+      created_at: new Date(_now - 3600000).toISOString(),
+      author: { name: "Sarah Kim", username: "sarahk", avatar_url: "" },
+    },
+    {
+      id: "demo_3",
+      user_id: "demo_user_3",
+      content:
+        "The Code Champion agent just refactored my entire Rust backend — memory safety, zero-cost abstractions, the works. Didn't break a single test. 🔥",
+      media_urls: [],
+      likes_count: 42,
+      comments_count: 7,
+      is_ai_post: false,
+      created_at: new Date(_now - 14400000).toISOString(),
+      author: { name: "Mike Dev", username: "mikedev", avatar_url: "" },
+    },
+  ];
+})();
 
 const TELEMETRY_LINES = [
   {

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET() {
   return NextResponse.json({
@@ -10,6 +11,11 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const { userId } = await auth();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     try {
       await req.json();
@@ -17,16 +23,12 @@ export async function POST(req: NextRequest) {
       // Ignore empty or invalid JSON payload
     }
 
-    // Log the telemetry event to server stdout for audit trailing & troubleshooting
-    // Telemetry event received
-
     return NextResponse.json({
       status: "success",
       message: "Telemetry event received and processed successfully",
       timestamp: new Date().toISOString(),
     });
   } catch {
-    // Telemetry capture error — reject
     return NextResponse.json(
       { error: "Failed to process telemetry" },
       { status: 500 },

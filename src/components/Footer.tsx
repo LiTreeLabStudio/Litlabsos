@@ -132,7 +132,7 @@ export default function Footer() {
               className="text-sm font-black"
               style={{ color: C.headerColor }}
             >
-              LiTreeLabStudios
+              LiTTree Labs
             </span>
             <span className="text-xs opacity-60">© 2026</span>
           </div>

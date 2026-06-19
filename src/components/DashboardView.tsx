@@ -132,7 +132,7 @@ export default function DashboardView() {
         balance={balance}
         claimed={claimed}
         visitors={visitors}
-        onClaim={claimDaily}
+        onClaimAction={claimDaily}
       />
     </div>
   );

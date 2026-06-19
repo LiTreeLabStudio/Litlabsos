@@ -158,21 +158,8 @@ export default function MusicPlayer() {
   }, [prefs.volume]);
 
   if (!prefs.enabled) {
-    // Show minimal trigger to enable music
-    return (
-      <button
-        onClick={toggleEnabled}
-        className="fixed bottom-4 right-4 z-50 p-3 rounded-full transition-all hover:scale-110"
-        style={{
-          backgroundColor: T.boxBg,
-          border: `1px solid ${T.borderColor}`,
-          color: T.textMuted,
-        }}
-        title="Enable background music"
-      >
-        <VolumeX size={20} />
-      </button>
-    );
+    // Music player disabled - no UI shown
+    return null;
   }
 
   return (

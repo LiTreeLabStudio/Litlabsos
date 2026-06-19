@@ -13,6 +13,8 @@ import {
   StopCircle,
   Volume2,
   VolumeX,
+  ChevronDown,
+  Speaker,
 } from "lucide-react";
 
 interface SpeechRecognition extends EventTarget {
@@ -35,6 +37,11 @@ interface SpeechRecognitionConstructor {
 
 interface SpeechRecognitionEvent extends Event {
   results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
 }
 
 interface LogEntry {
@@ -259,6 +266,16 @@ export default function JarvisTerminal() {
   const [continuousMode, setContinuousMode] = useState(false);
   const [wakeWordEnabled, setWakeWordEnabled] = useState(false);
   const [showAgents, setShowAgents] = useState(false);
+  const [alexaOutEnabled, setAlexaOutEnabled] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<
+    SpeechSynthesisVoice[]
+  >([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
+  const [showVoicePicker, setShowVoicePicker] = useState(false);
+  const [micPermission, setMicPermission] = useState<
+    "prompt" | "granted" | "denied" | "unknown"
+  >("unknown");
+  const voicePickerRef = useRef<HTMLDivElement>(null);
 
   const terminalRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -274,8 +291,60 @@ export default function JarvisTerminal() {
     }
   }, [logs, brainText, isBrainStreaming]);
 
+  /* Load available TTS voices */
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    const loadVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      setAvailableVoices(voices);
+      if (voices.length > 0 && !selectedVoiceURI) {
+        const preferred =
+          voices.find((v) => v.name.includes("Google UK English Male")) ||
+          voices.find((v) => v.name.includes("Microsoft David")) ||
+          voices.find(
+            (v) => v.name.includes("Male") && v.lang.startsWith("en"),
+          ) ||
+          voices[0];
+        if (preferred) setSelectedVoiceURI(preferred.voiceURI);
+      }
+    };
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, [selectedVoiceURI]);
+
+  /* Close voice picker on outside click */
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (
+        voicePickerRef.current &&
+        !voicePickerRef.current.contains(e.target as Node)
+      ) {
+        setShowVoicePicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  /* Check mic permission */
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.permissions) return;
+    navigator.permissions
+      .query({ name: "microphone" as PermissionName })
+      .then((result) => {
+        setMicPermission(result.state as "prompt" | "granted" | "denied");
+        result.onchange = () =>
+          setMicPermission(result.state as "prompt" | "granted" | "denied");
+      })
+      .catch(() => setMicPermission("unknown"));
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
+      if (document.hidden) return;
       setStats((s) => ({
         cpu: Math.min(100, Math.max(5, s.cpu + (Math.random() - 0.5) * 14)),
         mem: Math.min(16, Math.max(2, s.mem + (Math.random() - 0.5) * 0.6)),
@@ -291,6 +360,31 @@ export default function JarvisTerminal() {
   const speak = useCallback(
     (text: string) => {
       if (!ttsEnabled || typeof window === "undefined") return;
+
+      if (alexaOutEnabled) {
+        /* Route speech to Alexa speaker via Voice Monkey */
+        fetch("/api/voice-monkey/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notification: text }),
+        }).catch(() => {});
+        /* Estimate Alexa speech duration (~150 WPM) and restart mic if continuous */
+        if (continuousMode) {
+          const words = text.trim().split(/\s+/).length;
+          const durationMs = Math.max(2000, (words / 150) * 60 * 1000);
+          window.setTimeout(() => {
+            if (recognitionRef.current && !isListening && !isSpeaking.current) {
+              try {
+                recognitionRef.current.start();
+              } catch {
+                /* ignore */
+              }
+            }
+          }, durationMs);
+        }
+        return;
+      }
+
       const synth = window.speechSynthesis;
       if (!synth) return;
       ttsQueue.current.push(text);
@@ -298,6 +392,14 @@ export default function JarvisTerminal() {
       const processQueue = () => {
         if (ttsQueue.current.length === 0) {
           isSpeaking.current = false;
+          /* Auto-restart listening after speaking if continuous mode is on */
+          if (continuousMode && recognitionRef.current && !isListening) {
+            try {
+              recognitionRef.current.start();
+            } catch {
+              /* ignore restart failures */
+            }
+          }
           return;
         }
         isSpeaking.current = true;
@@ -306,22 +408,24 @@ export default function JarvisTerminal() {
         );
         utterance.rate = 1.15;
         utterance.pitch = 0.85;
-        const voices = synth.getVoices();
-        const preferred =
-          voices.find((v) => v.name.includes("Google UK English Male")) ||
-          voices.find((v) => v.name.includes("Microsoft David")) ||
-          voices.find(
-            (v) => v.name.includes("Male") && v.lang.startsWith("en"),
-          ) ||
-          voices[0];
-        if (preferred) utterance.voice = preferred;
+        const voice =
+          availableVoices.find((v) => v.voiceURI === selectedVoiceURI) ||
+          availableVoices[0];
+        if (voice) utterance.voice = voice;
         utterance.onend = processQueue;
         utterance.onerror = processQueue;
         synth.speak(utterance);
       };
       processQueue();
     },
-    [ttsEnabled],
+    [
+      ttsEnabled,
+      selectedVoiceURI,
+      availableVoices,
+      continuousMode,
+      isListening,
+      alexaOutEnabled,
+    ],
   );
 
   const addLog = useCallback((entry: Omit<LogEntry, "id" | "timestamp">) => {
@@ -390,6 +494,37 @@ export default function JarvisTerminal() {
     [selectedAgent, addLog, speak],
   );
 
+  const triggerAlexa = useCallback(
+    async (command: string) => {
+      addLog({ type: "system", text: `Sending to Alexa: "${command}"...` });
+      try {
+        const res = await fetch("/api/voice-monkey/trigger", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ notification: command }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          addLog({
+            type: "success",
+            text: `Alexa triggered: ${data.message || "OK"}`,
+          });
+        } else {
+          addLog({
+            type: "error",
+            text: `Alexa error: ${data.error || "Unknown error"}`,
+          });
+        }
+      } catch (err) {
+        addLog({
+          type: "error",
+          text: `Alexa trigger failed: ${err instanceof Error ? err.message : "Network error"}`,
+        });
+      }
+    },
+    [addLog],
+  );
+
   const sendMessage = useCallback(async () => {
     if (!input.trim() || isProcessing) return;
     const msg = input.trim();
@@ -404,7 +539,7 @@ export default function JarvisTerminal() {
         case "help":
           addLog({
             type: "success",
-            text: "Available commands:\n  /scan              - Analyze your codebase\n  /status            - Check system health\n  /image <prompt>    - Open image generator\n  /code <prompt>     - Open code agent\n  /agent <name>      - Switch active agent\n  /clear             - Clear terminal\n  /tts               - Toggle voice output",
+            text: "Available commands:\n  /scan              - Analyze your codebase\n  /status            - Check system health\n  /image <prompt>    - Open image generator\n  /code <prompt>     - Open code agent\n  /agent <name>      - Switch active agent\n  /voice [n]         - List or switch TTS voice\n  /alexa <cmd>       - Trigger Alexa via Voice Monkey\n  /clear             - Clear terminal\n  /tts               - Toggle voice output\n\nButtons:\n  ALEXA  - Route JARVIS speech to your Alexa speaker\n  ● Continuous - Auto-restart mic after response\n  ● Wake Word  - Say 'Hey JARVIS' to activate",
           });
           setIsProcessing(false);
           return;
@@ -479,6 +614,65 @@ export default function JarvisTerminal() {
           setIsProcessing(false);
           return;
         }
+        case "voice": {
+          const enVoices = availableVoices.filter((v) =>
+            v.lang.startsWith("en"),
+          );
+          if (enVoices.length === 0) {
+            addLog({
+              type: "error",
+              text: "No voices available yet. Try again in a moment.",
+            });
+            setIsProcessing(false);
+            return;
+          }
+          if (arg) {
+            const idx = parseInt(arg, 10) - 1;
+            if (idx >= 0 && idx < enVoices.length) {
+              const voice = enVoices[idx]!;
+              setSelectedVoiceURI(voice.voiceURI);
+              addLog({
+                type: "success",
+                text: `Voice switched to: ${voice.name}`,
+              });
+              const u = new SpeechSynthesisUtterance("Voice activated.");
+              u.voice = voice;
+              u.rate = 1.15;
+              u.pitch = 0.85;
+              window.speechSynthesis.speak(u);
+            } else {
+              addLog({
+                type: "error",
+                text: `Invalid voice number. Use 1-${enVoices.length}.`,
+              });
+            }
+          } else {
+            const list = enVoices
+              .map(
+                (v, i) =>
+                  `  ${i + 1}. ${v.name} (${v.lang})${v.voiceURI === selectedVoiceURI ? " [ACTIVE]" : ""}`,
+              )
+              .join("\n");
+            addLog({
+              type: "success",
+              text: `Available voices:\n${list}\n\nUse /voice <number> to switch.`,
+            });
+          }
+          setIsProcessing(false);
+          return;
+        }
+        case "alexa": {
+          if (!arg) {
+            addLog({
+              type: "error",
+              text: "Usage: /alexa <command to send to Alexa>",
+            });
+          } else {
+            await triggerAlexa(arg);
+          }
+          setIsProcessing(false);
+          return;
+        }
         case "scan": {
           try {
             addLog({
@@ -527,7 +721,15 @@ export default function JarvisTerminal() {
     }
 
     await streamBrain(msg);
-  }, [input, isProcessing, addLog, streamBrain]);
+  }, [
+    input,
+    isProcessing,
+    addLog,
+    streamBrain,
+    triggerAlexa,
+    availableVoices,
+    selectedVoiceURI,
+  ]);
 
   /* ── Speech recognition setup ── */
   useEffect(() => {
@@ -559,6 +761,17 @@ export default function JarvisTerminal() {
         } catch {
           /* ignore restart failures */
         }
+      }
+    };
+    rec.onerror = (event: Event) => {
+      const err = (event as SpeechRecognitionErrorEvent).error;
+      setIsListening(false);
+      if (err === "not-allowed") {
+        setMicPermission("denied");
+        addLog({
+          type: "error",
+          text: "Microphone access denied. Check browser permissions.",
+        });
       }
     };
     rec.onresult = (event: SpeechRecognitionEvent) => {
@@ -599,11 +812,24 @@ export default function JarvisTerminal() {
     };
   }, [sendMessage, wakeWordEnabled, continuousMode, addLog]);
 
-  const startMic = () => {
+  const startMic = async () => {
     if (!recognitionRef.current) {
       addLog({
         type: "error",
         text: "Voice API not supported in this browser.",
+      });
+      return;
+    }
+    /* Pre-flight: try to getUserMedia so the browser shows the permission prompt */
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      setMicPermission("granted");
+    } catch {
+      setMicPermission("denied");
+      addLog({
+        type: "error",
+        text: "Microphone permission denied. Enable it in browser settings.",
       });
       return;
     }
@@ -671,7 +897,7 @@ export default function JarvisTerminal() {
   const onlineCount = agentList.filter((a) => a.status === "online").length;
   return (
     <div
-      className={`relative flex flex-col h-full gap-3 min-h-[500px] overflow-hidden ${flicker ? "brightness-125" : ""} transition-all duration-75`}
+      className={`relative flex flex-col h-full gap-2 overflow-hidden ${flicker ? "brightness-125" : ""} transition-all duration-75`}
     >
       <MatrixRain />
       <Particles />
@@ -753,6 +979,79 @@ export default function JarvisTerminal() {
             ) : (
               <VolumeX size={12} className="text-gray-500" />
             )}
+          </button>
+          {/* Voice picker */}
+          <div ref={voicePickerRef} className="relative">
+            <button
+              onClick={() => setShowVoicePicker((v) => !v)}
+              className="flex items-center gap-0.5 transition-opacity hover:opacity-100"
+              style={{ opacity: 0.7 }}
+              title="Select voice"
+            >
+              <Speaker size={12} className="text-[#00b8ff]" />
+              <ChevronDown size={10} className="text-white/40" />
+            </button>
+            {showVoicePicker && availableVoices.length > 0 && (
+              <div
+                className="absolute right-0 top-full mt-1.5 rounded-lg border border-white/10 overflow-hidden shadow-xl z-50 min-w-[220px] max-h-[240px] overflow-y-auto"
+                style={{
+                  backgroundColor: "rgba(10,15,20,0.95)",
+                  backdropFilter: "blur(12px)",
+                }}
+              >
+                <div className="px-2 py-1.5 text-[10px] font-mono uppercase text-white/30 border-b border-white/5">
+                  Voices
+                </div>
+                {availableVoices
+                  .filter((v) => v.lang.startsWith("en"))
+                  .map((voice) => (
+                    <button
+                      key={voice.voiceURI}
+                      onClick={() => {
+                        setSelectedVoiceURI(voice.voiceURI);
+                        setShowVoicePicker(false);
+                        addLog({
+                          type: "success",
+                          text: `Voice set to: ${voice.name}`,
+                        });
+                        /* Preview voice */
+                        const u = new SpeechSynthesisUtterance(
+                          "Voice activated.",
+                        );
+                        u.voice = voice;
+                        u.rate = 1.15;
+                        u.pitch = 0.85;
+                        window.speechSynthesis.speak(u);
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 text-[10px] font-mono transition-colors hover:bg-white/5 ${voice.voiceURI === selectedVoiceURI ? "text-[#00ff9d] bg-[#00ff9d]/5" : "text-white/70"}`}
+                    >
+                      {voice.name}
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+          {/* Alexa output toggle */}
+          <button
+            onClick={() => {
+              setAlexaOutEnabled((v) => {
+                const next = !v;
+                addLog({
+                  type: "success",
+                  text: `Alexa speaker output ${next ? "ENABLED" : "DISABLED"}.`,
+                });
+                return next;
+              });
+            }}
+            className="transition-opacity hover:opacity-100"
+            style={{ opacity: alexaOutEnabled ? 1 : 0.4 }}
+            title={alexaOutEnabled ? "Alexa output ON" : "Alexa output OFF"}
+          >
+            <span
+              className={`text-[10px] font-mono font-bold ${alexaOutEnabled ? "text-[#00b8ff]" : "text-gray-500"}`}
+            >
+              ALEXA
+            </span>
           </button>
           {/* Mobile agent toggle */}
           <button
@@ -859,19 +1158,26 @@ export default function JarvisTerminal() {
 
           {/* Command hint pills */}
           <div className="flex flex-wrap gap-1.5 text-[10px] font-mono select-none">
-            {["/scan", "/status", "/image", "/code", "/agent", "/clear"].map(
-              (cmd) => (
-                <button
-                  key={cmd}
-                  onClick={() => {
-                    setInput(cmd);
-                  }}
-                  className="px-2 py-0.5 rounded border border-[#00ff9d]/20 text-[#00ff9d]/60 hover:text-[#00ff9d] hover:border-[#00ff9d]/50 hover:bg-[#00ff9d]/5 transition-all"
-                >
-                  {cmd}
-                </button>
-              ),
-            )}
+            {[
+              "/scan",
+              "/status",
+              "/image",
+              "/code",
+              "/agent",
+              "/voice",
+              "/alexa",
+              "/clear",
+            ].map((cmd) => (
+              <button
+                key={cmd}
+                onClick={() => {
+                  setInput(cmd);
+                }}
+                className="px-2 py-0.5 rounded border border-[#00ff9d]/20 text-[#00ff9d]/60 hover:text-[#00ff9d] hover:border-[#00ff9d]/50 hover:bg-[#00ff9d]/5 transition-all"
+              >
+                {cmd}
+              </button>
+            ))}
           </div>
 
           {/* Mobile listening indicator bar */}
@@ -925,6 +1231,13 @@ export default function JarvisTerminal() {
               </span>
             )}
           </div>
+
+          {/* Mic permission warning */}
+          {micPermission === "denied" && (
+            <div className="text-[10px] font-mono text-[#ff0055] bg-[#ff0055]/5 border border-[#ff0055]/20 rounded px-2.5 py-1.5">
+              Microphone blocked. Enable it in your browser settings and reload.
+            </div>
+          )}
 
           {/* Input row */}
           <div

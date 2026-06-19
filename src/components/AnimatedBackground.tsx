@@ -424,7 +424,7 @@ export default function AnimatedBackground() {
       {/* Static scanlines — lightweight, no animation */}
       <div
         ref={scanlineRef}
-        className="fixed inset-0 pointer-events-none z-[1]"
+        className="fixed inset-0 pointer-events-none z-1"
         style={{
           background:
             "repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0px, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 3px)",

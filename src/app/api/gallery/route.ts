@@ -186,34 +186,52 @@ async function getHandler(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get("category");
+    const view = searchParams.get("view") || "community"; // "community" | "my-uploads"
 
     if (!isSupabaseConfigured()) {
       return NextResponse.json({ items: DEMO_GALLERY, mock: true });
     }
 
-    // Require auth for DB-backed gallery to avoid leaking private uploads
+    // Get current user (if authenticated)
     const { userId: clerkId } = await auth();
-    if (!clerkId)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    const { data: user } = await supabaseAdmin
-      .from("users")
-      .select("id")
-      .eq("clerk_id", clerkId)
-      .single();
-    if (!user) return NextResponse.json({ items: [] });
+    let currentUserId: string | null = null;
 
+    if (clerkId) {
+      const { data: user } = await supabaseAdmin
+        .from("users")
+        .select("id")
+        .eq("clerk_id", clerkId)
+        .single();
+      currentUserId = user?.id || null;
+    }
+
+    // Build query based on view mode
     let query = supabaseAdmin
       .from("user_media")
       .select(
-        "id, url, type, caption, created_at, users:user_id (name, username)",
+        "id, url, type, caption, is_public, category, likes_count, created_at, users:user_id (name, username, avatar_url)",
       )
-      .in("type", ["image", "video"])
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .in("type", ["image", "video"]);
 
-    if (category) {
-      query = query.ilike("caption", `%${category}%`);
+    if (view === "my-uploads") {
+      // My uploads: require auth, show only user's items (public or private)
+      if (!currentUserId) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      query = query.eq("user_id", currentUserId);
+    } else {
+      // Community view: show all public items from all users
+      query = query.eq("is_public", true);
     }
+
+    // Apply category filter
+    if (category && category !== "all") {
+      // Try to match category field first, then fallback to caption search
+      query = query.or(`category.eq.${category},caption.ilike.%${category}%`);
+    }
+
+    // Sort by newest first
+    query = query.order("created_at", { ascending: false });
 
     const { data, error } = await query;
 
@@ -227,8 +245,15 @@ async function getHandler(req: NextRequest) {
         url: string;
         type: string;
         caption: string | null;
+        is_public: boolean;
+        category: string | null;
+        likes_count: number;
         created_at: string;
-        users: Array<{ name: string | null; username: string | null }> | null;
+        users: Array<{
+          name: string | null;
+          username: string | null;
+          avatar_url: string | null;
+        }> | null;
       }) => {
         const user = Array.isArray(item.users) ? item.users[0] : item.users;
         const isVideo = item.type === "video";
@@ -240,9 +265,11 @@ async function getHandler(req: NextRequest) {
           id: item.id,
           title: item.caption || "Untitled",
           artist: user?.name || user?.username || "Anonymous",
-          category: item.caption ? "generated" : "gallery",
+          artistAvatar: user?.avatar_url || null,
+          category: item.category || "gallery",
           imageUrl: thumbnail,
-          likes: 0,
+          likes: item.likes_count || 0,
+          isPublic: item.is_public,
           createdAt: item.created_at,
           mediaType: item.type,
           videoUrl: isVideo ? item.url : undefined,
@@ -264,7 +291,7 @@ async function postHandler(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { url, caption, type } = body;
+    const { url, caption, type, isPublic, category } = body;
 
     if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
@@ -297,6 +324,8 @@ async function postHandler(req: NextRequest) {
         url: url.trim(),
         type: mediaType,
         caption: caption ? String(caption).trim() : null,
+        is_public: isPublic !== false, // default to public
+        category: category || "gallery",
       })
       .select()
       .single();
@@ -317,5 +346,118 @@ async function postHandler(req: NextRequest) {
   }
 }
 
+async function deleteHandler(req: NextRequest) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ success: true, mock: true });
+    }
+
+    const { data: user } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("clerk_id", clerkId)
+      .single();
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Only allow deleting own items
+    const { error } = await supabaseAdmin
+      .from("user_media")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to delete item" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to delete item" },
+      { status: 500 },
+    );
+  }
+}
+
+async function patchHandler(req: NextRequest) {
+  try {
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    const body = await req.json();
+    const { isPublic, caption, category } = body;
+
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json({ success: true, mock: true });
+    }
+
+    const { data: user } = await supabaseAdmin
+      .from("users")
+      .select("id")
+      .eq("clerk_id", clerkId)
+      .single();
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Build update object with only provided fields
+    const updates: Record<string, unknown> = {};
+    if (isPublic !== undefined) updates.is_public = isPublic;
+    if (caption !== undefined)
+      updates.caption = caption ? String(caption).trim() : null;
+    if (category !== undefined) updates.category = category;
+
+    const { data: item, error } = await supabaseAdmin
+      .from("user_media")
+      .update(updates)
+      .eq("id", id)
+      .eq("user_id", user.id) // Only update own items
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to update item" },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ success: true, item });
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to update item" },
+      { status: 500 },
+    );
+  }
+}
+
 export const GET = withRateLimit(getHandler, 100, 60);
 export const POST = withRateLimit(postHandler, 30, 60);
+export const DELETE = withRateLimit(deleteHandler, 30, 60);
+export const PATCH = withRateLimit(patchHandler, 30, 60);

@@ -1,8 +1,4 @@
 ﻿"use client";
-export const dynamic = "force-dynamic";
-
-import { useClerkAuth } from "@/hooks/useClerkAuth";
-import Link from "next/link";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -29,11 +25,47 @@ import {
   RefreshCw,
   FileJson,
   Wand2,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
+  GitBranch,
+  MousePointer2,
+  Hand,
+  Download,
+  Plus,
+  Minus,
+  Grid3x3,
 } from "lucide-react";
 
 /* ─── Types ───────────────────────────────────────────────────────── */
 type NodeType = "trigger" | "agent" | "action";
 type NodeStatus = "idle" | "running" | "completed" | "error";
+type PortType = "input" | "output";
+
+interface Port {
+  id: string;
+  type: PortType;
+  label: string;
+}
+
+interface CanvasNode {
+  id: string;
+  type: NodeType;
+  title: string;
+  x: number;
+  y: number;
+  config: Record<string, string | number | boolean>;
+  status?: NodeStatus;
+  ports: Port[];
+}
+
+interface Connection {
+  id: string;
+  fromNode: string;
+  fromPort: string;
+  toNode: string;
+  toPort: string;
+}
 
 interface LibraryItem {
   type: NodeType;
@@ -41,19 +73,23 @@ interface LibraryItem {
   icon: React.ReactNode;
   desc: string;
   keywords: string[];
+  defaultPorts: Port[];
 }
 
-interface PipelineNode {
-  id: string;
-  type: NodeType;
-  title: string;
-  config: Record<string, string | number | boolean>;
-  status?: NodeStatus;
-}
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 90;
+const GRID_SIZE = 20;
 
 const NODE_META: Record<
   NodeType,
-  { label: string; color: string; bg: string; border: string; ring: string }
+  {
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    ring: string;
+    gradient: string;
+  }
 > = {
   trigger: {
     label: "Trigger",
@@ -61,6 +97,7 @@ const NODE_META: Record<
     bg: "bg-amber-500/10",
     border: "border-amber-500/30",
     ring: "ring-amber-500/40",
+    gradient: "from-amber-500/20 to-orange-500/10",
   },
   agent: {
     label: "AI Agent",
@@ -68,6 +105,7 @@ const NODE_META: Record<
     bg: "bg-fuchsia-600/10",
     border: "border-fuchsia-500/30",
     ring: "ring-fuchsia-500/40",
+    gradient: "from-fuchsia-500/20 to-purple-500/10",
   },
   action: {
     label: "Action",
@@ -75,6 +113,7 @@ const NODE_META: Record<
     bg: "bg-emerald-500/10",
     border: "border-emerald-500/30",
     ring: "ring-emerald-500/40",
+    gradient: "from-emerald-500/20 to-teal-500/10",
   },
 };
 
@@ -85,6 +124,7 @@ const LIBRARY: LibraryItem[] = [
     icon: <Webhook className="w-4 h-4" />,
     desc: "HTTP endpoint trigger",
     keywords: ["webhook", "http", "api", "endpoint", "post", "request"],
+    defaultPorts: [{ id: "out", type: "output", label: "trigger" }],
   },
   {
     type: "trigger",
@@ -101,6 +141,15 @@ const LIBRARY: LibraryItem[] = [
       "interval",
       "periodic",
     ],
+    defaultPorts: [{ id: "out", type: "output", label: "trigger" }],
+  },
+  {
+    type: "trigger",
+    title: "Manual Trigger",
+    icon: <Zap className="w-4 h-4" />,
+    desc: "Button press to run",
+    keywords: ["manual", "button", "click", "run"],
+    defaultPorts: [{ id: "out", type: "output", label: "trigger" }],
   },
   {
     type: "agent",
@@ -114,6 +163,11 @@ const LIBRARY: LibraryItem[] = [
       "decide",
       "orchestrate",
       "classify",
+    ],
+    defaultPorts: [
+      { id: "in", type: "input", label: "input" },
+      { id: "out", type: "output", label: "result" },
+      { id: "error", type: "output", label: "error" },
     ],
   },
   {
@@ -130,29 +184,84 @@ const LIBRARY: LibraryItem[] = [
       "llm",
       "gpt",
     ],
+    defaultPorts: [
+      { id: "in", type: "input", label: "input" },
+      { id: "out", type: "output", label: "output" },
+    ],
+  },
+  {
+    type: "agent",
+    title: "Code Generator",
+    icon: <Terminal className="w-4 h-4" />,
+    desc: "Generate code snippets",
+    keywords: ["code", "programming", "developer", "typescript", "python"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "prompt" },
+      { id: "out", type: "output", label: "code" },
+    ],
   },
   {
     type: "action",
     title: "Database Insert",
     icon: <Database className="w-4 h-4" />,
-    desc: "Save to LitLabs Ledger",
+    desc: "Save to database",
     keywords: ["database", "db", "sql", "save", "store", "persist", "ledger"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "data" },
+      { id: "out", type: "output", label: "success" },
+    ],
   },
   {
     type: "action",
     title: "Discord Webhook",
     icon: <MessageSquare className="w-4 h-4" />,
-    desc: "Post to Discord channel",
+    desc: "Post to Discord",
     keywords: ["discord", "notify", "alert", "channel", "slack", "message"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "message" },
+      { id: "out", type: "output", label: "sent" },
+    ],
   },
   {
     type: "action",
     title: "Email Dispatch",
     icon: <Mail className="w-4 h-4" />,
-    desc: "Send email notification",
+    desc: "Send email",
     keywords: ["email", "mail", "smtp", "send", "notify"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "content" },
+      { id: "out", type: "output", label: "sent" },
+    ],
+  },
+  {
+    type: "action",
+    title: "HTTP Request",
+    icon: <Network className="w-4 h-4" />,
+    desc: "Call external API",
+    keywords: ["http", "api", "request", "fetch", "post", "get"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "payload" },
+      { id: "out", type: "output", label: "response" },
+      { id: "error", type: "output", label: "error" },
+    ],
+  },
+  {
+    type: "action",
+    title: "Condition",
+    icon: <GitBranch className="w-4 h-4" />,
+    desc: "If/else branch",
+    keywords: ["condition", "if", "else", "branch", "logic", "filter"],
+    defaultPorts: [
+      { id: "in", type: "input", label: "check" },
+      { id: "true", type: "output", label: "true" },
+      { id: "false", type: "output", label: "false" },
+    ],
   },
 ];
+
+function snapToGrid(value: number): number {
+  return Math.round(value / GRID_SIZE) * GRID_SIZE;
+}
 
 function defaultConfig(
   title: string,
@@ -166,6 +275,8 @@ function defaultConfig(
       };
     case "Scheduled Interval":
       return { preset: "hourly", cron: "0 * * * *" };
+    case "Manual Trigger":
+      return { button_text: "Run Pipeline" };
     case "Logic Orchestrator":
       return {
         model: "lit-core-v4",
@@ -178,6 +289,8 @@ function defaultConfig(
         temperature: 0.7,
         prompt: "Process the input data and produce a structured output.",
       };
+    case "Code Generator":
+      return { language: "typescript", model: "lit-code-v2", temperature: 0.2 };
     case "Database Insert":
       return { table: "pipeline_output", cluster: "primary" };
     case "Discord Webhook":
@@ -191,28 +304,36 @@ function defaultConfig(
         subject: "Pipeline Alert",
         body: "Pipeline finished execution.",
       };
+    case "HTTP Request":
+      return { url: "", method: "POST", headers: "{}" };
+    case "Condition":
+      return {
+        condition: "{{input.status}} === 'success'",
+        operator: "equals",
+      };
     default:
       return {};
   }
 }
 
-function toYAML(nodes: PipelineNode[]): string {
+function toYAML(nodes: CanvasNode[], connections: Connection[]): string {
   const lines: string[] = [
     "# LiTTree Labs Pipeline Protocol",
     `# Generated: ${new Date().toISOString()}`,
-    `# ${process.env.NEXT_PUBLIC_SITE_URL || "https://litlabs.net"}`,
     "",
     'version: "1.0"',
     `name: "untitled_pipeline"`,
     `nodes: ${nodes.length}`,
+    `connections: ${connections.length}`,
     "",
     "workflow:",
   ];
-  nodes.forEach((n, i) => {
+  nodes.forEach((n) => {
     lines.push(
       `  - id: ${n.id}`,
       `    type: ${n.type}`,
       `    title: "${n.title}"`,
+      `    position: { x: ${n.x}, y: ${n.y} }`,
       `    status: ${n.status || "idle"}`,
     );
     if (Object.keys(n.config).length) {
@@ -223,12 +344,17 @@ function toYAML(nodes: PipelineNode[]): string {
         lines.push(`      ${k}: ${val}`);
       });
     }
-    if (i < nodes.length - 1) lines.push("    ->");
     lines.push("");
   });
+  if (connections.length) {
+    lines.push("connections:");
+    connections.forEach((c) => {
+      lines.push(`  - ${c.fromNode}.${c.fromPort} -> ${c.toNode}.${c.toPort}`);
+    });
+  }
   return lines.join("\n");
 }
-export default function FlowPage() {
+export default function PipelineTool() {
   const nodeIdCounter = useRef(0);
 
   const [nodes, setNodes] = useState<PipelineNode[]>([
@@ -467,33 +593,6 @@ export default function FlowPage() {
     : LIBRARY;
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId);
-
-  const { isLoaded, isSignedIn } = useClerkAuth();
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center font-mono bg-[#050108] text-fuchsia-400">
-        <div className="text-center">
-          <div className="text-3xl mb-4 animate-pulse">⚡</div>
-          <div>Loading Pipeline...</div>
-        </div>
-      </div>
-    );
-  }
-  if (!isSignedIn) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-        <p className="text-sm opacity-60">Please sign in to view flows.</p>
-        <Link
-          href="/login"
-          className="px-4 py-2 rounded-lg text-sm font-bold"
-          style={{ backgroundColor: "#6366f1", color: "#fff" }}
-        >
-          Sign In
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className="flex h-full bg-[#050108] text-slate-300 font-sans overflow-hidden relative">
       {/* Grid */}

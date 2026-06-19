@@ -111,14 +111,17 @@ export default function SocialFeed({
   }, [feedFilter]);
 
   useEffect(() => {
+    if (!isSignedIn) return;
     const id = requestAnimationFrame(() => {
       fetchPosts();
       fetchFollows();
       fetchCurrentUser();
     });
     const interval = setInterval(() => {
-      fetchPosts();
-      fetchFollows();
+      if (!document.hidden) {
+        fetchPosts();
+        fetchFollows();
+      }
     }, 10000);
     return () => {
       cancelAnimationFrame(id);
@@ -329,7 +332,7 @@ export default function SocialFeed({
       {/* Toast */}
       {toast && (
         <div
-          className="fixed top-20 right-5 z-[200] px-5 py-3 text-xs font-bold max-w-xs border-2 rounded"
+          className="fixed top-20 right-5 z-200 px-5 py-3 text-xs font-bold max-w-xs border-2 rounded"
           style={{
             backgroundColor:
               toast.type === "success"

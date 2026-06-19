@@ -2,7 +2,6 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import {
   Zap,
@@ -53,15 +52,6 @@ const C = {
 
 // Landing Page Component
 function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const features = [
     {
       icon: Bot,
@@ -105,102 +95,8 @@ function LandingPage() {
       className="min-h-screen"
       style={{ backgroundColor: C.bgColor, color: C.textColor }}
     >
-      {/* Navigation */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-[#0a0a12]/90 backdrop-blur-md border-b border-white/10"
-            : ""
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <span
-                className="text-2xl font-black tracking-tight"
-                style={{ color: C.headerColor }}
-              >
-                ⚡ LiTTree Labs
-              </span>
-            </Link>
-
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-8">
-              <a
-                href="#features"
-                className="text-sm hover:text-cyan-400 transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#pricing"
-                className="text-sm hover:text-cyan-400 transition-colors"
-              >
-                Pricing
-              </a>
-              <a
-                href="#docs"
-                className="text-sm hover:text-cyan-400 transition-colors"
-              >
-                Docs
-              </a>
-              <Link
-                href="/sign-in"
-                className="px-4 py-2 text-sm font-medium border rounded-none hover:bg-white/5 transition-all"
-                style={{ borderColor: C.borderColor }}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/sign-up"
-                className="px-4 py-2 text-sm font-bold border hover:opacity-80 transition-all"
-                style={{ borderColor: C.headerColor, color: C.headerColor }}
-              >
-                Get Started
-              </Link>
-            </div>
-
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <div className="w-5 h-0.5 bg-white mb-1" />
-              <div className="w-5 h-0.5 bg-white mb-1" />
-              <div className="w-5 h-0.5 bg-white" />
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-[#0a0a12] border-b border-white/10">
-            <div className="px-4 py-4 space-y-3">
-              <a href="#features" className="block text-sm py-2">
-                Features
-              </a>
-              <a href="#pricing" className="block text-sm py-2">
-                Pricing
-              </a>
-              <a href="#docs" className="block text-sm py-2">
-                Docs
-              </a>
-              <Link href="/sign-in" className="block text-sm py-2">
-                Sign In
-              </Link>
-              <Link
-                href="/sign-up"
-                className="block text-sm py-2 text-cyan-400"
-              >
-                Get Started
-              </Link>
-            </div>
-          </div>
-        )}
-      </nav>
-
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32">
+      <section className="relative pt-20 pb-16 lg:pt-28 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
@@ -237,14 +133,14 @@ function LandingPage() {
                     className="group-hover:translate-x-1 transition-transform"
                   />
                 </Link>
-                <a
-                  href="#demo"
+                <Link
+                  href="/studio"
                   className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium border hover:bg-white/5 transition-all"
                   style={{ borderColor: C.borderColor }}
                 >
                   <Play size={18} />
-                  Watch Demo
-                </a>
+                  Try Studio
+                </Link>
               </div>
 
               <div
@@ -401,9 +297,44 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* Logos / Social Proof */}
+      {/* Stats / Trust Band */}
       <section
-        className="py-12 border-y"
+        className="py-10 border-y"
+        style={{
+          borderColor: C.borderColor,
+          backgroundColor: "rgba(0,240,255,0.02)",
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { num: "5,000+", label: "Creators joined" },
+              { num: "11", label: "AI Agents live" },
+              { num: "99.9%", label: "Uptime" },
+              { num: "4.9/5", label: "Beta rating" },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <div
+                  className="text-2xl sm:text-3xl font-black"
+                  style={{ color: C.headerColor }}
+                >
+                  {stat.num}
+                </div>
+                <div
+                  className="text-xs sm:text-sm mt-1"
+                  style={{ color: C.textMuted }}
+                >
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack Logos */}
+      <section
+        className="py-10 border-y"
         style={{
           borderColor: C.borderColor,
           backgroundColor: "rgba(255,255,255,0.02)",
@@ -411,18 +342,24 @@ function LandingPage() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p
-            className="text-center text-sm mb-8"
+            className="text-center text-sm mb-6"
             style={{ color: C.textMuted }}
           >
             Built with modern tools you already trust
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50">
-            <span className="text-lg font-bold">Next.js</span>
-            <span className="text-lg font-bold">React</span>
-            <span className="text-lg font-bold">TypeScript</span>
-            <span className="text-lg font-bold">Tailwind</span>
-            <span className="text-lg font-bold">Clerk</span>
-            <span className="text-lg font-bold">Supabase</span>
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-50">
+            {[
+              "Next.js",
+              "React",
+              "TypeScript",
+              "Tailwind",
+              "Clerk",
+              "Supabase",
+            ].map((tool) => (
+              <span key={tool} className="text-sm sm:text-base font-bold">
+                {tool}
+              </span>
+            ))}
           </div>
         </div>
       </section>
@@ -447,11 +384,28 @@ function LandingPage() {
             {features.map((f, i) => (
               <div
                 key={i}
-                className="group p-6 border-2 hover:border-cyan-400/50 transition-all"
-                style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+                className="group relative p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  backgroundColor: C.boxBg,
+                  borderColor: C.borderColor,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    f.color + "60";
+                  (e.currentTarget as HTMLDivElement).style.boxShadow =
+                    `0 0 30px ${f.color}15`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    C.borderColor;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                }}
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 border" style={{ borderColor: f.color }}>
+                  <div
+                    className="p-3 border transition-all duration-300 group-hover:scale-110"
+                    style={{ borderColor: f.color + "40" }}
+                  >
                     <f.icon size={24} style={{ color: f.color }} />
                   </div>
                   <div>
@@ -484,18 +438,115 @@ function LandingPage() {
             {useCases.map((u, i) => (
               <div
                 key={i}
-                className="p-6 border text-center"
-                style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+                className="group p-6 border text-center transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30"
+                style={{
+                  backgroundColor: C.boxBg,
+                  borderColor: C.borderColor,
+                }}
               >
-                <u.icon
-                  size={32}
-                  className="mx-auto mb-4"
-                  style={{ color: C.headerColor }}
-                />
+                <div
+                  className="inline-flex p-3 mb-4 border transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-400/40"
+                  style={{ borderColor: C.borderColor }}
+                >
+                  <u.icon size={28} style={{ color: C.headerColor }} />
+                </div>
                 <h3 className="font-bold mb-2">{u.name}</h3>
                 <p className="text-sm" style={{ color: C.textMuted }}>
                   {u.desc}
                 </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section
+        className="py-24 border-y"
+        style={{ borderColor: C.borderColor }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl sm:text-4xl font-black mb-4">
+              Loved by{" "}
+              <span style={{ color: C.accentColor }}>Early Builders</span>
+            </h2>
+            <p
+              className="text-lg max-w-2xl mx-auto"
+              style={{ color: C.textMuted }}
+            >
+              Real creators using LiTTree to ship faster and think bigger.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                name: "Alex Chen",
+                role: "Indie Hacker",
+                quote:
+                  "Deployed a code-review agent in 5 minutes. It caught a bug I would've shipped to production.",
+                color: "#00f0ff",
+              },
+              {
+                name: "Sarah K.",
+                role: "Content Creator",
+                quote:
+                  "I auto-post to 4 channels now. My audience grew 3x in two weeks without me lifting a finger.",
+                color: "#ff00a0",
+              },
+              {
+                name: "Mike Dev",
+                role: "Full-Stack Engineer",
+                quote:
+                  "The studio tools are insane. Image gen + code agent in one workspace. My new default setup.",
+                color: "#ff9ff3",
+              },
+            ].map((t) => (
+              <div
+                key={t.name}
+                className="p-6 border-2 transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  backgroundColor: C.boxBg,
+                  borderColor: C.borderColor,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    t.color + "40";
+                  (e.currentTarget as HTMLDivElement).style.boxShadow =
+                    `0 0 20px ${t.color}10`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.borderColor =
+                    C.borderColor;
+                  (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
+                }}
+              >
+                <p
+                  className="text-sm mb-6 leading-relaxed"
+                  style={{ color: C.textColor }}
+                >
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black"
+                    style={{
+                      backgroundColor: t.color + "20",
+                      color: t.color,
+                    }}
+                  >
+                    {t.name
+                      .split(" ")
+                      .map((w) => w[0])
+                      .join("")}
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold">{t.name}</div>
+                    <div className="text-xs" style={{ color: C.textMuted }}>
+                      {t.role}
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -529,100 +580,6 @@ function LandingPage() {
           </p>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="py-12 border-t" style={{ borderColor: C.borderColor }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h4 className="font-bold mb-4" style={{ color: C.headerColor }}>
-                LiTTree Labs
-              </h4>
-              <p className="text-sm" style={{ color: C.textMuted }}>
-                Building the future of autonomous AI agents.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm" style={{ color: C.textMuted }}>
-                <li>
-                  <Link href="/studio" className="hover:text-white">
-                    Studio
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/marketplace" className="hover:text-white">
-                    Marketplace
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/gallery" className="hover:text-white">
-                    Gallery
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Resources</h4>
-              <ul className="space-y-2 text-sm" style={{ color: C.textMuted }}>
-                <li>
-                  <Link href="/docs" className="hover:text-white">
-                    Documentation
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/api" className="hover:text-white">
-                    API Reference
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="hover:text-white">
-                    Blog
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4">Connect</h4>
-              <ul className="space-y-2 text-sm" style={{ color: C.textMuted }}>
-                <li>
-                  <a
-                    href="https://twitter.com/littreelabs"
-                    className="hover:text-white"
-                  >
-                    Twitter
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://discord.gg/littree"
-                    className="hover:text-white"
-                  >
-                    Discord
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/littreelabs"
-                    className="hover:text-white"
-                  >
-                    GitHub
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div
-            className="pt-8 border-t text-center text-sm"
-            style={{ borderColor: C.borderColor, color: C.textMuted }}
-          >
-            <p>
-              &copy; {new Date().getFullYear()} LiTTree Lab Studios. All rights
-              reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

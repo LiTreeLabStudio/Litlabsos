@@ -34,6 +34,9 @@ import {
   User,
   Gamepad as GamepadIcon,
   Code2,
+  LayoutDashboard,
+  MessageSquare,
+  Workflow,
 } from "lucide-react";
 
 const NavAuth = dynamic(
@@ -46,8 +49,11 @@ const NavAuth = dynamic(
 /* ------------------------------------------------------------------ */
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/studio", label: "Studio", icon: Zap },
   { href: "/gallery", label: "Gallery", icon: Sparkles },
+  { href: "/social", label: "Social", icon: MessageSquare },
+  { href: "/flow", label: "Flow", icon: Workflow },
   { href: "/games", label: "Games", icon: GamepadIcon },
   { href: "/marketplace", label: "Market", icon: ShoppingBag },
 ];
@@ -141,7 +147,9 @@ export default function Navbar() {
       }
     };
     const id = requestAnimationFrame(() => fetchNotifications());
-    const interval = setInterval(fetchNotifications, 15000);
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchNotifications();
+    }, 15000);
     return () => {
       cancelAnimationFrame(id);
       clearInterval(interval);
@@ -253,7 +261,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="relative flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-200"
+                  className="relative flex items-center gap-1.5 px-2 xl:px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-200"
                   style={{
                     color: active
                       ? resolvedColors.bgColor
@@ -265,9 +273,10 @@ export default function Navbar() {
                       ? `0 0 12px ${resolvedColors.accentColor}50`
                       : "none",
                   }}
+                  title={link.label}
                 >
                   <Icon size={12} strokeWidth={active ? 2.5 : 2} />
-                  <span>{link.label}</span>
+                  <span className="hidden xl:inline">{link.label}</span>
                 </Link>
               );
             })}
@@ -346,7 +355,7 @@ export default function Navbar() {
                       {notifications.map((n) => (
                         <div
                           key={n.id}
-                          className="flex items-start gap-2 px-3 py-2 rounded-lg mx-1 transition-colors hover:bg-white/[0.03]"
+                          className="flex items-start gap-2 px-3 py-2 rounded-lg mx-1 transition-colors hover:bg-white/3"
                           style={{ opacity: n.read_at ? 0.5 : 1 }}
                         >
                           <div
@@ -498,14 +507,14 @@ export default function Navbar() {
         <>
           {/* Tap-outside scrim */}
           <div
-            className="lg:hidden fixed inset-0 z-[48]"
+            className="lg:hidden fixed inset-0 z-48"
             style={{ top: "56px", backgroundColor: "rgba(0,0,0,0.6)" }}
             onClick={() => setMobileOpen(false)}
             onTouchStart={() => setMobileOpen(false)}
           />
           {/* Drawer panel */}
           <div
-            className="lg:hidden fixed left-0 right-0 z-[49] flex flex-col overflow-y-auto"
+            className="lg:hidden fixed left-0 right-0 z-49 flex flex-col overflow-y-auto"
             style={{
               top: "56px",
               maxHeight: "calc(100dvh - 56px)",

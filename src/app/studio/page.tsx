@@ -160,24 +160,30 @@ function StatusBar({
 }) {
   return (
     <div
-      className="w-full flex shrink-0 h-7 items-center justify-center gap-3 px-3"
+      className="w-full flex shrink-0 h-9 md:h-7 items-center justify-center gap-3 px-3"
       style={{
         borderTop: `1px solid ${T.borderColor}15`,
         backgroundColor: T.bgColor + "60",
       }}
     >
       <span
-        className="text-[9px] font-bold uppercase tracking-wider opacity-40"
+        className="text-xs md:text-[9px] font-bold uppercase tracking-wider opacity-40"
         style={{ color: T.accentColor }}
       >
         LiTree Studio
       </span>
-      <span className="text-[9px] opacity-20">·</span>
-      <span className="text-[9px] opacity-30" style={{ color: T.textMuted }}>
+      <span className="text-xs md:text-[9px] opacity-20">·</span>
+      <span
+        className="text-xs md:text-[9px] opacity-30"
+        style={{ color: T.textMuted }}
+      >
         Image · Video · Audio · Agents
       </span>
-      <span className="text-[9px] opacity-20">·</span>
-      <span className="text-[9px] opacity-30" style={{ color: T.textMuted }}>
+      <span className="text-xs md:text-[9px] opacity-20">·</span>
+      <span
+        className="text-xs md:text-[9px] opacity-30"
+        style={{ color: T.textMuted }}
+      >
         v1.0
       </span>
     </div>
@@ -337,7 +343,7 @@ function StudioInner() {
         >
           {/* Zed-style top bar — scrollable on mobile */}
           <div
-            className="flex items-center justify-between px-3 h-9 shrink-0 overflow-x-auto scrollbar-hide"
+            className="flex items-center justify-between px-3 h-11 md:h-9 shrink-0 overflow-x-auto scrollbar-hide"
             style={{
               borderBottom: `1px solid ${T.borderColor}12`,
               backgroundColor: T.boxBg + "40",
@@ -346,19 +352,19 @@ function StudioInner() {
             {/* Left: breadcrumb */}
             <div className="flex items-center gap-2 shrink-0">
               <span
-                className="text-[10px] font-bold uppercase tracking-[0.12em] opacity-40"
+                className="text-xs md:text-[10px] font-bold uppercase tracking-[0.12em] opacity-40"
                 style={{ color: T.textMuted }}
               >
                 Workspace
               </span>
               <span
-                className="text-[10px] opacity-20"
+                className="text-xs md:text-[10px] opacity-20"
                 style={{ color: T.textMuted }}
               >
                 /
               </span>
               <span
-                className="text-[10px] font-bold uppercase tracking-[0.12em]"
+                className="text-xs md:text-[10px] font-bold uppercase tracking-[0.12em]"
                 style={{ color: T.accentColor }}
               >
                 {activeTool}
@@ -374,13 +380,14 @@ function StudioInner() {
             <div className="flex items-center gap-2 shrink-0">
               {/* Coin balance */}
               <div
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold whitespace-nowrap"
+                className="flex items-center gap-1 px-2 py-1 md:px-1.5 md:py-0.5 rounded text-xs md:text-[9px] font-bold whitespace-nowrap"
                 style={{
                   backgroundColor: T.accentColor + "10",
                   color: T.accentColor,
                 }}
               >
-                <Coins size={10} /> {litcoins.toLocaleString()}{" "}
+                <Coins size={12} className="md:w-2.5 md:h-2.5" />{" "}
+                {litcoins.toLocaleString()}{" "}
                 <span className="opacity-60 hidden sm:inline">
                   LiTBit Coins
                 </span>
@@ -389,7 +396,7 @@ function StudioInner() {
               {/* CRT toggle */}
               <button
                 onClick={() => toggleCrt()}
-                className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded transition-all hover:opacity-80 shrink-0"
+                className="flex items-center gap-1 text-xs md:text-[9px] font-bold uppercase tracking-wider px-2 py-1 md:px-1.5 md:py-0.5 rounded transition-all hover:opacity-80 shrink-0"
                 style={{
                   backgroundColor: crtEnabled
                     ? T.accentColor + "12"
@@ -398,7 +405,7 @@ function StudioInner() {
                   border: `1px solid ${crtEnabled ? T.accentColor + "30" : T.borderColor + "15"}`,
                 }}
               >
-                <Monitor size={10} /> {crtEnabled ? "CRT" : "CRT"}
+                <Monitor size={12} className="md:w-2.5 md:h-2.5" /> CRT
               </button>
             </div>
           </div>

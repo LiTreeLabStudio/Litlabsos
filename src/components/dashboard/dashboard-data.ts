@@ -72,29 +72,99 @@ export const APPS = [
 
 export const AGENTS = [
   {
-    name: "Code Champ",
+    name: "Director",
     status: "online" as const,
+    task: "Orchestration",
+    color: "#00ffff",
+  },
+  {
+    name: "Champion",
+    status: "online" as const,
+    task: "General tasks",
+    color: "#ff0080",
+  },
+  {
+    name: "Code Champion",
+    status: "working" as const,
     task: "Load tests",
-    color: "#00f0ff",
+    color: "#00ff41",
+  },
+  {
+    name: "Social Dominator",
+    status: "idle" as const,
+    task: "Analytics review",
+    color: "#ff6b6b",
   },
   {
     name: "Data Slayer",
     status: "working" as const,
     task: "Profiling",
-    color: "#ff00a0",
+    color: "#ffff00",
   },
   {
-    name: "Director",
+    name: "Writing Coach",
+    status: "online" as const,
+    task: "Content review",
+    color: "#ff9ff3",
+  },
+  {
+    name: "Alex Chen",
+    status: "online" as const,
+    task: "Architecture",
+    color: "#3b82f6",
+  },
+  {
+    name: "Sarah K.",
+    status: "working" as const,
+    task: "Growth strategy",
+    color: "#ec4899",
+  },
+  {
+    name: "Mike Dev",
+    status: "online" as const,
+    task: "API design",
+    color: "#06b6d4",
+  },
+  {
+    name: "J. Taylor",
     status: "idle" as const,
-    task: "Orchestration",
-    color: "#00ff41",
+    task: "Script editing",
+    color: "#f59e0b",
+  },
+  {
+    name: "Home Controller",
+    status: "online" as const,
+    task: "Device sync",
+    color: "#22d3ee",
   },
 ];
 
 export const CREATORS = [
-  { name: "Alex Chen", handle: "@alexchen", color: "#00f0ff" },
-  { name: "Sarah K.", handle: "@sarahk", color: "#ff00a0" },
-  { name: "Mike Dev", handle: "@mikedev", color: "#ff9ff3" },
+  {
+    name: "Alex Chen",
+    handle: "@alexchen",
+    color: "#3b82f6",
+    followers: "12.4K",
+  },
+  { name: "Sarah K.", handle: "@sarahk", color: "#ec4899", followers: "8.2K" },
+  {
+    name: "Mike Dev",
+    handle: "@mikedev",
+    color: "#06b6d4",
+    followers: "15.1K",
+  },
+  {
+    name: "J. Taylor",
+    handle: "@jtaylor",
+    color: "#f59e0b",
+    followers: "6.8K",
+  },
+  {
+    name: "Pixel Forge",
+    handle: "@pixelforge",
+    color: "#8b5cf6",
+    followers: "22.3K",
+  },
 ];
 
 export const GAMES = [

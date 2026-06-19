@@ -1,43 +1,43 @@
-'use client';
+"use client";
 
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export default function ServiceWorkerRegistration() {
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!('serviceWorker' in navigator)) return;
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
 
     // Register service worker
     const registerSW = async () => {
       try {
-        const registration = await navigator.serviceWorker.register('/sw.js', {
-          scope: '/',
+        const registration = await navigator.serviceWorker.register("/sw.js", {
+          scope: "/",
         });
 
-        registration.addEventListener('updatefound', () => {
+        registration.addEventListener("updatefound", () => {
           const newWorker = registration.installing;
           if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // New service worker available, show update prompt
-                console.log('New version available! Refresh to update.');
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                // New service worker available — could show update prompt here
               }
             });
           }
         });
-
-        console.log('SW registered:', registration.scope);
-      } catch (error) {
-        console.error('SW registration failed:', error);
+      } catch {
+        /* SW registration failed silently */
       }
     };
 
     // Wait for page load
-    if (document.readyState === 'complete') {
+    if (document.readyState === "complete") {
       registerSW();
     } else {
-      window.addEventListener('load', registerSW);
-      return () => window.removeEventListener('load', registerSW);
+      window.addEventListener("load", registerSW);
+      return () => window.removeEventListener("load", registerSW);
     }
   }, []);
 

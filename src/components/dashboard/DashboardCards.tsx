@@ -360,7 +360,7 @@ export function CenterStage({
       );
     case "jarvis":
       return (
-        <div className="h-full min-h-[500px]">
+        <div className="h-full flex flex-col min-h-0">
           <JarvisTerminal />
         </div>
       );

@@ -4,16 +4,16 @@ import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 
 const PRODUCT_LINKS = [
-  { href: "/studio", label: "Studio" },
-  { href: "/marketplace", label: "Marketplace" },
-  { href: "/gallery", label: "Gallery" },
   { href: "/agents", label: "Agents" },
+  { href: "/studio", label: "Studio" },
+  { href: "/gallery", label: "Gallery" },
+  { href: "/marketplace", label: "Marketplace" },
 ];
 
 const RESOURCE_LINKS = [
   { href: "/flow", label: "Flow" },
   { href: "/social", label: "Social" },
-  { href: "/settings", label: "Settings" },
+  { href: "/code", label: "Code Scanner" },
 ];
 
 const COMPANY_LINKS = [

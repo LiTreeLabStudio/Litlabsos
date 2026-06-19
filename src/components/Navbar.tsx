@@ -25,18 +25,14 @@ import {
   Settings,
   Sun,
   Moon,
-  Zap,
   ChevronDown,
   X,
   Menu,
   Bell,
   Coins,
   User,
-  Gamepad as GamepadIcon,
   Code2,
   LayoutDashboard,
-  MessageSquare,
-  Workflow,
 } from "lucide-react";
 
 const NavAuth = dynamic(
@@ -50,12 +46,9 @@ const NavAuth = dynamic(
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/studio", label: "Studio", icon: Zap },
   { href: "/gallery", label: "Gallery", icon: Sparkles },
-  { href: "/social", label: "Social", icon: MessageSquare },
-  { href: "/flow", label: "Flow", icon: Workflow },
-  { href: "/games", label: "Games", icon: GamepadIcon },
-  { href: "/marketplace", label: "Market", icon: ShoppingBag },
+  { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 /* ------------------------------------------------------------------ */

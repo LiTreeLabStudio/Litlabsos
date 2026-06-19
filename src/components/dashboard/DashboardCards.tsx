@@ -12,7 +12,6 @@ import {
 } from "./dashboard-data";
 import SocialFeed from "@/components/SocialFeed";
 import SocialPageContent from "@/components/SocialPageContent";
-import DashboardContent from "./DashboardContent";
 import JarvisTerminal from "./JarvisTerminal";
 
 export function HeroCard({
@@ -212,8 +211,6 @@ export function CenterStage({
           />
         </div>
       );
-    case "dashboard":
-      return <DashboardContent />;
     case "social":
       return <SocialPageContent />;
     case "gallery":
@@ -248,11 +245,11 @@ export function CenterStage({
           />
         </div>
       );
-    case "market":
+    case "marketplace":
       return (
         <div className="space-y-6">
           <HeroCard
-            title="Market"
+            title="Marketplace"
             subtitle="Templates, agents & creator tools."
             color="#ff9ff3"
           />
@@ -415,7 +412,7 @@ export function CenterStage({
                 href: "/agent-chat",
               },
               {
-                label: "Market",
+                label: "Marketplace",
                 icon: ShoppingBag,
                 color: "#ff9ff3",
                 href: "/marketplace",

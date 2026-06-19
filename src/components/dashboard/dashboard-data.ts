@@ -1,5 +1,4 @@
 import {
-  Home,
   Zap,
   Sparkles,
   ShoppingBag,
@@ -12,7 +11,6 @@ import {
   Mic,
   FileText,
   Terminal,
-  Activity,
   MessageSquare,
 } from "lucide-react";
 
@@ -24,21 +22,6 @@ export type IconComponent = React.ComponentType<{
 }>;
 
 export const APPS = [
-  { id: "home", label: "Home", icon: Home, color: "#00f0ff", href: "/" },
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: Activity,
-    color: "#00f0ff",
-    href: "/dashboard",
-  },
-  {
-    id: "social",
-    label: "Social",
-    icon: MessageSquare,
-    color: "#ff00a0",
-    href: "/social",
-  },
   {
     id: "jarvis",
     label: "Jarvis",
@@ -61,8 +44,15 @@ export const APPS = [
     href: "/gallery",
   },
   {
-    id: "market",
-    label: "Market",
+    id: "social",
+    label: "Social",
+    icon: MessageSquare,
+    color: "#ff00a0",
+    href: "/social",
+  },
+  {
+    id: "marketplace",
+    label: "Marketplace",
     icon: ShoppingBag,
     color: "#ff9ff3",
     href: "/marketplace",

@@ -32,7 +32,6 @@ import {
   Coins,
   User,
   Code2,
-  LayoutDashboard,
   Wand2,
 } from "lucide-react";
 
@@ -47,7 +46,6 @@ const NavAuth = dynamic(
 const navLinks = [
   { href: "/", label: "Home", icon: Home },
   { href: "/studio", label: "Studio", icon: Wand2 },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/gallery", label: "Gallery", icon: Sparkles },
   { href: "/marketplace", label: "Marketplace", icon: ShoppingBag },
   { href: "/settings", label: "Settings", icon: Settings },

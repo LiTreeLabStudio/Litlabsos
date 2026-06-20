@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     ? NextResponse.json({
         user: { id: user.id, email: user.email, name: user.name || null },
       })
-    : NextResponse.redirect(new URL("/dashboard", req.url));
+    : NextResponse.redirect(new URL("/", req.url));
 
   res.cookies.set("auth-token", token, {
     httpOnly: true,

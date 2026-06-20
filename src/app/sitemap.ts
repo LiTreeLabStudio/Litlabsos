@@ -50,12 +50,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${base}/dashboard`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.7,
-    },
-    {
       url: `${base}/code`,
       lastModified: now,
       changeFrequency: "weekly",

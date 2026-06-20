@@ -245,6 +245,18 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+// Map page-local agent IDs to server-side agent slugs (src/lib/agents.ts)
+const AGENT_SLUG_MAP: Record<string, string> = {
+  director: "director",
+  champion: "champion",
+  "code-champion": "code",
+  "social-dominator": "social",
+  "data-slayer": "data",
+  "writing-coach": "writer",
+  "music-producer": "champion", // no server-side music agent; fall back to champion
+  "pixel-forge": "pixel-forge",
+};
+
 export default function AgentsPage() {
   const { resolvedColors: T } = useTheme();
   const { isLoaded, isSignedIn, sessionClaims } = useClerkAuth();
@@ -380,12 +392,31 @@ export default function AgentsPage() {
     }));
 
     try {
-      const res = await fetch("/api/gemini", {
+      // Build conversation history from existing chat (exclude the greeting + the message we just added)
+      const history = (chats[agentId] || [])
+        .filter(
+          (m) =>
+            m.text !==
+            `Hi! I'm ${agent.name}, your ${agent.role}. ${agent.desc} What can I help you with?`,
+        )
+        .slice(-8)
+        .map((m) => ({
+          role: (m.role === "user" ? "user" : "assistant") as
+            | "user"
+            | "assistant",
+          content: m.text,
+        }));
+
+      const agentSlug = AGENT_SLUG_MAP[agentId] || "champion";
+
+      const res = await fetch("/api/gemini/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          agentSlug,
           message: content.trim(),
-          systemPrompt: agent.systemPrompt,
+          history,
+          stream: false,
         }),
       });
       const data = await res.json();

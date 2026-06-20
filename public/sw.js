@@ -6,7 +6,7 @@
  * returning visitors never see stale cached HTML.
  */
 
-const CACHE_NAME = "litlabs-v3";
+const CACHE_NAME = "litlabs-v4";
 
 // Assets that are safe to cache aggressively.
 const STATIC_ASSETS = ["/globals.css", "/manifest.json"];

@@ -112,7 +112,9 @@ const TABS: {
   { id: "system", label: "SYS", icon: Terminal, shortcut: "S" },
 ];
 
-// Glitch text effect component
+// Glitch text effect component — uses CSS pseudo-elements via inline styles
+// to avoid triple-rendering text that screen readers and text extraction
+// tools would pick up as "SETTINGSSETTINGSSETTINGS".
 function GlitchText({
   text,
   className = "",
@@ -121,20 +123,17 @@ function GlitchText({
   className?: string;
 }) {
   return (
-    <span className={`relative inline-block ${className}`}>
-      <span className="relative z-10">{text}</span>
-      <span
-        className="absolute top-0 left-0 ml-[-2px] opacity-50 text-red-500 animate-pulse"
-        style={{ clipPath: "inset(0 0 50% 0)" }}
-      >
-        {text}
-      </span>
-      <span
-        className="absolute top-0 left-0 ml-[2px] opacity-50 text-cyan-500 animate-pulse"
-        style={{ clipPath: "inset(50% 0 0 0)", animationDelay: "0.1s" }}
-      >
-        {text}
-      </span>
+    <span
+      className={`relative inline-block ${className}`}
+      data-text={text}
+      style={{
+        // The glitch layers are rendered via ::before / ::after using
+        // attr(data-text) in globals.css — only one text node in the DOM.
+        textShadow:
+          "0.5px 0 0 rgba(255,0,80,0.4), -0.5px 0 0 rgba(0,255,255,0.4)",
+      }}
+    >
+      {text}
     </span>
   );
 }
@@ -508,7 +507,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <PageShell title="Settings" className="font-mono">
+    <PageShell className="font-mono">
       <div className="w-full px-3 py-4">
         {/* Terminal Header */}
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">

@@ -52,13 +52,22 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {[
-                { icon: Code, href: "https://github.com/Litree-Ceo" },
-                { icon: X, href: "https://twitter.com" },
-                { icon: Mail, href: "mailto:hello@litlabs.net" },
+                {
+                  icon: Code,
+                  href: "https://github.com/Litree-Ceo",
+                  label: "GitHub",
+                },
+                { icon: X, href: "https://twitter.com", label: "X / Twitter" },
+                {
+                  icon: Mail,
+                  href: "mailto:hello@litlabs.net",
+                  label: "Email",
+                },
               ].map((social, i) => (
                 <a
                   key={i}
                   href={social.href}
+                  aria-label={social.label}
                   className="p-2 rounded-lg hover:bg-white/5 transition-all opacity-60 hover:opacity-100 border border-transparent hover:border-white/10"
                 >
                   <social.icon size={20} />

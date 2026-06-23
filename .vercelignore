@@ -1,0 +1,6 @@
+# Vercel upload ignore
+.tmp.driveupload
+*.tmp
+*.log
+.DS_Store
+Thumbs.db

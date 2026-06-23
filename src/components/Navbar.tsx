@@ -198,12 +198,20 @@ export default function Navbar() {
           {/* Right Section Actions */}
           <div className="flex items-center gap-3">
             {/* Search Button (UI Only) */}
-            <button className="p-2.5 rounded-xl hover:bg-white/5 opacity-60 transition-all hidden sm:flex">
+            <button
+              aria-label="Search"
+              className="p-2.5 rounded-xl hover:bg-white/5 opacity-60 transition-all hidden sm:flex"
+            >
               <Search size={18} />
             </button>
 
             {/* Theme Toggle */}
             <button
+              aria-label={
+                theme.mode === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
               onClick={() => setMode(theme.mode === "dark" ? "light" : "dark")}
               className="p-2.5 rounded-xl hover:bg-white/5 transition-all"
               style={{ color: T.textMuted }}
@@ -225,6 +233,7 @@ export default function Navbar() {
             {/* Mobile Hamburger */}
             <button
               ref={hamburgerRef}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden p-2.5 rounded-xl hover:bg-white/5 transition-all"
               style={{ color: T.textColor }}
@@ -251,7 +260,10 @@ export default function Navbar() {
           >
             <div className="flex items-center justify-between">
               <span className="font-black text-lg">Menu</span>
-              <button onClick={() => setMobileOpen(false)}>
+              <button
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+              >
                 <X />
               </button>
             </div>

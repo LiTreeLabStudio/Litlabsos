@@ -222,6 +222,7 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 ## 🛠️ LiTTree Lab Studios — Repo-Specific Context
 
 ### Tech Stack & Build
+
 - **Next.js 16.2.9** with standard `next build` (`vercel.json` uses `next build`)
 - **React 19**, **TypeScript**, **Tailwind CSS v4**
 - **Clerk** for auth (wraps entire app in `layout.tsx` via `ClerkProvider`)
@@ -229,6 +230,7 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 - Build is clean: 57 routes, no errors
 
 ### Critical Auth Architecture
+
 - **Auth layers:**
   1. `ClerkProvider` wraps the app in `layout.tsx` — always rendered (was conditionally skipped before, causing `useUser`/`useAuth` to crash during SSG)
   2. API routes enforce auth individually using Clerk session or JWT where needed
@@ -237,12 +239,14 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 - The `NavAuth` component (`src/components/ClerkAuth.tsx`) calls `useUser()` inside a try-catch — this is intentional because `useUser()` can throw if ClerkProvider isn't mounted (but now it always is)
 
 ### Database Schema
+
 - **Canonical schema:** `supabase/schema.sql` — idempotent, uses `public.users` table with `clerk_id` column
 - **App consistency:** All app code (`src/lib/user-db.ts`, API routes, webhook) uses `.from("users")` consistently
 - **`clerk_id` column:** Present in `users` table since the schema was created
 - **Note:** Old `supabase_schema.sql` (destructive, `profiles` table) no longer exists in the repo
 
 ### Performance Landmines
+
 - **`AnimatedBackground.tsx`** — 60fps canvas animation runs on EVERY page. Previously had:
   - `setInterval` for noise overlay (now replaced with rAF)
   - Resize listener leak (`addEventListener` used anonymous arrow, `removeEventListener` tried to remove `resize` function directly)
@@ -251,13 +255,16 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 - **Do NOT add frequent `setInterval`/`setTimeout` in client components** without cleanup guards and visibility checks.
 
 ### Deploy Pipeline
+
 - **Auto-deploy agent:** `agents/deploy-agent/deploy.sh`
 - **Critical fix:** Line 25 used bare `npx vercel` which fails because cron/service user has no `npx` in PATH. Must use absolute path: `/home/litbit/.nvm/versions/node/v22.22.3/bin/npx` or export PATH first.
 - **Down services** (external to this repo): `litlabs-api-tunnel`, `n8n-tunnel` — restart via systemctl or the agent's companion script, not via Next.js build.
-- **Vercel project ID:** `prj_EnE4JStJUENM89PWov574Y9q7mTy`
+- **Vercel project ID:** `prj_URYOdoaCtmahfm8z7GFEGF28PggX` (project name: `litlabs-old`)
 
 ### Missing Env Vars (Production Blockers)
+
 These are needed but currently missing/placeholder:
+
 - `CLERK_WEBHOOK_SECRET` — Clerk Dashboard → Webhooks
 - `STRIPE_SECRET_KEY` — currently `REGENERATE_REQUIRED`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
@@ -265,11 +272,13 @@ These are needed but currently missing/placeholder:
 - AI provider keys: `HUGGING_FACE_API_KEY`, `TOGETHER_API_KEY`, `FAL_KEY`, `MINIMAX_API_KEY`, `SKYBOX_API_KEY`
 
 ### Console Logging Policy
+
 - **Never leave `console.log`/`console.warn`/`console.error` in server-side code** (API routes, `src/lib/*.ts`)
 - Client-side (`src/components/`, `src/context/`) is less critical but should still be minimal
 - `src/components/UserSync.tsx` had a `console.warn` that was removed
 - `src/lib/agents.ts` had `console.error` that was replaced with a comment
 
 ### Shell Environment Issue (This Workspace)
+
 - The custom shell prompt (`GOD-CORE` banner) swallows command output and returns exit code 1 for ALL commands, even `node -e "console.log('hello')"`
 - **Workaround:** Commands actually execute but output is hidden. Use file redirection (`> output.log`) and then `cat output.log` to see results. Or run builds in a standard terminal outside this wrapper.

@@ -175,6 +175,11 @@ const nextConfig: NextConfig = {
         permanent: false,
       },
       { source: "/flow", destination: "/studio?tool=flow", permanent: false },
+      {
+        source: "/agent-chat",
+        destination: "/agent",
+        permanent: false,
+      },
     ];
   },
 

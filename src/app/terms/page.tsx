@@ -23,10 +23,10 @@ export default function TermsPage() {
             className="lit-header -mx-6 -mt-6 mb-4"
             style={{ color: "white" }}
           >
-            ⚖️ Terms of Service
+            📜 Terms of Service
           </div>
           <p className="text-[10px] opacity-60 uppercase tracking-widest">
-            Last Updated: June 5, 2026 · Effective Immediately
+            Last Updated: June 5, 2026 · Please Read Carefully
           </p>
         </div>
 
@@ -39,10 +39,9 @@ export default function TermsPage() {
               1. Acceptance of Terms
             </h2>
             <p>
-              By accessing or using LiTreeLabStudios (&quot;Platform&quot;), you
-              agree to be bound by these Terms of Service. If you do not agree
-              to all terms, you may not access the Platform. These terms apply
-              to all visitors, users, and others who access or use the service.
+              By accessing or using the LiTreeLabStudios Platform, you agree to
+              be bound by these Terms of Service. If you do not agree to all the
+              terms and conditions, you may not access or use the Platform.
             </p>
           </section>
 
@@ -51,24 +50,18 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              2. AI Agents Disclaimer
+              2. Description of Service
             </h2>
             <p className="mb-2">
-              AI Agents on this Platform are user-submitted tools.
-              LiTreeLabStudios does not verify the functionality, accuracy, or
-              safety of every agent.
+              LiTreeLabStudios provides AI-powered tools and agents for
+              creative, development, and productivity tasks, including but not
+              limited to:
             </p>
             <ul className="list-disc pl-5 space-y-1 opacity-80">
-              <li>
-                Agents may not provide accurate, complete, or up-to-date
-                information.
-              </li>
-              <li>
-                Agents are prohibited from providing medical, legal, or
-                financial advice without clear disclosure that they are not
-                licensed professionals.
-              </li>
-              <li>Users assume all risk from using any agent output.</li>
+              <li>AI image, video, and audio generation.</li>
+              <li>Code assistance and software development tools.</li>
+              <li>Agent orchestration and conversational AI.</li>
+              <li>Marketplace listings and digital goods.</li>
             </ul>
           </section>
 
@@ -79,54 +72,17 @@ export default function TermsPage() {
             >
               3. User Accounts
             </h2>
-            <p>
-              You are responsible for safeguarding the password and
-              authentication credentials used to access the Platform. You agree
-              not to disclose your password to any third party. You must notify
-              us immediately upon becoming aware of any breach of security or
-              unauthorized use of your account.
+            <p className="mb-2">
+              You may be required to create an account via Clerk authentication
+              to access certain features. You are responsible for maintaining
+              the confidentiality of your account credentials and for all
+              activities that occur under your account.
             </p>
-          </section>
-
-          <section>
-            <h2
-              className="text-sm font-bold uppercase tracking-wider mb-2"
-              style={{ color: "var(--header-color)" }}
-            >
-              4. Intellectual Property
-            </h2>
-            <p>
-              The Platform and its original content (excluding content provided
-              by users and AI agents), features, and functionality are and will
-              remain the exclusive property of LiTreeLabStudios. This includes
-              all software, design, logos, and branding.
-            </p>
-          </section>
-
-          <section>
-            <h2
-              className="text-sm font-bold uppercase tracking-wider mb-2"
-              style={{ color: "var(--header-color)" }}
-            >
-              5. Prohibited Uses
-            </h2>
-            <p className="mb-2">You may not use the Platform to:</p>
             <ul className="list-disc pl-5 space-y-1 opacity-80">
-              <li>Violate any applicable law or regulation.</li>
+              <li>You must provide accurate and complete information.</li>
+              <li>You are responsible for all content you create or share.</li>
               <li>
-                Infringe upon or violate the intellectual property rights of
-                others.
-              </li>
-              <li>
-                Upload or distribute malicious software, viruses, or harmful
-                code.
-              </li>
-              <li>
-                Harass, abuse, insult, harm, or discriminate against any person
-                or group.
-              </li>
-              <li>
-                Engage in unauthorized data mining, scraping, or harvesting.
+                You must not share account access with unauthorized users.
               </li>
             </ul>
           </section>
@@ -136,13 +92,36 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              6. Termination
+              4. Acceptable Use
+            </h2>
+            <p className="mb-2">
+              You agree not to use the Platform to create, generate, distribute,
+              or facilitate:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 opacity-80">
+              <li>Illegal, harmful, or infringing content.</li>
+              <li>Malware, exploits, or security vulnerabilities.</li>
+              <li>Harassment, hate speech, or abusive behavior.</li>
+              <li>Unauthorized scraping, spam, or automated abuse.</li>
+              <li>
+                Content that violates third-party intellectual property rights.
+              </li>
+            </ul>
+          </section>
+
+          <section>
+            <h2
+              className="text-sm font-bold uppercase tracking-wider mb-2"
+              style={{ color: "var(--header-color)" }}
+            >
+              5. Intellectual Property
             </h2>
             <p>
-              We may terminate or suspend your account immediately, without
-              prior notice or liability, for any reason whatsoever, including
-              without limitation if you breach the Terms. Upon termination, your
-              right to use the Platform will immediately cease.
+              You retain ownership of content you create using the Platform.
+              LiTreeLabStudios retains ownership of the Platform, its underlying
+              software, designs, trademarks, and proprietary AI systems. You are
+              granted a limited, non-exclusive license to use the Platform in
+              accordance with these Terms.
             </p>
           </section>
 
@@ -151,14 +130,13 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              7. Limitation of Liability
+              6. Payments and LiTBit Coins
             </h2>
             <p>
-              In no event shall LiTreeLabStudios be liable for any indirect,
-              incidental, special, consequential, or punitive damages, including
-              without limitation, loss of profits, data, use, goodwill, or other
-              intangible losses, resulting from your access to or use of or
-              inability to access or use the Platform.
+              Some features or marketplace items may require payment or the use
+              of LiTBit Coins. All transactions are processed through Stripe or
+              our internal credit system. Prices are subject to change. Refunds
+              are handled on a case-by-case basis.
             </p>
           </section>
 
@@ -167,12 +145,13 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              8. Governing Law
+              7. Termination
             </h2>
             <p>
-              These Terms shall be governed and construed in accordance with the
-              laws of the jurisdiction in which LiTreeLabStudios operates,
-              without regard to its conflict of law provisions.
+              We may suspend or terminate your access at any time, without prior
+              notice, for conduct that we believe violates these Terms or is
+              harmful to other users, the Platform, or third parties. You may
+              terminate your account by contacting support.
             </p>
           </section>
 
@@ -181,14 +160,13 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              9. Changes to Terms
+              8. Disclaimer of Warranties
             </h2>
             <p>
-              We reserve the right, at our sole discretion, to modify or replace
-              these Terms at any time. What constitutes a material change will
-              be determined at our sole discretion. By continuing to access or
-              use our Platform after those revisions become effective, you agree
-              to be bound by the revised terms.
+              The Platform is provided on an &quot;as-is&quot; and
+              &quot;as-available&quot; basis. We make no warranties, express or
+              implied, regarding the reliability, accuracy, or availability of
+              the Platform or any AI-generated output.
             </p>
           </section>
 
@@ -197,11 +175,40 @@ export default function TermsPage() {
               className="text-sm font-bold uppercase tracking-wider mb-2"
               style={{ color: "var(--header-color)" }}
             >
-              10. Contact
+              9. Limitation of Liability
             </h2>
             <p>
-              If you have any questions about these Terms, please contact us
-              through the Platform or at support@litlabs.net.
+              To the fullest extent permitted by law, LiTreeLabStudios shall not
+              be liable for any indirect, incidental, special, consequential, or
+              punitive damages arising from your use of the Platform.
+            </p>
+          </section>
+
+          <section>
+            <h2
+              className="text-sm font-bold uppercase tracking-wider mb-2"
+              style={{ color: "var(--header-color)" }}
+            >
+              10. Changes to Terms
+            </h2>
+            <p>
+              We may update these Terms from time to time. Continued use of the
+              Platform after changes constitutes acceptance of the revised
+              Terms. We will notify users of material changes by posting the new
+              Terms on this page.
+            </p>
+          </section>
+
+          <section>
+            <h2
+              className="text-sm font-bold uppercase tracking-wider mb-2"
+              style={{ color: "var(--header-color)" }}
+            >
+              11. Contact Us
+            </h2>
+            <p>
+              If you have any questions about these Terms, please contact us at
+              support@litlabs.net.
             </p>
           </section>
         </div>

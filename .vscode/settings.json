@@ -6,13 +6,22 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
   "files.associations": {
     "*.css": "tailwindcss",
     "*.sql": "postgres"
+  },
+  "files.exclude": {
+    "**/.next": true,
+    "**/node_modules": true,
+    "**/.vercel": true
   },
   "tailwindCSS.includeLanguages": {
     "typescriptreact": "html"
   },
   "terminal.integrated.defaultProfile.linux": "zsh",
-  "terminal.integrated.cwd": "/home/litbit/LiTTreeLabstudios"
+  "terminal.integrated.cwd": "${workspaceFolder}",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "eslint.useFlatConfig": true
 }

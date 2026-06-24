@@ -259,7 +259,7 @@ This is a starting point. Add your own conventions, style, and rules as you figu
 - **Auto-deploy agent:** `agents/deploy-agent/deploy.sh`
 - **Critical fix:** Line 25 used bare `npx vercel` which fails because cron/service user has no `npx` in PATH. Must use absolute path: `/home/litbit/.nvm/versions/node/v22.22.3/bin/npx` or export PATH first.
 - **Down services** (external to this repo): `litlabs-api-tunnel`, `n8n-tunnel` — restart via systemctl or the agent's companion script, not via Next.js build.
-- **Vercel project ID:** `prj_URYOdoaCtmahfm8z7GFEGF28PggX` (project name: `litlabs-old`)
+- **Vercel project ID:** `prj_URYOdoaCtmahfm8z7GFEGF28PggX` (project name: `litlabs`)
 
 ### Missing Env Vars (Production Blockers)
 

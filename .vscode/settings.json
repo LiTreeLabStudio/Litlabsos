@@ -23,5 +23,6 @@
   "terminal.integrated.defaultProfile.linux": "zsh",
   "terminal.integrated.cwd": "${workspaceFolder}",
   "typescript.preferences.importModuleSpecifier": "relative",
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "webhint.enabled": false
 }

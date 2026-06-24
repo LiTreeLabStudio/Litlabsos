@@ -110,19 +110,16 @@ self.addEventListener("fetch", (event) => {
   ) {
     event.respondWith(
       caches.match(event.request).then((cached) => {
-        const fetchAndCache = fetch(event.request)
+        if (cached) return cached;
+        return fetch(event.request)
           .then((response) => {
             if (shouldCache(event.request, response)) {
               const clone = response.clone();
-              caches
-                .open(CACHE_NAME)
-                .then((cache) => cache.put(event.request, clone));
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
             }
             return response;
           })
-          .catch(() => cached);
-
-        return cached || fetchAndCache;
+          .catch(() => cached || new Response("Offline", { status: 503 }));
       }),
     );
   }

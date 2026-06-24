@@ -479,7 +479,7 @@ function getResolvedColors(t: Theme) {
   return {
     bgColor: custom.bgColor || skinColors.bgColor,
     textColor: custom.textColor || skinColors.textColor,
-    textMuted: t.mode === "light" ? "#6b7280" : "#8e8e9f",
+    textMuted: t.mode === "light" ? "#6b7280" : "#a1a1b3",
     linkColor: accent?.linkColor || custom.linkColor || skinColors.linkColor,
     headerColor:
       accent?.headerColor || custom.headerColor || skinColors.headerColor,

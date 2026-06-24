@@ -1620,9 +1620,9 @@ export default function AgentTool() {
                   Two agents debate any topic
                 </span>
               </div>
-              <button onClick={() => setShowBoardroom(false)}>
-                <X size={14} style={{ color: T.textMuted }} />
-              </button>
+<button onClick={() => setShowBoardroom(false)} aria-label="Close boardroom view">
+                 <X size={14} style={{ color: T.textMuted }} />
+               </button>
             </div>
 
             <div className="p-5 space-y-4">

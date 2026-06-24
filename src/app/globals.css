@@ -28,6 +28,17 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Landing page tokens (moved from inline styles) */
+  --lit-bg: #0a0a12;
+  --lit-box-bg: rgba(255, 255, 255, 0.03);
+  --lit-border: rgba(255, 255, 255, 0.1);
+  --lit-text: #e0e0e0;
+  --lit-text-muted: rgba(255, 255, 255, 0.85);
+  --lit-header: #00f0ff;
+  --lit-accent: #ff00a0;
+  --lit-link: #ff9ff3;
+  --lit-success: #00ff41;
 }
 
 @theme inline {
@@ -217,9 +228,74 @@ main {
   }
 }
 
+/* Border color opacity utilities - replaces inline borderColor styles */
+.border-color-10 {
+  border-color: color-mix(in srgb, var(--border-color) 5%, transparent);
+}
+.border-color-15 {
+  border-color: color-mix(in srgb, var(--border-color) 8.2%, transparent);
+}
+.border-color-20 {
+  border-color: color-mix(in srgb, var(--border-color) 12.5%, transparent);
+}
+.border-color-30 {
+  border-color: color-mix(in srgb, var(--border-color) 18.75%, transparent);
+}
+.border-color-40 {
+  border-color: color-mix(in srgb, var(--border-color) 25.1%, transparent);
+}
+.border-color-50 {
+  border-color: color-mix(in srgb, var(--border-color) 31.25%, transparent);
+}
+
+/* Border + background combos for sidebar/content panels */
+.border-color-40-bg {
+  border-color: color-mix(in srgb, var(--border-color) 25.1%, transparent);
+  background-color: color-mix(in srgb, var(--box-bg) 50%, transparent);
+}
+
+/* Active nav item styles */
+.nav-item-active {
+  background-color: color-mix(in srgb, var(--accent-color) 8%, transparent);
+  color: var(--accent-color);
+}
+
+/* Save/primary button */
+.btn-accent {
+  background-color: var(--accent-color);
+  color: #000;
+}
+
+/* Modal cancel button */
+.btn-cancel {
+  border-color: color-mix(in srgb, var(--border-color) 25%, transparent);
+}
+
 /* ============================================================
-   STUDIO RESPONSIVE FIXES (added 2026-06-23)
-   ============================================================ */
+    BUTTONS & COMPONENTS
+    ============================================================ */
+
+.btn-accent {
+  background-color: var(--accent-color);
+  color: #000;
+}
+
+.btn-accent:hover {
+  filter: brightness(1.1);
+}
+
+.btn-cancel {
+  border: 1px solid var(--border-color);
+}
+
+.border-color-40 {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.border-color-40-bg {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(18, 18, 26, 0.7);
+}
 
 /* Studio tool root should fill the available workspace */
 .studio-tool-root,
@@ -246,8 +322,7 @@ main {
 
 /* Tool preview areas should be responsive */
 .studio-scroll .aspect-video,
-.studio-scroll .aspect-square,
-.studio-scroll .aspect-[3/1] {
+.studio-scroll .aspect-square {
   max-width: 100%;
 }
 

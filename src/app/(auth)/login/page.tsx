@@ -75,10 +75,63 @@ export default async function LoginPage({
               Sign In
             </button>
           </form>
+
+          {/* OAuth Providers */}
+          <div className="mt-6 space-y-3">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-white/10" />
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="bg-[#0a0a0f] px-2 text-zinc-500">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            <a
+              href="/sign-in"
+              className="flex items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 23c2.97 0 5.46-.9 7.26-2.41l-3.57-2.77c-1.04.69-2.37 1.11-3.67 1.11-2.86 0-5.31-1.93-6.2-4.53H2.9v2.84C4.9 21.53 8.2 23 12 23z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M5.8 13.5c-.23-.69-.36-1.44-.36-2.2s.13-1.51.36-2.2V5.26H2.9A11 11 0 0 0 12 1c3.05 0 5.84 1.15 7.93 3.04l2.66-2.66C20.44 2.66 17.7 1 12 1 5.8 1 5.8 4.5 5.8 7.3v.9z"
+                />
+              </svg>
+              Sign in with Google
+            </a>
+
+            <a
+              href="/sign-in"
+              className="flex items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm0 22.5c-5.79 0-10.5-4.71-10.5-10.5S6.21 2.5 12 2.5s10.5 4.71 10.5 10.5-4.71 10.5-10.5 10.5z" />
+                <path d="M12 5.5c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5 6.5-2.91 6.5-6.5-2.91-6.5-6.5-6.5zm0 10.5c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
+              </svg>
+              Sign in with Apple
+            </a>
+          </div>
+
+          <p className="text-center text-xs text-zinc-500 mt-4">
+            Don't have an account?{" "}
+            <a href="/sign-up" className="text-blue-400 hover:underline">
+              Create one
+            </a>
+          </p>
         </div>
 
         <p className="text-center text-xs text-zinc-600 mt-6">
-          LitLabs v3.0 · AI-Powered Platform
+          LiTTree Lab Studios · AI-Powered Platform
         </p>
       </div>
     </div>

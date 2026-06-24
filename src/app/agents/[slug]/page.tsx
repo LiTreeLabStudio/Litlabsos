@@ -409,15 +409,15 @@ export default function AgentDetail() {
               </p>
 
               <div className="mb-4">
-                <h4
-                  style={{
-                    color: theme.headerColor,
-                    fontSize: "12px",
-                    marginBottom: "8px",
-                  }}
-                >
-                  PERSONALITY
-                </h4>
+<h3
+                       style={{
+                       color: theme.headerColor,
+                       fontSize: "12px",
+                       marginBottom: "8px",
+                     }}
+                   >
+                     PERSONALITY
+                   </h3>
                 <p style={{ color: theme.textColor, fontSize: "11px" }}>
                   {agent.personality}
                 </p>
@@ -425,15 +425,15 @@ export default function AgentDetail() {
 
               {agent.features && agent.features.length > 0 && (
                 <div>
-                  <h4
-                    style={{
-                      color: theme.headerColor,
-                      fontSize: "12px",
-                      marginBottom: "8px",
-                    }}
-                  >
-                    ✨ FEATURES
-                  </h4>
+<h3
+                       style={{
+                       color: theme.headerColor,
+                       fontSize: "12px",
+                       marginBottom: "8px",
+                     }}
+                   >
+                     ✨ FEATURES
+                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     {agent.features.map((feature, i) => (
                       <div

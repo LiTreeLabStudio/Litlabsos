@@ -267,9 +267,9 @@ export default function GalleryPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-black text-sm text-white">
-                      {item.title}
-                    </h4>
+<h3 className="font-black text-sm text-white">
+                       {item.title}
+                     </h3>
                     <span className="text-[10px] font-bold text-white/60 bg-white/10 px-2 py-0.5 rounded-full uppercase">
                       {item.category}
                     </span>

@@ -205,12 +205,12 @@ export default function ShowcasePage() {
               border: `1px solid rgba(0,229,255,0.12)`,
             }}
           >
-            <h4
-              className="font-display text-xs uppercase tracking-widest mb-3"
-              style={{ color: T.headerColor }}
-            >
-              Why These Images Work
-            </h4>
+<h3
+               className="font-display text-xs uppercase tracking-widest mb-3"
+               style={{ color: T.headerColor }}
+             >
+               Why These Images Work
+             </h3>
             <div
               className="grid md:grid-cols-3 gap-4 text-xs"
               style={{ color: T.textColor, opacity: 0.75 }}
@@ -621,12 +621,12 @@ export default function ShowcasePage() {
                   border: `1px solid rgba(255,56,96,0.2)`,
                 }}
               >
-                <h4
-                  className="font-display text-xs uppercase tracking-widest mb-3"
-                  style={{ color: "#ff3860" }}
-                >
-                  ❌ Before
-                </h4>
+<h3
+                   className="font-display text-xs uppercase tracking-widest mb-3"
+                   style={{ color: "#ff3860" }}
+                 >
+                   ❌ Before
+                 </h3>
                 <ul
                   className="space-y-2 text-xs"
                   style={{
@@ -649,12 +649,12 @@ export default function ShowcasePage() {
                   border: `1px solid rgba(37,224,138,0.2)`,
                 }}
               >
-                <h4
-                  className="font-display text-xs uppercase tracking-widest mb-3"
-                  style={{ color: T.success }}
-                >
-                  ✓ After
-                </h4>
+<h3
+                   className="font-display text-xs uppercase tracking-widest mb-3"
+                   style={{ color: T.success }}
+                 >
+                   ✓ After
+                 </h3>
                 <ul
                   className="space-y-2 text-xs"
                   style={{
@@ -701,12 +701,12 @@ export default function ShowcasePage() {
 
             {/* Stack */}
             <div className="mb-8">
-              <h4
-                className="font-display text-xs uppercase tracking-widest mb-4"
-                style={{ color: T.textMuted }}
-              >
-                Tools Orchestrated
-              </h4>
+<h3
+                 className="font-display text-xs uppercase tracking-widest mb-4"
+                 style={{ color: T.textMuted }}
+               >
+                 Tools Orchestrated
+               </h3>
               <div className="grid md:grid-cols-2 gap-3">
                 {[
                   {
@@ -775,9 +775,9 @@ export default function ShowcasePage() {
                 border: `1px solid rgba(255,255,255,0.06)`,
               }}
             >
-              <h4 className="font-display text-base font-black mb-2">
-                Want This For Your Workflow?
-              </h4>
+<h3 className="font-display text-base font-black mb-2">
+                 Want This For Your Workflow?
+               </h3>
               <p className="text-sm mb-4" style={{ color: T.textMuted }}>
                 Book a discovery call and let&apos;s map your automation
                 opportunity in 20 minutes.

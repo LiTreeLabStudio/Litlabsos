@@ -78,9 +78,9 @@ export default function Footer() {
 
           {/* Links Columns */}
           <div className="space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-widest opacity-30">
-              Platform
-            </h4>
+<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+               Platform
+             </h2>
             <div className="flex flex-col gap-2">
               {PRODUCT_LINKS.map((item) => (
                 <Link
@@ -95,9 +95,9 @@ export default function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-widest opacity-30">
-              Resources
-            </h4>
+<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+               Resources
+             </h2>
             <div className="flex flex-col gap-2">
               {RESOURCE_LINKS.map((item) => (
                 <Link
@@ -112,9 +112,9 @@ export default function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-widest opacity-30">
-              Legal
-            </h4>
+<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+               Legal
+             </h2>
             <div className="flex flex-col gap-2">
               {LEGAL_LINKS.map((item) => (
                 <Link

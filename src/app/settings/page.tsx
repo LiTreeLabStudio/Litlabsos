@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   useTheme,
@@ -17,7 +17,6 @@ import {
   Bell,
   Shield,
   Save,
-  RotateCcw,
   Moon,
   Sun,
   Monitor,
@@ -30,6 +29,8 @@ const SECTIONS = [
   { id: "notifications", label: "Notifications", icon: Bell },
   { id: "privacy", label: "Privacy", icon: Shield },
 ];
+
+const inputBorderClass = "border-[var(--border-color)]";
 
 const WALLPAPERS: { id: WallpaperId; label: string }[] = [
   { id: "default", label: "Default" },
@@ -56,7 +57,7 @@ const SIDEBAR_STYLES = [
 export default function SettingsPage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
   const router = useRouter();
-  const { theme, setMode, setSkin, setAccent, resolvedColors: T } = useTheme();
+  const { theme, setMode, setSkin, setAccent } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();
 
   const [activeSection, setActiveSection] = useState("profile");
@@ -66,6 +67,19 @@ export default function SettingsPage() {
   const [location, setLocation] = useState(() => profile.location);
   const [website, setWebsite] = useState(() => profile.website);
   const [saved, setSaved] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+
+  const handleSaveProfile = useCallback(() => {
+    updateProfile({
+      displayName: displayName.trim() || profile.displayName,
+      username: username.trim() || profile.username,
+      bio: bio.trim(),
+      location: location.trim(),
+      website: website.trim(),
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }, [updateProfile, profile, displayName, username, bio, location, website]);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -103,26 +117,6 @@ export default function SettingsPage() {
     );
   }
 
-  const handleSaveProfile = () => {
-    updateProfile({
-      displayName: displayName.trim() || profile.displayName,
-      username: username.trim() || profile.username,
-      bio: bio.trim(),
-      location: location.trim(),
-      website: website.trim(),
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
-
-  const handleReset = () => {
-    if (
-      confirm("Reset all profile settings to defaults? This cannot be undone.")
-    ) {
-      resetProfile();
-    }
-  };
-
   const renderSection = () => {
     switch (activeSection) {
       case "profile":
@@ -137,8 +131,8 @@ export default function SettingsPage() {
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm"
-                  style={{ borderColor: T.borderColor + "40" }}
+                  className={`w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm ${inputBorderClass}`}
+                  placeholder="Your display name"
                 />
               </div>
               <div className="space-y-2">
@@ -149,8 +143,8 @@ export default function SettingsPage() {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm"
-                  style={{ borderColor: T.borderColor + "40" }}
+                  className={`w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm ${inputBorderClass}`}
+                  placeholder="@username"
                 />
               </div>
             </div>
@@ -163,8 +157,8 @@ export default function SettingsPage() {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm resize-none"
-                style={{ borderColor: T.borderColor + "40" }}
+                className={`w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm resize-none ${inputBorderClass}`}
+                placeholder="Tell us about yourself"
               />
             </div>
 
@@ -177,8 +171,8 @@ export default function SettingsPage() {
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm"
-                  style={{ borderColor: T.borderColor + "40" }}
+                  className={`w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm ${inputBorderClass}`}
+                  placeholder="City, Country"
                 />
               </div>
               <div className="space-y-2">
@@ -189,8 +183,8 @@ export default function SettingsPage() {
                   type="text"
                   value={website}
                   onChange={(e) => setWebsite(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm"
-                  style={{ borderColor: T.borderColor + "40" }}
+                  className={`w-full px-4 py-3 rounded-xl bg-white/5 border focus:outline-none focus:ring-2 text-sm ${inputBorderClass}`}
+                  placeholder="https://yoursite.com"
                 />
               </div>
             </div>
@@ -213,8 +207,7 @@ export default function SettingsPage() {
                   <button
                     key={id}
                     onClick={() => setMode(id as ThemeMode)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold transition-all ${theme.mode === id ? "ring-2" : "opacity-70 hover:opacity-100"}`}
-                    style={{ borderColor: T.borderColor + "40" }}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold transition-all ${theme.mode === id ? "ring-2" : "opacity-70 hover:opacity-100"} ${inputBorderClass}`}
                   >
                     <Icon size={16} />
                     {label}
@@ -252,8 +245,7 @@ export default function SettingsPage() {
                   <button
                     key={skin}
                     onClick={() => setSkin(skin)}
-                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${theme.skin === skin ? "ring-2" : "opacity-70 hover:opacity-100"}`}
-                    style={{ borderColor: T.borderColor + "40" }}
+                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${theme.skin === skin ? "ring-2" : "opacity-70 hover:opacity-100"} ${inputBorderClass}`}
                   >
                     {skin}
                     {theme.skin === skin && (
@@ -284,8 +276,7 @@ export default function SettingsPage() {
                   <button
                     key={accent}
                     onClick={() => setAccent(accent)}
-                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${theme.accent === accent ? "ring-2" : "opacity-70 hover:opacity-100"}`}
-                    style={{ borderColor: T.borderColor + "40" }}
+                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${theme.accent === accent ? "ring-2" : "opacity-70 hover:opacity-100"} ${inputBorderClass}`}
                   >
                     {accent.replace(/-/g, " ")}
                     {theme.accent === accent && (
@@ -305,8 +296,7 @@ export default function SettingsPage() {
                   <button
                     key={wp.id}
                     onClick={() => updateProfile({ wallpaper: wp.id })}
-                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${profile.wallpaper === wp.id ? "ring-2" : "opacity-70 hover:opacity-100"}`}
-                    style={{ borderColor: T.borderColor + "40" }}
+                    className={`px-3 py-2 rounded-xl border text-xs font-bold capitalize transition-all ${profile.wallpaper === wp.id ? "ring-2" : "opacity-70 hover:opacity-100"} ${inputBorderClass}`}
                   >
                     {wp.label}
                     {profile.wallpaper === wp.id && (
@@ -330,8 +320,7 @@ export default function SettingsPage() {
                         sidebarStyle: style.id as typeof profile.sidebarStyle,
                       })
                     }
-                    className={`px-4 py-2 rounded-xl border text-sm font-bold capitalize transition-all ${profile.sidebarStyle === style.id ? "ring-2" : "opacity-70 hover:opacity-100"}`}
-                    style={{ borderColor: T.borderColor + "40" }}
+                    className={`px-4 py-2 rounded-xl border text-sm font-bold capitalize transition-all ${profile.sidebarStyle === style.id ? "ring-2" : "opacity-70 hover:opacity-100"} ${inputBorderClass}`}
                   >
                     {style.label}
                     {profile.sidebarStyle === style.id && (
@@ -367,8 +356,7 @@ export default function SettingsPage() {
             ].map(({ label, desc }) => (
               <div
                 key={label}
-                className="flex items-center justify-between p-4 rounded-xl border"
-                style={{ borderColor: T.borderColor + "40" }}
+                className="flex items-center justify-between p-4 rounded-xl border border-color-40"
               >
                 <div>
                   <div className="font-bold text-sm">{label}</div>
@@ -376,7 +364,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-white/10">
                   <span className="sr-only">Toggle {label}</span>
-                  <span className="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white/50 transition" />
+<span className="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white/50 transition" />
                 </div>
               </div>
             ))}
@@ -390,36 +378,24 @@ export default function SettingsPage() {
       case "privacy":
         return (
           <div className="space-y-6">
-            <div
-              className="p-4 rounded-xl border"
-              style={{ borderColor: T.borderColor + "40" }}
-            >
+            <div className="p-4 rounded-xl border border-color-40">
               <h3 className="font-bold text-sm mb-2">Public Profile</h3>
               <p className="text-xs opacity-60 mb-3">
                 Your profile is visible to other signed-in users. You can manage
                 details from the Profile tab.
               </p>
-              <button
-                className="px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80"
-                style={{ borderColor: T.borderColor + "40" }}
-              >
+              <button className="px-4 py-2 rounded-lg text-xs font-bold border border-color-40 transition-all hover:opacity-80">
                 View Public Profile
               </button>
             </div>
 
-            <div
-              className="p-4 rounded-xl border"
-              style={{ borderColor: T.borderColor + "40" }}
-            >
+            <div className="p-4 rounded-xl border border-color-40">
               <h3 className="font-bold text-sm mb-2">Data & Export</h3>
               <p className="text-xs opacity-60 mb-3">
                 Download your profile, agent preferences, and marketplace
                 history.
               </p>
-              <button
-                className="px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80"
-                style={{ borderColor: T.borderColor + "40" }}
-              >
+              <button className="px-4 py-2 rounded-lg text-xs font-bold border border-color-40 transition-all hover:opacity-80">
                 Request Data Export
               </button>
             </div>
@@ -433,7 +409,7 @@ export default function SettingsPage() {
                 your account.
               </p>
               <button
-                onClick={handleReset}
+                onClick={() => setConfirmReset(true)}
                 className="px-4 py-2 rounded-lg text-xs font-bold border border-red-500/50 text-red-400 transition-all hover:bg-red-500/10"
               >
                 Reset Settings
@@ -449,30 +425,20 @@ export default function SettingsPage() {
 
   return (
     <PageShell title="Settings">
-      <div className="min-h-[calc(100vh-8rem)] max-w-[1400px] mx-auto px-4 py-8">
+      <div className="min-h-[calc(100vh-8rem)] max-w-350 mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <aside className="lg:w-64 shrink-0">
-            <div
-              className="rounded-2xl border p-2 sticky top-24"
-              style={{
-                borderColor: T.borderColor + "40",
-                backgroundColor: T.boxBg + "80",
-              }}
-            >
+            <div className="rounded-2xl border p-2 sticky top-24 border-color-40-bg">
               {SECTIONS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveSection(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeSection === id ? "opacity-100" : "opacity-60 hover:opacity-100"}`}
-                  style={
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                     activeSection === id
-                      ? {
-                          backgroundColor: T.accentColor + "15",
-                          color: T.accentColor,
-                        }
-                      : {}
-                  }
+                      ? "opacity-100 nav-item-active"
+                      : "opacity-60 hover:opacity-100"
+                  }`}
                 >
                   <Icon size={18} />
                   {label}
@@ -483,13 +449,7 @@ export default function SettingsPage() {
 
           {/* Content */}
           <main className="flex-1 min-w-0">
-            <div
-              className="rounded-2xl border p-6 md:p-8"
-              style={{
-                borderColor: T.borderColor + "40",
-                backgroundColor: T.boxBg + "80",
-              }}
-            >
+            <div className="rounded-2xl border p-6 md:p-8 border-color-40-bg">
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-xl font-black uppercase tracking-tight">
                   {SECTIONS.find((s) => s.id === activeSection)?.label}
@@ -497,21 +457,10 @@ export default function SettingsPage() {
                 {activeSection === "profile" && (
                   <button
                     onClick={handleSaveProfile}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105"
-                    style={{ backgroundColor: T.accentColor, color: "#000" }}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 btn-accent"
                   >
                     {saved ? <Check size={16} /> : <Save size={16} />}
                     {saved ? "Saved" : "Save"}
-                  </button>
-                )}
-                {activeSection === "appearance" && (
-                  <button
-                    onClick={handleReset}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border transition-all hover:opacity-80"
-                    style={{ borderColor: T.borderColor + "40" }}
-                  >
-                    <RotateCcw size={16} />
-                    Reset
                   </button>
                 )}
               </div>
@@ -521,6 +470,33 @@ export default function SettingsPage() {
           </main>
         </div>
       </div>
+      {confirmReset && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#151520] border border-[#2a2a45] rounded-2xl p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-lg font-black mb-2">Reset Settings?</h3>
+            <p className="text-sm opacity-70 mb-6">
+              Reset all profile settings to defaults? This cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmReset(false)}
+                className="px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80 btn-cancel"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  resetProfile();
+                  setConfirmReset(false);
+                }}
+                className="px-4 py-2 rounded-lg text-xs font-bold border border-red-500/50 text-red-400 transition-all hover:bg-red-500/10"
+              >
+                Yes, Reset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </PageShell>
   );
 }

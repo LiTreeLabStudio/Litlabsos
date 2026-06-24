@@ -620,9 +620,9 @@ export default function Dashboard() {
               <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
                 <Terminal size={24} />
               </div>
-              <h4 className="text-xl font-black leading-tight">
-                Live Agent Boardroom
-              </h4>
+<h3 className="text-xl font-black leading-tight">
+                 Live Agent Boardroom
+               </h3>
               <p className="text-sm text-indigo-100 opacity-80">
                 Observe your neural collective collaborating in real-time within
                 the unified hub.

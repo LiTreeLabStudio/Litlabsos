@@ -33,34 +33,9 @@ function useCustomSession() {
   return { session, loaded };
 }
 
-function CustomAuthFallback({ linkColor }: NavAuthProps) {
-  const { session, loaded } = useCustomSession();
-  if (!loaded) {
-    return (
-      <div className="rounded-full animate-pulse" style={{ width: 28, height: 28, backgroundColor: linkColor + "20", border: `1px solid ${linkColor}40` }} />
-    );
-  }
-  if (session?.user) {
-    const name = session.user.name || "Admin";
-    return (
-      <div className="flex items-center gap-1.5">
-        <span className="text-[11px] font-bold truncate max-w-[80px]" style={{ color: linkColor }}>{name}</span>
-        <form action="/api/auth/logout" method="POST">
-          <button type="submit" className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-black cursor-pointer hover:opacity-80 transition-opacity"
-            style={{ backgroundColor: linkColor + "20", color: linkColor, border: `1px solid ${linkColor}40` }} title="Sign out">
-            ✕
-          </button>
-        </form>
-      </div>
-    );
-  }
+function CustomAuthFallback() {
   return (
-    <Link href="/login">
-      <button className="px-3.5 py-1.5 rounded-md text-[11px] font-bold cursor-pointer transition-all hover:opacity-90"
-        style={{ backgroundColor: linkColor, color: "#fff", letterSpacing: "0.05em" }}>
-        Sign In
-      </button>
-    </Link>
+    <div className="rounded-full animate-pulse" style={{ width: 28, height: 28, backgroundColor: "#4f46e520", border: "1px solid #4f46e540" }} />
   );
 }
 
@@ -99,6 +74,7 @@ function AuthInner({ linkColor }: NavAuthProps) {
   return (
     <SignInButton mode="modal">
       <button
+        aria-label="Sign in to your account"
         className="px-3.5 py-1.5 rounded-md text-[11px] font-bold cursor-pointer transition-all hover:opacity-90"
         style={{
           backgroundColor: linkColor,
@@ -112,11 +88,9 @@ function AuthInner({ linkColor }: NavAuthProps) {
   );
 }
 
-export function NavAuth({ linkColor = "#6366f1" }: NavAuthProps) {
+export function NavAuth({ linkColor = "#4f46e5" }: NavAuthProps) {
   return (
-    <ClerkBoundary
-      fallback={<CustomAuthFallback linkColor={linkColor} />}
-    >
+    <ClerkBoundary fallback={<CustomAuthFallback />}>
       <AuthInner linkColor={linkColor} />
     </ClerkBoundary>
   );

@@ -7,24 +7,14 @@ import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import {
   ShoppingBag,
-  Zap,
-  Sparkles,
   Bot,
   Search,
   Filter,
-  ArrowRight,
   Loader2,
-  Check,
   Shield,
   Coins,
   Star,
-  Users,
-  Code,
-  Layout,
-  Music,
-  Camera,
   Layers,
-  ExternalLink,
   ChevronDown,
 } from "lucide-react";
 

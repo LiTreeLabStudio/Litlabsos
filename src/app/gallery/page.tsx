@@ -9,21 +9,12 @@ import PageShell from "@/components/PageShell";
 import {
   Sparkles,
   Heart,
-  MessageSquare,
   Share2,
   Filter,
   Search,
-  Grid,
   Loader2,
   TrendingUp,
-  Clock,
-  Zap,
   ArrowUpRight,
-  ChevronDown,
-  Camera,
-  Play,
-  Layers,
-  ArrowRight,
 } from "lucide-react";
 
 interface GalleryItem {

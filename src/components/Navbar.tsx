@@ -78,15 +78,15 @@ function WalletBadge({ accentColor }: { accentColor: string }) {
 
 export default function Navbar() {
   const { resolvedColors: T, setMode, theme } = useTheme();
-  const { profile } = useProfile();
+  const { profile: _profile } = useProfile();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [userOpen, setUserOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Record<string, unknown>[]>(
+  const [userOpen, _setUserOpen] = useState(false);
+  const [notifOpen, _setNotifOpen] = useState(false);
+  const [notifications, _setNotifications] = useState<Record<string, unknown>[]>(
     [],
   );
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, _setUnreadCount] = useState(0);
 
   const userRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -106,9 +106,9 @@ export default function Navbar() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (userRef.current && !userRef.current.contains(e.target as Node))
-        setUserOpen(false);
+        _setUserOpen(false);
       if (notifRef.current && !notifRef.current.contains(e.target as Node))
-        setNotifOpen(false);
+        _setNotifOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);

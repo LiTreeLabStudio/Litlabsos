@@ -1,5 +1,4 @@
 ﻿"use client";
-export const dynamic = "force-dynamic";
 
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { useRouter } from "next/navigation";

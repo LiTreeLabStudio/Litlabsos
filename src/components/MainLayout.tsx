@@ -3,13 +3,17 @@
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import NpcGuide from "@/components/NpcGuide";
 import UserSync from "@/components/UserSync";
 import CookieConsent from "@/components/CookieConsent";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
+import dynamicImport from "next/dynamic";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ProfileProvider } from "@/context/ProfileContext";
+
+const NpcGuide = dynamicImport(() => import("@/components/NpcGuide"), {
+  ssr: false,
+});
 
 export default function MainLayout({
   children,

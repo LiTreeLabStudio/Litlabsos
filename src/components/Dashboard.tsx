@@ -417,6 +417,7 @@ export default function Dashboard() {
                 <img
                   src={profile.avatarUrl}
                   className="w-full h-full object-cover"
+                  alt=""
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-2xl font-bold bg-indigo-500/10">
@@ -510,12 +511,13 @@ export default function Dashboard() {
                       href={`/gallery/${item.id}`}
                       className="aspect-square rounded-2xl overflow-hidden relative group border border-white/5"
                     >
-                      {item.imageUrl ? (
-                        <img
-                          src={item.imageUrl}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        />
-                      ) : (
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            alt=""
+                          />
+                        ) : (
                         <div className="w-full h-full bg-white/5 flex items-center justify-center">
                           <Sparkles size={24} className="opacity-20" />
                         </div>

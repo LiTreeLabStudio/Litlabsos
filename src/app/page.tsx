@@ -582,7 +582,7 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
-              What Early <span className="text-(--lit-accent)">Creators</span>{" "}
+              What Early <span className="text-[var(--lit-accent)]">Creators</span>{" "}
               Are Saying
             </h2>
             <p className="text-lg max-w-2xl mx-auto text-[var(--lit-text-muted)]">
@@ -659,7 +659,7 @@ function LandingPage() {
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl sm:text-5xl font-black mb-6">
-            Ready to <span className="text-(--lit-accent)">Build Your</span>{" "}
+            Ready to <span className="text-[var(--lit-accent)]">Build Your</span>{" "}
             Space?
           </h2>
           <p className="text-xl mb-8 text-[var(--lit-text-muted)]">

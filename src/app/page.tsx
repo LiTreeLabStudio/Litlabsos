@@ -5,6 +5,15 @@ export const dynamic = "force-dynamic";
 import type { CSSProperties } from "react";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
+
+// Helpers to avoid runtime theme crashes
+function getCssVar(name: string, fallback: string) {
+  if (typeof document === "undefined") return fallback;
+  return (
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
+    fallback
+  );
+}
 import {
   Zap,
   Sparkles,
@@ -116,7 +125,7 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 border text-xs font-mono border-(--lit-border) text-(--lit-header)">
+              <div className="inline-flex items-center gap-2 px-3 py-1 mb-6 border text-xs font-mono border-[var(--lit-border)] text-(--lit-header)">
                 <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 NOW IN PUBLIC BETA
               </div>
@@ -134,7 +143,7 @@ function LandingPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link
                   href="/sign-up"
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold border-2 hover:opacity-80 transition-all border-(--lit-header) text-(--lit-header)"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-bold border-2 hover:opacity-80 transition-all border-[var(--lit-header)] text-[var(--lit-header)]"
                 >
                   Start Building Free
                   <ArrowRight
@@ -144,7 +153,7 @@ function LandingPage() {
                 </Link>
                 <Link
                   href="/studio"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium border hover:bg-white/5 transition-all border-(--lit-border)"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium border hover:bg-white/5 transition-all border-[var(--lit-border)]"
                 >
                   <Play size={18} />
                   Try Studio
@@ -165,8 +174,8 @@ function LandingPage() {
 
             {/* Hero Visual */}
             <div className="relative">
-              <div className="hidden md:block relative border-2 p-6 border-(--lit-border)">
-                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-(--lit-border)">
+              <div className="hidden md:block relative border-2 p-6 border-[var(--lit-border)]">
+                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-[var(--lit-border)]">
                   <div className="w-3 h-3 rounded-full bg-red-500" />
                   <div className="w-3 h-3 rounded-full bg-yellow-500" />
                   <div className="w-3 h-3 rounded-full bg-green-500" />
@@ -174,7 +183,7 @@ function LandingPage() {
                     agent-worker-1 — bash
                   </span>
                 </div>
-                <div className="font-mono text-sm space-y-2 text-(--lit-text-muted)">
+                <div className="font-mono text-sm space-y-2 text-[var(--lit-text-muted)]">
                   <p>
                     <span className="text-green-400">$</span> littree agent
                     deploy code-reviewer
@@ -198,16 +207,16 @@ function LandingPage() {
                   </p>
                 </div>
 
-                <div className="absolute -top-4 -right-4 px-3 py-2 border text-xs font-bold animate-pulse border-(--lit-accent) text-(--lit-accent)">
+                <div className="absolute -top-4 -right-4 px-3 py-2 border text-xs font-bold animate-pulse border-[var(--lit-accent)] text-[var(--lit-accent)]">
                   <Zap size={12} className="inline mr-1" />3 tasks completed
                 </div>
-                <div className="absolute -bottom-4 -left-4 px-3 py-2 border text-xs font-bold border-(--lit-header) text-(--lit-header)">
+                <div className="absolute -bottom-4 -left-4 px-3 py-2 border text-xs font-bold border-[var(--lit-header)] text-[var(--lit-header)]">
                   <Globe size={12} className="inline mr-1" /> Posted to Twitter
                 </div>
               </div>
 
-              <div className="md:hidden relative border p-4 rounded-lg border-(--lit-border) bg-(--lit-box-bg)">
-                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-(--lit-border)">
+              <div className="md:hidden relative border p-4 rounded-lg border-[var(--lit-border)] bg-[var(--lit-box-bg)]">
+                <div className="flex items-center gap-2 mb-3 pb-3 border-b border-[var(--lit-border)]">
                   <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
                   <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
                   <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
@@ -215,7 +224,7 @@ function LandingPage() {
                     agent-worker-1
                   </span>
                 </div>
-                <div className="font-mono text-xs space-y-1.5 text-(--lit-text-muted)">
+                <div className="font-mono text-xs space-y-1.5 text-[var(--lit-text-muted)]">
                   <p>
                     <span className="text-green-400">$</span> littree agent
                     deploy code-reviewer
@@ -232,10 +241,10 @@ function LandingPage() {
                   </p>
                 </div>
                 <div className="mt-3 flex gap-2">
-                  <span className="px-2 py-1 border text-[10px] font-bold rounded bg-(--lit-box-bg) border-(--lit-accent) text-(--lit-accent)">
+                  <span className="px-2 py-1 border text-[10px] font-bold rounded bg-[var(--lit-box-bg)] border-[var(--lit-accent)] text-[var(--lit-accent)]">
                     <Zap size={10} className="inline mr-1" />3 tasks
                   </span>
-                  <span className="px-2 py-1 border text-[10px] font-bold rounded bg-(--lit-box-bg) border-(--lit-header) text-(--lit-header)">
+                  <span className="px-2 py-1 border text-[10px] font-bold rounded bg-[var(--lit-box-bg)] border-[var(--lit-header)] text-[var(--lit-header)]">
                     <Globe size={10} className="inline mr-1" /> Posted
                   </span>
                 </div>
@@ -245,12 +254,12 @@ function LandingPage() {
         </div>
 
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <ChevronDown size={24} className="text-(--lit-text-muted)" />
+          <ChevronDown size={24} className="text-[var(--lit-text-muted)]" />
         </div>
       </section>
 
       {/* Stats / Trust Band */}
-      <section className="py-10 border-y border-(--lit-border) bg-[rgba(0,240,25,0.02)]">
+      <section className="py-10 border-y border-[var(--lit-border)] bg-[rgba(0,240,25,0.02)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
@@ -263,7 +272,7 @@ function LandingPage() {
                 <div className="text-2xl sm:text-3xl font-black text-(--lit-header)">
                   {stat.num}
                 </div>
-                <div className="text-xs sm:text-sm mt-1 text-(--lit-text-muted)">
+                <div className="text-xs sm:text-sm mt-1 text-[var(--lit-text-muted)]">
                   {stat.label}
                 </div>
               </div>
@@ -273,9 +282,9 @@ function LandingPage() {
       </section>
 
       {/* Tech Stack */}
-      <section className="py-24 border-y border-(--lit-border) bg-[rgba(255,255,255,0.02)]">
+      <section className="py-24 border-y border-[var(--lit-border)] bg-[rgba(255,255,255,0.02)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm mb-6 text-(--lit-text-muted)">
+          <p className="text-center text-sm mb-6 text-[var(--lit-text-muted)]">
             Built with modern tools the community trusts
           </p>
           <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-50">
@@ -303,7 +312,7 @@ function LandingPage() {
               <h2 className="text-3xl sm:text-4xl font-black mb-4 text-(--lit-feature-purple)">
                 LiTree Labs Public Feed
               </h2>
-              <p className="text-lg mb-6 text-(--lit-text-muted)">
+              <p className="text-lg mb-6 text-[var(--lit-text-muted)]">
                 See what the community is building. Join to create your own
                 agents.
               </p>
@@ -424,7 +433,7 @@ function LandingPage() {
               <div
                 key={i}
                 className={
-                  "group relative p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-(--lit-box-bg) border-(--lit-border) " +
+                  "group relative p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-[var(--lit-box-bg)] border-[var(--lit-border)] " +
                   styles.featureCard
                 }
                 style={cardHoverVars(f.color, "30px")}
@@ -445,7 +454,7 @@ function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold mb-2">{f.title}</h3>
-                    <p className="text-(--lit-text-muted)">{f.desc}</p>
+                    <p className="text-[var(--lit-text-muted)]">{f.desc}</p>
                   </div>
                 </div>
               </div>
@@ -461,7 +470,7 @@ function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
               See What{"'"}s <span className="text-(--lit-header)">Inside</span>
             </h2>
-            <p className="text-lg max-w-2xl mx-auto text-(--lit-text-muted)">
+            <p className="text-lg max-w-2xl mx-auto text-[var(--lit-text-muted)]">
               A preview of the creative tools, dashboard, and community waiting
               for you.
             </p>
@@ -502,7 +511,7 @@ function LandingPage() {
               <div
                 key={card.title}
                 className={
-                  "group p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-(--lit-box-bg) border-(--lit-border) " +
+                  "group p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-[var(--lit-box-bg)] border-[var(--lit-border)] " +
                   styles.previewCard
                 }
                 style={cardHoverVars(card.color, "30px")}
@@ -523,7 +532,7 @@ function LandingPage() {
                   />
                 </div>
                 <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                <p className="text-sm mb-6 text-(--lit-text-muted)">
+                <p className="text-sm mb-6 text-[var(--lit-text-muted)]">
                   {card.desc}
                 </p>
                 <Link
@@ -543,7 +552,7 @@ function LandingPage() {
       </section>
 
       {/* Use Cases */}
-      <section className="py-24 border-y border-(--lit-border) bg-[rgba(0,240,255,0.02)]">
+      <section className="py-24 border-y border-[var(--lit-border)] bg-[rgba(0,240,255,0.02)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
@@ -555,13 +564,13 @@ function LandingPage() {
             {useCases.map((u, i) => (
               <div
                 key={i}
-                className="group p-6 border text-center transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 bg-(--lit-box-bg) border-(--lit-border)"
+                className="group p-6 border text-center transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 bg-[var(--lit-box-bg)] border-[var(--lit-border)]"
               >
-                <div className="inline-flex p-3 mb-4 border transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-400/40 border-(--lit-border)">
+                <div className="inline-flex p-3 mb-4 border transition-all duration-300 group-hover:scale-110 group-hover:border-cyan-400/40 border-[var(--lit-border)]">
                   <u.icon size={28} className="text-(--lit-header)" />
                 </div>
                 <h3 className="font-bold mb-2">{u.name}</h3>
-                <p className="text-sm text-(--lit-text-muted)">{u.desc}</p>
+                <p className="text-sm text-[var(--lit-text-muted)]">{u.desc}</p>
               </div>
             ))}
           </div>
@@ -569,14 +578,14 @@ function LandingPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 border-y border-(--lit-border)">
+      <section className="py-24 border-y border-[var(--lit-border)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-black mb-4">
               What Early <span className="text-(--lit-accent)">Creators</span>{" "}
               Are Saying
             </h2>
-            <p className="text-lg max-w-2xl mx-auto text-(--lit-text-muted)">
+            <p className="text-lg max-w-2xl mx-auto text-[var(--lit-text-muted)]">
               Real people building, sharing, and growing on LiTTree.
             </p>
           </div>
@@ -607,7 +616,7 @@ function LandingPage() {
               <div
                 key={t.name}
                 className={
-                  "p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-(--lit-box-bg) border-(--lit-border) " +
+                  "p-6 border-2 transition-all duration-300 hover:-translate-y-1 bg-[var(--lit-box-bg)] border-[var(--lit-border)] " +
                   styles.testimonialCard
                 }
                 style={cardHoverVars(t.color, "20px")}
@@ -635,7 +644,7 @@ function LandingPage() {
                   </div>
                   <div>
                     <div className="text-sm font-bold">{t.name}</div>
-                    <div className="text-xs text-(--lit-text-muted)">
+                    <div className="text-xs text-[var(--lit-text-muted)]">
                       {t.role}
                     </div>
                   </div>
@@ -653,17 +662,17 @@ function LandingPage() {
             Ready to <span className="text-(--lit-accent)">Build Your</span>{" "}
             Space?
           </h2>
-          <p className="text-xl mb-8 text-(--lit-text-muted)">
+          <p className="text-xl mb-8 text-[var(--lit-text-muted)]">
             Join the creator network. Bring your ideas, your community, and your
             agents. Start free — no credit card required.
           </p>
           <Link
             href="/sign-up"
-            className="inline-flex items-center gap-2 px-8 py-4 text-lg font-bold border-2 hover:opacity-80 transition-all border-(--lit-header) text-(--lit-header)"
+            className="inline-flex items-center gap-2 px-8 py-4 text-lg font-bold border-2 hover:opacity-80 transition-all border-[var(--lit-header)] text-[var(--lit-header)]"
           >
             <Sparkles size={20} /> Join the Creator Network
           </Link>
-          <p className="mt-4 text-sm text-(--lit-text-muted)">
+          <p className="mt-4 text-sm text-[var(--lit-text-muted)]">
             Already have an account?{" "}
             <Link href="/sign-in" className="text-cyan-400 hover:underline">
               Sign in
@@ -677,24 +686,21 @@ function LandingPage() {
 
 // Main Page Component
 export default function HomePage() {
-  let isSignedIn = false;
-  let isLoaded = false;
-  try {
-    const result = useUser();
-    isSignedIn = result.isSignedIn;
-    isLoaded = result.isLoaded;
-  } catch {
-    isSignedIn = false;
-    isLoaded = true;
-  }
+  const u = useUser();
+  const isSignedIn = !!u?.isSignedIn;
+  const isLoaded = !!u?.isLoaded;
 
+  // Always render landing content; only overlay dashboard if signed in.
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-(--lit-bg)">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: getCssVar("--lit-bg", "#0a0a12") }}
+      >
         <Loader2 className="animate-spin text-cyan-400" size={32} />
       </div>
     );
   }
 
-  return isSignedIn ? <DashboardView /> : <LandingPage />;
+  return <>{isSignedIn ? <DashboardView /> : <LandingPage />}</>;
 }

@@ -1,0 +1,11 @@
+{
+  "extends": ["webhint:recommended"],
+  "rules": {
+    "no-inline-styles": [
+      "error",
+      {
+        "allowCustomProperties": true
+      }
+    ]
+  }
+}

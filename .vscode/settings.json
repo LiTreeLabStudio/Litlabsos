@@ -24,5 +24,8 @@
   "terminal.integrated.cwd": "${workspaceFolder}",
   "typescript.preferences.importModuleSpecifier": "relative",
   "eslint.useFlatConfig": true,
-  "webhint.enabled": false
+  "webhint.enabled": false,
+  "[powershell]": {
+    "editor.defaultFormatter": "ms-vscode.powershell"
+  }
 }

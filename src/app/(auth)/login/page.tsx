@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage({
@@ -91,7 +93,7 @@ export default async function LoginPage({
               </div>
             </div>
 
-            <a
+            <Link
               href="/sign-in"
               className="flex items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
             >
@@ -110,9 +112,9 @@ export default async function LoginPage({
                 />
               </svg>
               Sign in with Google
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/sign-in"
               className="flex items-center justify-center gap-2 rounded-lg bg-white/5 border border-white/10 py-2.5 text-sm font-medium text-white hover:bg-white/10 transition-colors"
             >
@@ -121,14 +123,14 @@ export default async function LoginPage({
                 <path d="M12 5.5c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5 6.5-2.91 6.5-6.5-2.91-6.5-6.5-6.5zm0 10.5c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" />
               </svg>
               Sign in with Apple
-            </a>
+            </Link>
           </div>
 
           <p className="text-center text-xs text-zinc-500 mt-4">
-            Don't have an account?{" "}
-            <a href="/sign-up" className="text-blue-400 hover:underline">
+            Don&apos;t have an account?{" "}
+            <Link href="/sign-up" className="text-blue-400 hover:underline">
               Create one
-            </a>
+            </Link>
           </p>
         </div>
 

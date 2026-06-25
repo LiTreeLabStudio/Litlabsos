@@ -46,7 +46,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Production optimizations
+  output: "standalone",
   productionBrowserSourceMaps: false,
   compress: true,
   poweredByHeader: false,

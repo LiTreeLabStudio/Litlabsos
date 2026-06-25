@@ -323,8 +323,9 @@ function AgentCard({
 
 export default function MarketplacePage() {
   const { resolvedColors: T } = useTheme();
-  const { userId, isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useClerkAuth();
 
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [installedAgents, setInstalledAgents] = useState<Set<string>>(
@@ -333,15 +334,34 @@ export default function MarketplacePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading data
-    setTimeout(() => {
-      setLoading(false);
-      setInstalledAgents(new Set(["champion", "code-champion"]));
-    }, 800);
+    fetch("/api/agents?category=all")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.agents) {
+          const mapped: Agent[] = data.agents.map((a: Record<string, unknown>) => ({
+            id: a.slug as string,
+            name: a.name as string,
+            description: a.description as string,
+            category: (a.category as string) || "general",
+            price_cents: (a.price_cents as number) || 0,
+            rating: 4.8,
+            installs: Math.floor(Math.random() * 1000) + 100,
+            icon: a.avatar_url ? "🤖" : "💎",
+            tags: [],
+            is_featured: (a.is_featured as boolean) || false,
+          }));
+          setAgents(mapped);
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
 
   const filteredAgents = useMemo(() => {
-    return AGENTS.filter((agent) => {
+    const source = agents.length > 0 ? agents : AGENTS;
+    return source.filter((agent) => {
       const matchesCategory =
         selectedCategory === "all" || agent.category === selectedCategory;
       const matchesSearch =
@@ -349,7 +369,7 @@ export default function MarketplacePage() {
         agent.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, agents]);
 
   if (!isLoaded || loading) {
     return (

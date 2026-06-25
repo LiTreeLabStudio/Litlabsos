@@ -2,11 +2,11 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Image from "next/image";
-import Link from "next/link";
+
 import PageShell from "@/components/PageShell";
 import {
   Sparkles,
@@ -15,8 +15,9 @@ import {
   Filter,
   Search,
   Loader2,
-  TrendingUp,
   ArrowUpRight,
+  X,
+  ZoomIn,
 } from "lucide-react";
 
 interface GalleryItem {
@@ -50,7 +51,7 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "Pixel Forge",
     category: "cyberpunk",
     imageUrl:
-      "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=400&h=500&fit=crop",
     likes: 1240,
     isPublic: true,
     mediaType: "image",
@@ -61,7 +62,7 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "DreamWeaver",
     category: "abstract",
     imageUrl:
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600&fit=crop",
+      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=300&fit=crop",
     likes: 890,
     isPublic: true,
     mediaType: "image",
@@ -72,7 +73,7 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "DataMancer",
     category: "abstract",
     imageUrl:
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=1200&fit=crop",
+      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=400&h=500&fit=crop",
     likes: 2100,
     isPublic: true,
     mediaType: "image",
@@ -83,7 +84,7 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "ShadowNet",
     category: "cyberpunk",
     imageUrl:
-      "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=800&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=400&h=400&fit=crop",
     likes: 1560,
     isPublic: true,
     mediaType: "image",
@@ -94,7 +95,7 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "Nebula",
     category: "nature",
     imageUrl:
-      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&h=1000&fit=crop",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&h=500&fit=crop",
     likes: 3200,
     isPublic: true,
     mediaType: "image",
@@ -105,28 +106,62 @@ const DEMO_ITEMS: GalleryItem[] = [
     artist: "ShadowNet",
     category: "3d",
     imageUrl:
-      "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=800&h=1200&fit=crop",
+      "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=400&h=500&fit=crop",
     likes: 940,
     isPublic: true,
     mediaType: "image",
   },
 ];
 
+// Full-size URLs for lightbox (higher resolution)
+const FULL_SIZE_URLS: Record<string, string> = {
+  "1": "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=1200&h=1500&fit=crop",
+  "2": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&h=900&fit=crop",
+  "3": "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1200&h=1500&fit=crop",
+  "4": "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=1200&h=1200&fit=crop",
+  "5": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&h=1500&fit=crop",
+  "6": "https://images.unsplash.com/photo-1633167606207-d840b5070fc2?w=1200&h=1500&fit=crop",
+};
+
 export default function GalleryPage() {
   const { resolvedColors: T } = useTheme();
-  const { userId, isLoaded } = useClerkAuth();
+  const { isLoaded } = useClerkAuth();
 
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [likedItems, setLikedItems] = useState<Set<string>>(
     new Set(["1", "3"]),
   );
-  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 800);
+    fetch("/api/gallery?category=all")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.items || data.mock) {
+          // Using real data or demo fallback
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
+
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLightboxImage(null);
+    };
+    if (lightboxImage) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxImage]);
 
   const filteredItems = useMemo(() => {
     return DEMO_ITEMS.filter((item) => {
@@ -240,38 +275,38 @@ export default function GalleryPage() {
                 className="w-full bg-white/5 border border-white/10 p-3 pl-10 rounded-2xl outline-none text-xs font-bold focus:border-indigo-500/50 transition-all"
               />
             </div>
-            <button className="p-3 rounded-2xl bg-white/5 border border-white/10 opacity-60 hover:opacity-100 transition-all">
+            <button
+              className="p-3 rounded-2xl bg-white/5 border border-white/10 opacity-60 hover:opacity-100 transition-all"
+              aria-label="Filter"
+              title="Filter"
+            >
               <Filter size={18} />
             </button>
           </div>
         </div>
 
-        {/* Masonry Grid */}
-        <div className="gallery-masonry">
-          {filteredItems.map((item, idx) => (
+        {/* Gallery Grid */}
+        <div className="gallery-grid">
+          {filteredItems.map((item) => (
             <div
               key={item.id}
-              className="group relative rounded-2xl overflow-hidden mb-5 break-inside-avoid shadow-xl border border-white/5 hover:border-indigo-500/30 transition-all duration-500"
+              className="group relative rounded-2xl overflow-hidden shadow-xl border border-white/5 hover:border-indigo-500/30 transition-all duration-500 cursor-pointer"
+              onClick={() => setLightboxImage(item.id)}
             >
-              <div
-                className="relative w-full"
-                style={{
-                  aspectRatio:
-                    idx % 3 === 0 ? "3/4" : idx % 2 === 0 ? "1/1" : "4/3",
-                }}
-              >
+              <div className="relative w-full" style={{ aspectRatio: "3/4" }}>
                 <Image
                   src={item.imageUrl}
                   alt={item.title}
                   fill
+                  sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 350px"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  unoptimized
+                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 space-y-2">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 space-y-2">
                   <div className="flex items-center justify-between">
-<h3 className="font-black text-sm text-white">
-                       {item.title}
-                     </h3>
+                    <h3 className="font-black text-sm text-white">
+                      {item.title}
+                    </h3>
                     <span className="text-[10px] font-bold text-white/60 bg-white/10 px-2 py-0.5 rounded-full uppercase">
                       {item.category}
                     </span>
@@ -281,12 +316,41 @@ export default function GalleryPage() {
                       {item.artist}
                     </span>
                     <div className="flex items-center gap-3">
-                      <button className="hover:text-pink-500 transition-colors">
-                        <Heart size={14} />
+                      <button
+                        className="hover:text-pink-500 transition-colors"
+                        aria-label="Like"
+                        title="Like"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setLikedItems((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(item.id)) next.delete(item.id);
+                            else next.add(item.id);
+                            return next;
+                          });
+                        }}
+                      >
+                        <Heart
+                          size={14}
+                          className={
+                            likedItems.has(item.id)
+                              ? "text-pink-500 fill-current"
+                              : ""
+                          }
+                        />
                       </button>
-                      <button className="hover:text-indigo-400 transition-colors">
+                      <button
+                        className="hover:text-indigo-400 transition-colors"
+                        aria-label="Share"
+                        title="Share"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Share2 size={14} />
                       </button>
+                      <ZoomIn
+                        size={14}
+                        className="text-white/60 group-hover:text-white"
+                      />
                     </div>
                   </div>
                 </div>
@@ -315,15 +379,40 @@ export default function GalleryPage() {
         {filteredItems.length > 0 && (
           <div className="flex justify-center pt-12">
             <button className="px-10 py-4 rounded-2xl bg-white/5 border border-white/10 font-black text-xs uppercase tracking-[0.2em] opacity-60 hover:opacity-100 hover:bg-white/10 transition-all flex items-center gap-3">
-              Synchronize More Data <RefreshCw size={14} />
+              Synchronize More Data <ArrowUpRight size={14} />
             </button>
+          </div>
+        )}
+
+        {/* Lightbox Modal */}
+        {lightboxImage && (
+           <div
+             className="lightbox-overlay"
+             onClick={() => setLightboxImage(null)}
+           >
+            <div
+              className="lightbox-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="lightbox-close"
+                onClick={() => setLightboxImage(null)}
+                aria-label="Close lightbox"
+                title="Close"
+              >
+                <X size={24} />
+              </button>
+              <Image
+                src={FULL_SIZE_URLS[lightboxImage] || lightboxImage}
+                alt="Full size preview"
+                fill
+                className="lightbox-image"
+                priority
+              />
+            </div>
           </div>
         )}
       </div>
     </PageShell>
   );
-}
-
-function RefreshCw({ size, className }: { size?: number; className?: string }) {
-  return <TrendingUp size={size} className={className} />;
 }

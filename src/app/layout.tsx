@@ -85,18 +85,55 @@ export const metadata: Metadata = {
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
 
+const clerkAppearance = {
+  variables: {
+    colorPrimary: "#00f0ff",
+    colorBackground: "#0a0a12",
+    colorText: "#e0e0ff",
+    colorTextSecondary: "#8888aa",
+    colorDanger: "#ff00a0",
+    colorSuccess: "#00ff41",
+    borderRadius: "8px",
+  },
+  elements: {
+    card: {
+      backgroundColor: "#151520",
+      border: "1px solid #2a2a45",
+      boxShadow: "0 4px 20px rgba(0,240,255,0.1)",
+    },
+    userButtonPopoverCard: {
+      backgroundColor: "#151520",
+      border: "1px solid #2a2a45",
+    },
+    userButtonPopoverActionButton: {
+      "&:hover": {
+        backgroundColor: "rgba(0,240,255,0.1)",
+      },
+    },
+    badge: {
+      backgroundColor: "#ff00a0",
+    },
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const body = (
+    <body
+      className="antialiased min-h-screen"
+      style={{ backgroundColor: "#0a0a0f" }}
+    >
+      <GoogleTagManager gtmId="G-0G4JPF3HXG" />
+      <MainLayout>{children}</MainLayout>
+    </body>
+  );
+
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <body
-        className="antialiased min-h-screen"
-        style={{ backgroundColor: "#0a0a0f" }}
-      >
-        <GoogleTagManager gtmId="G-0G4JPF3HXG" />
+      {clerkKey ? (
         <ClerkProvider
           publishableKey={clerkKey}
           signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
@@ -107,40 +144,13 @@ export default function RootLayout({
           signUpFallbackRedirectUrl={
             process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/studio"
           }
-          appearance={{
-            variables: {
-              colorPrimary: "#00f0ff",
-              colorBackground: "#0a0a12",
-              colorText: "#e0e0ff",
-              colorTextSecondary: "#8888aa",
-              colorDanger: "#ff00a0",
-              colorSuccess: "#00ff41",
-              borderRadius: "8px",
-            },
-            elements: {
-              card: {
-                backgroundColor: "#151520",
-                border: "1px solid #2a2a45",
-                boxShadow: "0 4px 20px rgba(0,240,255,0.1)",
-              },
-              userButtonPopoverCard: {
-                backgroundColor: "#151520",
-                border: "1px solid #2a2a45",
-              },
-              userButtonPopoverActionButton: {
-                "&:hover": {
-                  backgroundColor: "rgba(0,240,255,0.1)",
-                },
-              },
-              badge: {
-                backgroundColor: "#ff00a0",
-              },
-            },
-          }}
+          appearance={clerkAppearance}
         >
-          <MainLayout>{children}</MainLayout>
+          {body}
         </ClerkProvider>
-      </body>
+      ) : (
+        body
+      )}
     </html>
   );
 }

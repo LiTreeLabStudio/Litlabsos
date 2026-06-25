@@ -21,8 +21,10 @@ import {
   Database,
 } from "lucide-react";
 
-// Admin-only guard
-const ADMIN_USER_ID = "user_litbit";
+// Admin-only guard - check against allowed admin user IDs
+const ALLOWED_ADMIN_IDS = process.env.NEXT_PUBLIC_ADMIN_USER_IDS?.split(",") || [
+  "user_litbit",
+];
 
 interface LiveStats {
   onlineUsers: number;
@@ -97,14 +99,14 @@ export default function AdminDashboard() {
 
   // Auth guard
   useEffect(() => {
-    if (isLoaded && (!isSignedIn || userId !== ADMIN_USER_ID)) {
+    if (isLoaded && (!isSignedIn || !ALLOWED_ADMIN_IDS.includes(userId || ""))) {
       router.push("/");
     }
   }, [isLoaded, isSignedIn, userId, router]);
 
   // Live data connection (SSE)
   useEffect(() => {
-    if (!isSignedIn || userId !== ADMIN_USER_ID) return;
+    if (!isSignedIn || !ALLOWED_ADMIN_IDS.includes(userId || "")) return;
 
     const connectSSE = () => {
       const es = new EventSource("/api/admin/live");
@@ -169,7 +171,7 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!isSignedIn || userId !== ADMIN_USER_ID) {
+  if (!isSignedIn || !ALLOWED_ADMIN_IDS.includes(userId || "")) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"

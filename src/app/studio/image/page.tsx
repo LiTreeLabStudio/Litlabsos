@@ -1,13 +1,15 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import Link from "next/link";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
 // Dynamically import to avoid SSR issues
-const NeuralImagingStudio = dynamic(
+const NeuralImagingStudio = dynamicImport(
   () => import("@/components/NeuralImagingStudio"),
   {
     ssr: false,

@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";

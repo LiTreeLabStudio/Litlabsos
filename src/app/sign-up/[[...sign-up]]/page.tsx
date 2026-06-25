@@ -1,5 +1,9 @@
+"use client";
+
 import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
+
+export const dynamic = "force-dynamic";
 
 export default function SignUpPage() {
   return (

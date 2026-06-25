@@ -84,6 +84,7 @@ export const metadata: Metadata = {
 };
 
 const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+const clerkDomain = process.env.NEXT_PUBLIC_CLERK_DOMAIN ?? "";
 
 export default function RootLayout({
   children,
@@ -99,6 +100,7 @@ export default function RootLayout({
         <GoogleTagManager gtmId="G-0G4JPF3HXG" />
         <ClerkProvider
           publishableKey={clerkKey}
+          domain={clerkDomain}
           signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
           signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
           signInFallbackRedirectUrl={

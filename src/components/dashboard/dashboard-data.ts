@@ -22,13 +22,7 @@ export type IconComponent = React.ComponentType<{
 }>;
 
 export const APPS = [
-  {
-    id: "jarvis",
-    label: "Jarvis",
-    icon: Terminal,
-    color: "#ff00a0",
-    href: "/agent",
-  },
+  // — Primary creation tools at the top
   {
     id: "studio",
     label: "Studio",
@@ -37,34 +31,43 @@ export const APPS = [
     href: "/studio",
   },
   {
-    id: "gallery",
-    label: "Gallery",
-    icon: Sparkles,
-    color: "#ff00a0",
-    href: "/gallery",
-  },
-  {
-    id: "social",
-    label: "Social",
-    icon: MessageSquare,
-    color: "#ff00a0",
-    href: "/social",
-  },
-  {
-    id: "marketplace",
-    label: "Marketplace",
-    icon: ShoppingBag,
-    color: "#ff9ff3",
-    href: "/marketplace",
-  },
-  { id: "music", label: "Music", icon: Music, color: "#ff2d78", href: "#" },
-  {
     id: "games",
-    label: "Games",
+    label: "Play",
     icon: Gamepad2,
     color: "#8b5cf6",
     href: "/games",
   },
+  {
+    id: "gallery",
+    label: "Gallery",
+    icon: Sparkles,
+    color: "#f59e0b",
+    href: "/gallery",
+  },
+  // — Social & community
+  {
+    id: "social",
+    label: "Social",
+    icon: MessageSquare,
+    color: "#10b981",
+    href: "/social",
+  },
+  {
+    id: "jarvis",
+    label: "Jarvis",
+    icon: Terminal,
+    color: "#ff00a0",
+    href: "/agent",
+  },
+  {
+    id: "marketplace",
+    label: "Market",
+    icon: ShoppingBag,
+    color: "#ff9ff3",
+    href: "/marketplace",
+  },
+  // — Entertainment in-dashboard tabs
+  { id: "music", label: "Music", icon: Music, color: "#ff2d78", href: "#" },
   {
     id: "watch",
     label: "Watch",
@@ -72,8 +75,8 @@ export const APPS = [
     color: "#3b82f6",
     href: "#",
   },
-  { id: "radio", label: "Radio", icon: Radio, color: "#10b981", href: "#" },
-  { id: "tools", label: "Tools", icon: Wrench, color: "#f59e0b", href: "#" },
+  { id: "radio", label: "Radio", icon: Radio, color: "#06b6d4", href: "#" },
+  { id: "tools", label: "Tools", icon: Wrench, color: "#a78bfa", href: "#" },
 ];
 
 export const AGENTS = [

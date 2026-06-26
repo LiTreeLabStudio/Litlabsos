@@ -33,7 +33,9 @@ export default function MainLayout({
     <ThemeProvider>
       <ProfileProvider>
         <AnimatedBackgroundWrapper />
-        <div className="relative z-10 flex flex-col min-h-screen w-full max-w-full overflow-hidden">
+        <div
+          className={`relative z-10 flex flex-col w-full max-w-full ${isFullHeightPage ? "h-screen overflow-hidden" : "min-h-screen"}`}
+        >
           <UserSync />
 
           <div className="shrink-0 w-full">
@@ -41,7 +43,7 @@ export default function MainLayout({
           </div>
 
           <main
-            className={`flex-1 w-full max-w-full overflow-x-hidden flex flex-col ${isFullHeightPage ? "h-[calc(100vh-3.5rem)] overflow-hidden" : ""}`}
+            className={`w-full max-w-full flex flex-col ${isFullHeightPage ? "flex-1 overflow-hidden min-h-0" : ""}`}
           >
             {children}
           </main>

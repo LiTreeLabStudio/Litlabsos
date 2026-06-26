@@ -1,7 +1,20 @@
 /**
  * Game Cloud System for LiTTree Lab Studios
  * Browser-based gaming with retro emulators and HTML5 games
+ *
+ * ROM hosting: set NEXT_PUBLIC_ROM_BASE_URL to your Supabase Storage or R2 bucket URL.
+ * Example: https://<project>.supabase.co/storage/v1/object/public/roms
+ * Upload ROM files to that bucket with the exact filenames used below.
+ * If the env var is not set, roms will fall back to /public/roms/ (local dev only).
  */
+
+const ROM_BASE =
+  (typeof process !== "undefined" && process.env.NEXT_PUBLIC_ROM_BASE_URL) ||
+  "/roms";
+
+function rom(filename: string): string {
+  return `${ROM_BASE}/${filename}`;
+}
 
 export type GameCategory = "retro" | "arcade" | "puzzle" | "multiplayer";
 export type GamePlatform = "nes" | "snes" | "genesis" | "gb" | "gba" | "html5";
@@ -49,7 +62,7 @@ export const GAME_LIBRARY: Game[] = [
     platform: "nes",
     coverUrl:
       "https://upload.wikimedia.org/wikipedia/en/0/03/Super_Mario_Bros._box.png",
-    romUrl: "/roms/smb1.nes",
+    romUrl: rom("smb1.nes"),
     year: 1985,
     developer: "Nintendo",
     players: 2,
@@ -64,7 +77,7 @@ export const GAME_LIBRARY: Game[] = [
     platform: "nes",
     coverUrl:
       "https://upload.wikimedia.org/wikipedia/en/7/7d/Tetris_NES_cover.jpg",
-    romUrl: "/roms/tetris.nes",
+    romUrl: rom("tetris.nes"),
     year: 1989,
     developer: "Nintendo",
     players: 2,
@@ -80,7 +93,7 @@ export const GAME_LIBRARY: Game[] = [
     platform: "snes",
     coverUrl:
       "https://upload.wikimedia.org/wikipedia/en/3/32/Super_Mario_World_Coverart.png",
-    romUrl: "/roms/smw.smc",
+    romUrl: rom("smw.smc"),
     year: 1991,
     developer: "Nintendo",
     players: 2,
@@ -96,7 +109,7 @@ export const GAME_LIBRARY: Game[] = [
     platform: "genesis",
     coverUrl:
       "https://upload.wikimedia.org/wikipedia/en/b/ba/Sonic_the_Hedgehog_1_Genesis_box_art.jpg",
-    romUrl: "/roms/sonic1.bin",
+    romUrl: rom("sonic1.bin"),
     year: 1991,
     developer: "Sega",
     players: 1,

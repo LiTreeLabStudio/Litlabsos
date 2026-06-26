@@ -127,6 +127,30 @@ export default function GamesPage() {
         </div>
       </div>
 
+      {/* ROM Setup Banner — shown when ROM hosting is not yet configured */}
+      {!process.env.NEXT_PUBLIC_ROM_BASE_URL && (
+        <div
+          className="w-full px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center gap-3 border-b-2"
+          style={{ backgroundColor: "#1a0a00", borderColor: "#ff6600" }}
+        >
+          <div className="text-lg shrink-0">⚙️</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold" style={{ color: "#ff9933" }}>
+              ROM hosting not configured — retro games will show a setup screen
+              when launched
+            </p>
+            <p className="text-[10px] mt-0.5" style={{ color: "#ff993380" }}>
+              To enable NES/SNES/Genesis/GB/GBA: create a Supabase Storage
+              bucket named <code className="font-mono">roms</code>, upload your
+              ROM files, then set{" "}
+              <code className="font-mono">NEXT_PUBLIC_ROM_BASE_URL</code> in
+              Vercel → Settings → Environment Variables. HTML5 games work
+              without any setup.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Featured Game Hero */}
       {!selectedGame && (
         <div
@@ -252,7 +276,7 @@ export default function GamesPage() {
                 <GameEmulator
                   romUrl={selectedGame.romUrl}
                   platform={selectedGame.platform}
-                  onError={(err) => console.error("Emulator error:", err)}
+                  title={selectedGame.title}
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center">

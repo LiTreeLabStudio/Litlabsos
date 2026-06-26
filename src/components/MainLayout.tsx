@@ -26,6 +26,9 @@ export default function MainLayout({
   const isAppPage =
     pathname?.startsWith("/studio") || pathname?.startsWith("/agent");
 
+  // Pages where the content should fill remaining viewport height (flex-1 child fills)
+  const isFullHeightPage = isAppPage || pathname === "/";
+
   return (
     <ThemeProvider>
       <ProfileProvider>
@@ -38,7 +41,7 @@ export default function MainLayout({
           </div>
 
           <main
-            className={`flex-1 w-full max-w-full overflow-x-hidden flex flex-col ${isAppPage ? "h-[calc(100vh-3.5rem)] overflow-hidden" : ""}`}
+            className={`flex-1 w-full max-w-full overflow-x-hidden flex flex-col ${isFullHeightPage ? "h-[calc(100vh-3.5rem)] overflow-hidden" : ""}`}
           >
             {children}
           </main>

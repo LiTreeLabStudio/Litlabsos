@@ -91,12 +91,12 @@ export default function DashboardView() {
 
   return (
     <div
-      className="flex min-h-screen"
+      className="flex w-full h-full"
       style={{ backgroundColor: T.bgColor, color: T.textColor }}
     >
       {/* Left Dock */}
       <aside
-        className="hidden md:flex flex-col items-center py-4 gap-2 w-16 shrink-0 border-r"
+        className="hidden md:flex flex-col items-center py-4 gap-2 w-16 shrink-0 border-r overflow-y-auto"
         style={{
           borderColor: `${T.borderColor}30`,
           backgroundColor: `${T.bgColor}80`,

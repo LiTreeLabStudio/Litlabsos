@@ -101,16 +101,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // Prevent caching of HTML pages (force fresh content)
-      {
-        source: "/:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=0, must-revalidate",
-          },
-        ],
-      },
       // Cache static assets for 1 year
       {
         source: "/static/(.*)",
@@ -138,16 +128,6 @@ const nextConfig: NextConfig = {
           {
             key: "Cache-Control",
             value: "public, max-age=2592000, stale-while-revalidate=86400",
-          },
-        ],
-      },
-      // Cache Next.js static chunks for 1 year
-      {
-        source: "/_next/static/(.*)",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
           },
         ],
       },

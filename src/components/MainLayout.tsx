@@ -64,9 +64,9 @@ export default function MainLayout({
                 </Suspense>
               )}
 
-              <div className="flex flex-1 min-h-0 w-full max-w-full">
+              <main className="flex flex-1 min-h-0 w-full max-w-full">
                 {children}
-              </div>
+              </main>
 
               {/* Footer and extras */}
               {!hideFooterAndGuide && <Footer />}

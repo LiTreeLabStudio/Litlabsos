@@ -8,6 +8,7 @@ import UserSync from "@/components/UserSync";
 import CookieConsent from "@/components/CookieConsent";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
+import LeftDock from "@/components/LeftDock";
 import dynamicImport from "next/dynamic";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ProfileProvider } from "@/context/ProfileContext";
@@ -56,11 +57,16 @@ export default function MainLayout({
             <Navbar />
           </div>
 
-          <main
-            className={`w-full max-w-full flex flex-col ${isFullHeightPage ? "flex-1 overflow-hidden min-h-0" : ""}`}
+          <div
+            className={`flex flex-1 min-h-0 w-full max-w-full ${isFullHeightPage ? "overflow-hidden" : ""}`}
           >
-            {children}
-          </main>
+            {isSignedIn && <LeftDock />}
+            <main
+              className={`flex-1 max-w-full flex flex-col ${isFullHeightPage ? "overflow-hidden min-h-0" : ""}`}
+            >
+              {children}
+            </main>
+          </div>
 
           {!hideFooterAndGuide && <Footer />}
 

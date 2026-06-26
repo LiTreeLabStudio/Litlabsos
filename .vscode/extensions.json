@@ -3,9 +3,17 @@
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
+    "yoavbls.pretty-ts-errors",
+    "ms-vscode.vscode-typescript-next",
+    "christian-kohler.path-intellisense",
+    "aaron-bond.better-comments",
+    "usernamehw.errorlens",
+    "PKief.material-icon-theme",
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
     "ms-vscode-remote.remote-wsl",
-    "prisma.prisma",
-    "yoavbls.pretty-ts-errors"
+    "Prisma.prisma",
+    "ms-vscode.powershell"
   ],
   "unwantedRecommendations": []
 }

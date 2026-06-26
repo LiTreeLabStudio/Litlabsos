@@ -28,6 +28,12 @@ import {
 } from "./dashboard-data";
 import dynamic from "next/dynamic";
 import SocialFeed from "@/components/SocialFeed";
+const MusicPlayer = dynamic(() => import("./MusicPlayer"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-64 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
+  ),
+});
 const SocialPageContent = dynamic(
   () => import("@/components/SocialPageContent"),
   {
@@ -684,140 +690,13 @@ export function CenterStage({
     /* ── MUSIC ───────────────────────────────────────────────────── */
     case "music":
       return (
-        <div className="space-y-8">
+        <div className="space-y-2">
           <HeroCard
             title="Music"
-            subtitle="Playlists, radios & your library."
+            subtitle="Live radio streams & Spotify playlists."
             color="#ff2d78"
           />
-
-          {/* Now Playing */}
-          <div
-            className="relative overflow-hidden rounded-2xl p-6 flex items-center gap-6"
-            style={{
-              background: "linear-gradient(135deg, #ff2d7820, #8b5cf620)",
-              border: "1px solid #ff2d7830",
-            }}
-          >
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 animate-pulse"
-              style={{
-                backgroundColor: "#ff2d7820",
-                border: "1px solid #ff2d7840",
-              }}
-            >
-              <Music size={28} style={{ color: "#ff2d78" }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div
-                className="text-[10px] font-black uppercase tracking-widest mb-1"
-                style={{ color: "#ff2d78" }}
-              >
-                Now Playing
-              </div>
-              <div className="text-lg font-black text-white truncate">
-                Synthwave FM
-              </div>
-              <div
-                className="text-xs"
-                style={{ color: "rgba(255,255,255,0.5)" }}
-              >
-                342 live · Synthwave · Neon Horizon
-              </div>
-            </div>
-            <button
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110"
-              style={{
-                backgroundColor: "#ff2d78",
-                boxShadow: "0 0 20px #ff2d7850",
-              }}
-            >
-              <Play size={16} className="text-white ml-0.5" />
-            </button>
-          </div>
-
-          {/* Radio stations */}
-          <div>
-            <SectionHeader title="Live Radio" color="#ff2d78" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {RADIO.map((s) => (
-                <div
-                  key={s.title}
-                  className="group flex items-center gap-4 p-4 rounded-xl cursor-pointer hover:scale-[1.01] transition-all"
-                  style={{
-                    backgroundColor: `${T.boxBg}60`,
-                    border: `1px solid ${s.color}20`,
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                    style={{
-                      backgroundColor: `${s.color}15`,
-                      border: `1px solid ${s.color}30`,
-                    }}
-                  >
-                    <Radio size={16} style={{ color: s.color }} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className="text-sm font-black truncate"
-                      style={{ color: T.textColor }}
-                    >
-                      {s.title}
-                    </div>
-                    <div
-                      className="text-[10px] flex items-center gap-1.5 mt-0.5"
-                      style={{ color: T.textMuted }}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full animate-pulse"
-                        style={{ backgroundColor: s.color }}
-                      />
-                      {s.listeners} listening · {s.genre}
-                    </div>
-                  </div>
-                  <Play
-                    size={14}
-                    className="opacity-0 group-hover:opacity-60 transition-opacity"
-                    style={{ color: s.color }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Playlists */}
-          <div>
-            <SectionHeader title="Your Playlists" color="#ff2d78" />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                "Workflow Beats",
-                "Late Night Gen",
-                "Focus Mode",
-                "Hyperpop Mix",
-              ].map((name, i) => {
-                const colors = ["#ff2d78", "#8b5cf6", "#10b981", "#00f0ff"];
-                return (
-                  <div
-                    key={name}
-                    className="aspect-square rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] transition-all"
-                    style={{
-                      backgroundColor: `${colors[i]}15`,
-                      border: `1px solid ${colors[i]}25`,
-                    }}
-                  >
-                    <Music size={24} style={{ color: colors[i] }} />
-                    <span
-                      className="text-[10px] font-black text-center px-2"
-                      style={{ color: T.textColor }}
-                    >
-                      {name}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <MusicPlayer />
         </div>
       );
 

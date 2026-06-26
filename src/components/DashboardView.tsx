@@ -277,7 +277,7 @@ export default function DashboardView({
                     onClick={() => {
                       if (!sidebarEditMode) setActiveApp(app.id);
                     }}
-                    {componentProps}
+                    {...componentProps}
                   >
                     {inner}
                   </button>

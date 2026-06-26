@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTheme } from "@/context/ThemeContext";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,9 @@ import {
   List,
   Zap,
   ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  Star,
 } from "lucide-react";
 import {
   GAME_LIBRARY,
@@ -56,6 +59,27 @@ export default function GamesPage() {
     return getFavorites();
   });
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const slideTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Games with real cover images for the slideshow (exclude placeholder /games/ paths)
+  const slideGames = GAME_LIBRARY.filter(
+    (g) => g.coverUrl.startsWith("http") && !g.coverUrl.includes("svg"),
+  );
+
+  const prevSlide = () =>
+    setSlideIndex((i) => (i - 1 + slideGames.length) % slideGames.length);
+  const nextSlide = () => setSlideIndex((i) => (i + 1) % slideGames.length);
+
+  // Auto-advance every 4s, pause when a game is open
+  useEffect(() => {
+    if (selectedGame) return;
+    slideTimer.current = setInterval(nextSlide, 4000);
+    return () => {
+      if (slideTimer.current) clearInterval(slideTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedGame, slideGames.length]);
 
   // Filter games
   const filteredGames = searchQuery
@@ -151,39 +175,142 @@ export default function GamesPage() {
         </div>
       )}
 
-      {/* Featured Game Hero */}
-      {!selectedGame && (
+      {/* Hero Slideshow */}
+      {!selectedGame && slideGames.length > 0 && (
         <div
-          className="relative h-[300px] md:h-[400px] overflow-hidden border-b-2"
+          className="relative h-[300px] md:h-[420px] overflow-hidden border-b-2 group"
           style={{ borderColor: T.borderColor }}
         >
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, ${T.accentColor}20, ${T.linkColor}20)`,
-            }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-6xl md:text-8xl mb-4">🎮</div>
-              <h1
-                className="text-2xl md:text-4xl font-black mb-2"
-                style={{ color: T.headerColor }}
-              >
-                LiTTree Game Cloud
-              </h1>
-              <p className="text-sm opacity-60" style={{ color: T.textMuted }}>
-                {GAME_LIBRARY.length} games available • NES • SNES • Genesis •
-                HTML5
-              </p>
+          {/* Slides */}
+          {slideGames.map((game, i) => (
+            <div
+              key={game.id}
+              className="absolute inset-0 transition-opacity duration-700"
+              style={{
+                opacity: i === slideIndex ? 1 : 0,
+                pointerEvents: i === slideIndex ? "auto" : "none",
+              }}
+            >
+              {/* Cover image fills the frame */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={game.coverUrl}
+                alt={game.title}
+                className="w-full h-full object-cover object-center"
+                style={{ filter: "brightness(0.45)" }}
+              />
+              {/* Gradient overlay bottom → top */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(to top, ${T.bgColor}ee 0%, ${T.bgColor}80 40%, transparent 100%)`,
+                }}
+              />
+              {/* Game info bottom-left */}
+              <div className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-12">
+                <div className="flex items-end justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span
+                        className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded"
+                        style={{
+                          backgroundColor: T.accentColor,
+                          color: "#000",
+                        }}
+                      >
+                        {game.platform.toUpperCase()}
+                      </span>
+                      <span className="text-[10px] opacity-50 font-mono">
+                        {game.year}
+                      </span>
+                      <span
+                        className="flex items-center gap-1 text-[10px]"
+                        style={{ color: "#fbbf24" }}
+                      >
+                        <Star size={10} fill="#fbbf24" />
+                        {game.rating}
+                      </span>
+                    </div>
+                    <h2
+                      className="text-2xl md:text-3xl font-black leading-tight mb-1"
+                      style={{ color: T.textColor }}
+                    >
+                      {game.title}
+                    </h2>
+                    <p
+                      className="text-xs md:text-sm opacity-60 max-w-lg line-clamp-2"
+                      style={{ color: T.textMuted }}
+                    >
+                      {game.description}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedGame(game)}
+                    className="shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                    style={{ backgroundColor: T.accentColor, color: "#000" }}
+                  >
+                    <Play size={16} fill="currentColor" />
+                    Play Now
+                  </button>
+                </div>
+              </div>
             </div>
+          ))}
+
+          {/* Prev / Next arrows */}
+          <button
+            onClick={() => {
+              prevSlide();
+              if (slideTimer.current) {
+                clearInterval(slideTimer.current);
+                slideTimer.current = setInterval(nextSlide, 4000);
+              }
+            }}
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff" }}
+            aria-label="Previous"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => {
+              nextSlide();
+              if (slideTimer.current) {
+                clearInterval(slideTimer.current);
+                slideTimer.current = setInterval(nextSlide, 4000);
+              }
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff" }}
+            aria-label="Next"
+          >
+            <ChevronRight size={18} />
+          </button>
+
+          {/* Dot indicators */}
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {slideGames.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSlideIndex(i)}
+                className="rounded-full transition-all"
+                style={{
+                  width: i === slideIndex ? 20 : 6,
+                  height: 6,
+                  backgroundColor:
+                    i === slideIndex ? T.accentColor : "rgba(255,255,255,0.3)",
+                }}
+                aria-label={`Slide ${i + 1}`}
+              />
+            ))}
           </div>
+
           {/* Scanlines */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-30"
+            className="absolute inset-0 pointer-events-none opacity-20"
             style={{
               background:
-                "repeating-linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2) 1px, transparent 1px, transparent 2px)",
+                "repeating-linear-gradient(0deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3) 1px, transparent 1px, transparent 3px)",
             }}
           />
         </div>
@@ -404,87 +531,123 @@ export default function GamesPage() {
       <div
         className={
           viewMode === "grid"
-            ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 py-6"
+            ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 py-6"
             : "space-y-2 py-6"
         }
       >
         {filteredGames.map((game) => (
           <div
             key={game.id}
-            className={`group relative border-2 overflow-hidden transition-all hover:scale-[1.02] ${
-              viewMode === "grid" ? "" : "flex items-center gap-4 p-3"
+            className={`group relative border overflow-hidden transition-all duration-200 cursor-pointer ${
+              viewMode === "grid"
+                ? "rounded-xl hover:scale-[1.03] hover:shadow-xl"
+                : "flex items-center gap-4 p-3 rounded-xl hover:scale-[1.01]"
             }`}
             style={{
               backgroundColor: T.boxBg,
               borderColor: favorites.includes(game.id)
                 ? T.accentColor
                 : T.borderColor,
+              boxShadow: favorites.includes(game.id)
+                ? `0 0 12px ${T.accentColor}30`
+                : undefined,
             }}
+            onClick={() => setSelectedGame(game)}
           >
-            {/* Cover */}
+            {/* Cover image */}
             <div
-              className={`relative overflow-hidden cursor-pointer ${
-                viewMode === "grid" ? "aspect-square" : "w-20 h-20 shrink-0"
+              className={`relative overflow-hidden ${
+                viewMode === "grid"
+                  ? "aspect-[3/4] w-full"
+                  : "w-20 h-24 shrink-0 rounded-lg"
               }`}
-              onClick={() => setSelectedGame(game)}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={game.coverUrl}
                 alt={game.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src =
-                    'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23333"/><text x="50" y="50" text-anchor="middle" fill="%23666" font-size="40">🎮</text></svg>';
+                    `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="267"><rect width="200" height="267" fill="%23111"/><text x="100" y="134" text-anchor="middle" dominant-baseline="middle" fill="%23444" font-size="60">🎮</text></svg>`;
                 }}
               />
-              {/* Play overlay */}
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/50">
-                <Play
-                  size={viewMode === "grid" ? 48 : 24}
-                  style={{ color: T.accentColor }}
-                />
+              {/* Dark gradient at bottom */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              {/* Play button */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div
+                  className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg"
+                  style={{ backgroundColor: T.accentColor }}
+                >
+                  <Play size={20} fill="#000" color="#000" />
+                </div>
               </div>
-              {/* Platform badge */}
-              <div className="absolute top-1 left-1 px-1.5 py-0.5 text-[8px] font-bold uppercase bg-black/70 text-white">
+              {/* Platform pill — top left */}
+              <div
+                className="absolute top-2 left-2 px-1.5 py-0.5 text-[8px] font-black uppercase rounded tracking-wider"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.75)",
+                  color: T.accentColor,
+                }}
+              >
                 {game.platform}
               </div>
+              {/* Star rating — top right */}
+              <div
+                className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[8px] font-bold"
+                style={{
+                  backgroundColor: "rgba(0,0,0,0.75)",
+                  color: "#fbbf24",
+                }}
+              >
+                <Star size={8} fill="#fbbf24" />
+                {game.rating}
+              </div>
+              {/* Fav heart — bottom right, always visible if fav */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleToggleFav(game.id);
+                }}
+                className={`absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all ${
+                  favorites.includes(game.id)
+                    ? "opacity-100"
+                    : "opacity-0 group-hover:opacity-100"
+                }`}
+                style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+              >
+                <Heart
+                  size={14}
+                  fill={favorites.includes(game.id) ? T.accentColor : "none"}
+                  color={favorites.includes(game.id) ? T.accentColor : "#fff"}
+                />
+              </button>
             </div>
 
-            {/* Info */}
+            {/* Info — grid mode: below cover; list mode: beside cover */}
             <div className={viewMode === "grid" ? "p-3" : "flex-1 min-w-0"}>
-              <div className="flex items-start justify-between gap-2">
-                <div
-                  className="font-bold text-sm truncate"
-                  style={{ color: T.headerColor }}
-                >
-                  {game.title}
-                </div>
-                <button
-                  onClick={() => handleToggleFav(game.id)}
-                  className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                  style={{
-                    color: favorites.includes(game.id)
-                      ? T.accentColor
-                      : T.textMuted,
-                  }}
-                >
-                  <Heart
-                    size={14}
-                    fill={favorites.includes(game.id) ? T.accentColor : "none"}
-                  />
-                </button>
-              </div>
               <div
-                className="text-[10px] opacity-60 line-clamp-1"
+                className="font-bold text-xs leading-tight line-clamp-2 mb-1"
+                style={{ color: T.textColor }}
+              >
+                {game.title}
+              </div>
+              {viewMode === "list" && (
+                <div
+                  className="text-[10px] opacity-60 line-clamp-2 mb-1"
+                  style={{ color: T.textMuted }}
+                >
+                  {game.description}
+                </div>
+              )}
+              <div
+                className="flex items-center gap-2 text-[9px]"
                 style={{ color: T.textMuted }}
               >
-                {game.description}
-              </div>
-              <div className="flex items-center gap-3 mt-2 text-[9px] opacity-40">
-                <span>⭐ {game.rating}</span>
-                <span>👤 {game.players}P</span>
-                <span>{game.year}</span>
+                <span className="opacity-50">{game.year}</span>
+                <span className="opacity-40">•</span>
+                <span className="opacity-50">{game.players}P</span>
               </div>
             </div>
           </div>

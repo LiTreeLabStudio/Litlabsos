@@ -11,7 +11,6 @@ import {
   Mic,
   FileText,
   Terminal,
-  MessageSquare,
   Layout,
   Bot,
   Users,
@@ -53,13 +52,6 @@ export const APPS = [
     icon: Sparkles,
     color: "#f59e0b",
     href: "/gallery",
-  },
-  {
-    id: "social",
-    label: "Social",
-    icon: MessageSquare,
-    color: "#10b981",
-    href: "/social",
   },
   {
     id: "jarvis",

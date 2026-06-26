@@ -15,7 +15,6 @@ export const DEFAULT_APP_ORDER = [
   "studio",
   "games",
   "gallery",
-  "social",
   "jarvis",
   "agents",
   "marketplace",

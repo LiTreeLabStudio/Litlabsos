@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { renderSupabaseLayout } from "@/app/supabase-layout";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -82,6 +83,50 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
+const clerkKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  "pk_live_Y2xlcmsubGl0bGFicy5uZXQk";
+
+const clerkAppearance = {
+  variables: {
+    colorPrimary: "#00f0ff",
+    colorBackground: "#0d0d15",
+    colorText: "#e2e8f0",
+    colorTextSecondary: "#94a3b8",
+    colorInputBackground: "#07070a",
+    colorInputText: "#e2e8f0",
+    borderRadius: "10px",
+  },
+  elements: {
+    card: {
+      border: "1px solid #1a1a2e",
+      boxShadow: "0 0 30px rgba(0, 240, 255, 0.05)",
+    },
+    formButtonPrimary: {
+      background: "linear-gradient(135deg, #00f0ff, #ff00a0)",
+      color: "#000",
+      fontWeight: "800",
+      letterSpacing: "0.05em",
+      textTransform: "uppercase",
+      "&:hover": {
+        opacity: "0.9",
+      },
+    },
+    userButtonPopoverCard: {
+      backgroundColor: "#151520",
+      border: "1px solid #2a2a45",
+    },
+    userButtonPopoverActionButton: {
+      "&:hover": {
+        backgroundColor: "rgba(0,240,255,0.1)",
+      },
+    },
+    badge: {
+      backgroundColor: "#ff00a0",
+    },
+  },
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -94,7 +139,20 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      {body}
+      <ClerkProvider
+        publishableKey={clerkKey}
+        signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
+        signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
+        signInFallbackRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL ?? "/"
+        }
+        signUpFallbackRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/"
+        }
+        appearance={clerkAppearance as any}
+      >
+        {body}
+      </ClerkProvider>
     </html>
   );
 }

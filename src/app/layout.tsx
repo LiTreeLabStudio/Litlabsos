@@ -83,7 +83,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? "";
+const clerkKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  "pk_live_Y2xlcmsubGl0bGFicy5uZXQk";
 
 const clerkAppearance = {
   variables: {
@@ -133,24 +135,20 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      {clerkKey ? (
-        <ClerkProvider
-          publishableKey={clerkKey}
-          signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
-          signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
-          signInFallbackRedirectUrl={
-            process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL ?? "/studio"
-          }
-          signUpFallbackRedirectUrl={
-            process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/studio"
-          }
-          appearance={clerkAppearance}
-        >
-          {body}
-        </ClerkProvider>
-      ) : (
-        body
-      )}
+      <ClerkProvider
+        publishableKey={clerkKey}
+        signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
+        signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
+        signInFallbackRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL ?? "/studio"
+        }
+        signUpFallbackRedirectUrl={
+          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/studio"
+        }
+        appearance={clerkAppearance}
+      >
+        {body}
+      </ClerkProvider>
     </html>
   );
 }

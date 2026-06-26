@@ -52,14 +52,31 @@ const userLinks = [
 
 function WalletBadge({ accentColor }: { accentColor: string }) {
   const [balance, setBalance] = useState<number | null>(null);
-  useEffect(() => {
+
+  const fetchBalance = () => {
     fetch("/api/wallet")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.balance !== undefined) setBalance(data.balance);
       })
       .catch(() => setBalance(null));
+  };
+
+  useEffect(() => {
+    fetchBalance();
+    // Refresh when DashboardView (or any component) emits after a claim/spend
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ balance?: number }>).detail;
+      if (typeof detail?.balance === "number") {
+        setBalance(detail.balance);
+      } else {
+        fetchBalance();
+      }
+    };
+    window.addEventListener("wallet-updated", handler);
+    return () => window.removeEventListener("wallet-updated", handler);
   }, []);
+
   return (
     <div
       className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105"
@@ -83,9 +100,9 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userOpen, _setUserOpen] = useState(false);
   const [notifOpen, _setNotifOpen] = useState(false);
-  const [notifications, _setNotifications] = useState<Record<string, unknown>[]>(
-    [],
-  );
+  const [notifications, _setNotifications] = useState<
+    Record<string, unknown>[]
+  >([]);
   const [unreadCount, _setUnreadCount] = useState(0);
 
   const userRef = useRef<HTMLDivElement>(null);

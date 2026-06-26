@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useProfile } from "@/context/ProfileContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -13,27 +13,77 @@ export default function DashboardView() {
   const { profile } = useProfile();
   const { resolvedColors: T } = useTheme();
   const [activeApp, setActiveApp] = useState("home");
-  const [balance, setBalance] = useState(() => {
-    if (typeof window === "undefined") return 9999;
-    return parseInt(localStorage.getItem("litcoins") || "500");
-  });
-  const [claimed, setClaimed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const last = localStorage.getItem("lastDailyClaim");
-    return !!(last && Date.now() - parseInt(last) < 86400000);
-  });
+  const [balance, setBalance] = useState<number>(9999);
+  const [claimed, setClaimed] = useState(false);
+  const [claiming, setClaiming] = useState(false);
   const visitors = 133742;
 
   const displayName =
     profile?.displayName || user?.firstName || user?.username || "Creator";
 
-  const claimDaily = () => {
-    if (claimed) return;
-    const next = balance + 100;
-    setBalance(next);
-    localStorage.setItem("litcoins", String(next));
-    localStorage.setItem("lastDailyClaim", String(Date.now()));
-    setClaimed(true);
+  // Load real balance + claim status from the API on mount
+  const refreshWallet = useCallback(async () => {
+    try {
+      const res = await fetch("/api/wallet");
+      if (!res.ok) return;
+      const data = await res.json();
+      if (typeof data.balance === "number") {
+        setBalance(data.balance);
+        // Sync to localStorage so other components (e.g. studio tools) can read it
+        localStorage.setItem("litcoins", String(data.balance));
+      }
+      if (data.last_claim_date) {
+        const lastClaim = new Date(data.last_claim_date);
+        const now = new Date();
+        const sameDay =
+          lastClaim.getFullYear() === now.getFullYear() &&
+          lastClaim.getMonth() === now.getMonth() &&
+          lastClaim.getDate() === now.getDate();
+        setClaimed(sameDay);
+      }
+    } catch {
+      // Fall back to localStorage if API is unreachable
+      const stored = localStorage.getItem("litcoins");
+      if (stored) setBalance(parseInt(stored) || 9999);
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshWallet();
+  }, [refreshWallet]);
+
+  const claimDaily = async () => {
+    if (claimed || claiming) return;
+    setClaiming(true);
+    try {
+      const res = await fetch("/api/wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "daily" }),
+      });
+      const data = await res.json();
+      if (res.ok && typeof data.balance === "number") {
+        setBalance(data.balance);
+        setClaimed(true);
+        localStorage.setItem("litcoins", String(data.balance));
+        // Tell the Navbar to refresh its badge
+        window.dispatchEvent(
+          new CustomEvent("wallet-updated", {
+            detail: { balance: data.balance },
+          }),
+        );
+      } else if (data.error === "Daily bonus already claimed today") {
+        setClaimed(true);
+      }
+    } catch {
+      // Optimistic fallback so the button still responds offline
+      const next = balance + 100;
+      setBalance(next);
+      setClaimed(true);
+      localStorage.setItem("litcoins", String(next));
+    } finally {
+      setClaiming(false);
+    }
   };
 
   return (

@@ -558,7 +558,7 @@ export default function GamesPage() {
             <div
               className={`relative overflow-hidden ${
                 viewMode === "grid"
-                  ? "aspect-[3/4] w-full"
+                  ? "aspect-3/4 w-full"
                   : "w-20 h-24 shrink-0 rounded-lg"
               }`}
             >

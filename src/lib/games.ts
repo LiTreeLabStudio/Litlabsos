@@ -134,6 +134,22 @@ export const GAME_LIBRARY: Game[] = [
     tags: ["platformer", "mario", "classic"],
   },
   {
+    id: "smb3-snes",
+    title: "BS Super Mario Collection 3",
+    description:
+      "Play the legendary Super Mario Bros. 3 with enhanced 16-bit SNES graphics.",
+    category: "retro",
+    platform: "snes",
+    coverUrl:
+      "https://upload.wikimedia.org/wikipedia/en/a/a5/Super_Mario_Bros._3_coverart.png",
+    romUrl: rom("BS Mario Collection 3 (J).smc"),
+    year: 1993,
+    developer: "Nintendo",
+    players: 2,
+    rating: 4.9,
+    tags: ["platformer", "mario", "classic", "snes"],
+  },
+  {
     id: "zelda-lttp",
     title: "The Legend of Zelda: A Link to the Past",
     description: "The definitive Zelda adventure. Light and Dark World await.",

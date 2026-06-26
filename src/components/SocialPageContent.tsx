@@ -79,7 +79,11 @@ function timeAgo(iso: string) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
-export default function SocialPageContent() {
+export default function SocialPageContent({
+  hideHeader = false,
+}: {
+  hideHeader?: boolean;
+}) {
   const { isLoaded, isSignedIn } = useClerkAuth();
   const { profile } = useProfile();
   const [activeTab, setActiveTab] = useState<"for-you" | "following">(
@@ -209,7 +213,10 @@ export default function SocialPageContent() {
   }
 
   return (
-    <div className="pb-24" style={{ backgroundColor: C.bgColor, color: C.textColor }}>
+    <div
+      className="pb-24"
+      style={{ backgroundColor: C.bgColor, color: C.textColor }}
+    >
       {/* Toast */}
       {toast && (
         <div
@@ -225,50 +232,52 @@ export default function SocialPageContent() {
       )}
 
       <div className="relative z-10 w-full px-3 pt-4">
-        {/* Header */}
-        <div
-          className="mb-4 p-3 flex items-center justify-between border-2"
-          style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
-        >
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-lg font-black uppercase"
-              style={{ color: C.headerColor }}
-            >
-              ⚡ LiTree Labs
-            </Link>
-            <div className="hidden sm:flex items-center gap-1 text-[10px] opacity-50">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              SOCIAL FEED
+        {/* Header — hidden when rendered inside a page that already has a Navbar */}
+        {!hideHeader && (
+          <div
+            className="mb-4 p-3 flex items-center justify-between border-2"
+            style={{ backgroundColor: C.boxBg, borderColor: C.borderColor }}
+          >
+            <div className="flex items-center gap-3">
+              <Link
+                href="/"
+                className="text-lg font-black uppercase"
+                style={{ color: C.headerColor }}
+              >
+                ⚡ LiTree Labs
+              </Link>
+              <div className="hidden sm:flex items-center gap-1 text-[10px] opacity-50">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                SOCIAL FEED
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => loadPosts(activeTab)}
+                className="p-1.5 border hover:opacity-80"
+                style={{ borderColor: C.borderColor }}
+              >
+                <RefreshCw size={12} style={{ color: C.textMuted }} />
+              </button>
+              <Link
+                href="/"
+                className="px-3 py-1.5 text-xs border hover:opacity-80"
+                style={{ borderColor: C.borderColor, color: C.textMuted }}
+              >
+                Home
+              </Link>
+              {!isSignedIn && (
+                <Link
+                  href="/sign-up"
+                  className="px-3 py-1.5 text-xs font-bold border"
+                  style={{ borderColor: C.accentColor, color: C.accentColor }}
+                >
+                  Join
+                </Link>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => loadPosts(activeTab)}
-              className="p-1.5 border hover:opacity-80"
-              style={{ borderColor: C.borderColor }}
-            >
-              <RefreshCw size={12} style={{ color: C.textMuted }} />
-            </button>
-            <Link
-              href="/"
-              className="px-3 py-1.5 text-xs border hover:opacity-80"
-              style={{ borderColor: C.borderColor, color: C.textMuted }}
-            >
-              Home
-            </Link>
-            {!isSignedIn && (
-              <Link
-                href="/sign-up"
-                className="px-3 py-1.5 text-xs font-bold border"
-                style={{ borderColor: C.accentColor, color: C.accentColor }}
-              >
-                Join
-              </Link>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* Three Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr_240px] lg:grid-cols-[260px_1fr_300px] xl:grid-cols-[280px_1fr_320px] gap-4">

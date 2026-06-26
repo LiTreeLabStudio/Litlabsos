@@ -39,5 +39,5 @@ export default function SocialPage() {
     );
   }
 
-  return <SocialPageContent />;
+  return <SocialPageContent hideHeader />;
 }

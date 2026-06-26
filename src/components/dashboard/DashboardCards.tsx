@@ -249,7 +249,7 @@ export function CenterStage({
 
     /* ── SOCIAL ──────────────────────────────────────────────────── */
     case "social":
-      return <SocialPageContent />;
+      return <SocialPageContent hideHeader />;
 
     /* ── STUDIO ──────────────────────────────────────────────────── */
     case "studio":

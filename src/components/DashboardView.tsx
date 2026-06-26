@@ -7,6 +7,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { APPS } from "@/components/dashboard/dashboard-data";
 import { CenterStage } from "@/components/dashboard/DashboardCards";
 import DashboardWidgets from "@/components/dashboard/DashboardWidgets";
+import Link from "next/link";
 
 export default function DashboardView() {
   const { user } = useUser();
@@ -104,19 +105,15 @@ export default function DashboardView() {
         {APPS.map((app) => {
           const Icon = app.icon;
           const active = activeApp === app.id;
-          return (
-            <button
-              key={app.id}
-              onClick={() => setActiveApp(app.id)}
-              className="relative group w-11 h-11 rounded-xl flex items-center justify-center transition-all"
-              style={{
-                backgroundColor: active ? `${app.color}15` : "transparent",
-                border: active
-                  ? `1px solid ${app.color}40`
-                  : "1px solid transparent",
-              }}
-              title={app.label}
-            >
+          const hasPage = app.href && app.href !== "#";
+          const sharedStyle = {
+            backgroundColor: active ? `${app.color}15` : "transparent",
+            border: active
+              ? `1px solid ${app.color}40`
+              : "1px solid transparent",
+          };
+          const inner = (
+            <>
               <Icon
                 size={20}
                 style={{ color: active ? app.color : T.textMuted }}
@@ -137,6 +134,27 @@ export default function DashboardView() {
               >
                 {app.label}
               </span>
+            </>
+          );
+          return hasPage ? (
+            <Link
+              key={app.id}
+              href={app.href}
+              className="relative group w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+              style={sharedStyle}
+              title={app.label}
+            >
+              {inner}
+            </Link>
+          ) : (
+            <button
+              key={app.id}
+              onClick={() => setActiveApp(app.id)}
+              className="relative group w-11 h-11 rounded-xl flex items-center justify-center transition-all"
+              style={sharedStyle}
+              title={app.label}
+            >
+              {inner}
             </button>
           );
         })}
@@ -155,21 +173,37 @@ export default function DashboardView() {
           {APPS.map((app) => {
             const Icon = app.icon;
             const active = activeApp === app.id;
-            return (
+            const hasPage = app.href && app.href !== "#";
+            const mobileStyle = {
+              backgroundColor: active ? `${app.color}15` : `${T.boxBg}60`,
+              border: active
+                ? `1px solid ${app.color}40`
+                : `1px solid ${T.borderColor}30`,
+              color: active ? app.color : T.textMuted,
+            };
+            const mobileInner = (
+              <>
+                <Icon size={14} />
+                {app.label}
+              </>
+            );
+            return hasPage ? (
+              <Link
+                key={app.id}
+                href={app.href}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all"
+                style={mobileStyle}
+              >
+                {mobileInner}
+              </Link>
+            ) : (
               <button
                 key={app.id}
                 onClick={() => setActiveApp(app.id)}
                 className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all"
-                style={{
-                  backgroundColor: active ? `${app.color}15` : `${T.boxBg}60`,
-                  border: active
-                    ? `1px solid ${app.color}40`
-                    : `1px solid ${T.borderColor}30`,
-                  color: active ? app.color : T.textMuted,
-                }}
+                style={mobileStyle}
               >
-                <Icon size={14} />
-                {app.label}
+                {mobileInner}
               </button>
             );
           })}

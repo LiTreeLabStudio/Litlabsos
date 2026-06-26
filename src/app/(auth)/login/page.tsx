@@ -22,7 +22,7 @@ export default async function LoginPage({
           <h1 className="text-3xl font-extrabold tracking-tight text-white mb-1">
             lit<span className="text-blue-500">labs</span>
           </h1>
-          <p className="text-sm text-zinc-500">Build AI Agents</p>
+          <p className="text-sm text-zinc-400">Build AI Agents</p>
         </div>
 
         {/* Card */}
@@ -74,7 +74,7 @@ export default async function LoginPage({
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors"
+              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 transition-colors cursor-pointer"
             >
               Sign In
             </button>
@@ -87,7 +87,7 @@ export default async function LoginPage({
                 <div className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center text-xs">
-                <span className="bg-[#0a0a0f] px-2 text-zinc-500">
+                <span className="bg-[#0a0a0f] px-2 text-zinc-400">
                   Or continue with
                 </span>
               </div>
@@ -126,9 +126,9 @@ export default async function LoginPage({
             </Link>
           </div>
 
-          <p className="text-center text-xs text-zinc-500 mt-4">
+          <p className="text-center text-xs text-zinc-400 mt-4">
             Don&apos;t have an account?{" "}
-            <Link href="/sign-up" className="text-blue-400 hover:underline">
+            <Link href="/sign-up" className="text-blue-400 underline hover:text-blue-300 transition-colors font-medium">
               Create one
             </Link>
           </p>

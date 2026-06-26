@@ -164,7 +164,7 @@ export default function Navbar() {
                   LiTree Lab
                 </span>
                 <span
-                  className="text-[10px] font-bold tracking-[.25em] uppercase opacity-40"
+                  className="text-[10px] font-bold tracking-[.25em] uppercase opacity-75"
                   style={{ color: T.textMuted }}
                 >
                   Studios

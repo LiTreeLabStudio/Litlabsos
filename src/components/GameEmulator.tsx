@@ -59,6 +59,13 @@ export default function GameEmulator({
         setStatus("ready");
       })
       .catch((err: unknown) => {
+        // If it's a network/CORS error rather than a clear 404/403, proceed to let the emulator attempt loading
+        const isNetworkOrCors = err instanceof TypeError || (err instanceof Error && !err.message.includes("404") && !err.message.includes("403"));
+        if (isNetworkOrCors) {
+          setStatus("ready");
+          return;
+        }
+
         const msg =
           err instanceof Error
             ? err.message

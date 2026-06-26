@@ -13,7 +13,12 @@ const ROM_BASE =
   "/roms";
 
 function rom(filename: string): string {
-  return `${ROM_BASE}/${filename}`;
+  if (filename.startsWith("http://") || filename.startsWith("https://")) {
+    return filename;
+  }
+  // URL encode the filename to handle spaces and special characters safely
+  const encodedFilename = encodeURIComponent(filename).replace(/%2F/g, "/");
+  return `${ROM_BASE}/${encodedFilename}`;
 }
 
 export type GameCategory = "retro" | "arcade" | "puzzle" | "multiplayer";
@@ -311,8 +316,7 @@ export const GAME_LIBRARY: Game[] = [
     description: "Fast-paced hexagon block-stacking with color matching.",
     category: "puzzle",
     platform: "html5",
-    coverUrl:
-      "https://images.unsplash.com/photo-1585620385456-4759f9b5c7d9?w=400&h=300&fit=crop",
+    coverUrl: "/images/hextris.png",
     html5Url: "https://hextris.github.io/hextris/",
     year: 2014,
     developer: "Logan Engstrom",
@@ -357,8 +361,7 @@ export const GAME_LIBRARY: Game[] = [
     description: "Fill the 9×9 grid so every row, column, and box has 1–9.",
     category: "puzzle",
     platform: "html5",
-    coverUrl:
-      "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop",
+    coverUrl: "/images/sudoku.png",
     html5Url: "https://sudoku.com/",
     year: 2004,
     developer: "Various",

@@ -284,6 +284,9 @@ export default function JarvisTerminal() {
   const ttsQueue = useRef<string[]>([]);
   const isSpeaking = useRef(false);
   const pushTimerRef = useRef<number | null>(null);
+  // Stable ref so recognition callbacks always call the latest sendMessage
+  // without needing to re-register the recognition instance on every change
+  const sendMessageRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -731,6 +734,13 @@ export default function JarvisTerminal() {
     selectedVoiceURI,
   ]);
 
+  // Keep sendMessageRef pointing to latest sendMessage so recognition
+  // callbacks never call a stale closure (avoids re-registering recognition
+  // on every keystroke/input change)
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
+
   /* ── Speech recognition setup ── */
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -788,7 +798,9 @@ export default function JarvisTerminal() {
               .trim();
             setInput(cmd);
             if (cmd) {
-              setTimeout(() => sendMessage(), 200);
+              // Use ref so we always call the latest sendMessage without
+              // needing to re-register this recognition instance
+              setTimeout(() => sendMessageRef.current(), 200);
             } else {
               addLog({
                 type: "system",
@@ -797,7 +809,7 @@ export default function JarvisTerminal() {
             }
           }
         } else {
-          setTimeout(() => sendMessage(), 200);
+          setTimeout(() => sendMessageRef.current(), 200);
         }
       }
     };
@@ -810,7 +822,10 @@ export default function JarvisTerminal() {
         /* ignore */
       }
     };
-  }, [sendMessage, wakeWordEnabled, continuousMode, addLog]);
+    // sendMessage intentionally omitted — we use sendMessageRef to avoid
+    // re-registering recognition on every input change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wakeWordEnabled, continuousMode, addLog]);
 
   const startMic = async () => {
     if (!recognitionRef.current) {

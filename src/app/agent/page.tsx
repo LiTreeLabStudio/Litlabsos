@@ -1,9 +1,14 @@
-import AgentChat from "@/components/AgentChat";
+"use client";
 
-export const dynamic = "force-dynamic";
+import JarvisTerminal from "@/components/dashboard/JarvisTerminal";
 
 export default function AgentPage() {
-  return <AgentChat />;
+  return (
+    <div
+      className="flex flex-col w-full"
+      style={{ height: "calc(100vh - 3.5rem)" }}
+    >
+      <JarvisTerminal />
+    </div>
+  );
 }
-
-export const runtime = "edge";

@@ -290,7 +290,7 @@ export default function GalleryPage() {
           priority
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/10" />
+        <div className="absolute inset-0 bg-linear-to-t from-black via-black/40 to-black/10" />
         <div className="absolute inset-0 flex flex-col justify-end px-6 sm:px-10 pb-10 sm:pb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 mb-4 rounded-full bg-indigo-500/20 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-500/30 text-indigo-400 w-fit">
             <Sparkles size={11} /> Creation of the Day
@@ -437,7 +437,7 @@ export default function GalleryPage() {
                     unoptimized
                   />
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 gap-1.5">
+                  <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 gap-1.5">
                     <div className="flex items-start justify-between gap-1">
                       <h3 className="font-black text-xs text-white leading-tight line-clamp-2">
                         {item.title}
@@ -535,7 +535,7 @@ export default function GalleryPage() {
                 unoptimized
               />
             </div>
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-linear-to-t from-black/90 to-transparent">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-black text-white">

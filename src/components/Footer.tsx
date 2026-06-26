@@ -39,7 +39,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="col-span-2 lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
                 <Zap size={24} fill="currentColor" />
               </div>
               <span className="font-black text-xl tracking-tight">
@@ -78,9 +78,9 @@ export default function Footer() {
 
           {/* Links Columns */}
           <div className="space-y-4">
-<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
-               Platform
-             </h2>
+            <h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+              Platform
+            </h2>
             <div className="flex flex-col gap-2">
               {PRODUCT_LINKS.map((item) => (
                 <Link
@@ -95,9 +95,9 @@ export default function Footer() {
           </div>
 
           <div className="space-y-4">
-<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
-               Resources
-             </h2>
+            <h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+              Resources
+            </h2>
             <div className="flex flex-col gap-2">
               {RESOURCE_LINKS.map((item) => (
                 <Link
@@ -112,9 +112,9 @@ export default function Footer() {
           </div>
 
           <div className="space-y-4">
-<h2 className="text-xs font-black uppercase tracking-widest opacity-30">
-               Legal
-             </h2>
+            <h2 className="text-xs font-black uppercase tracking-widest opacity-30">
+              Legal
+            </h2>
             <div className="flex flex-col gap-2">
               {LEGAL_LINKS.map((item) => (
                 <Link

@@ -338,18 +338,20 @@ export default function MarketplacePage() {
       .then((r) => r.json())
       .then((data) => {
         if (data.agents) {
-          const mapped: Agent[] = data.agents.map((a: Record<string, unknown>) => ({
-            id: a.slug as string,
-            name: a.name as string,
-            description: a.description as string,
-            category: (a.category as string) || "general",
-            price_cents: (a.price_cents as number) || 0,
-            rating: 4.8,
-            installs: Math.floor(Math.random() * 1000) + 100,
-            icon: a.avatar_url ? "🤖" : "💎",
-            tags: [],
-            is_featured: (a.is_featured as boolean) || false,
-          }));
+          const mapped: Agent[] = data.agents.map(
+            (a: Record<string, unknown>) => ({
+              id: a.slug as string,
+              name: a.name as string,
+              description: a.description as string,
+              category: (a.category as string) || "general",
+              price_cents: (a.price_cents as number) || 0,
+              rating: 4.8,
+              installs: Math.floor(Math.random() * 1000) + 100,
+              icon: a.avatar_url ? "🤖" : "💎",
+              tags: [],
+              is_featured: (a.is_featured as boolean) || false,
+            }),
+          );
           setAgents(mapped);
         }
         setLoading(false);
@@ -419,7 +421,7 @@ export default function MarketplacePage() {
       <div className="max-w-[1600px] mx-auto px-4 lg:px-6 space-y-12 pb-20">
         {/* Hero Section / Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-900 p-10 text-white relative overflow-hidden shadow-2xl">
+          <div className="lg:col-span-2 rounded-3xl bg-linear-to-br from-indigo-600 to-indigo-900 p-10 text-white relative overflow-hidden shadow-2xl">
             <div className="relative z-10 space-y-6 max-w-lg">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.2em] border border-white/30">
                 <Shield size={12} /> Neural Network Online

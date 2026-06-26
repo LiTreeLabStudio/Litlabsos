@@ -44,14 +44,13 @@ export default function GameEmulator({
   useEffect(() => {
     if (!core) {
       const msg = `${platform.toUpperCase()} emulator is not supported.`;
-      setErrorMsg(msg);
-      setStatus("error");
-      onError?.(msg);
-      return;
+      const timer = setTimeout(() => {
+        setErrorMsg(msg);
+        setStatus("error");
+        onError?.(msg);
+      }, 0);
+      return () => clearTimeout(timer);
     }
-
-    setStatus("loading");
-    setErrorMsg(null);
 
     // HEAD check — verify ROM is reachable before booting emulator
     fetch(romUrl, { method: "HEAD" })

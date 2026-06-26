@@ -35,9 +35,9 @@ export default function Footer() {
       }}
     >
       <div className="max-w-[1600px] mx-auto px-6 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
           {/* Brand Column */}
-          <div className="col-span-2 lg:col-span-2 space-y-6">
+          <div className="md:col-span-2 lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
                 <Zap size={24} fill="currentColor" />

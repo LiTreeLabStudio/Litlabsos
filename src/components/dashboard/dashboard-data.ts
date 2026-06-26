@@ -12,6 +12,9 @@ import {
   FileText,
   Terminal,
   MessageSquare,
+  Layout,
+  Bot,
+  Users,
 } from "lucide-react";
 
 export type IconComponent = React.ComponentType<{
@@ -23,6 +26,13 @@ export type IconComponent = React.ComponentType<{
 
 export const APPS = [
   // — Primary creation tools at the top
+  {
+    id: "home",
+    label: "Dashboard",
+    icon: Layout,
+    color: "#3b82f6",
+    href: "/",
+  },
   {
     id: "studio",
     label: "Studio",
@@ -44,20 +54,19 @@ export const APPS = [
     color: "#f59e0b",
     href: "/gallery",
   },
-  // — Social & community
-  {
-    id: "social",
-    label: "Social",
-    icon: MessageSquare,
-    color: "#10b981",
-    href: "/social",
-  },
   {
     id: "jarvis",
     label: "Jarvis",
-    icon: Terminal,
+    icon: Bot,
     color: "#ff00a0",
     href: "/agent",
+  },
+  {
+    id: "agents",
+    label: "Agents",
+    icon: Users,
+    color: "#10b981",
+    href: "/agents",
   },
   {
     id: "marketplace",

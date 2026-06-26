@@ -995,17 +995,20 @@ export function CenterStage({
             </div>
             {/* fake waveform */}
             <div className="flex items-end gap-0.5 mt-4 h-6">
-              {Array.from({ length: 48 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex-1 rounded-sm animate-pulse"
-                  style={{
-                    height: `${20 + Math.sin(i * 0.5) * 15}%`,
-                    backgroundColor: "#10b981",
-                    opacity: 0.4 + Math.random() * 0.4,
-                  }}
-                />
-              ))}
+              {Array.from({ length: 48 }).map((_, i) => {
+                const opacity = 0.4 + ((Math.sin(i * 13.7) * 0.5 + 0.5) * 0.4);
+                return (
+                  <div
+                    key={i}
+                    className="flex-1 rounded-sm animate-pulse"
+                    style={{
+                      height: `${20 + Math.sin(i * 0.5) * 15}%`,
+                      backgroundColor: "#10b981",
+                      opacity,
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
 

@@ -687,14 +687,14 @@ function LandingPage() {
 
 // Main Page Component
 export default function HomePage() {
-  let isSignedIn = false;
-  let isLoaded = false;
-  try {
-    // useUser throws if ClerkProvider is missing (e.g. during SSR without key)
-    const u = useUser(); // eslint-disable-line react-hooks/rules-of-hooks
-    isSignedIn = !!u?.isSignedIn;
-    isLoaded = !!u?.isLoaded;
-  } catch {
+let isSignedIn = false;
+   let isLoaded = false;
+   try {
+     // useUser throws if ClerkProvider is missing (e.g. during SSR without key)
+     const u = useUser();
+     isSignedIn = !!u?.isSignedIn;
+     isLoaded = !!u?.isLoaded;
+   } catch {
     // No Clerk context — treat as signed out, show landing page
     isLoaded = true;
   }

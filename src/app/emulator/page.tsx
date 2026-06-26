@@ -10,8 +10,6 @@
  * intentionally public and contains no sensitive data.
  */
 
-import { type NextRequest } from "next/server";
-
 export const dynamic = "force-dynamic";
 
 export default function EmulatorPage({
@@ -72,15 +70,15 @@ export default function EmulatorPage({
       </head>
       <body>
         <div id="game" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              const cfg = ${config};
-              Object.assign(window, cfg);
-            `,
-          }}
-        />
-        <script src="https://cdn.emulatorjs.org/stable/data/loader.js" />
+<script
+           dangerouslySetInnerHTML={{
+             __html: `
+               const cfg = ${config};
+               Object.assign(window, cfg);
+             `,
+           }}
+         />{/* eslint-disable-next-line @next/next/no-sync-scripts */}
+         <script src="https://cdn.emulatorjs.org/stable/data/loader.js" />
       </body>
     </html>
   );

@@ -55,6 +55,13 @@ export const APPS = [
     href: "/gallery",
   },
   {
+    id: "social",
+    label: "Social",
+    icon: MessageSquare,
+    color: "#10b981",
+    href: "/social",
+  },
+  {
     id: "jarvis",
     label: "Jarvis",
     icon: Bot,

@@ -26,6 +26,7 @@ import {
   Layout,
   Search,
   Users,
+  MessageSquare,
 } from "lucide-react";
 
 const NavAuth = dynamic(
@@ -38,6 +39,7 @@ const navLinks = [
   { href: "/studio", label: "Studio", icon: Zap },
   { href: "/games", label: "Play", icon: GamepadIcon },
   { href: "/gallery", label: "Gallery", icon: Sparkles },
+  { href: "/social", label: "Social", icon: MessageSquare },
   { href: "/agent", label: "Jarvis", icon: Bot },
   { href: "/agents", label: "Agents", icon: Users },
   { href: "/marketplace", label: "Market", icon: ShoppingBag },

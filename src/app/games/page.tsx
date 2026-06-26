@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
@@ -47,7 +47,7 @@ const CATEGORIES: {
 
 export default function GamesPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<GameCategory | "all">(
@@ -198,6 +198,8 @@ export default function GamesPage() {
                 alt={game.title}
                 className="w-full h-full object-cover object-center"
                 style={{ filter: "brightness(0.45)" }}
+                width={800}
+                height={600}
               />
               {/* Gradient overlay bottom → top */}
               <div
@@ -287,23 +289,25 @@ export default function GamesPage() {
             <ChevronRight size={18} />
           </button>
 
-          {/* Dot indicators */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
-            {slideGames.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSlideIndex(i)}
-                className="rounded-full transition-all"
-                style={{
-                  width: i === slideIndex ? 20 : 6,
-                  height: 6,
-                  backgroundColor:
-                    i === slideIndex ? T.accentColor : "rgba(255,255,255,0.3)",
-                }}
-                aria-label={`Slide ${i + 1}`}
-              />
-            ))}
-          </div>
+{/* Dot indicators */}
+           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+             {slideGames.map((game, i) => (
+               <button
+                 key={i}
+                 onClick={() => setSlideIndex(i)}
+                 className="rounded-full transition-all"
+                 style={{
+                   width: i === slideIndex ? 20 : 6,
+                   height: 6,
+                   backgroundColor:
+                     i === slideIndex ? T.accentColor : "rgba(255,255,255,0.3)",
+                 }}
+                 aria-label={`Go to ${game.title}`}
+               >
+                 <span className="sr-only">Slide {i + 1}: {game.title}</span>
+               </button>
+             ))}
+           </div>
 
           {/* Scanlines */}
           <div

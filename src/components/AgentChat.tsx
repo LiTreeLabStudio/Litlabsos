@@ -4,10 +4,10 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useTheme } from "@/context/ThemeContext";
 
-// ─── Agents that can generate worlds ──────────────────────────────────────────
+// --- Agents that can generate worlds ------------------------------------------
 const WORLD_AGENTS = [
   {
     id: "pixel-forge",
@@ -71,7 +71,7 @@ type GeneratedWorld = {
 };
 
 export default function AgentChat() {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const { resolvedColors: T } = useTheme();
 

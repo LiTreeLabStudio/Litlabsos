@@ -797,7 +797,7 @@ export default function JarvisTerminal() {
     sendMessageRef.current = sendMessage;
   }, [sendMessage]);
 
-  /* ── Speech recognition setup ── */
+  /* -- Speech recognition setup -- */
   useEffect(() => {
     if (typeof window === "undefined") return;
     const SR =

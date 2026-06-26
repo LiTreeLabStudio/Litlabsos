@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import PageShell from "@/components/PageShell";
 import { AGENT_AVATARS } from "@/lib/avatars";
 
@@ -156,7 +156,7 @@ export default function AgentDetail() {
   const params = useParams();
   const slug = params.slug as string;
   const { resolvedColors: theme } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const [agent, setAgent] = useState<Agent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);

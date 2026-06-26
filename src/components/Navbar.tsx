@@ -1,14 +1,13 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useState, useRef, useEffect } from "react";
-import { useTheme } from "@/context/ThemeContext";
-import { useProfile } from "@/context/ProfileContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
-import { useSessionAuth } from "@/hooks/useSessionAuth";
-import dynamic from "next/dynamic";
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useState, useEffect, useRef } from "react"
+import { useSupabaseAuth } from "@/app/supabase-auth"
+import { useSessionAuth } from "@/hooks/useSessionAuth"
+import { useTheme } from "@/context/ThemeContext"
+import dynamic from "next/dynamic"
+import { NavAuth } from "@/components/ClerkAuth"
 import {
   ShoppingBag,
   Sparkles,
@@ -26,12 +25,20 @@ import {
   Layout,
   Search,
   Users,
-} from "lucide-react";
+} from "lucide-react"
 
-const NavAuth = dynamic(
-  () => import("@/components/ClerkAuth").then((m) => ({ default: m.NavAuth })),
-  { ssr: false },
-);
+// Dynamic imports to avoid SSR issues
+const UserSync = dynamic(
+  () => import("@/components/UserSync"),
+  { ssr: false }
+)
+
+const settingsLinks = [
+  { href: "/profile", label: "My Profile", icon: User },
+  { href: "/settings", label: "System Config", icon: Settings },
+  { href: "/code", label: "Scanner", icon: Code2 },
+  { href: "/showcase", label: "Showcase", icon: Sparkles },
+]
 
 const navLinks = [
   { href: "/", label: "Dashboard", icon: Layout },
@@ -41,95 +48,50 @@ const navLinks = [
   { href: "/agent", label: "Jarvis", icon: Bot },
   { href: "/agents", label: "Agents", icon: Users },
   { href: "/marketplace", label: "Market", icon: ShoppingBag },
-];
+]
 
 const userLinks = [
   { href: "/profile", label: "My Profile", icon: User },
   { href: "/settings", label: "System Config", icon: Settings },
   { href: "/code", label: "Scanner", icon: Code2 },
-  { href: "/showcase", label: "Showcase", icon: Sparkles },
-];
-
-function WalletBadge({ accentColor }: { accentColor: string }) {
-  const [balance, setBalance] = useState<number | null>(null);
-
-  const fetchBalance = () => {
-    fetch("/api/wallet")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (data?.balance !== undefined) setBalance(data.balance);
-      })
-      .catch(() => setBalance(null));
-  };
-
-  useEffect(() => {
-    fetchBalance();
-    // Refresh when DashboardView (or any component) emits after a claim/spend
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent<{ balance?: number }>).detail;
-      if (typeof detail?.balance === "number") {
-        setBalance(detail.balance);
-      } else {
-        fetchBalance();
-      }
-    };
-    window.addEventListener("wallet-updated", handler);
-    return () => window.removeEventListener("wallet-updated", handler);
-  }, []);
-
-  return (
-    <div
-      className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all hover:scale-105"
-      style={{
-        backgroundColor: accentColor + "15",
-        color: accentColor,
-        border: `1px solid ${accentColor}30`,
-      }}
-      title="LiTBit Balance"
-    >
-      <Coins size={14} />
-      <span>{balance === null ? "—" : balance.toLocaleString()}</span>
-    </div>
-  );
-}
+]
 
 export default function Navbar() {
-  const { resolvedColors: T, setMode, theme } = useTheme();
-  const { profile: _profile } = useProfile();
-  const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [userOpen, _setUserOpen] = useState(false);
-  const [notifOpen, _setNotifOpen] = useState(false);
+  const { resolvedColors: T, setMode, theme } = useTheme()
+  const userSync = dynamic(() => import("@/components/UserSync"), { ssr: false })
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [userOpen, _setUserOpen] = useState(false)
+  const [notifOpen, _setNotifOpen] = useState(false)
   const [notifications, _setNotifications] = useState<
     Record<string, unknown>[]
-  >([]);
-  const [unreadCount, _setUnreadCount] = useState(0);
+  >([])
+  const [unreadCount, _setUnreadCount] = useState(0)
 
-  const userRef = useRef<HTMLDivElement>(null);
-  const notifRef = useRef<HTMLDivElement>(null);
-  const hamburgerRef = useRef<HTMLButtonElement>(null);
+  const userRef = useRef<HTMLDivElement>(null)
+  const notifRef = useRef<HTMLDivElement>(null)
+  const hamburgerRef = useRef<HTMLButtonElement>(null)
 
-  const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn } = useClerkAuth();
   const { isLoaded: sessionLoaded, isSignedIn: sessionSignedIn } =
-    useSessionAuth();
-  const authLoaded = clerkLoaded || sessionLoaded;
-  const isSignedIn = clerkSignedIn || sessionSignedIn;
+    useSessionAuth()
+  const authLoaded = sessionLoaded
+  const isSignedIn = sessionSignedIn
 
+  const pathname = usePathname()
   const isActive = (path: string) => {
-    if (path === "/" && pathname !== "/") return false;
-    return pathname?.startsWith(path);
-  };
+    if (path === "/" && pathname !== "/") return false
+    return pathname?.startsWith(path)
+  }
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       if (userRef.current && !userRef.current.contains(e.target as Node))
-        _setUserOpen(false);
+        _setUserOpen(false)
       if (notifRef.current && !notifRef.current.contains(e.target as Node))
-        _setNotifOpen(false);
-    };
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
-  }, []);
+        _setNotifOpen(false)
+    }
+    document.addEventListener("mousedown", handleClick)
+    return () => document.removeEventListener("mousedown", handleClick)
+  }, [])
 
   return (
     <nav
@@ -148,13 +110,11 @@ export default function Navbar() {
                 className="relative w-9 h-9 rounded-xl overflow-hidden transition-all duration-500 group-hover:scale-110 shadow-lg"
                 style={{ border: `2px solid ${T.accentColor}40` }}
               >
-                <Image
-                  src="/logo.png"
-                  alt="LiTree"
-                  fill
-                  className="object-contain p-1"
-                  unoptimized
-                />
+                <div className="w-full h-full bg-gradient-to-br from-jarvis-accent to-jarvis-accent2 flex items-center justify-center">
+                  <span className="text-white text-[12px] font-bold">
+                    JT
+                  </span>
+                </div>
               </div>
               <div className="hidden md:flex flex-col">
                 <span
@@ -171,57 +131,38 @@ export default function Navbar() {
                 </span>
               </div>
             </Link>
+          </div>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const active = isActive(link.href);
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="relative flex items-center gap-2 px-4 py-2 text-[13px] font-bold rounded-xl transition-all duration-300 group"
-                    style={{
-                      color: active ? T.accentColor : T.textColor,
-                      backgroundColor: active
-                        ? T.accentColor + "10"
-                        : "transparent",
-                    }}
-                  >
-                    <Icon
-                      size={16}
-                      className={`transition-transform duration-300 ${active ? "scale-110" : "group-hover:scale-110 opacity-60"}`}
-                    />
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => {
+              const active = isActive(link.href)
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="relative flex items-center gap-2 px-4 py-2 text-[13px] font-bold rounded-xl transition-all duration-300 group"
+                  style={{
+                    color: active ? T.accentColor : T.textColor,
+                    backgroundColor: active
+                      ? T.accentColor + "10"
+                      : "transparent",
+                  }}
+                >
+                  {link.label}
+                  {active && (
                     <span
-                      className={
-                        active ? "" : "opacity-70 group-hover:opacity-100"
-                      }
-                    >
-                      {link.label}
-                    </span>
-                    {active && (
-                      <span
-                        className="absolute bottom-1 left-4 right-4 h-0.5 rounded-full"
-                        style={{ backgroundColor: T.accentColor }}
-                      />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
+                      className="absolute bottom-1 left-4 right-4 h-0.5 rounded-full"
+                      style={{ backgroundColor: T.accentColor }}
+                    />
+                  )}
+                </Link>
+              )
+            })}
           </div>
 
           {/* Right Section Actions */}
           <div className="flex items-center gap-3">
-            {/* Search Button (UI Only) */}
-            <button
-              aria-label="Search"
-              className="p-2.5 rounded-xl hover:bg-white/5 opacity-60 transition-all hidden sm:flex"
-            >
-              <Search size={18} />
-            </button>
-
             {/* Theme Toggle */}
             <button
               aria-label={
@@ -236,13 +177,9 @@ export default function Navbar() {
               {theme.mode === "dark" ? <Sun size={18} /> : <Moon size={18} />}
             </button>
 
-            {/* Wallet & Auth */}
-            {authLoaded && isSignedIn && (
-              <WalletBadge accentColor={T.accentColor} />
-            )}
-
             <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
 
+            {/* Nav Auth */}
             <div className="relative flex items-center">
               <NavAuth />
             </div>
@@ -259,73 +196,71 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Sidebar Overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-[100] lg:hidden animate-fadeIn">
-          <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div
-            className="absolute top-0 right-0 bottom-0 w-[280px] p-6 shadow-2xl flex flex-col gap-8 animate-slideInRight"
-            style={{
-              backgroundColor: T.bgColor,
-              borderLeft: `1px solid ${T.borderColor}40`,
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-black text-lg">Menu</span>
-              <button
-                aria-label="Close menu"
-                onClick={() => setMobileOpen(false)}
-              >
-                <X />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-4 p-4 rounded-2xl font-bold transition-all active:scale-95"
-                  style={{
-                    backgroundColor: isActive(link.href)
-                      ? T.accentColor + "15"
-                      : "transparent",
-                    color: isActive(link.href) ? T.accentColor : T.textColor,
-                  }}
-                >
-                  <link.icon size={20} />
-                  {link.label}
-                </Link>
-              ))}
-            </div>
-
+        {/* Mobile Sidebar Overlay */}
+        {mobileOpen && (
+          <div className="fixed inset-0 z-[100 lg:hidden animate-fadeIn">
             <div
-              className="mt-auto pt-6 border-t"
-              style={{ borderColor: T.borderColor + "20" }}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+              onClick={() => setMobileOpen(false)}
+            />
+            <div
+              className="absolute top-0 right-0 bottom-0 w-[280px] p-6 shadow-2xl flex flex-col gap-8 animate-slideInRight"
+              style={{
+                backgroundColor: T.bgColor,
+                borderLeft: `1px solid ${T.borderColor}40`,
+              }}
             >
+              <div className="flex items-center justify-between">
+                <span className="font-black text-lg">Menu</span>
+                <button
+                  aria-label="Close menu"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  <X />
+                </button>
+              </div>
+
               <div className="flex flex-col gap-2">
-                {userLinks.map((link) => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="flex items-center gap-3 p-3 text-sm opacity-70 hover:opacity-100"
+                    className="flex items-center gap-4 p-4 rounded-2xl font-bold transition-all active:scale-95"
+                    style={{
+                      backgroundColor: isActive(link.href)
+                        ? T.accentColor + "15"
+                        : "transparent",
+                      color: isActive(link.href) ? T.accentColor : T.textColor,
+                    }}
                   >
-                    <link.icon size={16} />
                     {link.label}
                   </Link>
                 ))}
               </div>
+
+              <div
+                className="mt-auto pt-6 border-t"
+                style={{ borderColor: T.borderColor + "20" }}
+              >
+                <div className="flex flex-col gap-2">
+                  {userLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 p-3 text-sm opacity-70 hover:opacity-100"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 }

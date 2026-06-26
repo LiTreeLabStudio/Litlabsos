@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useProfile } from "@/context/ProfileContext";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
@@ -177,7 +177,7 @@ interface Activity {
 }
 
 export default function UserProfilePage() {
-  const { isLoaded } = useClerkAuth();
+  const { isLoaded } = useSupabaseAuthHook();
   useProfile();
   const router = useRouter();
   const params = useParams();

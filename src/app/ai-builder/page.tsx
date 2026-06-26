@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 
 interface Message {
@@ -20,7 +20,7 @@ interface GeneratedFile {
 }
 
 export default function AIBuilder() {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");

@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -470,7 +470,7 @@ export default function FlowPage() {
 
   const selectedNode = nodes.find((n) => n.id === selectedNodeId);
 
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
 
   useEffect(() => {

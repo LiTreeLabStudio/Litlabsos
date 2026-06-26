@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useMemo } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
 import {
@@ -323,7 +323,7 @@ function AgentCard({
 
 export default function MarketplacePage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
 
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("all");

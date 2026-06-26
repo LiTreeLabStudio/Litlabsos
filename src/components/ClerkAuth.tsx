@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Component, type ReactNode, useState, useEffect } from "react";
 import { useUser, UserButton, SignInButton } from "@clerk/nextjs";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 
 type NavAuthProps = {
   linkColor?: string;
@@ -40,7 +40,7 @@ function CustomAuthFallback() {
 }
 
 function AuthInner({ linkColor }: NavAuthProps) {
-  const { isSignedIn, isLoaded } = useClerkAuth();
+  const { isSignedIn, isLoaded } = useSupabaseAuthHook();
   const { user } = useUser();
 
   if (!isLoaded) {

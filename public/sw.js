@@ -82,25 +82,7 @@ self.addEventListener("fetch", (event) => {
   if (event.request.url.includes("/api/")) return;
 
   if (isHtmlRequest(event.request)) {
-    // Always fetch HTML fresh so the landing page updates immediately.
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          if (!response || response.status !== 200) return response;
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request).then((cached) => {
-            if (cached) return cached;
-            return caches
-              .match("/")
-              .then(
-                (fallback) =>
-                  fallback || new Response("Offline", { status: 503 }),
-              );
-          });
-        }),
-    );
+    // Let the browser handle HTML / navigation requests natively to avoid breaking auth redirects.
     return;
   }
 

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import {
   Send,
   Plus,
@@ -18,7 +18,7 @@ import {
 const ACTIVEPIECES_WEBHOOK =
   "https://cloud.activepieces.com/api/v1/webhooks/VoccE3SEr4bciLvkThTlO";
 
-/* ─── Types ──────────────────────────────────────────────────────────── */
+/* --- Types ------------------------------------------------------------ */
 type Agent = {
   id: string;
   name: string;
@@ -41,7 +41,7 @@ type BoardroomEntry = {
   text: string;
 };
 
-/* ─── Built-in Agents ────────────────────────────────────────────────── */
+/* --- Built-in Agents -------------------------------------------------- */
 const AGENTS: Agent[] = [
   {
     id: "director",
@@ -206,7 +206,7 @@ const PROVIDER_OPTIONS = [
   { id: "openrouter-free", label: "OpenRouter Free", hint: "Fallback pool" },
 ];
 
-/* ─── Context window management ──────────────────────────────────────── */
+/* --- Context window management ---------------------------------------- */
 const MAX_TOKENS_APPROX = 100_000; // Gemini 2.5 Flash context
 const TOKEN_THRESHOLD = 0.8; // prune at 80% capacity
 
@@ -239,7 +239,7 @@ function pruneHistory(
   return [...head, ...pruned, ...tail];
 }
 
-/* ─── Markdown renderer (minimal inline) ───────────────────────────── */
+/* --- Markdown renderer (minimal inline) ----------------------------- */
 function renderMarkdown(text: string): React.ReactNode[] {
   const lines = text.split("\n");
   const nodes: React.ReactNode[] = [];
@@ -361,10 +361,11 @@ function renderMarkdown(text: string): React.ReactNode[] {
   return nodes;
 }
 
-/* ─── Main Component ─────────────────────────────────────────────────── */
+/* --- Main Component --------------------------------------------------- */
 export default function AgentTool() {
   const { resolvedColors: T } = useTheme();
-  const { userId } = useClerkAuth();
+  const { user } = useSupabaseAuthHook();
+  const userId = user?.id;
   const [selectedAgent, setSelectedAgent] = useState<Agent>(AGENTS[0]);
   const [chatMap, setChatMap] = useState<Record<string, Message[]>>(() => {
     try {
@@ -782,7 +783,7 @@ export default function AgentTool() {
 
   return (
     <div className="flex h-full overflow-hidden select-none">
-      {/* ── LEFT SIDEBAR ── */}
+      {/* -- LEFT SIDEBAR -- */}
       <div
         className="w-[210px] shrink-0 flex flex-col border-r"
         style={{
@@ -913,7 +914,7 @@ export default function AgentTool() {
         </div>
       </div>
 
-      {/* ── CENTER: CHAT ── */}
+      {/* -- CENTER: CHAT -- */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Chat header */}
         <div
@@ -1240,7 +1241,7 @@ export default function AgentTool() {
         </div>
       </div>
 
-      {/* ── RIGHT: AGENT INFO PANEL ── */}
+      {/* -- RIGHT: AGENT INFO PANEL -- */}
       <div
         className="hidden xl:flex w-[190px] shrink-0 border-l flex-col"
         style={{
@@ -1374,7 +1375,7 @@ export default function AgentTool() {
         </div>
       </div>
 
-      {/* ── CREATE AGENT SLIDE-IN ── */}
+      {/* -- CREATE AGENT SLIDE-IN -- */}
       {showCreate && (
         <div
           className="fixed inset-0 z-50 flex justify-end"
@@ -1582,7 +1583,7 @@ export default function AgentTool() {
         </div>
       )}
 
-      {/* ── BOARDROOM MODAL ── */}
+      {/* -- BOARDROOM MODAL -- */}
       {showBoardroom && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"

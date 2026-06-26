@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
 import {
@@ -164,7 +164,7 @@ function formatTime(iso: string) {
 }
 
 export default function DashboardContent() {
-  const { isLoaded, isSignedIn, sessionClaims } = useClerkAuth();
+  const { isLoaded, isSignedIn, sessionClaims } = useSupabaseAuthHook();
   const { resolvedColors: T } = useTheme();
   const [stats, setStats] = useState<Stats | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -320,7 +320,7 @@ export default function DashboardContent() {
 
   return (
     <div style={{ backgroundColor: T.bgColor, color: T.textColor }}>
-      {/* ── Hero header ── */}
+      {/* -- Hero header -- */}
       <div
         className="border-b px-5 py-4"
         style={{
@@ -383,7 +383,7 @@ export default function DashboardContent() {
       </div>
 
       <div className="w-full px-4 py-5 grid lg:grid-cols-4 gap-5">
-        {/* ── LEFT SIDEBAR ── */}
+        {/* -- LEFT SIDEBAR -- */}
         <div className="lg:col-span-1 space-y-4">
           {/* Stats grid */}
           <div
@@ -520,7 +520,7 @@ export default function DashboardContent() {
           </div>
         </div>
 
-        {/* ── CENTER FEED ── */}
+        {/* -- CENTER FEED -- */}
         <div className="lg:col-span-2 space-y-4">
           {/* Post composer */}
           <div
@@ -735,7 +735,7 @@ export default function DashboardContent() {
           </div>
         </div>
 
-        {/* ── RIGHT SIDEBAR ── */}
+        {/* -- RIGHT SIDEBAR -- */}
         <div className="lg:col-span-1 space-y-4">
           {/* Live telemetry */}
           <div

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useSearchParams } from "next/navigation";
 import { useProfile } from "@/context/ProfileContext";
@@ -10,8 +10,9 @@ import { CenterStage } from "@/components/dashboard/DashboardCards";
 import DashboardWidgets from "@/components/dashboard/DashboardWidgets";
 import Link from "next/link";
 import { useAppLayout } from "@/hooks/useAppLayout";
+import { Loader2 } from "lucide-react";
 
-export default function DashboardView() {
+export function DashboardInner() {
   const { user } = useUser();
   const { profile } = useProfile();
   const { resolvedColors: T } = useTheme();
@@ -163,6 +164,20 @@ export default function DashboardView() {
         onClaimAction={claimDaily}
       />
     </div>
+  );
+}
+
+export default function DashboardView() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex-1 flex items-center justify-center p-12 bg-black/40">
+          <Loader2 className="animate-spin text-cyan-400" size={32} />
+        </div>
+      }
+    >
+      <DashboardInner />
+    </Suspense>
   );
 }
 

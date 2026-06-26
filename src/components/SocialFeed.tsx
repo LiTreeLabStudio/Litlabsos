@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useTheme } from "@/context/ThemeContext";
 import {
   Heart,
@@ -33,7 +33,7 @@ export default function SocialFeed({
 }: {
   embedded?: boolean;
 }) {
-  const { isLoaded, isSignedIn, userId: clerkUserId } = useClerkAuth();
+  const { isLoaded, isSignedIn, userId: clerkUserId } = useSupabaseAuthHook();
   const { resolvedColors: T } = useTheme();
   const [posts, setPosts] = useState<Post[]>([]);
   const [postContent, setPostContent] = useState("");

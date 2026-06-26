@@ -81,7 +81,7 @@ export default function AnimatedBackground({
     }
     document.addEventListener("visibilitychange", onVisChange);
 
-    /* ── Helpers ── */
+    /* -- Helpers -- */
     function hexToRgb(hex: string) {
       const r = parseInt(hex.slice(1, 3), 16);
       const g = parseInt(hex.slice(3, 5), 16);
@@ -89,13 +89,13 @@ export default function AnimatedBackground({
       return { r, g, b };
     }
 
-    /* ── Resize ── */
+    /* -- Resize -- */
     function resize() {
       w = canvas.width = window.innerWidth;
       h = canvas.height = window.innerHeight;
     }
 
-    /* ── State ── */
+    /* -- State -- */
     let orbs: Orb[] = [];
     let auroras: AuroraRibbon[] = [];
     let sparkles: Sparkle[] = [];
@@ -149,7 +149,7 @@ export default function AnimatedBackground({
       );
     }
 
-    /* ── Draw ── */
+    /* -- Draw -- */
     function draw(now: number) {
       if (!visible) {
         animId = requestAnimationFrame(draw);

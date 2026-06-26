@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState, Suspense, memo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import lazyLoad from "next/dynamic";
 import {
@@ -156,7 +156,8 @@ const ToolRouter = memo(function ToolRouter({ tool }: { tool: StudioTool }) {
 
 function StudioInner() {
   const { resolvedColors: T, theme } = useTheme();
-  const { userId, isLoaded, isSignedIn } = useClerkAuth();
+  const { user, isLoaded, isSignedIn } = useSupabaseAuthHook();
+  const userId = user?.id;
   const searchParams = useSearchParams();
   const router = useRouter();
 

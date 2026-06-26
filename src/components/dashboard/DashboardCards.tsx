@@ -59,7 +59,7 @@ const JarvisTerminal = dynamic(() => import("./JarvisTerminal"), {
   ),
 });
 
-/* ── Shared primitives ─────────────────────────────────────────────── */
+/* -- Shared primitives ----------------------------------------------- */
 
 export function HeroCard({
   title,
@@ -234,7 +234,7 @@ function SectionHeader({
   );
 }
 
-/* ── Center Stage ────────────────────────────────────────────────── */
+/* -- Center Stage -------------------------------------------------- */
 export function CenterStage({
   activeApp,
   displayName,
@@ -245,19 +245,19 @@ export function CenterStage({
   const { resolvedColors: T } = useTheme();
 
   switch (activeApp) {
-    /* ── JARVIS ──────────────────────────────────────────────────── */
-    case "jarvis":
-      return (
-        <div className="h-full flex flex-col min-h-0">
-          <JarvisTerminal />
-        </div>
-      );
+    /* -- JARVIS ---------------------------------------------------- */
+case "jarvis":
+       return (
+         <div className="h-full flex flex-col min-h-0" style={{ minHeight: "400px" }}>
+           <JarvisTerminal />
+         </div>
+       );
 
-    /* ── SOCIAL ──────────────────────────────────────────────────── */
+    /* -- SOCIAL ---------------------------------------------------- */
     case "social":
       return <SocialPageContent hideHeader />;
 
-    /* ── STUDIO ──────────────────────────────────────────────────── */
+    /* -- STUDIO ---------------------------------------------------- */
     case "studio":
       return (
         <div className="space-y-8">
@@ -347,37 +347,7 @@ export function CenterStage({
             </div>
           </div>
 
-          {/* Recent generations */}
-          <div>
-            <SectionHeader
-              title="Recent Generations"
-              color="#00f0ff"
-              href="/gallery?filter=me"
-            />
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                "https://images.unsplash.com/photo-1614850523296-d8c1af93d400?w=300&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=300&h=300&fit=crop",
-                "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?w=300&h=300&fit=crop",
-              ].map((url, i) => (
-                <div
-                  key={i}
-                  className="relative aspect-square rounded-xl overflow-hidden group cursor-pointer border border-white/5 hover:border-indigo-500/30 transition-all"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt=""
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <ExternalLink size={18} className="text-white" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+{/* Recent generations */}
 
           {/* Quick stats */}
           <div className="grid grid-cols-3 gap-4">
@@ -412,7 +382,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── GALLERY ─────────────────────────────────────────────────── */
+    /* -- GALLERY --------------------------------------------------- */
     case "gallery":
       return (
         <div className="space-y-8">
@@ -517,7 +487,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── MARKETPLACE ─────────────────────────────────────────────── */
+    /* -- MARKETPLACE ----------------------------------------------- */
     case "marketplace":
       return (
         <div className="space-y-8">
@@ -687,7 +657,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── MUSIC ───────────────────────────────────────────────────── */
+    /* -- MUSIC ----------------------------------------------------- */
     case "music":
       return (
         <div className="space-y-2">
@@ -700,7 +670,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── GAMES ───────────────────────────────────────────────────── */
+    /* -- GAMES ----------------------------------------------------- */
     case "games":
       return (
         <div className="space-y-8">
@@ -855,7 +825,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── WATCH ───────────────────────────────────────────────────── */
+    /* -- WATCH ----------------------------------------------------- */
     case "watch":
       return (
         <div className="space-y-8">
@@ -933,7 +903,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── RADIO ───────────────────────────────────────────────────── */
+    /* -- RADIO ----------------------------------------------------- */
     case "radio":
       return (
         <div className="space-y-8">
@@ -1060,7 +1030,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── TOOLS ───────────────────────────────────────────────────── */
+    /* -- TOOLS ----------------------------------------------------- */
     case "tools":
       return (
         <div className="space-y-8">
@@ -1165,7 +1135,7 @@ export function CenterStage({
         </div>
       );
 
-    /* ── HOME (default) ──────────────────────────────────────────── */
+    /* -- HOME (default) -------------------------------------------- */
     default:
       return (
         <div className="space-y-10">

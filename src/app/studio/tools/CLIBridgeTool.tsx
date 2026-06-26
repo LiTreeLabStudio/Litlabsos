@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import {
   Terminal,
   Play,
@@ -54,7 +54,8 @@ interface TerminalLine {
 
 export default function CLIBridgeTool() {
   const { resolvedColors: T } = useTheme();
-  const { userId, isLoaded, isSignedIn } = useClerkAuth();
+  const { user, isLoaded, isSignedIn } = useSupabaseAuthHook();
+  const userId = user?.id;
   const [selectedTool, setSelectedTool] = useState(CLI_TOOLS[0]);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);

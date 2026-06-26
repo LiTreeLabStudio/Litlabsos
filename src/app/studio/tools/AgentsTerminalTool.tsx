@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { AGENTS } from "@/lib/agents";
 
-/* ─── Types ──────────────────────────────────────────────────────────── */
+/* --- Types ------------------------------------------------------------ */
 type AgentProfile = (typeof AGENTS)[keyof typeof AGENTS] & {
   color: string;
   desc: string;
@@ -58,13 +58,13 @@ const PROVIDERS = [
   { id: "openrouter-free", label: "OpenRouter Free", color: "#00ffff" },
 ];
 
-/* ─── Helpers ─────────────────────────────────────────────────────────── */
+/* --- Helpers ----------------------------------------------------------- */
 function formatTime() {
   const now = new Date();
   return now.toTimeString().slice(0, 8);
 }
 
-/* ─── Main Component ─────────────────────────────────────────────────── */
+/* --- Main Component --------------------------------------------------- */
 export default function AgentsTerminalTool() {
   const { resolvedColors: T } = useTheme();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -415,7 +415,7 @@ export default function AgentsTerminalTool() {
         />
       )}
 
-      {/* ── LEFT: Agent List - Terminal Sidebar ── */}
+      {/* -- LEFT: Agent List - Terminal Sidebar -- */}
       <div
         className="w-[240px] shrink-0 flex flex-col border-r"
         style={{
@@ -542,7 +542,7 @@ export default function AgentsTerminalTool() {
         </div>
       </div>
 
-      {/* ── CENTER: Terminal ── */}
+      {/* -- CENTER: Terminal -- */}
       <div
         className="flex-1 flex flex-col min-w-0"
         style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
@@ -940,7 +940,7 @@ export default function AgentsTerminalTool() {
         </div>
       </div>
 
-      {/* ── RIGHT: Info + Logs ── */}
+      {/* -- RIGHT: Info + Logs -- */}
       <div
         className="w-[270px] shrink-0 flex flex-col border-l"
         style={{
@@ -974,7 +974,7 @@ export default function AgentsTerminalTool() {
         </div>
 
         {rightTab === "info" ? (
-          /* ── Agent Info ── */
+          /* -- Agent Info -- */
           <div className="flex-1 overflow-y-auto p-3 space-y-4">
             {/* Agent hero */}
             <div
@@ -1076,7 +1076,7 @@ export default function AgentsTerminalTool() {
             </div>
           </div>
         ) : (
-          /* ── Live Logs ── */
+          /* -- Live Logs -- */
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Log controls */}
             <div

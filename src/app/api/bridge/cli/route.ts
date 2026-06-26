@@ -3,10 +3,9 @@
 // Only admin user can access this
 
 import { spawn, ChildProcess } from "child_process";
-import { auth } from "@clerk/nextjs/server";
+import { supabase } from "@/lib/supabase";
 
-// Admin user ID - only this user can use CLI bridge
-const ADMIN_USER_ID = "user_litbit"; // Will be replaced with actual Clerk ID
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID || "user_litbit";
 
 // Active sessions storage
 const activeSessions = new Map<
@@ -30,9 +29,9 @@ interface BridgeMessage {
 }
 
 export async function GET(req: Request) {
-  const { userId } = await auth();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!userId || userId !== ADMIN_USER_ID) {
+  if (!user || user.id !== ADMIN_USER_ID) {
     return new Response("Unauthorized", { status: 401 });
   }
 
@@ -43,6 +42,7 @@ export async function GET(req: Request) {
     return new Response("Invalid tool", { status: 400 });
   }
 
+  const userId = user.id;
   const sessionId = `${userId}_${tool}_${Date.now()}`;
 
   const encoder = new TextEncoder();
@@ -207,9 +207,9 @@ export async function GET(req: Request) {
 
 // POST endpoint to send input to running CLI session
 export async function POST(req: Request) {
-  const { userId } = await auth();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!userId || userId !== ADMIN_USER_ID) {
+  if (!user || user.id !== ADMIN_USER_ID) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -248,7 +248,8 @@ export async function POST(req: Request) {
 
 // DELETE endpoint to kill session
 export async function DELETE(req: Request) {
-  const { userId } = await auth();
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
 
   if (!userId || userId !== ADMIN_USER_ID) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -272,7 +273,8 @@ export async function DELETE(req: Request) {
 
 // GET sessions list
 export async function PATCH() {
-  const { userId } = await auth();
+  const { data: { user } } = await supabase.auth.getUser();
+  const userId = user?.id;
 
   if (!userId || userId !== ADMIN_USER_ID) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });

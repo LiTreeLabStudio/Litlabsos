@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import dynamicImport from "next/dynamic";
 
@@ -24,7 +24,7 @@ const NeuralImagingStudio = dynamicImport(
 );
 
 export default function StudioImagePage() {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
 
   useEffect(() => {

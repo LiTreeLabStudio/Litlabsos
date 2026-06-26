@@ -280,7 +280,7 @@ export default function GalleryPage() {
       className="w-full min-h-screen"
       style={{ backgroundColor: T.bgColor, color: T.textColor }}
     >
-      {/* ── Full-bleed Hero ── */}
+      {/* -- Full-bleed Hero -- */}
       <div className="relative w-full h-[55vh] min-h-[320px] overflow-hidden">
         <Image
           src={featured.imageUrl}
@@ -325,7 +325,7 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* ── Filters bar ── */}
+      {/* -- Filters bar -- */}
       <div
         className="sticky top-0 z-20 w-full px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b backdrop-blur-xl"
         style={{
@@ -392,7 +392,7 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* ── Gallery Grid ── */}
+      {/* -- Gallery Grid -- */}
       <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
         {filteredItems.length === 0 ? (
           <div className="py-32 text-center space-y-4">
@@ -414,28 +414,32 @@ export default function GalleryPage() {
                 : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3"
             }
           >
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className={`group relative overflow-hidden rounded-2xl border border-white/5 hover:border-indigo-500/40 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5 ${gridMode === "masonry" ? "break-inside-avoid mb-3" : ""}`}
-                onClick={() => setLightboxItem(item)}
-              >
-                <div
-                  className="relative w-full"
-                  style={{
-                    aspectRatio:
-                      gridMode === "uniform" ? "3/4" : aspectRatio(item.aspect),
-                  }}
-                >
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.title}
-                    fill
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    loading="lazy"
-                    unoptimized
-                  />
+{filteredItems.map((item) => (
+        <div
+          key={item.id}
+          className={`group relative overflow-hidden rounded-2xl border border-white/5 hover:border-indigo-500/40 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-0.5 ${gridMode === "masonry" ? "break-inside-avoid mb-3" : ""}`}
+          onClick={() => setLightboxItem(item)}
+        >
+          <div
+            className="relative w-full"
+            style={{
+              aspectRatio:
+                gridMode === "uniform"
+                  ? "3/4"
+                  : aspectRatio(item.aspect) || "1/1",
+              minHeight: "200px", // reserve space to prevent layout shift
+            }}
+          >
+            <Image
+              src={item.imageUrl}
+              alt={item.title}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+              unoptimized
+              style={{ objectFit: "cover" }}
+            />
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3 gap-1.5">
                     <div className="flex items-start justify-between gap-1">
@@ -505,7 +509,7 @@ export default function GalleryPage() {
         )}
       </div>
 
-      {/* ── Lightbox ── */}
+      {/* -- Lightbox -- */}
       {lightboxItem && (
         <div
           className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"

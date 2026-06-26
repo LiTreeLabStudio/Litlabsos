@@ -12,6 +12,8 @@ import {
   History,
   Clock,
   Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const VIDEO_MODELS = [
@@ -82,6 +84,7 @@ export default function VideoTool() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [current, setCurrent] = useState<VideoGen | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(true);
   const [history, setHistory] = useState<VideoGen[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -337,6 +340,8 @@ export default function VideoTool() {
               onChange={(e) => setDuration(parseInt(e.target.value))}
               disabled={isGenerating}
               className="w-full"
+              aria-label="Duration"
+              title="Duration"
             />
             <div
               className="flex items-center justify-between text-[10px] mt-1"
@@ -511,74 +516,83 @@ export default function VideoTool() {
           </div>
 
           <div
-            className="border rounded-lg"
+            className="border rounded-lg overflow-hidden"
             style={{ borderColor: T.borderColor, backgroundColor: T.boxBg }}
           >
             <div
-              className="px-3 py-2 border-b flex items-center justify-between"
+              className="px-3 py-2 border-b flex items-center justify-between cursor-pointer hover:bg-white/5 transition-colors select-none"
               style={{ borderColor: T.borderColor }}
+              onClick={() => setHistoryOpen(!historyOpen)}
             >
               <div
-                className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest"
+                className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-bold"
                 style={{ color: T.textMuted }}
               >
                 <History size={10} /> Recent ({history.length})
+                {historyOpen ? <ChevronUp size={10} className="ml-1 opacity-60" /> : <ChevronDown size={10} className="ml-1 opacity-60" />}
               </div>
               {history.length > 0 && (
                 <button
-                  onClick={handleClear}
-                  className="text-[9px] opacity-60 hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClear();
+                  }}
+                  className="text-[9px] opacity-60 hover:opacity-100 px-1.5 py-0.5 rounded hover:bg-white/10"
                 >
                   Clear
                 </button>
               )}
             </div>
-            {history.length === 0 ? (
-              <div className="p-6 text-center text-xs opacity-50">
-                No videos yet.
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 p-2">
-                {history.map((g) => (
-                  <button
-                    key={g.id}
-                    onClick={() => setCurrent(g)}
-                    className="relative aspect-video border rounded overflow-hidden hover:scale-[1.02] transition-transform"
-                    style={{
-                      borderColor: T.borderColor,
-                      backgroundColor: T.bgColor,
-                    }}
-                  >
-                    {g.videoUrl ? (
-                      <video
-                        src={g.videoUrl}
-                        className="w-full h-full object-cover"
-                        muted
-                      />
-                    ) : g.status === "failed" ? (
-                      <div className="w-full h-full flex items-center justify-center text-lg">
-                        ⚠️
-                      </div>
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Loader2
-                          size={14}
-                          className="animate-spin opacity-50"
-                        />
-                      </div>
-                    )}
-                    <div
-                      className="absolute inset-x-0 bottom-0 px-1.5 py-0.5 text-[8px] truncate"
-                      style={{
-                        backgroundColor: "rgba(0,0,0,0.7)",
-                        color: "white",
-                      }}
-                    >
-                      {g.model}
-                    </div>
-                  </button>
-                ))}
-              </div>
+            {historyOpen && (
+              <>
+                {history.length === 0 ? (
+                  <div className="p-6 text-center text-xs opacity-50">
+                    No videos yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 p-2">
+                    {history.map((g) => (
+                      <button
+                        key={g.id}
+                        onClick={() => setCurrent(g)}
+                        className="relative aspect-video border rounded overflow-hidden hover:scale-[1.02] transition-transform"
+                        style={{
+                          borderColor: T.borderColor,
+                          backgroundColor: T.bgColor,
+                        }}
+                      >
+                        {g.videoUrl ? (
+                          <video
+                            src={g.videoUrl}
+                            className="w-full h-full object-cover"
+                            muted
+                          />
+                        ) : g.status === "failed" ? (
+                          <div className="w-full h-full flex items-center justify-center text-lg">
+                            ⚠️
+                          </div>
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Loader2
+                              size={14}
+                              className="animate-spin opacity-50"
+                            />
+                          </div>
+                        )}
+                        <div
+                          className="absolute inset-x-0 bottom-0 px-1.5 py-0.5 text-[8px] truncate"
+                          style={{
+                            backgroundColor: "rgba(0,0,0,0.7)",
+                            color: "white",
+                          }}
+                        >
+                          {g.model}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

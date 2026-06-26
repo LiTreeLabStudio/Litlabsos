@@ -15,6 +15,8 @@ import {
   EyeOff,
   ChevronUp,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Pencil,
   RotateCcw,
   X,
@@ -238,6 +240,7 @@ export default function DashboardWidgets({
 }) {
   const { resolvedColors: T } = useTheme();
   const [editMode, setEditMode] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
   const { layout, reorder, moveUp, moveDown, toggleVisibility, reset } =
     useWidgetLayout();
 
@@ -676,10 +679,62 @@ export default function DashboardWidgets({
   const visibleWidgets = layout.order;
   const hiddenWidgets = layout.hidden.filter((id) => layout.order.includes(id));
 
+  if (collapsed) {
+    return (
+      <aside
+        className="hidden xl:flex flex-col gap-6 w-12 shrink-0 p-2 items-center border-l overflow-y-auto"
+        style={{
+          minHeight: "400px",
+          borderColor: `${T.borderColor}30`,
+          backgroundColor: `${T.bgColor}60`,
+        }}
+      >
+        <button
+          onClick={() => setCollapsed(false)}
+          className="p-2 rounded-lg hover:bg-white/5 transition-colors"
+          style={{ color: T.textMuted }}
+          title="Expand Panel"
+        >
+          <ChevronLeft size={16} />
+        </button>
+
+        <div className="h-px w-full bg-white/10" />
+
+        {/* Profile Initial */}
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black shrink-0"
+          style={{
+            backgroundColor: `${T.accentColor}20`,
+            border: `1px solid ${T.accentColor}40`,
+            color: T.accentColor,
+          }}
+          title={`User: ${displayName}`}
+        >
+          {displayName.charAt(0).toUpperCase()}
+        </div>
+
+        {/* Coins Indicator */}
+        <div
+          className="flex flex-col items-center gap-0.5 text-yellow-500 shrink-0 cursor-pointer hover:scale-110 transition-transform"
+          onClick={onClaimAction}
+          title={`Litcoins: ${balance.toLocaleString()}${!claimed ? ' (Daily Ready!)' : ''}`}
+        >
+          <Coins size={14} className={!claimed ? "animate-pulse" : ""} />
+        </div>
+
+        {/* System status indicator */}
+        <div className="relative w-2.5 h-2.5 rounded-full bg-green-500 shrink-0" title="System Operational">
+          <span className="absolute inset-0 rounded-full animate-ping bg-green-500 opacity-40" />
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside
       className="hidden xl:flex flex-col gap-4 w-80 shrink-0 p-4 border-l overflow-y-auto"
       style={{
+        minHeight: "400px",
         borderColor: `${T.borderColor}30`,
         backgroundColor: `${T.bgColor}60`,
       }}
@@ -700,7 +755,7 @@ export default function DashboardWidgets({
           {editMode ? <X size={12} /> : <Pencil size={12} />}
           {editMode ? "Done" : "Customize"}
         </button>
-        {editMode && (
+        {editMode ? (
           <div className="flex items-center gap-2">
             <span className="text-[9px]" style={{ color: T.textMuted }}>
               Drag to reorder
@@ -714,6 +769,15 @@ export default function DashboardWidgets({
               <RotateCcw size={10} /> Reset
             </button>
           </div>
+        ) : (
+          <button
+            onClick={() => setCollapsed(true)}
+            className="flex items-center gap-1 text-[9px] font-mono uppercase transition-colors hover:opacity-80"
+            style={{ color: T.textMuted }}
+            title="Collapse Panel"
+          >
+            Collapse <ChevronRight size={12} />
+          </button>
         )}
       </div>
 

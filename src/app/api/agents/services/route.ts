@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-/* ── Check real platform services via HTTP ── */
+/* -- Check real platform services via HTTP -- */
 async function checkUrl(url: string): Promise<boolean> {
   try {
     const res = await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(2000) });
@@ -19,7 +19,7 @@ export async function GET() {
     "Gemini API":    gemini   ? "active" : "degraded",
     "Supabase DB":   supabase ? "active" : "degraded",
     "Vercel Edge":   vercel   ? "active" : "degraded",
-    "Clerk Auth":    "active",
+    "Supabase Auth": "active",
     "Hive Mind API": "active",
   };
 

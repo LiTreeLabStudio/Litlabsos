@@ -27,7 +27,7 @@ import {
   Wand2,
 } from "lucide-react";
 
-/* ─── Types ───────────────────────────────────────────────────────── */
+/* --- Types --------------------------------------------------------- */
 type NodeType = "trigger" | "agent" | "action";
 type NodeStatus = "idle" | "running" | "completed" | "error";
 
@@ -475,7 +475,7 @@ export default function PipelineTool() {
         }}
       />
 
-      {/* ── LEFT: Library ── */}
+      {/* -- LEFT: Library -- */}
       <aside className="w-56 shrink-0 border-r border-fuchsia-900/30 bg-[#0a0310]/80 backdrop-blur-xl flex flex-col z-10">
         <div className="p-3 border-b border-white/5">
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -546,7 +546,7 @@ export default function PipelineTool() {
           })}
         </div>
       </aside>
-      {/* ── CENTER: Canvas ── */}
+      {/* -- CENTER: Canvas -- */}
       <div
         className="flex-1 relative flex flex-col items-center overflow-y-auto py-6 z-10"
         style={{ scrollbarWidth: "none" }}
@@ -721,7 +721,7 @@ export default function PipelineTool() {
           </div>
         </div>
       </div>
-      {/* ── RIGHT: Config + Terminal ── */}
+      {/* -- RIGHT: Config + Terminal -- */}
       <aside className="w-80 shrink-0 border-l border-fuchsia-900/30 bg-[#0a0310]/80 backdrop-blur-xl flex flex-col z-10">
         <div
           className="flex-1 overflow-y-auto p-4"
@@ -1123,7 +1123,7 @@ export default function PipelineTool() {
           </div>
         </div>
       </aside>
-      {/* ── YAML Export Modal ── */}
+      {/* -- YAML Export Modal -- */}
       {showYaml && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PageShell from "@/components/PageShell";
@@ -38,7 +38,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { useClerkAuth } from '@/hooks/useClerkAuth';
+import { useSupabaseAuth } from '@/hooks/useSupabaseAuth';
 import { useProfile } from '@/context/ProfileContext';
 
 // Retro neon palette
@@ -56,7 +56,7 @@ const C = {
 };
 
 export default function HomePage() {
-  const { isSignedIn, isLoaded } = useClerkAuth();
+  const { isSignedIn, isLoaded } = useSupabaseAuth();
   const { profile, displayName } = useProfile();
   
   return (
@@ -299,7 +299,7 @@ function SyntaxHighlighter({ code }: { code: string }) {
 // Main Page
 export default function CodeScannerPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const [selectedPath, setSelectedPath] = useState("/src/app/page.tsx");
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(

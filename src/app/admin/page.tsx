@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { useState, useEffect, useRef } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -87,7 +87,8 @@ const generateMockEvents = (): RecentEvent[] => [
 
 export default function AdminDashboard() {
   const { resolvedColors: T } = useTheme();
-  const { userId, isLoaded, isSignedIn } = useClerkAuth();
+  const { user, isLoaded, isSignedIn } = useSupabaseAuthHook();
+  const userId = user?.id;
   const router = useRouter();
 
   const [stats, setStats] = useState<LiveStats>(generateMockStats());

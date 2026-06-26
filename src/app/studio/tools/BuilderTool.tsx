@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 export const dynamic = "force-dynamic";
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import {
   Hammer,
@@ -138,7 +138,7 @@ const STYLE_PRESETS = [
 /* ------------------------------------------------------------------ */
 export default function BuilderTool() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Core state
@@ -491,7 +491,7 @@ export default function BuilderTool() {
 
       {/* ═══ MAIN 3-PANEL LAYOUT ═══ */}
       <div className="flex-1 flex overflow-hidden">
-        {/* ─── LEFT: INPUT DECK ─── */}
+        {/* --- LEFT: INPUT DECK --- */}
         <div
           className={`${activePanel === "input" ? "flex" : "hidden"} lg:flex flex-col w-full lg:w-[320px] xl:w-[360px] shrink-0 overflow-y-auto`}
           style={{
@@ -740,7 +740,7 @@ export default function BuilderTool() {
           </div>
         </div>
 
-        {/* ─── CENTER: FORGE CORE ─── */}
+        {/* --- CENTER: FORGE CORE --- */}
         <div
           className={`${activePanel === "forge" ? "flex" : "hidden"} lg:flex flex-col flex-1 overflow-hidden`}
         >
@@ -983,7 +983,7 @@ export default function BuilderTool() {
           </div>
         </div>
 
-        {/* ─── RIGHT: FORGE CONSOLE + OUTPUTS ─── */}
+        {/* --- RIGHT: FORGE CONSOLE + OUTPUTS --- */}
         <div
           className={`${activePanel === "output" ? "flex" : "hidden"} lg:flex flex-col w-full lg:w-[280px] xl:w-[320px] shrink-0 overflow-hidden`}
           style={{

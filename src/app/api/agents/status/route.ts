@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 
-/* ── Fallback roster if DB is unavailable ── */
+/* -- Fallback roster if DB is unavailable -- */
 const FALLBACK_AGENTS = [
   { name: "Director",         role: "Orchestrator",     runningMsg: "Coordinating agent strategy & platform health", idleMsg: "Awaiting orchestration requests"  },
   { name: "Champion",         role: "General Assistant",runningMsg: "Handling user queries in real-time",            idleMsg: "Standing by for queries"          },

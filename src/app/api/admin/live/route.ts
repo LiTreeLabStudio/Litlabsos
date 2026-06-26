@@ -1,10 +1,7 @@
-// Admin Live Data SSE Endpoint
-// Streams real-time stats and events to admin dashboard
-
 import { NextRequest } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { supabase } from "@/lib/supabase";
 
-const ADMIN_USER_ID = process.env.ADMIN_CLERK_ID || "user_litbit";
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID || "user_litbit";
 
 // Mock stats generator for now
 function generateStats() {
@@ -21,9 +18,9 @@ function generateStats() {
 }
 
 export async function GET(req: NextRequest) {
-  const { userId } = await auth();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!userId || userId !== ADMIN_USER_ID) {
+  if (!user || user.id !== ADMIN_USER_ID) {
     return new Response("Unauthorized", { status: 401 });
   }
 

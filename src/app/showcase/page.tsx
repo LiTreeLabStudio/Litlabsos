@@ -119,7 +119,7 @@ export default function ShowcasePage() {
         </div>
       </div>
 
-      {/* ── TAB: PROJECT IMAGES ── */}
+      {/* -- TAB: PROJECT IMAGES -- */}
       {activeTab === "images" && (
         <div className="w-full px-6 py-12">
           <div className="grid md:grid-cols-2 gap-8">
@@ -259,7 +259,7 @@ export default function ShowcasePage() {
         </div>
       )}
 
-      {/* ── TAB: ARCHITECTURE MAP ── */}
+      {/* -- TAB: ARCHITECTURE MAP -- */}
       {activeTab === "architecture" && (
         <div className="w-full px-6 py-12">
           <div className="card">
@@ -569,7 +569,7 @@ export default function ShowcasePage() {
         </div>
       )}
 
-      {/* ── TAB: CASE STUDY ── */}
+      {/* -- TAB: CASE STUDY -- */}
       {activeTab === "case-study" && (
         <div className="w-full px-6 py-12">
           <div className="card">
@@ -790,7 +790,7 @@ export default function ShowcasePage() {
         </div>
       )}
 
-      {/* ── LIGHTBOX ── */}
+      {/* -- LIGHTBOX -- */}
       {lightboxImg && (
         <div
           onClick={() => setLightboxImg(null)}

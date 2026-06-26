@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import PageShell from "@/components/PageShell";
 import { Bot, Search, Loader2, ArrowRight } from "lucide-react";
 
@@ -117,7 +117,7 @@ function AgentCard({ agent, theme: T }: { agent: Agent; theme: AgentTheme }) {
 
 export default function AgentsListingPage() {
   const { resolvedColors: T } = useTheme();
-  const { isLoaded } = useClerkAuth();
+  const { isLoaded } = useSupabaseAuthHook();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [categories, setCategories] = useState<string[]>(["all"]);
   const [selectedCategory, setSelectedCategory] = useState("all");

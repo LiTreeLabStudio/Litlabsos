@@ -78,14 +78,6 @@ const nextConfig: NextConfig = {
               "geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()",
           },
           {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin-allow-popups",
-          },
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "unsafe-none",
-          },
-          {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",

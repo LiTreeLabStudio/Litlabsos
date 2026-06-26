@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import { useProfile } from "@/context/ProfileContext";
 import {
   Zap,
@@ -84,7 +84,7 @@ export default function SocialPageContent({
 }: {
   hideHeader?: boolean;
 }) {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const { profile } = useProfile();
   const [activeTab, setActiveTab] = useState<"for-you" | "following">(
     "for-you",

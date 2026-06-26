@@ -1,0 +1,77 @@
+﻿
+> frontend@0.1.0 lint
+> eslint .
+
+
+C:\home\litbit\LiTTreeLabstudios\src\app\api\account\route.ts
+  2:10  warning  'supabase' is defined but never used         @typescript-eslint/no-unused-vars
+  3:10  warning  'getOrCreateUser' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\app\studio\page.tsx
+  158:30  warning  'theme' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  160:9   warning  'userId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\app\studio\tools\AgentsTerminalTool.tsx
+  716:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\home\litbit\LiTTreeLabstudios\src\app\supabase-layout.tsx
+  6:3  warning  'metadata' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\ClerkAuth.tsx
+   3:8   warning  'Link' is defined but never used              @typescript-eslint/no-unused-vars
+  24:10  warning  'useCustomSession' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\MainLayout.tsx
+   4:10  warning  'useState' is defined but never used                   @typescript-eslint/no-unused-vars
+   4:20  warning  'useEffect' is defined but never used                  @typescript-eslint/no-unused-vars
+   4:31  warning  'useRef' is defined but never used                     @typescript-eslint/no-unused-vars
+   5:8   warning  'Navbar' is defined but never used                     @typescript-eslint/no-unused-vars
+   7:8   warning  'UserSync' is defined but never used                   @typescript-eslint/no-unused-vars
+  32:9   warning  'isClientSide' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  39:9   warning  'isFullHeightPage' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\Navbar.tsx
+   4:23  warning  'useRouter' is defined but never used                   @typescript-eslint/no-unused-vars
+   6:10  warning  'useSupabaseAuth' is defined but never used             @typescript-eslint/no-unused-vars
+  21:3   warning  'Coins' is defined but never used                       @typescript-eslint/no-unused-vars
+  26:3   warning  'Search' is defined but never used                      @typescript-eslint/no-unused-vars
+  31:7   warning  'UserSync' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  36:7   warning  'settingsLinks' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  61:9   warning  'userSync' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  63:10  warning  'userOpen' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  64:10  warning  'notifOpen' is assigned a value but never used          @typescript-eslint/no-unused-vars
+  65:10  warning  'notifications' is assigned a value but never used      @typescript-eslint/no-unused-vars
+  65:25  warning  '_setNotifications' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  68:10  warning  'unreadCount' is assigned a value but never used        @typescript-eslint/no-unused-vars
+  68:23  warning  '_setUnreadCount' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  76:9   warning  'authLoaded' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  77:9   warning  'isSignedIn' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\SupabaseAuthFallback.tsx
+  4:37  warning  'useState' is defined but never used        @typescript-eslint/no-unused-vars
+  4:47  warning  'useEffect' is defined but never used       @typescript-eslint/no-unused-vars
+  6:10  warning  'useSessionAuth' is defined but never used  @typescript-eslint/no-unused-vars
+  7:10  warning  'useRouter' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\UserSync.tsx
+    4:10  warning  'usePathname' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+    6:10  warning  'useTheme' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   17:10  warning  'isLoaded' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  109:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\home\litbit\LiTTreeLabstudios\src\components\dashboard\DashboardCards.tsx
+   6:3  warning  'Music' is defined but never used         @typescript-eslint/no-unused-vars
+  11:3  warning  'Sparkles' is defined but never used      @typescript-eslint/no-unused-vars
+  20:3  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\dashboard\MusicPlayer.tsx
+  5:10  warning  'Radio' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\components\dashboard\dashboard-data.ts
+  13:3  warning  'Terminal' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\home\litbit\LiTTreeLabstudios\src\lib\auth-supabase.ts
+  28:45  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 44 problems (0 errors, 44 warnings)
+

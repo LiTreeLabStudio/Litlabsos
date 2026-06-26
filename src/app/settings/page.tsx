@@ -11,7 +11,7 @@ import {
   AccentColor,
 } from "@/context/ThemeContext";
 import { useProfile, WallpaperId } from "@/context/ProfileContext";
-import { useClerkAuth } from "@/hooks/useClerkAuth";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import PageShell from "@/components/PageShell";
 import {
   User,
@@ -59,7 +59,7 @@ const SIDEBAR_STYLES = [
 ];
 
 export default function SettingsPage() {
-  const { isLoaded, isSignedIn } = useClerkAuth();
+  const { isLoaded, isSignedIn } = useSupabaseAuthHook();
   const router = useRouter();
   const { theme, setMode, setSkin, setAccent } = useTheme();
   const { profile, updateProfile, resetProfile } = useProfile();

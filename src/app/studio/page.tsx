@@ -207,7 +207,7 @@ function StudioInner() {
           }
         />
 
-        <main className="flex-1 min-w-0 flex flex-col overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col overflow-hidden">
           {/* Top Bar */}
           <div
             className="flex items-center justify-between px-6 h-16 shrink-0 border-b"
@@ -256,7 +256,7 @@ function StudioInner() {
           </div>
 
           <StatusBar T={T} />
-        </main>
+        </div>
       </div>
     </div>
   );

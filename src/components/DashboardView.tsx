@@ -103,7 +103,7 @@ export default function DashboardView() {
       style={{ backgroundColor: T.bgColor, color: T.textColor }}
     >
       {/* Center Content */}
-      <main
+      <div
         className={`flex-1 min-w-0 p-4 lg:p-6 ${
           activeApp === "jarvis"
             ? "flex flex-col overflow-hidden"
@@ -152,7 +152,7 @@ export default function DashboardView() {
         </div>
 
         <CenterStage activeApp={activeApp} displayName={displayName} />
-      </main>
+      </div>
 
       {/* Right Widgets */}
       <DashboardWidgets

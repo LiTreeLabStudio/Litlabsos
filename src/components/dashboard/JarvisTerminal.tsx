@@ -260,17 +260,32 @@ export default function JarvisTerminal() {
   const [selectedAgent, setSelectedAgent] = useState("director");
   const [stats, setStats] = useState({ cpu: 12, mem: 4.2 });
   const [flicker, setFlicker] = useState(false);
-  const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [ttsEnabled, setTtsEnabled] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return JSON.parse(localStorage.getItem("jarvis-tts") ?? "true");
+  });
   const [brainText, setBrainText] = useState("");
   const [isBrainStreaming, setIsBrainStreaming] = useState(false);
-  const [continuousMode, setContinuousMode] = useState(false);
-  const [wakeWordEnabled, setWakeWordEnabled] = useState(false);
+  const [continuousMode, setContinuousMode] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return JSON.parse(localStorage.getItem("jarvis-continuous") ?? "false");
+  });
+  const [wakeWordEnabled, setWakeWordEnabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return JSON.parse(localStorage.getItem("jarvis-wakeword") ?? "false");
+  });
   const [showAgents, setShowAgents] = useState(false);
-  const [alexaOutEnabled, setAlexaOutEnabled] = useState(false);
+  const [alexaOutEnabled, setAlexaOutEnabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return JSON.parse(localStorage.getItem("jarvis-alexa") ?? "false");
+  });
   const [availableVoices, setAvailableVoices] = useState<
     SpeechSynthesisVoice[]
   >([]);
-  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>("");
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem("jarvis-voice") ?? "";
+  });
   const [showVoicePicker, setShowVoicePicker] = useState(false);
   const [micPermission, setMicPermission] = useState<
     "prompt" | "granted" | "denied" | "unknown"
@@ -331,6 +346,28 @@ export default function JarvisTerminal() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
+
+  /* Persist voice/TTS preferences to localStorage so they survive page reloads */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("jarvis-tts", JSON.stringify(ttsEnabled));
+  }, [ttsEnabled]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("jarvis-continuous", JSON.stringify(continuousMode));
+  }, [continuousMode]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("jarvis-wakeword", JSON.stringify(wakeWordEnabled));
+  }, [wakeWordEnabled]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    localStorage.setItem("jarvis-alexa", JSON.stringify(alexaOutEnabled));
+  }, [alexaOutEnabled]);
+  useEffect(() => {
+    if (typeof window === "undefined" || !selectedVoiceURI) return;
+    localStorage.setItem("jarvis-voice", selectedVoiceURI);
+  }, [selectedVoiceURI]);
 
   /* Check mic permission */
   useEffect(() => {
@@ -832,7 +869,6 @@ export default function JarvisTerminal() {
         }
       }
     };
-    rec.onerror = () => setIsListening(false);
     recognitionRef.current = rec;
     return () => {
       try {
@@ -843,34 +879,57 @@ export default function JarvisTerminal() {
     };
     // sendMessage intentionally omitted — we use sendMessageRef to avoid
     // re-registering recognition on every input change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wakeWordEnabled, continuousMode, addLog]);
 
   const startMic = async () => {
+    /* Check HTTPS — mic requires a secure context on all browsers */
+    if (
+      typeof window !== "undefined" &&
+      window.location.protocol !== "https:" &&
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1"
+    ) {
+      addLog({
+        type: "error",
+        text: "Mic requires HTTPS. Open via https://litlabs.net",
+      });
+      return;
+    }
+
     if (!recognitionRef.current) {
       addLog({
         type: "error",
-        text: "Voice API not supported in this browser.",
+        text: "Voice recognition is not supported in this browser. Try Chrome or Edge.",
       });
       return;
     }
-    /* Pre-flight: try to getUserMedia so the browser shows the permission prompt */
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((t) => t.stop());
-      setMicPermission("granted");
-    } catch {
-      setMicPermission("denied");
-      addLog({
-        type: "error",
-        text: "Microphone permission denied. Enable it in browser settings.",
-      });
-      return;
+
+    /* Pre-flight getUserMedia — triggers the browser permission prompt on all devices */
+    if (navigator?.mediaDevices?.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: false,
+        });
+        stream.getTracks().forEach((t) => t.stop());
+        setMicPermission("granted");
+      } catch (err: unknown) {
+        const msg =
+          err instanceof Error && err.name === "NotAllowedError"
+            ? "Mic permission denied. Tap the lock icon in your browser address bar → Microphone → Allow, then try again."
+            : err instanceof Error && err.name === "NotFoundError"
+              ? "No microphone found. Plug in a mic and try again."
+              : "Microphone unavailable. Check your device settings.";
+        setMicPermission("denied");
+        addLog({ type: "error", text: msg });
+        return;
+      }
     }
+
     try {
       recognitionRef.current.start();
     } catch {
-      addLog({ type: "error", text: "Mic already active or denied." });
+      /* Recognition may already be active — ignore the DOMException */
     }
   };
 

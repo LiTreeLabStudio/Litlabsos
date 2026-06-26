@@ -12,6 +12,10 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
   "editor.inlineSuggest.enabled": true,
+  "editor.suggest.preview": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.paths": true,
+  "javascript.suggest.paths": true,
   "files.associations": {
     "*.css": "tailwindcss",
     "*.sql": "postgres"

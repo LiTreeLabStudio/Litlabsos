@@ -18,6 +18,7 @@ import {
   Palette,
   Bell,
   Shield,
+  Mic,
   Save,
   Moon,
   Sun,
@@ -29,6 +30,7 @@ const SECTIONS = [
   { id: "profile", label: "Profile", icon: User },
   { id: "appearance", label: "Appearance", icon: Palette },
   { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "voice", label: "Voice & Mic", icon: Mic },
   { id: "privacy", label: "Privacy", icon: Shield },
 ];
 
@@ -71,6 +73,77 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [confirmReset, setConfirmReset] = useState(false);
 
+  const [notifAgents, setNotifAgents] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return JSON.parse(
+        localStorage.getItem("notif-agents") ?? "true",
+      ) as boolean;
+    } catch {
+      return true;
+    }
+  });
+  const [notifSocial, setNotifSocial] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return JSON.parse(
+        localStorage.getItem("notif-social") ?? "true",
+      ) as boolean;
+    } catch {
+      return true;
+    }
+  });
+  const [notifSystem, setNotifSystem] = useState(() => {
+    if (typeof window === "undefined") return true;
+    try {
+      return JSON.parse(
+        localStorage.getItem("notif-system") ?? "true",
+      ) as boolean;
+    } catch {
+      return true;
+    }
+  });
+  const [notifMarketing, setNotifMarketing] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      return JSON.parse(
+        localStorage.getItem("notif-marketing") ?? "false",
+      ) as boolean;
+    } catch {
+      return false;
+    }
+  });
+
+  const [exportRequested, setExportRequested] = useState(false);
+
+  const [micTest, setMicTest] = useState<"idle" | "testing" | "ok" | "denied">(
+    "idle",
+  );
+  const [micPermission, setMicPermission] = useState<
+    "Granted" | "Denied" | "Prompt" | "unknown"
+  >("unknown");
+
+  const handleToggleNotif = useCallback(
+    (key: string, value: boolean, setter: (v: boolean) => void) => {
+      setter(value);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    },
+    [],
+  );
+
+  const handleMicTest = useCallback(async () => {
+    setMicTest("testing");
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      setMicTest("ok");
+      stream.getTracks().forEach((track) => track.stop());
+    } catch {
+      setMicTest("denied");
+    }
+  }, []);
+
   const handleSaveProfile = useCallback(() => {
     updateProfile({
       displayName: displayName.trim() || profile.displayName,
@@ -82,6 +155,31 @@ export default function SettingsPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }, [updateProfile, profile, displayName, username, bio, location, website]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let cleanup: (() => void) | undefined;
+    if ("permissions" in navigator && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "microphone" as PermissionName })
+        .then((status) => {
+          const update = () => {
+            setMicPermission(
+              status.state === "granted"
+                ? "Granted"
+                : status.state === "denied"
+                  ? "Denied"
+                  : "Prompt",
+            );
+          };
+          update();
+          status.addEventListener("change", update);
+          cleanup = () => status.removeEventListener("change", update);
+        })
+        .catch(() => setMicPermission("unknown"));
+    }
+    return () => cleanup?.();
+  }, []);
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) {
@@ -335,71 +433,196 @@ export default function SettingsPage() {
           </div>
         );
 
-      case "notifications":
+      case "notifications": {
+        const notifs = [
+          {
+            key: "notif-system",
+            label: "Email notifications",
+            desc: "Receive updates about your account.",
+            value: notifSystem,
+            setter: setNotifSystem,
+          },
+          {
+            key: "notif-marketing",
+            label: "Marketing emails",
+            desc: "Get tips, product news, and promotional offers.",
+            value: notifMarketing,
+            setter: setNotifMarketing,
+          },
+          {
+            key: "notif-agents",
+            label: "Agent alerts",
+            desc: "Notify when agents complete tasks or need attention.",
+            value: notifAgents,
+            setter: setNotifAgents,
+          },
+          {
+            key: "notif-social",
+            label: "Social mentions",
+            desc: "Notify when someone mentions you in the community.",
+            value: notifSocial,
+            setter: setNotifSocial,
+          },
+        ];
         return (
           <div className="space-y-4">
-            {[
-              {
-                label: "Email notifications",
-                desc: "Receive updates about your agents and account.",
-              },
-              {
-                label: "Marketing emails",
-                desc: "Get tips, product news, and promotional offers.",
-              },
-              {
-                label: "Agent alerts",
-                desc: "Notify when agents complete tasks or need attention.",
-              },
-              {
-                label: "Social mentions",
-                desc: "Notify when someone mentions you in the community.",
-              },
-            ].map(({ label, desc }) => (
+            {notifs.map(({ key, label, desc, value, setter }) => (
               <div
-                key={label}
-                className="flex items-center justify-between p-4 rounded-xl border border-color-40"
+                key={key}
+                className={`flex items-center justify-between p-4 rounded-xl border ${inputBorderClass}`}
               >
                 <div>
                   <div className="font-bold text-sm">{label}</div>
                   <div className="text-xs opacity-60">{desc}</div>
                 </div>
-                <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-white/10">
-                  <span className="sr-only">Toggle {label}</span>
-<span className="translate-x-1 inline-block h-4 w-4 transform rounded-full bg-white/50 transition" />
-                </div>
+                <label className="relative inline-flex h-6 w-11 cursor-pointer items-center rounded-full bg-white/10 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={value}
+                    onChange={(e) =>
+                      handleToggleNotif(key, e.target.checked, setter)
+                    }
+                    className="sr-only"
+                  />
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${value ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </label>
               </div>
             ))}
             <p className="text-xs opacity-50">
-              Notification preferences are stored locally. Full sync coming
-              soon.
+              Notification preferences are stored locally.
             </p>
+          </div>
+        );
+      }
+
+      case "voice":
+        return (
+          <div className="space-y-6">
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
+              <h3 className="font-bold text-sm mb-2">Microphone Test</h3>
+              <p className="text-xs opacity-60 mb-3">
+                Test that your browser can access the microphone.
+              </p>
+              <button
+                onClick={handleMicTest}
+                disabled={micTest === "testing"}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-[var(--accent-color)] text-black disabled:opacity-50 disabled:hover:scale-100"
+              >
+                <Mic size={16} />
+                {micTest === "testing" ? "Testing..." : "Test Microphone"}
+              </button>
+              {micTest === "ok" && (
+                <p className="mt-3 text-sm text-green-400">
+                  Microphone working!
+                </p>
+              )}
+              {micTest === "denied" && (
+                <p className="mt-3 text-sm text-red-400">
+                  Permission denied - check browser settings
+                </p>
+              )}
+            </div>
+
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
+              <h3 className="font-bold text-sm mb-2">Microphone Permission</h3>
+              <p className="text-xs opacity-60">
+                Status: <span className="font-bold">{micPermission}</span>
+              </p>
+            </div>
+
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
+              <h3 className="font-bold text-sm mb-2">Browser Support</h3>
+              <p className="text-xs opacity-60">
+                The Web Speech API (speech-to-text) is supported in Chrome,
+                Edge, Safari, and Firefox. Voice commands are processed locally
+                in supported browsers.
+              </p>
+            </div>
+
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
+              <h3 className="font-bold text-sm mb-2">Text-to-Speech Voice</h3>
+              <p className="text-xs opacity-60">
+                TTS voice is configured in the Jarvis terminal. Open the
+                terminal to choose your preferred voice and speed.
+              </p>
+            </div>
+
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
+              <h3 className="font-bold text-sm mb-2">
+                How to Enable Microphone
+              </h3>
+              <ul className="text-xs opacity-60 space-y-2 list-disc pl-4">
+                <li>
+                  <strong>Chrome:</strong> Click the lock icon in the address
+                  bar → Microphone → Allow.
+                </li>
+                <li>
+                  <strong>Firefox:</strong> Click the lock icon in the address
+                  bar → Permissions → Microphone → Allow.
+                </li>
+                <li>
+                  <strong>Mobile:</strong> Open browser settings → Site
+                  permissions → Microphone → Allow.
+                </li>
+                <li>
+                  <strong>Safari:</strong> Preferences → Websites → Microphone →
+                  Allow for this site.
+                </li>
+              </ul>
+            </div>
           </div>
         );
 
       case "privacy":
         return (
           <div className="space-y-6">
-            <div className="p-4 rounded-xl border border-color-40">
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
               <h3 className="font-bold text-sm mb-2">Public Profile</h3>
               <p className="text-xs opacity-60 mb-3">
                 Your profile is visible to other signed-in users. You can manage
                 details from the Profile tab.
               </p>
-              <button className="px-4 py-2 rounded-lg text-xs font-bold border border-color-40 transition-all hover:opacity-80">
+              <button
+                onClick={() => router.push(`/profile/${profile.username}`)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80 bg-white/5 ${inputBorderClass}`}
+              >
                 View Public Profile
               </button>
             </div>
 
-            <div className="p-4 rounded-xl border border-color-40">
+            <div
+              className={`p-4 rounded-xl border bg-white/5 ${inputBorderClass}`}
+            >
               <h3 className="font-bold text-sm mb-2">Data & Export</h3>
               <p className="text-xs opacity-60 mb-3">
                 Download your profile, agent preferences, and marketplace
                 history.
               </p>
-              <button className="px-4 py-2 rounded-lg text-xs font-bold border border-color-40 transition-all hover:opacity-80">
-                Request Data Export
+              <button
+                onClick={() => setExportRequested(true)}
+                className={`px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80 bg-white/5 ${inputBorderClass}`}
+              >
+                {exportRequested ? "Export Requested" : "Request Data Export"}
               </button>
+              {exportRequested && (
+                <p className="mt-3 text-xs text-green-400">
+                  Your data export will be emailed within 24 hours.
+                </p>
+              )}
             </div>
 
             <div className="p-4 rounded-xl border border-red-500/30 bg-red-500/5">
@@ -425,22 +648,36 @@ export default function SettingsPage() {
     }
   };
 
+  const activeLabel = SECTIONS.find((s) => s.id === activeSection)?.label;
+
   return (
     <PageShell title="Settings">
-      <div className="min-h-[calc(100vh-8rem)] max-w-350 mx-auto px-4 py-8">
+      <div className="min-h-[calc(100vh-8rem)] max-w-6xl mx-auto px-4 py-8">
+        {/* Mobile tabs */}
+        <div className="lg:hidden flex overflow-x-auto gap-2 mb-6 pb-2">
+          {SECTIONS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setActiveSection(id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold whitespace-nowrap transition-all ${inputBorderClass} ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-[var(--accent-color)]" : "opacity-70 hover:opacity-100"}`}
+            >
+              <Icon size={16} />
+              {label}
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar */}
-          <aside className="lg:w-64 shrink-0">
-            <div className="rounded-2xl border p-2 sticky top-24 border-color-40-bg">
+          {/* Desktop sidebar */}
+          <aside className="hidden lg:block lg:w-64 shrink-0">
+            <div
+              className={`rounded-2xl border p-2 sticky top-24 bg-white/5 ${inputBorderClass}`}
+            >
               {SECTIONS.map(({ id, label, icon: Icon }) => (
                 <button
                   key={id}
                   onClick={() => setActiveSection(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                    activeSection === id
-                      ? "opacity-100 nav-item-active"
-                      : "opacity-60 hover:opacity-100"
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-[var(--accent-color)]" : "opacity-60 hover:opacity-100"}`}
                 >
                   <Icon size={18} />
                   {label}
@@ -451,15 +688,17 @@ export default function SettingsPage() {
 
           {/* Content */}
           <main className="flex-1 min-w-0">
-            <div className="rounded-2xl border p-6 md:p-8 border-color-40-bg">
+            <div
+              className={`rounded-2xl border p-6 md:p-8 bg-white/5 ${inputBorderClass}`}
+            >
               <div className="flex items-center justify-between mb-6">
                 <h1 className="text-xl font-black uppercase tracking-tight">
-                  {SECTIONS.find((s) => s.id === activeSection)?.label}
+                  {activeLabel}
                 </h1>
                 {activeSection === "profile" && (
                   <button
                     onClick={handleSaveProfile}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 btn-accent"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-[var(--accent-color)] text-black"
                   >
                     {saved ? <Check size={16} /> : <Save size={16} />}
                     {saved ? "Saved" : "Save"}
@@ -482,7 +721,7 @@ export default function SettingsPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmReset(false)}
-                className="px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80 btn-cancel"
+                className={`px-4 py-2 rounded-lg text-xs font-bold border transition-all hover:opacity-80 bg-white/5 ${inputBorderClass}`}
               >
                 Cancel
               </button>

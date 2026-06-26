@@ -403,9 +403,9 @@ const accentOverrides: Record<
     accentColor: "#f59e0b",
   },
   "matrix-green": {
-    linkColor: "#a78bfa",
-    headerColor: "#c4b5fd",
-    accentColor: "#8b5cf6",
+    linkColor: "#4ade80",
+    headerColor: "#86efac",
+    accentColor: "#22c55e",
   },
   "sunset-orange": {
     linkColor: "#fb923c",

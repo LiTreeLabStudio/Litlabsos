@@ -158,7 +158,7 @@ export default function DashboardView({
             backgroundColor: T.bgColor,
             borderColor: `${T.borderColor}40`,
             color: T.accentColor,
-            boxShadow: T.shadowGlow,
+            boxShadow: "var(--shadow-glow)",
           }}
           title="Expand sidebar"
         >

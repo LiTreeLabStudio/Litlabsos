@@ -28,6 +28,15 @@ import {
 } from "./dashboard-data";
 import dynamic from "next/dynamic";
 import SocialFeed from "@/components/SocialFeed";
+const SocialPageContent = dynamic(
+  () => import("@/components/SocialPageContent"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
+    ),
+  },
+);
 
 /* Lazy-load heavy panes */
 const DashboardContent = dynamic(() => import("./DashboardContent"), {
@@ -240,11 +249,7 @@ export function CenterStage({
 
     /* ── SOCIAL ──────────────────────────────────────────────────── */
     case "social":
-      return (
-        <div className="max-w-2xl mx-auto py-4">
-          <SocialFeed embedded />
-        </div>
-      );
+      return <SocialPageContent />;
 
     /* ── STUDIO ──────────────────────────────────────────────────── */
     case "studio":

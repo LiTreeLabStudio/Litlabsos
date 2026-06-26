@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
@@ -547,7 +547,7 @@ export default function PipelineTool() {
         </div>
       </aside>
       {/* ── CENTER: Canvas ── */}
-      <main
+      <div
         className="flex-1 relative flex flex-col items-center overflow-y-auto py-6 z-10"
         style={{ scrollbarWidth: "none" }}
       >
@@ -720,7 +720,7 @@ export default function PipelineTool() {
             </form>
           </div>
         </div>
-      </main>
+      </div>
       {/* ── RIGHT: Config + Terminal ── */}
       <aside className="w-80 shrink-0 border-l border-fuchsia-900/30 bg-[#0a0310]/80 backdrop-blur-xl flex flex-col z-10">
         <div

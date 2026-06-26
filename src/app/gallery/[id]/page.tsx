@@ -158,7 +158,7 @@ export default function AgentDeploymentPage({
       subtitle="Gallery Agent Chat"
       className="bg-cyber-bg selection:bg-neon-cyan/30"
     >
-      <main className="flex-1 max-w-4xl w-full mx-auto flex flex-col p-4 sm:p-6 lg:py-10">
+      <div className="flex-1 max-w-4xl w-full mx-auto flex flex-col p-4 sm:p-6 lg:py-10">
         {/* Agent Info Header */}
         <div className="flex items-center justify-between gap-4 p-4 sm:p-6 glass-panel rounded-2xl border-white/5 mb-6">
           <div className="flex items-center gap-4 min-w-0">
@@ -280,7 +280,7 @@ export default function AgentDeploymentPage({
             </div>
           </form>
         </div>
-      </main>
+      </div>
     </PageShell>
   );
 }

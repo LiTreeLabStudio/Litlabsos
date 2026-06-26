@@ -310,7 +310,7 @@ export default function ChatTool() {
                   color: active ? T.bgColor : T.textColor,
                 }}
               >
-                <div className="text-sm" aria-hidden>
+                <div className="text-sm" aria-hidden="true">
                   {agent.name.charAt(0)}
                 </div>
                 <div>

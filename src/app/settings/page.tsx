@@ -687,7 +687,7 @@ export default function SettingsPage() {
           </aside>
 
           {/* Content */}
-          <main className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0">
             <div
               className={`rounded-2xl border p-6 md:p-8 bg-white/5 ${inputBorderClass}`}
             >
@@ -708,7 +708,7 @@ export default function SettingsPage() {
 
               {renderSection()}
             </div>
-          </main>
+          </div>
         </div>
       </div>
       {confirmReset && (

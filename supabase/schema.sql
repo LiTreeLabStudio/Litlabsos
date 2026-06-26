@@ -128,6 +128,10 @@ create table if not exists public.user_media (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+-- Ensure columns exist if table was created in earlier schema version
+alter table if exists public.user_media add column if not exists is_public boolean default true;
+alter table if exists public.user_media add column if not exists category text default 'gallery';
+
 -- ============================================
 -- RLS: ENABLED with service_role bypass
 -- Auth enforced in Next.js API routes via Clerk.

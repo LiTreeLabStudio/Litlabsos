@@ -161,6 +161,8 @@ async function postHandler(req: NextRequest) {
         .from("users")
         .insert({
           clerk_id: userId,
+          email: `${userId}@clerk.litlabs.net`,
+          name: `LiTBit User ${shortId}`,
           username: `user_${shortId}`,
           display_name: `LiTBit User ${shortId}`,
           created_at: new Date().toISOString(),

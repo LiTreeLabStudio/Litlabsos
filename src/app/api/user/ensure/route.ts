@@ -37,6 +37,8 @@ export async function POST() {
       .from("users")
       .insert({
         clerk_id: clerkId,
+        email: `${clerkId}@clerk.litlabs.net`,
+        name: displayName,
         username: username,
         display_name: displayName,
         created_at: new Date().toISOString(),

@@ -34,7 +34,7 @@ const SECTIONS = [
   { id: "privacy", label: "Privacy", icon: Shield },
 ];
 
-const inputBorderClass = "border-[var(--border-color)]";
+const inputBorderClass = "border-(--border-color)";
 
 const WALLPAPERS: { id: WallpaperId; label: string }[] = [
   { id: "default", label: "Default" },
@@ -510,7 +510,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleMicTest}
                 disabled={micTest === "testing"}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-[var(--accent-color)] text-black disabled:opacity-50 disabled:hover:scale-100"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-(--accent-color) text-black disabled:opacity-50 disabled:hover:scale-100"
               >
                 <Mic size={16} />
                 {micTest === "testing" ? "Testing..." : "Test Microphone"}
@@ -659,7 +659,7 @@ export default function SettingsPage() {
             <button
               key={id}
               onClick={() => setActiveSection(id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold whitespace-nowrap transition-all ${inputBorderClass} ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-[var(--accent-color)]" : "opacity-70 hover:opacity-100"}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-bold whitespace-nowrap transition-all ${inputBorderClass} ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-(--accent-color)" : "opacity-70 hover:opacity-100"}`}
             >
               <Icon size={16} />
               {label}
@@ -677,7 +677,7 @@ export default function SettingsPage() {
                 <button
                   key={id}
                   onClick={() => setActiveSection(id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-[var(--accent-color)]" : "opacity-60 hover:opacity-100"}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeSection === id ? "bg-[color-mix(in_srgb,var(--accent-color)_8%,transparent)] text-(--accent-color)" : "opacity-60 hover:opacity-100"}`}
                 >
                   <Icon size={18} />
                   {label}
@@ -698,7 +698,7 @@ export default function SettingsPage() {
                 {activeSection === "profile" && (
                   <button
                     onClick={handleSaveProfile}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-[var(--accent-color)] text-black"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all hover:scale-105 bg-(--accent-color) text-black"
                   >
                     {saved ? <Check size={16} /> : <Save size={16} />}
                     {saved ? "Saved" : "Save"}

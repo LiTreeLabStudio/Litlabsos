@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import UserSync from "@/components/UserSync";
@@ -22,13 +23,25 @@ export default function MainLayout({
 }) {
   const pathname = usePathname();
 
+  let isSignedIn = false;
+  try {
+    const userContext = useUser();
+    isSignedIn = !!userContext?.isSignedIn;
+  } catch {
+    // Treat as signed out during SSR / initialization
+  }
+
   // Pages that should be full-screen "App" style without global footer
   const isAppPage =
     pathname?.startsWith("/studio") || pathname?.startsWith("/agent");
 
+  // Determine if we are on a dashboard/social shell route and the user is authenticated
+  const isDashboardRoute = pathname === "/" || pathname === "/social";
+  const showDashboardLayout = isDashboardRoute && isSignedIn;
+
   // Pages where the content should fill remaining viewport height (flex-1 child fills)
-  const isFullHeightPage =
-    isAppPage || pathname === "/" || pathname === "/social";
+  const isFullHeightPage = isAppPage || showDashboardLayout;
+  const hideFooterAndGuide = isAppPage || showDashboardLayout;
 
   return (
     <ThemeProvider>
@@ -49,13 +62,14 @@ export default function MainLayout({
             {children}
           </main>
 
-          {!isAppPage && <Footer />}
+          {!hideFooterAndGuide && <Footer />}
 
           <CookieConsent />
           <ServiceWorkerRegistration />
-          {!isAppPage && <NpcGuide />}
+          {!hideFooterAndGuide && <NpcGuide />}
         </div>
       </ProfileProvider>
     </ThemeProvider>
   );
 }
+

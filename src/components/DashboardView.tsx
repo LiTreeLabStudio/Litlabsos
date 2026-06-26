@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useProfile } from "@/context/ProfileContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -22,35 +22,37 @@ export default function DashboardView() {
     profile?.displayName || user?.firstName || user?.username || "Creator";
 
   // Load real balance + claim status from the API on mount
-  const refreshWallet = useCallback(async () => {
-    try {
-      const res = await fetch("/api/wallet");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (typeof data.balance === "number") {
-        setBalance(data.balance);
-        // Sync to localStorage so other components (e.g. studio tools) can read it
-        localStorage.setItem("litcoins", String(data.balance));
-      }
-      if (data.last_claim_date) {
-        const lastClaim = new Date(data.last_claim_date);
-        const now = new Date();
-        const sameDay =
-          lastClaim.getFullYear() === now.getFullYear() &&
-          lastClaim.getMonth() === now.getMonth() &&
-          lastClaim.getDate() === now.getDate();
-        setClaimed(sameDay);
-      }
-    } catch {
-      // Fall back to localStorage if API is unreachable
-      const stored = localStorage.getItem("litcoins");
-      if (stored) setBalance(parseInt(stored) || 9999);
-    }
-  }, []);
-
   useEffect(() => {
-    refreshWallet();
-  }, [refreshWallet]);
+    let cancelled = false;
+    fetch("/api/wallet")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (typeof data.balance === "number") {
+          setBalance(data.balance);
+          // Sync to localStorage so other components (e.g. studio tools) can read it
+          localStorage.setItem("litcoins", String(data.balance));
+        }
+        if (data.last_claim_date) {
+          const lastClaim = new Date(data.last_claim_date);
+          const now = new Date();
+          const sameDay =
+            lastClaim.getFullYear() === now.getFullYear() &&
+            lastClaim.getMonth() === now.getMonth() &&
+            lastClaim.getDate() === now.getDate();
+          setClaimed(sameDay);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Fall back to localStorage if API is unreachable
+        const stored = localStorage.getItem("litcoins");
+        if (stored) setBalance(parseInt(stored) || 9999);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const claimDaily = async () => {
     if (claimed || claiming) return;

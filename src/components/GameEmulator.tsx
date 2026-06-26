@@ -1,20 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * EmulatorJS-powered game emulator.
  * Supports: NES, SNES, Genesis/Mega Drive, Game Boy, GBA
  *
- * EmulatorJS loads entirely via CDN into a sandboxed iframe — no npm package.
- * ROMs are fetched from whatever URL is passed in (Supabase Storage, R2, etc.)
+ * The emulator bootstrap is served from /emulator?core=X&rom=Y&title=Z
+ * (a real Next.js route) so the page can load cdn.emulatorjs.org scripts
+ * without hitting browser CSP restrictions on data: URIs.
  *
- * EmulatorJS core map:
- *   nes      → nestopia
- *   snes     → snes9x
- *   genesis  → genesis_plus_gx
- *   gb       → gambatte
- *   gba      → mgba
+ * ROMs are loaded from NEXT_PUBLIC_ROM_BASE_URL (Supabase Storage, R2, etc.)
  */
 
 const CORE_MAP: Record<string, string> = {
@@ -38,18 +34,16 @@ export default function GameEmulator({
   title = "Game",
   onError,
 }: GameEmulatorProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
-    "idle",
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const core = CORE_MAP[platform];
 
-  // Validate ROM URL is reachable before starting the emulator
   useEffect(() => {
     if (!core) {
-      const msg = `${platform.toUpperCase()} is not supported.`;
+      const msg = `${platform.toUpperCase()} emulator is not supported.`;
       setErrorMsg(msg);
       setStatus("error");
       onError?.(msg);
@@ -57,14 +51,15 @@ export default function GameEmulator({
     }
 
     setStatus("loading");
+    setErrorMsg(null);
 
-    // Check the ROM is accessible
+    // HEAD check — verify ROM is reachable before booting emulator
     fetch(romUrl, { method: "HEAD" })
       .then((res) => {
-        if (!res.ok) throw new Error(`ROM returned HTTP ${res.status}`);
+        if (!res.ok) throw new Error(`ROM not found (HTTP ${res.status})`);
         setStatus("ready");
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         const msg =
           err instanceof Error
             ? err.message
@@ -114,50 +109,18 @@ export default function GameEmulator({
     );
   }
 
-  // Build the EmulatorJS HTML that runs in the iframe
-  // EmulatorJS CDN: https://cdn.emulatorjs.org/stable/data/
-  const emulatorHtml = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #000; width: 100vw; height: 100vh; overflow: hidden; }
-  #game { width: 100%; height: 100%; }
-</style>
-</head>
-<body>
-<div id="game"></div>
-<script>
-  EJS_player = "#game";
-  EJS_core = "${core}";
-  EJS_gameUrl = ${JSON.stringify(romUrl)};
-  EJS_gameID = ${JSON.stringify(title.replace(/[^a-z0-9]/gi, "_").toLowerCase())};
-  EJS_color = "#ff00a0";
-  EJS_startOnLoaded = true;
-  EJS_fullscreenOnLoaded = false;
-  EJS_Buttons = {
-    saveState: true,
-    loadState: true,
-    fullscreen: true,
-    screenshot: false,
-    cacheManager: false,
-  };
-  EJS_language = "en-US";
-  EJS_volume = 0.5;
-  EJS_pathtodata = "https://cdn.emulatorjs.org/stable/data/";
-</script>
-<script src="https://cdn.emulatorjs.org/stable/data/loader.js"></script>
-</body>
-</html>`;
-
-  const iframeSrc = `data:text/html;charset=utf-8,${encodeURIComponent(emulatorHtml)}`;
+  // Build the emulator URL pointing to our real Next.js route
+  const params = new URLSearchParams({
+    core,
+    rom: romUrl,
+    title,
+  });
+  const emulatorUrl = `/emulator?${params.toString()}`;
 
   return (
     <div className="w-full h-full relative bg-black">
       <iframe
-        ref={iframeRef}
-        src={iframeSrc}
+        src={emulatorUrl}
         className="w-full h-full border-0"
         allow="autoplay; fullscreen; gamepad"
         sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock"

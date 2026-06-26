@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
-import SocialPageContent from "@/components/SocialPageContent";
+import SocialFeed from "@/components/SocialFeed";
 
 export default function SocialPage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
@@ -39,5 +39,11 @@ export default function SocialPage() {
     );
   }
 
-  return <SocialPageContent />;
+  return (
+    <div className="min-h-screen" style={{ background: "#0a0a12" }}>
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <SocialFeed />
+      </div>
+    </div>
+  );
 }

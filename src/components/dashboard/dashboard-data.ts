@@ -27,7 +27,7 @@ export const APPS = [
     label: "Jarvis",
     icon: Terminal,
     color: "#ff00a0",
-    href: "#",
+    href: "/agent",
   },
   {
     id: "studio",

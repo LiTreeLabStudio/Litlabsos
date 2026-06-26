@@ -36,15 +36,7 @@ const DashboardContent = dynamic(() => import("./DashboardContent"), {
     <div className="h-48 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
   ),
 });
-const SocialPageContent = dynamic(
-  () => import("@/components/SocialPageContent"),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="h-96 rounded-xl animate-pulse bg-slate-800/30 border border-slate-700/30" />
-    ),
-  },
-);
+
 const JarvisTerminal = dynamic(() => import("./JarvisTerminal"), {
   ssr: false,
   loading: () => (
@@ -248,7 +240,11 @@ export function CenterStage({
 
     /* ── SOCIAL ──────────────────────────────────────────────────── */
     case "social":
-      return <SocialPageContent />;
+      return (
+        <div className="max-w-2xl mx-auto py-4">
+          <SocialFeed embedded />
+        </div>
+      );
 
     /* ── STUDIO ──────────────────────────────────────────────────── */
     case "studio":

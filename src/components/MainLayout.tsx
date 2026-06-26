@@ -27,7 +27,8 @@ export default function MainLayout({
     pathname?.startsWith("/studio") || pathname?.startsWith("/agent");
 
   // Pages where the content should fill remaining viewport height (flex-1 child fills)
-  const isFullHeightPage = isAppPage || pathname === "/";
+  const isFullHeightPage =
+    isAppPage || pathname === "/" || pathname === "/social";
 
   return (
     <ThemeProvider>

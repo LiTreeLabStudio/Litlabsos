@@ -5,7 +5,14 @@ export const dynamic = "force-dynamic";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useClerkAuth } from "@/hooks/useClerkAuth";
-import SocialPageContent from "@/components/SocialPageContent";
+import dynamicImport from "next/dynamic";
+
+const DashboardView = dynamicImport(
+  () => import("@/components/DashboardView"),
+  {
+    ssr: false,
+  },
+);
 
 export default function SocialPage() {
   const { isLoaded, isSignedIn } = useClerkAuth();
@@ -39,5 +46,6 @@ export default function SocialPage() {
     );
   }
 
-  return <SocialPageContent hideHeader />;
+  // Render the full dashboard shell with the social tab pre-selected
+  return <DashboardView initialApp="social" />;
 }

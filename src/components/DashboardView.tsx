@@ -9,11 +9,15 @@ import { CenterStage } from "@/components/dashboard/DashboardCards";
 import DashboardWidgets from "@/components/dashboard/DashboardWidgets";
 import Link from "next/link";
 
-export default function DashboardView() {
+export default function DashboardView({
+  initialApp = "home",
+}: {
+  initialApp?: string;
+}) {
   const { user } = useUser();
   const { profile } = useProfile();
   const { resolvedColors: T } = useTheme();
-  const [activeApp, setActiveApp] = useState("home");
+  const [activeApp, setActiveApp] = useState(initialApp);
   const [balance, setBalance] = useState<number>(9999);
   const [claimed, setClaimed] = useState(false);
   const [claiming, setClaiming] = useState(false);

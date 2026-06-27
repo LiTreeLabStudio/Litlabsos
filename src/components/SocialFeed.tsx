@@ -613,7 +613,7 @@ export default function SocialFeed({
                       >
                         {post.author?.name || "Anonymous"}
                       </div>
-                      <div className="text-[11px] opacity-40 leading-snug">
+                      <div className="text-[11px] opacity-60 leading-snug">
                         @{post.author?.username || "user"} ·{" "}
                         {formatTime(post.created_at)}
                       </div>

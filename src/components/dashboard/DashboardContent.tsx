@@ -640,7 +640,7 @@ export default function DashboardContent() {
                           >
                             {post.author?.name || "Anonymous"}
                           </span>
-                          <span className="text-[9px] opacity-40">
+                          <span className="text-[9px] opacity-60">
                             @{post.author?.username || "user"} ·{" "}
                             {formatTime(post.created_at)}
                           </span>

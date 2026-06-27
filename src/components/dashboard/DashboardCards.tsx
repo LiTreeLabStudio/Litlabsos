@@ -1199,12 +1199,13 @@ case "jarvis":
                 <Link
                   key={i}
                   href="/gallery"
+                  aria-label="View gallery creation"
                   className="shrink-0 w-40 rounded-xl overflow-hidden group border border-white/5 hover:border-indigo-500/30 transition-all"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={url}
-                    alt=""
+                    alt="Gallery creation"
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </Link>

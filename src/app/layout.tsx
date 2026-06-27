@@ -134,7 +134,6 @@ export default async function RootLayout({
 }>) {
   const body = await renderSupabaseLayout({
     children,
-    metadata,
   });
 
   return (
@@ -151,7 +150,9 @@ export default async function RootLayout({
         }
         appearance={clerkAppearance as any}
       >
-        {body}
+        <body className="antialiased min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
+          {body}
+        </body>
       </ClerkProvider>
     </html>
   );

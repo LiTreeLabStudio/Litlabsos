@@ -13,27 +13,17 @@ import { ProfileProvider } from "@/context/ProfileContext";
 
 const NpcGuide = dynamic(() => import("@/components/NpcGuide"), { ssr: false });
 
-// Inner component that reads auth — must live inside SupabaseAuthProvider
+// Inner component that reads auth — must live inside SupabaseAuthProvider.
+// Does NOT block rendering — content shows immediately while auth resolves.
 function MainContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useSupabaseAuth();
   const isSignedIn = !loading && !!user;
 
-  // Get pathname for route-based logic
   const pathname = typeof window !== "undefined" ? window.location.pathname : "";
-
   const isDashboardRoute = pathname === "/" || pathname === "/social";
   const showDashboardLayout = isDashboardRoute && isSignedIn;
   const isAppPage = pathname?.startsWith("/studio") || pathname?.startsWith("/agent");
   const hideFooterAndGuide = isAppPage || showDashboardLayout;
-
-  // While auth is resolving, show a minimal spinner (don't block page paint)
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <span className="text-white text-3xl animate-pulse">Loading...</span>
-      </div>
-    );
-  }
 
   return (
     <div
@@ -41,6 +31,7 @@ function MainContent({ children }: { children: React.ReactNode }) {
         hideFooterAndGuide ? "h-screen overflow-hidden" : "min-h-screen"
       }`}
     >
+      {/* LeftDock only renders once auth is confirmed — no blocking */}
       {isSignedIn && (
         <Suspense fallback={null}>
           <LeftDock />
@@ -59,7 +50,6 @@ function MainContent({ children }: { children: React.ReactNode }) {
   );
 }
 
-// Outer shell — mounts providers, then renders MainContent inside them
 export default function MainLayout({
   children,
 }: {
@@ -70,13 +60,11 @@ export default function MainLayout({
       <ThemeProvider>
         <ProfileProvider>
           <div className="relative z-10 min-h-screen">
-            <div className="flex flex-col">
-              {/* Background */}
-              <AnimatedBackgroundWrapper />
+            {/* Animated background sits behind everything */}
+            <AnimatedBackgroundWrapper />
 
-              {/* App content (reads auth from provider above) */}
-              <MainContent>{children}</MainContent>
-            </div>
+            {/* Content renders immediately — no auth gate */}
+            <MainContent>{children}</MainContent>
           </div>
         </ProfileProvider>
       </ThemeProvider>

@@ -693,11 +693,11 @@ export default function HomePage() {
     const u = useUser();
     isSignedIn = !!u?.isSignedIn;
   } catch {
- // No Clerk context — treat as signed out, show landing page
+ // No Clerk context - treat as signed out, show landing page
   }
 
   // Show dashboard when signed in, landing page otherwise.
-  // Don't block on isLoaded — LandingPage renders instantly for guests.
+  // Don't block on isLoaded - LandingPage renders instantly for guests.
   return <>{isSignedIn ? <DashboardView /> : <LandingPage />}</>;
 }
 

@@ -687,17 +687,29 @@ function LandingPage() {
 
 // Main Page Component
 export default function HomePage() {
- let isSignedIn = false;
-  try {
- // useUser throws if ClerkProvider is missing (e.g. during SSR without key)
-    const u = useUser();
-    isSignedIn = !!u?.isSignedIn;
-  } catch {
- // No Clerk context - treat as signed out, show landing page
+let isSignedIn = false;
+   let isLoaded = false;
+   try {
+     // useUser throws if ClerkProvider is missing (e.g. during SSR without key)
+     const u = useUser();
+     isSignedIn = !!u?.isSignedIn;
+     isLoaded = !!u?.isLoaded;
+   } catch {
+    // No Clerk context — treat as signed out, show landing page
+    isLoaded = true;
   }
 
-  // Show dashboard when signed in, landing page otherwise.
-  // Don't block on isLoaded - LandingPage renders instantly for guests.
+  // Always render landing content; only overlay dashboard if signed in.
+  if (!isLoaded) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: getCssVar("--lit-bg", "#0a0a12") }}
+      >
+        <Loader2 className="animate-spin text-cyan-400" size={32} />
+      </div>
+    );
+  }
+
   return <>{isSignedIn ? <DashboardView /> : <LandingPage />}</>;
 }
-

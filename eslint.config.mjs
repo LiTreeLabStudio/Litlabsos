@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "dist/**",
     "scripts/**",
+    ".venv_new/**",
+    "venv/**",
+    ".venv/**",
+    ".tmp.driveupload/**",
   ]),
 ]);
 

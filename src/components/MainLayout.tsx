@@ -7,6 +7,7 @@ import CookieConsent from "@/components/CookieConsent";
 import ServiceWorkerRegistration from "@/components/ServiceWorkerRegistration";
 import AnimatedBackgroundWrapper from "@/components/AnimatedBackgroundWrapper";
 import LeftDock from "@/components/LeftDock";
+import Navbar from "@/components/Navbar";
 import dynamic from "next/dynamic";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ProfileProvider } from "@/context/ProfileContext";
@@ -14,17 +15,14 @@ import { ProfileProvider } from "@/context/ProfileContext";
 const NpcGuide = dynamic(() => import("@/components/NpcGuide"), { ssr: false });
 
 // Inner layout — reads auth from SupabaseAuthProvider above it
-function MainLayoutInner({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function MainLayoutInner({ children }: { children: React.ReactNode }) {
   const { user, loading } = useSupabaseAuth();
   const isSignedIn = !loading && !!user;
   const authReady = !loading;
 
   // Get pathname for route-based logic
-  const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+  const pathname =
+    typeof window !== "undefined" ? window.location.pathname : "";
 
   // Check if user is signed in (replicate Clerk's isSignedIn behavior)
   const isDashboardRoute = pathname === "/" || pathname === "/social";
@@ -43,12 +41,13 @@ function MainLayoutInner({
             {/* Background */}
             <AnimatedBackgroundWrapper />
 
+            {/* Top Navigation */}
+            <Navbar />
+
             {/* Main Content - always render */}
             <div
               className={`relative z-10 flex flex-col w-full max-w-full ${
-                hideFooterAndGuide
-                  ? "h-screen overflow-hidden"
-                  : "min-h-screen"
+                hideFooterAndGuide ? "h-screen overflow-hidden" : "min-h-screen"
               }`}
             >
               {/* Protected layouts */}

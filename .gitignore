@@ -106,3 +106,8 @@ plans/
 
 # Claude Code session state
 .claude/
+
+# Python virtual environments
+.venv_new/
+venv/
+.venv/**

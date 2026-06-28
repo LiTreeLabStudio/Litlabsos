@@ -3,6 +3,16 @@ import { auth, currentUser } from "@clerk/nextjs/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { getOrCreateUser } from "@/lib/user-db";
 
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  return "Unknown error";
+}
+
 /**
  * GET /api/account
  * Ensures the user exists in our database. Called on every page load via UserSync.
@@ -38,10 +48,10 @@ export async function GET() {
       isNew,
       user,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in GET /api/account:", error);
     return NextResponse.json(
-      { synced: false, error: error.message },
+      { synced: false, error: getErrorMessage(error) },
       { status: 500 }
     );
   }
@@ -72,10 +82,10 @@ export async function DELETE() {
     return NextResponse.json({
       message: "Account deletion successful",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in DELETE /api/account:", error);
     return NextResponse.json(
-      { error: "Failed to delete account", details: error.message },
+      { error: "Failed to delete account", details: getErrorMessage(error) },
       { status: 500 },
     );
   }

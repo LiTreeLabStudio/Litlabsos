@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import Link from "next/link";
 import { useTheme } from "@/context/ThemeContext";
@@ -165,6 +166,7 @@ function formatTime(iso: string) {
 
 export default function DashboardContent() {
   const { isLoaded, isSignedIn, sessionClaims } = useSupabaseAuthHook();
+  const { isLoaded: clerkLoaded, isSignedIn: clerkSignedIn, user: clerkUser } = useUser();
   const { resolvedColors: T } = useTheme();
   const [stats, setStats] = useState<Stats | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -210,6 +212,9 @@ export default function DashboardContent() {
     return () => cancelAnimationFrame(id);
   }, []);
 
+  const authLoaded = isLoaded && clerkLoaded;
+  const signedIn = isSignedIn || clerkSignedIn;
+
   /* Cycle telemetry lines every 3s */
   useEffect(() => {
     const t = setInterval(
@@ -219,7 +224,7 @@ export default function DashboardContent() {
     return () => clearInterval(t);
   }, []);
 
-  if (!isLoaded)
+  if (!authLoaded)
     return (
       <div
         className="flex items-center justify-center py-24"
@@ -228,7 +233,7 @@ export default function DashboardContent() {
         <Loader2 size={24} className="animate-spin opacity-40" />
       </div>
     );
-  if (!isSignedIn) {
+  if (!signedIn) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <p className="text-sm opacity-60">
@@ -246,6 +251,8 @@ export default function DashboardContent() {
   }
 
   const displayName =
+    clerkUser?.firstName ||
+    clerkUser?.username ||
     (sessionClaims?.name as string) ||
     (sessionClaims?.username as string) ||
     "Builder";

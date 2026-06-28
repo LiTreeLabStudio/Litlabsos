@@ -97,3 +97,12 @@ supabase/.temp/
 .tmp.driveupload/
 .tmp.drivedownload/
 diff.txt
+
+# Jarvis scan outputs
+plans/
+
+# Visual Studio cache
+.vs/
+
+# Claude Code session state
+.claude/

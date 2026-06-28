@@ -113,7 +113,6 @@ const PROVIDERS: {
 }[] = [
   { id: "pollinations", label: "Pollinations", cost: 0, free: true },
   { id: "gemini", label: "Gemini Imagen", cost: 1, free: false },
-  { id: "together", label: "Together.ai", cost: 2, free: false },
   { id: "fal", label: "FAL.ai", cost: 3, free: false },
   { id: "openai", label: "OpenAI DALL-E", cost: 5, free: false },
 ];

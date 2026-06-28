@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Component, type ReactNode, useState, useEffect } from "react";
 import { useUser, UserButton, SignInButton } from "@clerk/nextjs";
 import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";

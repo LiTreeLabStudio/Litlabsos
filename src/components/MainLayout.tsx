@@ -43,40 +43,31 @@ function MainLayoutInner({
             {/* Background */}
             <AnimatedBackgroundWrapper />
 
-            {/* Auth State */}
-            {!authReady && (
-              <div className="min-h-screen flex items-center justify-center bg-black">
-                <span className="text-white text-3xl animate-pulse">Loading...</span>
-              </div>
-            )}
+            {/* Main Content - always render */}
+            <div
+              className={`relative z-10 flex flex-col w-full max-w-full ${
+                hideFooterAndGuide
+                  ? "h-screen overflow-hidden"
+                  : "min-h-screen"
+              }`}
+            >
+              {/* Protected layouts */}
+              {isSignedIn && (
+                <Suspense fallback={null}>
+                  <LeftDock />
+                </Suspense>
+              )}
 
-            {/* Main Content */}
-            {authReady && (
-              <div
-                className={`relative z-10 flex flex-col w-full max-w-full ${
-                  hideFooterAndGuide
-                    ? "h-screen overflow-hidden"
-                    : "min-h-screen"
-                }`}
-              >
-                {/* Protected layouts */}
-                {isSignedIn && (
-                  <Suspense fallback={null}>
-                    <LeftDock />
-                  </Suspense>
-                )}
+              <main className="flex flex-1 min-h-0 w-full max-w-full">
+                {children}
+              </main>
 
-                <main className="flex flex-1 min-h-0 w-full max-w-full">
-                  {children}
-                </main>
-
-                {/* Footer and extras */}
-                {!hideFooterAndGuide && <Footer />}
-                <CookieConsent />
-                <ServiceWorkerRegistration />
-                {!hideFooterAndGuide && <NpcGuide />}
-              </div>
-            )}
+              {/* Footer and extras */}
+              {!hideFooterAndGuide && <Footer />}
+              <CookieConsent />
+              <ServiceWorkerRegistration />
+              {!hideFooterAndGuide && <NpcGuide />}
+            </div>
           </div>
         </ProfileProvider>
       </ThemeProvider>

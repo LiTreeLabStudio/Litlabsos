@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LiTTree Lab Studios
 
-## Getting Started
+LiTTree Lab Studios powers `litlabs.net`, a creator-focused Next.js platform for AI agents, a studio workspace, a social feed, a marketplace, and account-driven dashboards.
 
-First, run the development server:
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- Clerk auth
+- Supabase
+- Stripe
+- Cloudflare R2 for media storage
+
+## What lives here
+
+- `src/app/page.tsx` - the public landing page for `litlabs.net`
+- `src/app/studio` - the AI studio for image, video, audio, code, chat, and agent workflows
+- `src/app/social` - social feed and community activity
+- `src/app/marketplace` - marketplace and credits flow
+- `src/app/agents` - agent directory and management
+- `src/app/dashboard` - signed-in dashboard experience
+- `src/app/api` - auth, agents, chat, storage, payments, and other backend routes
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Open `http://localhost:3000`.
+
+## Available scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
+npm run pages:build
+npm run pages:deploy
+npm run pages:dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The app expects runtime configuration for services such as Clerk, Supabase, Stripe, and R2. Keep those in `.env.local` and production secrets in your deployment platform.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Production notes
 
-## Learn More
+- The site is deployed as a Next.js application.
+- Auth is handled per-route and through Clerk components.
+- Media and asset flows depend on the R2-backed storage layer.
+- Payment webhooks and API routes should be configured before enabling commerce features.
 
-To learn more about Next.js, take a look at the following resources:
+## Routes worth checking
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/`
+- `/studio`
+- `/social`
+- `/marketplace`
+- `/agents`
+- `/dashboard`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

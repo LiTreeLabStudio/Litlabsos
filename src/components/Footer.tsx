@@ -43,7 +43,7 @@ export default function Footer() {
                 <Zap size={24} fill="currentColor" />
               </div>
               <span className="font-black text-xl tracking-tight">
-                LiTree Lab Studios
+                LiTTree Lab Studios
               </span>
             </Link>
             <p className="text-sm opacity-50 max-w-xs leading-relaxed">
@@ -135,7 +135,7 @@ export default function Footer() {
           style={{ borderColor: C.borderColor + "20" }}
         >
           <div className="text-[11px] font-bold opacity-30 uppercase tracking-widest">
-            © 2026 LiTree Lab Studios • All Rights Reserved
+            © 2026 LiTTree Lab Studios • All Rights Reserved
           </div>
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-1.5">

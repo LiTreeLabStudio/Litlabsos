@@ -9,7 +9,6 @@ export type MediaProviderId =
   | "gemini"
   | "fal"
   | "huggingface"
-  | "together"
   | "openai"
   | "recraft"
   | "luma"
@@ -68,16 +67,6 @@ export const MEDIA_PROVIDERS: MediaProvider[] = [
     description: "Stable Video Diffusion clips. Needs HUGGING_FACE_API_KEY.",
     supportedFormats: ["video"],
     cost: () => 20,
-    requiresKey: true,
-    free: false,
-    tier: "cheap",
-  },
-  {
-    id: "together",
-    label: "Together.ai (FLUX)",
-    description: "FLUX.1 Schnell Free model. Fast, high quality. Needs TOGETHER_API_KEY.",
-    supportedFormats: ["image"],
-    cost: () => 2,
     requiresKey: true,
     free: false,
     tier: "cheap",

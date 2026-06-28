@@ -150,7 +150,7 @@ export default function Navbar() {
               >
                 <Image
                   src="/logo.png"
-                  alt="LiTree"
+                  alt="LiTTree"
                   fill
                   className="object-contain p-1"
                   unoptimized
@@ -161,7 +161,7 @@ export default function Navbar() {
                   className="font-black text-lg tracking-tight leading-none"
                   style={{ color: T.textColor }}
                 >
-                  LiTree Lab
+                  LiTTree Lab
                 </span>
                 <span
                   className="text-[10px] font-bold tracking-[.25em] uppercase opacity-40"

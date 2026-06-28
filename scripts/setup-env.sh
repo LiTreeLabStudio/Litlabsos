@@ -70,10 +70,8 @@ set_env "ADMIN_EMAIL"
 set_env "GEMINI_API_KEY"
 set_env "GOOGLE_API_KEY"
 set_env "HUGGING_FACE_API_KEY"
-set_env "TOGETHER_API_KEY"
 set_env "FAL_KEY"
 set_env "MINIMAX_API_KEY"
-set_env "SKYBOX_API_KEY"
 
 # Payments
 set_env "STRIPE_SECRET_KEY"

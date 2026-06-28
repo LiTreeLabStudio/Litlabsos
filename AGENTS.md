@@ -269,7 +269,7 @@ These are needed but currently missing/placeholder:
 - `STRIPE_SECRET_KEY` — currently `REGENERATE_REQUIRED`
 - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`
-- AI provider keys: `HUGGING_FACE_API_KEY`, `TOGETHER_API_KEY`, `FAL_KEY`, `MINIMAX_API_KEY`, `SKYBOX_API_KEY`
+- AI provider keys: `HUGGING_FACE_API_KEY`, `FAL_KEY`, `MINIMAX_API_KEY`
 
 ### Console Logging Policy
 

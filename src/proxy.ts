@@ -22,6 +22,15 @@ const clerkSecretKey = process.env.CLERK_SECRET_KEY;
 const isClerkConfigured = !!(clerkKey && clerkSecretKey);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Keep local development resilient when Clerk/network is unavailable.
+  if (
+    process.env.NODE_ENV === "development" ||
+    req.nextUrl.hostname === "localhost" ||
+    req.nextUrl.hostname === "127.0.0.1"
+  ) {
+    return NextResponse.next();
+  }
+
   // If Clerk is not configured, just pass through
   if (!isClerkConfigured) {
     return NextResponse.next();

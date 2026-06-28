@@ -16,7 +16,6 @@ const HF_VIDEO_URL =
 const POLLINATIONS_BASE = "https://image.pollinations.ai/prompt";
 const FAL_API_KEY = process.env.FAL_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const RECRAFT_API_KEY = process.env.RECRAFT_API_KEY;
 
@@ -305,61 +304,6 @@ async function handlePollinationsImage(
   };
 }
 
-async function handleTogetherImage(
-  prompt: string,
-  width: number,
-  height: number,
-): Promise<MediaResult> {
-  if (!TOGETHER_API_KEY)
-    throw new Error("Together.ai key missing — set TOGETHER_API_KEY");
-
-  const res = await fetch("https://api.together.xyz/v1/images/generations", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${TOGETHER_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: "black-forest-labs/FLUX.1-schnell-Free",
-      prompt: prompt.trim(),
-      width: Math.min(width, 1024),
-      height: Math.min(height, 1024),
-      steps: 4,
-      n: 1,
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text().catch(() => "");
-    throw new Error(
-      `Together.ai error: ${err.slice(0, 200) || res.statusText}`,
-    );
-  }
-
-  const data = await res.json();
-  const b64 = data.data?.[0]?.b64_json;
-  const url = data.data?.[0]?.url;
-  if (b64) {
-    return {
-      downloadUrl: `data:image/png;base64,${b64}`,
-      id: `together_${Date.now()}`,
-      status: "complete",
-      title: prompt.slice(0, 60),
-      format: "image",
-    };
-  }
-  if (url) {
-    return {
-      downloadUrl: url,
-      id: `together_${Date.now()}`,
-      status: "complete",
-      title: prompt.slice(0, 60),
-      format: "image",
-    };
-  }
-  throw new Error("Together.ai returned no image data");
-}
-
 async function handleOpenAIImage(prompt: string): Promise<MediaResult> {
   if (!OPENAI_API_KEY)
     throw new Error("OpenAI key missing — set OPENAI_API_KEY");
@@ -523,12 +467,6 @@ async function handler(req: NextRequest) {
         prompt,
         body.negativePrompt ?? "",
         body.seed ?? 0,
-        body.width ?? 1024,
-        body.height ?? 1024,
-      );
-    } else if (providerId === "together") {
-      result = await handleTogetherImage(
-        prompt,
         body.width ?? 1024,
         body.height ?? 1024,
       );

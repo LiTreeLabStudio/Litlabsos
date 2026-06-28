@@ -4,16 +4,8 @@ export const dynamic = "force-dynamic";
 
 import type { CSSProperties } from "react";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
-
-// Helpers to avoid runtime theme crashes
-function getCssVar(name: string, fallback: string) {
-  if (typeof document === "undefined") return fallback;
-  return (
-    getComputedStyle(document.documentElement).getPropertyValue(name).trim() ||
-    fallback
-  );
-}
+import nextDynamic from "next/dynamic";
+import { useSupabaseAuthHook } from "@/hooks/useSupabaseAuth";
 import {
   Zap,
   Sparkles,
@@ -26,7 +18,6 @@ import {
   MessageCircle,
   Play,
   CheckCircle,
-  Loader2,
   ChevronDown,
   LayoutDashboard,
   ShoppingBag,
@@ -36,13 +27,9 @@ import {
   Users,
 } from "lucide-react";
 
-// Dashboard imports (lazy loaded when signed in)
-import dynamicImport from "next/dynamic";
-const DashboardView = dynamicImport(
+const DashboardView = nextDynamic(
   () => import("@/components/DashboardView"),
-  {
-    ssr: false,
-  },
+  { ssr: false },
 );
 
 // Theme colors
@@ -309,8 +296,8 @@ function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-10 items-start">
             <div>
-              <h2 className="text-3xl sm:text-4xl font-black mb-4 text-(--lit-feature-purple)">
-                LiTree Labs Public Feed
+              <h2 className="text-3xl sm:text-4xl font-black mb-4 text-(--lit-header)">
+                LiTTree Labs Public Feed
               </h2>
               <p className="text-lg mb-6 text-[var(--lit-text-muted)]">
                 See what the community is building. Join to create your own
@@ -319,13 +306,13 @@ function LandingPage() {
               <div className="flex gap-3">
                 <Link
                   href="/sign-up"
-                  className="px-6 py-2 text-sm font-bold border border-(--lit-feature-purple) text-(--lit-feature-purple)"
+                  className="px-6 py-2 text-sm font-bold border border-(--lit-header) text-(--lit-header)"
                 >
                   Get Started Free
                 </Link>
                 <Link
                   href="/studio"
-                  className="px-6 py-2 text-sm font-bold border border-(--lit-feature-purple) text-(--lit-feature-purple)"
+                  className="px-6 py-2 text-sm font-bold border border-(--lit-header) text-(--lit-header)"
                 >
                   Try Studio
                 </Link>
@@ -686,30 +673,11 @@ function LandingPage() {
 }
 
 // Main Page Component
+// Render LandingPage by default (site never hangs on auth load). When the
+// Supabase auth hook reports signed-in, swap in DashboardView — that's the
+// entrypoint for JarvisTerminal (rendered via ?tab=jarvis inside CenterStage)
+// and the rest of the signed-in surface.
 export default function HomePage() {
-let isSignedIn = false;
-   let isLoaded = false;
-   try {
-     // useUser throws if ClerkProvider is missing (e.g. during SSR without key)
-     const u = useUser();
-     isSignedIn = !!u?.isSignedIn;
-     isLoaded = !!u?.isLoaded;
-   } catch {
-    // No Clerk context — treat as signed out, show landing page
-    isLoaded = true;
-  }
-
-  // Always render landing content; only overlay dashboard if signed in.
-  if (!isLoaded) {
-    return (
-      <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: getCssVar("--lit-bg", "#0a0a12") }}
-      >
-        <Loader2 className="animate-spin text-cyan-400" size={32} />
-      </div>
-    );
-  }
-
-  return <>{isSignedIn ? <DashboardView /> : <LandingPage />}</>;
+  const { isSignedIn } = useSupabaseAuthHook();
+  return isSignedIn ? <DashboardView /> : <LandingPage />;
 }

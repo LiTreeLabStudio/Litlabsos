@@ -1,4 +1,3 @@
-
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
@@ -83,9 +82,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
 };
 
-const clerkKey =
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
-  "pk_live_Y2xlcmsubGl0bGFicy5uZXQk";
+const clerkKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "";
+
+// Only use Clerk if we have a valid key (starts with pk_ and not malformed)
+const hasValidClerk =
+  clerkKey && clerkKey.startsWith("pk_") && !clerkKey.includes("$");
 
 const clerkAppearance = {
   variables: {
@@ -136,24 +137,48 @@ export default async function RootLayout({
     children,
   });
 
-  return (
-    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
-      <ClerkProvider
-        publishableKey={clerkKey}
-        signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
-        signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
-        signInFallbackRedirectUrl={
-          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL ?? "/"
-        }
-        signUpFallbackRedirectUrl={
-          process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/"
-        }
-        appearance={clerkAppearance as any}
-      >
-        <body className="antialiased min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
+  if (!hasValidClerk) {
+    return (
+      <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+        <head>
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </head>
+        <body
+          className="antialiased min-h-screen"
+          style={{ backgroundColor: "#0a0a0f" }}
+        >
           {body}
         </body>
-      </ClerkProvider>
+      </html>
+    );
+  }
+
+  return (
+    <html lang="en" className={`${inter.variable} ${jetbrainsMono.variable}`}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body
+        className="antialiased min-h-screen"
+        style={{ backgroundColor: "#0a0a0f" }}
+      >
+        <ClerkProvider
+          publishableKey={clerkKey}
+          signInUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL ?? "/sign-in"}
+          signUpUrl={process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL ?? "/sign-up"}
+          signInFallbackRedirectUrl={
+            process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL ?? "/"
+          }
+          signUpFallbackRedirectUrl={
+            process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL ?? "/"
+          }
+          appearance={clerkAppearance as unknown as Record<string, never>}
+        >
+          {body}
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

@@ -273,14 +273,6 @@ const PROVIDER_OPTIONS = [
     ready: false,
   },
   {
-    id: "together" as const,
-    label: "Together.ai",
-    tag: "FLUX.1",
-    desc: "TOGETHER_API_KEY",
-    cost: 2,
-    ready: false,
-  },
-  {
     id: "fal" as const,
     label: "FAL.ai",
     tag: "Pro",

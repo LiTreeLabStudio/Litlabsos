@@ -405,7 +405,7 @@ export default function MarketplacePage() {
               workspace.
             </p>
           </div>
-          <Link href="/login" className="btn-primary">
+          <Link href="/sign-in" className="btn-primary">
             Sign In to Continue
           </Link>
         </div>

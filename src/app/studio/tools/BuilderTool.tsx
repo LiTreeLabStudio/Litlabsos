@@ -384,7 +384,7 @@ export default function BuilderTool() {
       <div className="h-full flex flex-col items-center justify-center gap-4">
         <p className="text-sm opacity-60">Sign in to access the Agent Forge.</p>
         <Link
-          href="/login"
+          href="/sign-in"
           className="px-4 py-2 rounded-lg text-sm font-bold"
           style={{ backgroundColor: T.accentColor, color: T.bgColor }}
         >

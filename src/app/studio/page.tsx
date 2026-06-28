@@ -188,7 +188,7 @@ function StudioInner() {
             Please authorize your account to access the creative neural engines.
           </p>
         </div>
-        <Link href="/login" className="btn-primary">
+        <Link href="/sign-in" className="btn-primary">
           Sign In to Unlock
         </Link>
       </div>

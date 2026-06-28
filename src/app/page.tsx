@@ -38,7 +38,7 @@ const C = {
   boxBg: "rgba(255,255,255,0.03)",
   borderColor: "rgba(255,255,255,0.1)",
   textColor: "#e0e0e0",
-  textMuted: "rgba(255,255,255,0.85)",
+  textMuted: "rgba(255,255,255,0.9)",
   headerColor: "#00f0ff",
   accentColor: "#ff00a0",
   linkColor: "#ff9ff3",
@@ -274,7 +274,7 @@ function LandingPage() {
           <p className="text-center text-sm mb-6 text-[var(--lit-text-muted)]">
             Built with modern tools the community trusts
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12 opacity-50">
+          <div className="flex flex-wrap justify-center items-center gap-6 md:gap-12">
             {[
               "Next.js",
               "React",
@@ -283,7 +283,10 @@ function LandingPage() {
               "Clerk",
               "Supabase",
             ].map((tool) => (
-              <span key={tool} className="text-sm sm:text-base font-bold">
+              <span
+                key={tool}
+                className="text-sm sm:text-base font-bold text-[var(--lit-text)]"
+              >
                 {tool}
               </span>
             ))}
@@ -360,24 +363,24 @@ function LandingPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#e4e4e7]">
+                        <span className="font-bold text-[#f4f4f5]">
                           {post.name}
                         </span>
-                        <span className="text-[10px] opacity-40">
+                        <span className="text-[10px] text-white/65">
                           {post.time}
                         </span>
                       </div>
-                      <p className="text-sm mt-1 leading-relaxed text-[#c7c7cc]">
+                      <p className="text-sm mt-1 leading-relaxed text-[#d4d4d8]">
                         {post.text}
                       </p>
                       {post.reply && (
-                        <div className="mt-3 p-2 border-l-2 border-[#a78bfa] bg-[#0a0a0f]">
+                        <div className="mt-3 p-2 border-l-2 border-[#a78bfa] bg-[#0d0d13]">
                           <div className="flex items-center gap-1 mb-1">
-                            <span className="text-[10px] font-bold text-[#a78bfa]">
+                            <span className="text-[10px] font-bold text-[#c4b5fd]">
                               {post.reply.who}
                             </span>
                           </div>
-                          <p className="text-xs opacity-80">
+                          <p className="text-xs text-white/75">
                             {post.reply.text}
                           </p>
                         </div>
@@ -385,13 +388,13 @@ function LandingPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4 pt-2 border-t border-[#27272a]">
-                    <span className="flex items-center gap-1 text-[10px] opacity-60">
+                    <span className="flex items-center gap-1 text-[10px] text-white/65">
                       <Heart size={12} /> {post.hearts}
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] opacity-60">
+                    <span className="flex items-center gap-1 text-[10px] text-white/65">
                       <MessageSquareText size={12} /> {post.comments}
                     </span>
-                    <span className="flex items-center gap-1 text-[10px] opacity-60">
+                    <span className="flex items-center gap-1 text-[10px] text-white/65">
                       <Share2Icon size={12} /> Share
                     </span>
                   </div>

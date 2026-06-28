@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { auth, currentUser } from "@clerk/nextjs/server";
+import { supabaseAdmin } from "@/lib/supabase";
 import { getOrCreateUser } from "@/lib/user-db";
 
 /**
@@ -8,14 +9,41 @@ import { getOrCreateUser } from "@/lib/user-db";
  */
 export async function GET() {
   try {
-    // TEMPORARY: For testing, return mock user data
-    // This bypasses auth check to verify endpoint functionality
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const email = clerkUser.emailAddresses[0]?.emailAddress || "";
+    const name = clerkUser.firstName && clerkUser.lastName
+      ? `${clerkUser.firstName} ${clerkUser.lastName}`
+      : clerkUser.firstName || clerkUser.username || email.split("@")[0];
+
+    const { user, isNew } = await getOrCreateUser(clerkId, email, name);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Failed to sync user account" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       synced: true,
-      isNew: false,
+      isNew,
+      user,
     });
-  } catch {
-    return NextResponse.json({ synced: false }, { status: 500 });
+  } catch (error: any) {
+    console.error("Error in GET /api/account:", error);
+    return NextResponse.json(
+      { synced: false, error: error.message },
+      { status: 500 }
+    );
   }
 }
 
@@ -25,14 +53,29 @@ export async function GET() {
  */
 export async function DELETE() {
   try {
-    // TEMPORARY: For testing, return success response
-    // This bypasses auth check to verify endpoint functionality
+    const { userId: clerkId } = await auth();
+    if (!clerkId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Delete user from Supabase using admin client (cascades to other tables)
+    const { error } = await supabaseAdmin
+      .from("users")
+      .delete()
+      .eq("clerk_id", clerkId);
+
+    if (error) {
+      console.error("Error deleting user from database:", error);
+      return NextResponse.json({ error: "Failed to delete account" }, { status: 500 });
+    }
+
     return NextResponse.json({
-      message: "Account deletion successful (test mode)",
+      message: "Account deletion successful",
     });
-  } catch {
+  } catch (error: any) {
+    console.error("Error in DELETE /api/account:", error);
     return NextResponse.json(
-      { error: "Failed to delete account" },
+      { error: "Failed to delete account", details: error.message },
       { status: 500 },
     );
   }
